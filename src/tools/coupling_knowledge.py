@@ -3935,13 +3935,35 @@ space = lagrange(grid, order=1)
 u = TrialFunction(space); v = TestFunction(space)
 x = SpatialCoordinate(space)
 a_form = (KV * inner(grad(u), grad(v)) + CV * u * v) * dx
-l_form = FV * v * dx
+# vertex-order -> dof-order map via interpolated coordinate fields (DOF order
+# is NOT vertex order). Built once and reused for the source fh, the
+# Dirichlet gf, and reading the solution back.
+coords = np.array(verts)
+xs_gf = space.interpolate(x[0], name="cx").as_numpy.copy()
+ys_gf = space.interpolate(x[1], name="cy").as_numpy.copy()
+key = {(round(float(a2), 10), round(float(b2), 10)): i
+       for i, (a2, b2) in enumerate(zip(xs_gf, ys_gf))}
+# VOLUME SOURCE f(x,y): ONE definition, used by BOTH the solve and the flux
+# recovery so the exported flux stays consistent with the field under
+# refinement. Default is the config constant; EDIT HERE for a spatial source,
+# e.g.  return 23.0 * np.sin(3.0 * px) * np.cos(2.0 * py)
+def fsrc(px, py):
+    return FV
+fvals = np.array([fsrc(px, py) for px, py in verts])   # nodal, VERTEX order
+# interpolate the SAME nodal source into a P1 discrete function (DOF order),
+# the identical mapping used for the Dirichlet gf, so the assembled element
+# load of l_form is exactly me @ fvals[el] -- matching the recovery below.
+f_dof = np.zeros(len(xs_gf))
+for n, (px, py) in enumerate(verts):
+    f_dof[key[(round(px, 10), round(py, 10))]] = fvals[n]
+fh = space.interpolate(0.0, name="fh")
+fh.as_numpy[:] = f_dof
+l_form = fh * v * dx
 # Dirichlet everywhere on the boundary: 0 outer, imported trace on the
 # interface edge — realised by interpolating a boundary function.
 iface_val = {"left": X0, "right": X1, "bottom": Y0, "top": Y1}[IF]
 tol = 1e-9
 gf = space.interpolate(0.0, name="g")
-coords = np.array(verts)
 gvals = np.zeros(len(verts))
 for n, (px, py) in enumerate(verts):
     on_if = (abs((px if ax == 0 else py) * 0 + (px if IF in ("left","right") else py)
@@ -3949,11 +3971,7 @@ for n, (px, py) in enumerate(verts):
         abs((px - iface_val) if IF in ("left", "right") else (py - iface_val)) < tol)
     if on_if:
         gvals[n] = trace(py if IF in ("left", "right") else px)
-# map vertex order to dof order via interpolation of coordinates
-xs_gf = space.interpolate(x[0], name="cx").as_numpy.copy()
-ys_gf = space.interpolate(x[1], name="cy").as_numpy.copy()
-key = {(round(float(a2), 10), round(float(b2), 10)): i
-       for i, (a2, b2) in enumerate(zip(xs_gf, ys_gf))}
+# map vertex order to dof order (same `key` as the source above)
 g_dof = np.zeros(len(xs_gf))
 for n, (px, py) in enumerate(verts):
     g_dof[key[(round(px, 10), round(py, 10))]] = gvals[n]
@@ -3988,7 +4006,7 @@ for el in simps:
     ke = KV * area * (gr @ gr.T)
     me = area / 12.0 * (np.ones((3, 3)) + np.eye(3) * 1.0)
     ue = u_vert[el]
-    resid[el] += ke @ ue + CV * (me @ ue) - area / 3.0 * FV
+    resid[el] += ke @ ue + CV * (me @ ue) - (me @ fvals[el])
 q_own = [float(-resid[n] / h_if) for n in interior]
 co_out = [[float(coords[n][0]), float(coords[n][1])] for n in interior]
 json.dump({"field_name": "u", "coordinates": co_out, "values": [],

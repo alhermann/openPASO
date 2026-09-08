@@ -7055,6 +7055,18 @@ across the runs that did, the hand-rolled exchange stalls (residuals
 9.92->9.98 over 100 iterations; constant 1.0) and cannot show two codes coupled.
 One couple call per mesh level, on the exact levels your task prescribes.
 
+DO NOT WRITE THE PARTICIPANT FROM SCRATCH -- ONE ALREADY EXISTS FOR YOUR CODE.
+For EACH of your two codes call `knowledge(topic='coupling', solver='<that
+code>')`. It returns a COMPLETE, config-driven, execution-verified participant
+for that code -- it reads ./config.json for the level, reads ./imports.json,
+runs that code ONCE, and writes ./exports.json with the consistent outward flux
+already wired for both the Dirichlet and the Neumann role. Copy it verbatim and
+edit only config.json per level; the recovery below is already inside it. The
+same reply lists that code's measured traps (JIT form caching, dof-vs-vertex
+ordering, boundary-id selection, the code's native boundary-flux call), each of
+which has sunk a coupling that was otherwise correct. A participant hand-written
+without reading it repeats those traps; the served one has them designed out.
+
 PARAMETERIZE BY LEVEL, OR THE BUDGET EATS YOU. Have each participant read
 its mesh size from a tiny ./config.json ({"level": 1, "nx": 5, "ny": 8})
 instead of hard-coding it; advancing a level is then: edit one number in

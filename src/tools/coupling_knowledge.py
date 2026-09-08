@@ -2550,137 +2550,6 @@ def _fourc() -> str:
   `scatra-00000-0.vtu`, which is the INITIAL CONDITION — an all-zero field that
   looks like a converged solve of a trivial problem. Parse the FIRST number.
 * The scalar field is named `phi_1`, never `temperature`.
-* THE DUNE-fem DIRICHLET-SIDE PARTICIPANT, COMPLETE AND EXECUTION-VERIFIED (config-driven; imports the partner trace -> interface Dirichlet via an interpolated boundary function -> CG P1 solve on an aluConformGrid simplex mesh -> consistent outward flux export with reaction and source in the residual load; values: [] because the trace is imposed, not owned. Delivery proven zero-vs-real: max|u| hits the imposed trace exactly, flux shifts 4.4e-1). Copy verbatim, edit config.json per level. Traps measured while building it: ufl has no top-level abs import on this install, and DOF order is NOT vertex order -- map through interpolated coordinate fields as this template does, or the trace lands on the wrong nodes.
-
-```python
-"""DUNE-fem as the DIRICHLET side of a partitioned coupling (CG P1).
-
-Reads ./config.json {"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
-"k":..,"reaction":..,"source_const":..,"iface":"left|right|bottom|top"}.
-Contract: reads ./imports.json (partner's interface FIELD values at its
-points), imposes them as the interface Dirichlet trace, solves
--div(k grad u) + c*u = f, exports values: [] (the trace is imposed, not
-owned) and its OWN consistent outward flux at the interior interface nodes.
-"""
-import json
-from pathlib import Path
-
-import numpy as np
-from dune.alugrid import aluConformGrid
-from dune.fem.space import lagrange
-from dune.fem.scheme import galerkin
-from dune.ufl import DirichletBC
-from ufl import (TestFunction, TrialFunction, SpatialCoordinate, dx, grad,
-                 inner)
-
-CFG = json.loads(Path("config.json").read_text())
-NX, NY = CFG["nx"], CFG["ny"]
-X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
-KV, CV, FV = CFG["k"], CFG.get("reaction", 0.0), CFG.get("source_const", 0.0)
-IF = CFG.get("iface", "right")
-HX, HY = (X1 - X0) / NX, (Y1 - Y0) / NY
-
-imp = {}
-if Path("imports.json").is_file():
-    imp = json.loads(Path("imports.json").read_text())
-ax = 1 if IF in ("left", "right") else 0
-pts_q = []
-for _n, d in imp.items():
-    co = d.get("coordinates") or []
-    va = d.get("values") or []
-    if co and va and len(va) == len(co):
-        pts_q = sorted(zip([c[ax] for c in co], [float(v) for v in va]))
-        break
-def trace(t):
-    if not pts_q:
-        return 0.0
-    xs = [p[0] for p in pts_q]; vs = [p[1] for p in pts_q]
-    t = min(max(t, xs[0]), xs[-1])
-    for a, b, va_, vb in zip(xs, xs[1:], vs, vs[1:]):
-        if a <= t <= b:
-            w = 0.0 if b == a else (t - a) / (b - a)
-            return va_ + w * (vb - va_)
-    return vs[-1]
-
-# simplex grid so the P1 consistent recovery applies exactly
-verts, simps = [], []
-nid = lambda i, j: j * (NX + 1) + i
-for j in range(NY + 1):
-    for i in range(NX + 1):
-        verts.append([X0 + i * HX, Y0 + j * HY])
-for j in range(NY):
-    for i in range(NX):
-        a, b = nid(i, j), nid(i + 1, j)
-        c, d2 = nid(i + 1, j + 1), nid(i, j + 1)
-        simps += [[a, b, c], [a, c, d2]]
-grid = aluConformGrid({"vertices": np.array(verts), "simplices": np.array(simps)})
-space = lagrange(grid, order=1)
-u = TrialFunction(space); v = TestFunction(space)
-x = SpatialCoordinate(space)
-a_form = (KV * inner(grad(u), grad(v)) + CV * u * v) * dx
-l_form = FV * v * dx
-# Dirichlet everywhere on the boundary: 0 outer, imported trace on the
-# interface edge — realised by interpolating a boundary function.
-iface_val = {"left": X0, "right": X1, "bottom": Y0, "top": Y1}[IF]
-tol = 1e-9
-gf = space.interpolate(0.0, name="g")
-coords = np.array(verts)
-gvals = np.zeros(len(verts))
-for n, (px, py) in enumerate(verts):
-    on_if = (abs((px if ax == 0 else py) * 0 + (px if IF in ("left","right") else py)
-                 - iface_val) < tol) if False else (
-        abs((px - iface_val) if IF in ("left", "right") else (py - iface_val)) < tol)
-    if on_if:
-        gvals[n] = trace(py if IF in ("left", "right") else px)
-# map vertex order to dof order via interpolation of coordinates
-xs_gf = space.interpolate(x[0], name="cx").as_numpy.copy()
-ys_gf = space.interpolate(x[1], name="cy").as_numpy.copy()
-key = {(round(float(a2), 10), round(float(b2), 10)): i
-       for i, (a2, b2) in enumerate(zip(xs_gf, ys_gf))}
-g_dof = np.zeros(len(xs_gf))
-for n, (px, py) in enumerate(verts):
-    g_dof[key[(round(px, 10), round(py, 10))]] = gvals[n]
-gf.as_numpy[:] = g_dof
-scheme = galerkin([a_form == l_form, DirichletBC(space, gf)],
-                  solver="cg",
-                  parameters={"linear.tolerance": 1e-12,
-                              "linear.verbose": True,
-                              "linear.preconditioning.method": "ssor"})
-uh = space.interpolate(0.0, name="u")
-info = scheme.solve(target=uh)
-uv = uh.as_numpy.copy()
-# back to vertex order
-u_vert = np.array([uv[key[(round(px, 10), round(py, 10))]] for px, py in verts])
-
-# consistent outward flux at interior interface nodes (P1, own system;
-# reaction and volume source enter the residual load)
-if IF in ("left", "right"):
-    ids = [nid(0 if IF == "left" else NX, j) for j in range(NY + 1)]
-    h_if = HY
-else:
-    ids = [nid(i, 0 if IF == "bottom" else NY) for i in range(NX + 1)]
-    h_if = HX
-interior = ids[1:-1]
-resid = np.zeros(len(verts))
-for el in simps:
-    P = coords[el]
-    area = 0.5 * abs((P[1,0]-P[0,0])*(P[2,1]-P[0,1]) - (P[1,1]-P[0,1])*(P[2,0]-P[0,0]))
-    gr = np.array([[P[1,1]-P[2,1], P[2,0]-P[1,0]],
-                   [P[2,1]-P[0,1], P[0,0]-P[2,0]],
-                   [P[0,1]-P[1,1], P[1,0]-P[0,0]]]) / (2.0 * area)
-    ke = KV * area * (gr @ gr.T)
-    me = area / 12.0 * (np.ones((3, 3)) + np.eye(3) * 1.0)
-    ue = u_vert[el]
-    resid[el] += ke @ ue + CV * (me @ ue) - area / 3.0 * FV
-q_own = [float(-resid[n] / h_if) for n in interior]
-co_out = [[float(coords[n][0]), float(coords[n][1])] for n in interior]
-json.dump({"field_name": "u", "coordinates": co_out, "values": [],
-           "normal_fluxes": q_own, "n_points": len(co_out)},
-          open("exports.json", "w"))
-print(f"DUNE Dirichlet participant: NDOF = {space.size}  "
-      f"max|u|={float(np.abs(u_vert).max()):.6e}")
-```
-
 * THE NEUMANN-SIDE PARTICIPANT, COMPLETE AND EXECUTION-VERIFIED (config-driven, imports->POINT NEUMANN Simpson loads->run the binary->meshio VTU read->flux recovered via 4C's OWN CALCFLUX_BOUNDARY (assembly-consistent; a hand re-assembly on a different element is first order -- measured, it cut the coarse interface imbalance 20x, 0.54 -> 0.026, and lifted the jump order from ~0.8 to ~2 on the graded interior). Delivery proven zero-vs-real (field moved 1.38e-1 vs 0); recovered flux -0.75 against applied +0.75). Copy it verbatim and edit config.json per level. NOTE the two measured traps inside: condition E ids reference GLOBAL DNODE numbers across ALL condition families (a Dirichlet block restarting at E: 1 silently rebinds the interface DNODEs and zeroes the field), and this build writes scatra VTU by default with NO VTK section (adding one is rejected as an invalid section).
 
 ```python
@@ -3970,7 +3839,138 @@ def _dune() -> str:
   machine precision; tighten the scheme's linear-solver parameters before
   asking for a much tighter coupling tolerance.
 * DUNE usually lives in its own conda environment. Use the interpreter
-  `discover(query='list')` reports for it, not OASiS's own.''')
+  `discover(query='list')` reports for it, not OASiS's own.
+
+* THE DUNE-fem DIRICHLET-SIDE PARTICIPANT, COMPLETE AND EXECUTION-VERIFIED (config-driven; imports the partner trace -> interface Dirichlet via an interpolated boundary function -> CG P1 solve on an aluConformGrid simplex mesh -> consistent outward flux export with reaction and source in the residual load; values: [] because the trace is imposed, not owned. Delivery proven zero-vs-real: max|u| hits the imposed trace exactly, flux shifts 4.4e-1). Copy verbatim, edit config.json per level. Traps measured while building it: ufl has no top-level abs import on this install, and DOF order is NOT vertex order -- map through interpolated coordinate fields as this template does, or the trace lands on the wrong nodes.
+
+```python
+"""DUNE-fem as the DIRICHLET side of a partitioned coupling (CG P1).
+
+Reads ./config.json {"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
+"k":..,"reaction":..,"source_const":..,"iface":"left|right|bottom|top"}.
+Contract: reads ./imports.json (partner's interface FIELD values at its
+points), imposes them as the interface Dirichlet trace, solves
+-div(k grad u) + c*u = f, exports values: [] (the trace is imposed, not
+owned) and its OWN consistent outward flux at the interior interface nodes.
+"""
+import json
+from pathlib import Path
+
+import numpy as np
+from dune.alugrid import aluConformGrid
+from dune.fem.space import lagrange
+from dune.fem.scheme import galerkin
+from dune.ufl import DirichletBC
+from ufl import (TestFunction, TrialFunction, SpatialCoordinate, dx, grad,
+                 inner)
+
+CFG = json.loads(Path("config.json").read_text())
+NX, NY = CFG["nx"], CFG["ny"]
+X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
+KV, CV, FV = CFG["k"], CFG.get("reaction", 0.0), CFG.get("source_const", 0.0)
+IF = CFG.get("iface", "right")
+HX, HY = (X1 - X0) / NX, (Y1 - Y0) / NY
+
+imp = {}
+if Path("imports.json").is_file():
+    imp = json.loads(Path("imports.json").read_text())
+ax = 1 if IF in ("left", "right") else 0
+pts_q = []
+for _n, d in imp.items():
+    co = d.get("coordinates") or []
+    va = d.get("values") or []
+    if co and va and len(va) == len(co):
+        pts_q = sorted(zip([c[ax] for c in co], [float(v) for v in va]))
+        break
+def trace(t):
+    if not pts_q:
+        return 0.0
+    xs = [p[0] for p in pts_q]; vs = [p[1] for p in pts_q]
+    t = min(max(t, xs[0]), xs[-1])
+    for a, b, va_, vb in zip(xs, xs[1:], vs, vs[1:]):
+        if a <= t <= b:
+            w = 0.0 if b == a else (t - a) / (b - a)
+            return va_ + w * (vb - va_)
+    return vs[-1]
+
+# simplex grid so the P1 consistent recovery applies exactly
+verts, simps = [], []
+nid = lambda i, j: j * (NX + 1) + i
+for j in range(NY + 1):
+    for i in range(NX + 1):
+        verts.append([X0 + i * HX, Y0 + j * HY])
+for j in range(NY):
+    for i in range(NX):
+        a, b = nid(i, j), nid(i + 1, j)
+        c, d2 = nid(i + 1, j + 1), nid(i, j + 1)
+        simps += [[a, b, c], [a, c, d2]]
+grid = aluConformGrid({"vertices": np.array(verts), "simplices": np.array(simps)})
+space = lagrange(grid, order=1)
+u = TrialFunction(space); v = TestFunction(space)
+x = SpatialCoordinate(space)
+a_form = (KV * inner(grad(u), grad(v)) + CV * u * v) * dx
+l_form = FV * v * dx
+# Dirichlet everywhere on the boundary: 0 outer, imported trace on the
+# interface edge — realised by interpolating a boundary function.
+iface_val = {"left": X0, "right": X1, "bottom": Y0, "top": Y1}[IF]
+tol = 1e-9
+gf = space.interpolate(0.0, name="g")
+coords = np.array(verts)
+gvals = np.zeros(len(verts))
+for n, (px, py) in enumerate(verts):
+    on_if = (abs((px if ax == 0 else py) * 0 + (px if IF in ("left","right") else py)
+                 - iface_val) < tol) if False else (
+        abs((px - iface_val) if IF in ("left", "right") else (py - iface_val)) < tol)
+    if on_if:
+        gvals[n] = trace(py if IF in ("left", "right") else px)
+# map vertex order to dof order via interpolation of coordinates
+xs_gf = space.interpolate(x[0], name="cx").as_numpy.copy()
+ys_gf = space.interpolate(x[1], name="cy").as_numpy.copy()
+key = {(round(float(a2), 10), round(float(b2), 10)): i
+       for i, (a2, b2) in enumerate(zip(xs_gf, ys_gf))}
+g_dof = np.zeros(len(xs_gf))
+for n, (px, py) in enumerate(verts):
+    g_dof[key[(round(px, 10), round(py, 10))]] = gvals[n]
+gf.as_numpy[:] = g_dof
+scheme = galerkin([a_form == l_form, DirichletBC(space, gf)],
+                  solver="cg",
+                  parameters={"linear.tolerance": 1e-12,
+                              "linear.verbose": True,
+                              "linear.preconditioning.method": "ssor"})
+uh = space.interpolate(0.0, name="u")
+info = scheme.solve(target=uh)
+uv = uh.as_numpy.copy()
+# back to vertex order
+u_vert = np.array([uv[key[(round(px, 10), round(py, 10))]] for px, py in verts])
+
+# consistent outward flux at interior interface nodes (P1, own system;
+# reaction and volume source enter the residual load)
+if IF in ("left", "right"):
+    ids = [nid(0 if IF == "left" else NX, j) for j in range(NY + 1)]
+    h_if = HY
+else:
+    ids = [nid(i, 0 if IF == "bottom" else NY) for i in range(NX + 1)]
+    h_if = HX
+interior = ids[1:-1]
+resid = np.zeros(len(verts))
+for el in simps:
+    P = coords[el]
+    area = 0.5 * abs((P[1,0]-P[0,0])*(P[2,1]-P[0,1]) - (P[1,1]-P[0,1])*(P[2,0]-P[0,0]))
+    gr = np.array([[P[1,1]-P[2,1], P[2,0]-P[1,0]],
+                   [P[2,1]-P[0,1], P[0,0]-P[2,0]],
+                   [P[0,1]-P[1,1], P[1,0]-P[0,0]]]) / (2.0 * area)
+    ke = KV * area * (gr @ gr.T)
+    me = area / 12.0 * (np.ones((3, 3)) + np.eye(3) * 1.0)
+    ue = u_vert[el]
+    resid[el] += ke @ ue + CV * (me @ ue) - area / 3.0 * FV
+q_own = [float(-resid[n] / h_if) for n in interior]
+co_out = [[float(coords[n][0]), float(coords[n][1])] for n in interior]
+json.dump({"field_name": "u", "coordinates": co_out, "values": [],
+           "normal_fluxes": q_own, "n_points": len(co_out)},
+          open("exports.json", "w"))
+print(f"DUNE Dirichlet participant: NDOF = {space.size}  "
+      f"max|u|={float(np.abs(u_vert).max()):.6e}")
+```''')
 
 
 def _dealii_sources() -> str:

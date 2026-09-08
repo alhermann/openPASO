@@ -5988,6 +5988,33 @@ def register_consolidated_tools(mcp: FastMCP):
         _coupling_head = ""
         if _prepared and backend.name() not in _prepared \
                 and not _PREPARED_SOLVERS.get((id(mcp), "served")):
+            # PUSH THE PARTICIPANT SCRIPTS FOR BOTH PRESCRIBED CODES.
+            #
+            # The dominant coupled failure is hand-writing the participant from
+            # scratch (6 of 6 audited C3 runs) — a crash, an unresponsive side,
+            # or a wrong flux — while the execution-verified script sat behind an
+            # opt-in knowledge(topic='coupling', solver=...) call that 0 of 6
+            # ever issued. Weak models do not make follow-up calls, so the
+            # working file is handed over here, on the call that reveals the
+            # coupling, rather than pointed at.
+            _scripts = []
+            for _c in sorted(_prepared | {backend.name()}):
+                _s = _coupling_participant_script(_c)
+                if _s:
+                    _scripts.append(_s)
+            _tmpl_block = ""
+            if _scripts:
+                _tmpl_block = (
+                    "# COPY-PASTE PARTICIPANTS FOR YOUR PRESCRIBED CODES -- "
+                    "execution-verified, config-driven.\n"
+                    "# This is the file each side otherwise gets hand-written "
+                    "and wrong. Copy each verbatim and edit ONLY its "
+                    "config.json per level. Each states its interface ROLE "
+                    "(Dirichlet/Neumann); if your task assigns the other role "
+                    "to that code, the single change is described in "
+                    "knowledge(topic='coupling', solver='<that code>').\n\n"
+                    + "\n\n".join(_scripts) + "\n"
+                    + "-" * 70 + "\n\n")
             _coupling_head = (
                 "# YOU HAVE NOW PREPARED TWO DIFFERENT CODES IN THIS SESSION.\n"
                 "# If your task couples them -- two subdomains exchanging "
@@ -5995,7 +6022,8 @@ def register_consolidated_tools(mcp: FastMCP):
                 "coupled must-read. If your task uses\n# one code only, "
                 "skip to the physics payload after the rule.\n"
                 "\n\n" + _COUPLING_MUST_READ
-                + "\n" + "-" * 70 + "\n\n")
+                + "\n" + "-" * 70 + "\n\n"
+                + _tmpl_block)
             _PREPARED_SOLVERS[(id(mcp), "served")] = True
         _prepared.add(backend.name())
 
@@ -6881,6 +6909,48 @@ def _get_coupling_knowledge(solver: str = "", signal: str = ""):
         return _append_coupling_continuation(
             _front_load_coupling(payload, solver), solver, signal)
     return _front_load_coupling(payload, solver)
+
+
+def _coupling_participant_script(solver: str) -> str:
+    """The execution-verified, copy-paste participant for `solver` — its one-line
+    description plus the first fenced code block — pulled from that solver's own
+    coupling payload. '' if the solver ships no served participant.
+
+    PUSHED into prepare_simulation's coupled hand-off so a weak model receives
+    the working script through a call it already makes, instead of the opt-in
+    knowledge(topic='coupling', solver=...) call it was measured never to issue
+    (0 of 6 coupled runs made it). Hand-writing this file from scratch is the
+    dominant coupled failure — crash, unresponsive participant, wrong API — so
+    the script is handed over rather than pointed at.
+    """
+    try:
+        payload = _capture_knowledge_fn("get_coupling_knowledge", solver, "")
+    except Exception:
+        return ""
+    if not isinstance(payload, str) or not payload:
+        return ""
+    # A served participant is the fenced python block that carries the driver
+    # contract: it reads imports.json and writes exports.json. Prefer the
+    # config-driven one (reads config.json -> parameterises by level, which the
+    # must-read requires); otherwise the first contract block.
+    cands = []
+    for m in re.finditer(r"```python", payload):
+        fence = m.start()
+        end = payload.find("```", fence + 9)
+        if end < 0:
+            continue
+        block = payload[fence:end + 3]
+        if "imports.json" in block and "exports.json" in block:
+            cands.append((fence, block))
+    if not cands:
+        return ""
+    fence, block = next((c for c in cands if "config.json" in c[1]), cands[0])
+    # lead-in: the paragraph immediately before the fence (states the role and
+    # the measured traps); capped so the push stays bounded.
+    b2 = payload.rfind("\n\n", 0, fence)
+    b1 = payload.rfind("\n\n", 0, b2) if b2 > 0 else -1
+    lead = payload[b1 + 2:fence].strip()[-1000:] if b1 >= 0 else ""
+    return (lead + "\n\n" + block).strip() if lead else block
 
 
 # A COUPLED SIDE RUN BY A BINARY STILL NEEDS ITS DECK GRAMMAR.

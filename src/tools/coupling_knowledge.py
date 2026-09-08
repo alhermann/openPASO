@@ -3970,6 +3970,17 @@ for n, (px, py) in enumerate(verts):
                  - iface_val) < tol) if False else (
         abs((px - iface_val) if IF in ("left", "right") else (py - iface_val)) < tol)
     if on_if:
+        # CORNER FIX: the two interface ENDPOINTS also lie on the OUTER Dirichlet
+        # boundary. trace() CLAMPS there, so imposing the partner trace at a
+        # corner is an O(h)-wrong value that caps the whole Dirichlet side at
+        # order 1 (measured). Leave the endpoints at the outer Dirichlet value;
+        # the flux export already drops them (interior = ids[1:-1]).
+        endpt = ((abs(py - Y0) < tol or abs(py - Y1) < tol)
+                 if IF in ("left", "right")
+                 else (abs(px - X0) < tol or abs(px - X1) < tol))
+        if endpt:
+            on_if = False
+    if on_if:
         gvals[n] = trace(py if IF in ("left", "right") else px)
 # map vertex order to dof order (same `key` as the source above)
 g_dof = np.zeros(len(xs_gf))

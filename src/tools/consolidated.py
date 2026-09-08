@@ -6000,19 +6000,47 @@ def register_consolidated_tools(mcp: FastMCP):
             _scripts = []
             for _c in sorted(_prepared | {backend.name()}):
                 _s = _coupling_participant_script(_c)
-                if _s:
-                    _scripts.append(_s)
+                if not _s:
+                    continue
+                # Label each script HONESTLY: dune/fourc ship a runnable,
+                # config-driven block; the others ship the handshake + flux
+                # recovery with the mesh/form/solve ELIDED (Option B), which the
+                # agent must write. Over-claiming "copy verbatim, edit only
+                # config.json" would waste the very actions this push saves.
+                _runnable = ("config.json" in _s
+                             and "COMPLETE PARTICIPANT SCRIPT" not in _s)
+                if _runnable:
+                    _label = (
+                        f"## {_c}: RUNNABLE reference participant. It carries "
+                        "the driver handshake, the consistent interface-flux "
+                        "recovery and the solver API -- the parts 6 of 6 "
+                        "audited runs hand-rolled wrong. ADAPT THE PHYSICS TO "
+                        "YOUR TASK before trusting it: the source term, "
+                        "coefficients and boundary setup in it are a generic "
+                        "example. A non-constant (spatial) source needs a CODE "
+                        "edit -- config.json only carries a constant source.")
+                else:
+                    _label = (
+                        f"## {_c}: handshake + flux-recovery CONTRACT. The "
+                        "mesh, weak form and SOLVE are elided on purpose -- YOU "
+                        "write those, in this code, from your task. What is "
+                        "given (the imports/exports schema, the interface sign "
+                        "convention, the consistent flux recovery) is the part "
+                        "that is hard to get right; the solve is yours.")
+                _scripts.append(_label + "\n" + _s)
             _tmpl_block = ""
             if _scripts:
                 _tmpl_block = (
-                    "# COPY-PASTE PARTICIPANTS FOR YOUR PRESCRIBED CODES -- "
-                    "execution-verified, config-driven.\n"
-                    "# This is the file each side otherwise gets hand-written "
-                    "and wrong. Copy each verbatim and edit ONLY its "
-                    "config.json per level. Each states its interface ROLE "
-                    "(Dirichlet/Neumann); if your task assigns the other role "
-                    "to that code, the single change is described in "
-                    "knowledge(topic='coupling', solver='<that code>').\n\n"
+                    "# REFERENCE PARTICIPANTS FOR YOUR PRESCRIBED CODES -- start "
+                    "from these, not a blank file.\n"
+                    "# Hand-writing the participant from scratch is the single "
+                    "most common coupled failure. Each block below is labelled "
+                    "with what it gives you and what you must still supply. Each "
+                    "states its interface ROLE; if your task assigns the "
+                    "OPPOSITE role, change the interface application yourself "
+                    "(Dirichlet: impose the imported values; Neumann: apply the "
+                    "imported flux as a load) -- the coupled must-read above "
+                    "spells out both.\n\n"
                     + "\n\n".join(_scripts) + "\n"
                     + "-" * 70 + "\n\n")
             _coupling_head = (

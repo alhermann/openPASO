@@ -2550,13 +2550,14 @@ def _fourc() -> str:
   `scatra-00000-0.vtu`, which is the INITIAL CONDITION — an all-zero field that
   looks like a converged solve of a trivial problem. Parse the FIRST number.
 * The scalar field is named `phi_1`, never `temperature`.
-* THE NEUMANN-SIDE PARTICIPANT, COMPLETE AND EXECUTION-VERIFIED (config-driven, imports->POINT NEUMANN Simpson loads->run the binary->meshio VTU read->flux recovered via 4C's OWN CALCFLUX_BOUNDARY (assembly-consistent; a hand re-assembly on a different element is first order -- measured, it cut the coarse interface imbalance 20x, 0.54 -> 0.026, and lifted the jump order from ~0.8 to ~2 on the graded interior). Delivery proven zero-vs-real (field moved 1.38e-1 vs 0); recovered flux -0.75 against applied +0.75). Copy it verbatim and edit config.json per level. NOTE the two measured traps inside: condition E ids reference GLOBAL DNODE numbers across ALL condition families (a Dirichlet block restarting at E: 1 silently rebinds the interface DNODEs and zeroes the field), and this build writes scatra VTU by default with NO VTK section (adding one is rejected as an invalid section).
+* THE NEUMANN-SIDE PARTICIPANT, COMPLETE AND EXECUTION-VERIFIED (config-driven, imports->POINT NEUMANN Simpson loads->OPTIONAL spatial volume source wired as FUNCT1+SURF-NEUMANN from the source_expr config key (edit it there; a Python src() that never reached the deck was the old trap)->run the binary->meshio VTU read->flux recovered via 4C's OWN CALCFLUX_BOUNDARY (assembly-consistent; a hand re-assembly on a different element is first order -- measured, it cut the coarse interface imbalance 20x, 0.54 -> 0.026, and lifted the jump order from ~0.8 to ~2 on the graded interior). Delivery proven zero-vs-real (field moved 1.38e-1 vs 0); recovered flux -0.75 against applied +0.75). Copy it verbatim and edit config.json per level. NOTE the two measured traps inside: condition E ids reference GLOBAL DNODE numbers across ALL condition families (a Dirichlet block restarting at E: 1 silently rebinds the interface DNODEs and zeroes the field), and this build writes scatra VTU by default with NO VTK section (adding one is rejected as an invalid section).
 
 ```python
 """4C as the NEUMANN side of a partitioned coupling (Scalar_Transport).
 
 Reads ./config.json {"level":k,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
-"k":diffusivity,"iface":"left|right|bottom|top","fourc_bin":..,"fourc_ld":..}.
+"k":diffusivity,"iface":"left|right|bottom|top","source_expr":"<f(x,y) or 0.0>",
+"fourc_bin":..,"fourc_ld":..}.
 Contract: reads ./imports.json (partner's outward flux at its points), applies
 it as per-node POINT NEUMANN loads (Simpson-weighted), runs the real 4C binary,
 exports its interface TRACE as values and its own consistent outward flux.
@@ -2570,8 +2571,16 @@ X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV = CFG["k"]; IF = CFG.get("iface", "left")
 HX, HY = (X1-X0)/NX, (Y1-Y0)/NY
 
-def src(x, y):  # volumetric source; edit per task
-    return CFG.get("source_const", 0.0)
+# Volumetric source f(x,y) in -div(k grad u) = f. EDIT PER TASK. This is a 4C
+# space-time EXPRESSION string, not a Python function: '^' is power (never
+# '**'), the coordinates are 'x','y', time is 't', and 'pi' is defined. It is
+# wired into the deck below as FUNCT1 + a volume (SURF in 2-D) source
+# condition, so -- unlike the old src() that was never called -- it ACTUALLY
+# enters the assembled system and drives the solve. "0.0" means no source (the
+# plain-coupling default). A bare constant in the legacy "source_const" key is
+# still honoured.
+SRC_EXPR = str(CFG.get("source_expr", CFG.get("source_const", "0.0")))
+HAS_SRC = SRC_EXPR.strip() not in ("", "0", "0.", "0.0")
 
 nid = lambda i, j: j*(NX+1)+i+1
 nodes = [(X0+i*HX, Y0+j*HY) for j in range(NY+1) for i in range(NX+1)]
@@ -2615,9 +2624,20 @@ d.append('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"')
 d.append('SCALAR TRANSPORT DYNAMIC:\n  TIMEINTEGR: "Stationary"\n  SOLVERTYPE: "linear_full"\n  VELOCITYFIELD: "zero"\n  TIMESTEP: 1.0\n  NUMSTEP: 1\n  MAXTIME: 1.0\n  LINEAR_SOLVER: 1\n  CALCFLUX_BOUNDARY: "diffusive"')
 d.append('SOLVER 1:\n  SOLVER: "UMFPACK"')
 d.append(f'MATERIALS:\n  - MAT: 1\n    MAT_scatra:\n      DIFFUSIVITY: {KV}')
+if HAS_SRC:
+    # Volumetric body source: FUNCT1 holds f(x,y); it is applied over the whole
+    # 2-D domain (a SURF in 4C) as VAL(=1) x FUNCT1. This is the SAME generic
+    # Neumann family as the interface POINT loads below, only element-
+    # dimensional, so 4C adds +integral(f*v) dA to the RHS -- exactly the f in
+    # -div(k grad u)=f. Without these two blocks 4C silently solves the source-
+    # FREE equation and the field is wrong; a Python src() edit does nothing.
+    d.append('FUNCT1:\n  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "' + SRC_EXPR + '"')
 pt = "\n".join(f'  - E: {i+1}\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [{F[n]:.16e}]\n    FUNCT: [0]'
                for i, n in enumerate(interior))
 d.append('DESIGN POINT NEUMANN CONDITIONS:\n' + pt)
+if HAS_SRC:
+    d.append('DESIGN SURF NEUMANN CONDITIONS:\n'
+             '  - E: 1\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [1.0]\n    FUNCT: [1]')
 d.append('SCATRA FLUX CALC LINE CONDITIONS:\n  - E: 1')
 d.append('DLINE-NODE TOPOLOGY:\n' + "\n".join(
     f'  - "NODE {n} DLINE 1"' for n in iface_ids))
@@ -2634,6 +2654,12 @@ d.append('DNODE-NODE TOPOLOGY:\n' + "\n".join(
     + "\n" + "\n".join(f'  - "NODE {n} DNODE {len(interior)+i+1}"'
                        for i, n in enumerate(outer)))
 # careful: DNODE ids must match condition E ids per family — Neumann first
+if HAS_SRC:
+    # DSURF is its OWN design family (not DNODE/DLINE), so E:1 on the surface
+    # source does NOT collide with the POINT-condition DNODE ids above -- the
+    # interface DNODEs stay bound. Every domain node carries the source surface.
+    d.append('DSURF-NODE TOPOLOGY:\n' + "\n".join(
+        f'  - "NODE {i+1} DSURFACE 1"' for i in range(len(nodes))))
 d.append('NODE COORDS:\n' + "\n".join(
     f'  - "NODE {i+1} COORD {x:.16e} {y:.16e} 0.0"' for i, (x, y) in enumerate(nodes)))
 els = []

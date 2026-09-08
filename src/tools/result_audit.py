@@ -1001,7 +1001,10 @@ def interface_sign_findings(work: Path) -> list[dict]:
             ga = _read_iface(a, _IF)
             gb = _read_iface(b, _IF)
             if ga and gb:
-                jumps[lvl] = _IF.two_sided_jumps(ga, gb).get("jump_q_rel")
+                # two_sided_jumps returns (dict, msg); it is None on a mismatch.
+                jd = _IF.two_sided_jumps(ga, gb)[0]
+                if jd is not None:
+                    jumps[lvl] = jd.get("jump_q_rel")
         except Exception:
             pass
 

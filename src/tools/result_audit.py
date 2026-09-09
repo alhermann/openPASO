@@ -1763,6 +1763,521 @@ def completeness_findings(work: Path) -> list[dict]:
         "invent members.")}]
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# THE ALWAYS-RUN CORRECTIVE FUNNEL
+#
+# Everything below is reachable from BOTH routes an agent actually drives: the
+# live `couple` reply (which computes the flux/continuity checks from this run's
+# own exports, before any file is written) and the on-submit audit (which reads
+# the per-level files). Each check reads ONLY the agent's own output — its
+# exports, its solution_/interface_/residual_level*.csv, its logs — plus the
+# PUBLIC task text where one is explicitly supplied. None of it reads the sealed
+# key: every path here is rooted at the agent's own work dir or at two strings
+# the agent itself passed in. The point is corrective prominence — every finding
+# NAMES THE FIX, and what_to_fix_next() surfaces the single highest-priority one
+# at the top of the reply, where a weak agent that merely "acts" will read it.
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def _iface_module():
+    """The grader's interface module, or None. Same import path the sign check
+    uses, so this audit and the grade share ONE definition of a jump."""
+    try:
+        import sys as _sys
+        _here = str(Path(__file__).resolve().parents[1])
+        if _here not in _sys.path:
+            _sys.path.insert(0, _here)
+        from blind_eval import interface as _IF
+        return _IF
+    except Exception:                                       # noqa: BLE001
+        return None
+
+
+def _rows_of(arr) -> list[list[float]]:
+    """Normalise an exports 'values'/'normal_fluxes' array to list[list[float]]
+    (one row of components per interface point). Non-numeric entries drop the
+    whole array rather than guess."""
+    out: list[list[float]] = []
+    if arr is None:
+        return out
+    try:
+        for v in arr:
+            if isinstance(v, (list, tuple)):
+                out.append([float(x) for x in v])
+            else:
+                out.append([float(v)])
+    except (TypeError, ValueError):
+        return []
+    return out
+
+
+def _match_exports(a: dict, b: dict):
+    """Pair two participants' exported interface data BY COORDINATE.
+
+    Returns (uA, uB, qA, qB) as component-row lists over the shared points, or
+    None when the two sides do not sample enough common points to compare
+    (a non-matching interface — said elsewhere, not guessed at here)."""
+    if not isinstance(a, dict) or not isinstance(b, dict):
+        return None
+    ca, cb = a.get("coordinates") or [], b.get("coordinates") or []
+    if not ca or not cb:
+        return None
+    ua, ub = _rows_of(a.get("values")), _rows_of(b.get("values"))
+    qa, qb = _rows_of(a.get("normal_fluxes")), _rows_of(b.get("normal_fluxes"))
+
+    def _key(c):
+        c = c if isinstance(c, (list, tuple)) else [c]
+        try:
+            return tuple(round(float(x), 9) for x in c)
+        except (TypeError, ValueError):
+            return None
+    idxb = {}
+    for j, c in enumerate(cb):
+        k = _key(c)
+        if k is not None:
+            idxb.setdefault(k, j)
+    mua, mub, mqa, mqb = [], [], [], []
+    for i, c in enumerate(ca):
+        j = idxb.get(_key(c))
+        if j is None:
+            continue
+        if i < len(ua) and j < len(ub):
+            mua.append(ua[i]); mub.append(ub[j])
+        if i < len(qa) and j < len(qb):
+            mqa.append(qa[i]); mqb.append(qb[j])
+    if len(mua) < 2 and len(mqa) < 2:
+        return None
+    return mua, mub, mqa, mqb
+
+
+def flux_cancellation_finding(export_a: dict, export_b: dict,
+                              name_a: str = "A", name_b: str = "B"):
+    """CLASS 1, live from the two exports: max|q_A + q_B| / max(|q_A|,|q_B|) at
+    matched interface points. ~2.0 means the two outward fluxes ADD instead of
+    cancelling — the exact-opposite-convention signature — and the fix is one
+    sign on the value written out, not a re-solve. Returns a finding dict or
+    None. Needs no reference: the two subdomains share the seam with OPPOSITE
+    outward normals, so a correct coupling has q_A + q_B ~ 0 by construction."""
+    m = _match_exports(export_a, export_b)
+    if not m:
+        return None
+    _, _, qa, qb = m
+    if len(qa) < 2 or len(qb) < 2 or not qa[0] or not qb[0]:
+        return None
+    ncomp = min(len(qa[0]), len(qb[0]))
+    if not ncomp:
+        return None
+    num = 0.0
+    for ra, rb in zip(qa, qb):
+        for c in range(ncomp):
+            num = max(num, abs(ra[c] + rb[c]))
+    den = max((abs(x) for r in qa for x in r[:ncomp]), default=0.0)
+    den = max(den, max((abs(x) for r in qb for x in r[:ncomp]), default=0.0))
+    if den <= 0:
+        return None
+    ratio = num / den
+    if ratio >= 1.5:
+        return {"sequence": "interface flux cancellation", "priority": 30,
+                "values": [ratio], "finding": (
+            f"YOUR TWO INTERFACE FLUXES ADD INSTEAD OF CANCELLING: "
+            f"max|q_{name_a}+q_{name_b}| / max|q| = {ratio:.2f} at the matched "
+            f"interface points, and ~2.0 is the exact-opposite-convention "
+            f"signature (both sides carry the SAME sign). The two subdomains "
+            f"share the seam with OPPOSITE outward normals, so a correct "
+            f"coupling has q_{name_a}+q_{name_b} ~ 0. FLIP THE SIGN OF ONE "
+            f"SIDE'S EXPORTED OUTWARD FLUX: export q_n with respect to THAT "
+            f"side's own outward normal, and on a Neumann side remember the "
+            f"flux you IMPORT and the flux you REPORT are opposite. This is one "
+            f"sign on the number you write out, not a defect in the solve. "
+            f"Re-check max|q_A+q_B|/max|q| after the change — it must be small "
+            f"and must SHRINK as you refine, not grow.")}
+    return None
+
+
+def field_continuity_finding(export_a: dict, export_b: dict,
+                             name_a: str = "A", name_b: str = "B"):
+    """CLASS 2, live from the two exports: max|u_A - u_B| / scale at matched
+    interface points. Large => the two subdomains disagree at the seam, so the
+    coupling has not PHYSICALLY converged whatever the iterate residual did.
+    Skipped when the two sides declare DIFFERENT field names (a heterogeneous
+    exchange — displacement against traction — where continuity of the trace is
+    not the right statement), so an FSI-style pair is never false-charged."""
+    fa = (export_a or {}).get("field_name")
+    fb = (export_b or {}).get("field_name")
+    if fa and fb and str(fa).strip().lower() != str(fb).strip().lower():
+        return None
+    m = _match_exports(export_a, export_b)
+    if not m:
+        return None
+    ua, ub, _, _ = m
+    if len(ua) < 2 or len(ub) < 2 or not ua[0] or not ub[0]:
+        return None
+    ncomp = min(len(ua[0]), len(ub[0]))
+    if not ncomp:
+        return None
+    num = 0.0
+    for ra, rb in zip(ua, ub):
+        for c in range(ncomp):
+            num = max(num, abs(ra[c] - rb[c]))
+    scale = max((abs(x) for r in ua for x in r[:ncomp]), default=0.0)
+    scale = max(scale, max((abs(x) for r in ub for x in r[:ncomp]), default=0.0))
+    if scale <= 0:
+        return None                         # near-zero owns this, not continuity
+    rel = num / scale
+    if rel < 0.25:
+        return None
+    return {"sequence": "interface field continuity", "priority": 35,
+            "values": [rel], "finding": (
+        f"YOUR TWO SUBDOMAINS DISAGREE AT THE INTERFACE: "
+        f"max|u_{name_a} - u_{name_b}| / max|u| = {rel:.0%} of the field's own "
+        f"scale at the matched interface points. THE COUPLING HAS NOT "
+        f"PHYSICALLY CONVERGED -- a partitioned scheme is converged when the "
+        f"two SIDES agree at the seam, and an iterate residual that fell to "
+        f"your tolerance is NOT the same statement (it can fall to 1e-8 while "
+        f"the two exported traces still disagree by ~100%). The quantity your "
+        f"loop stops on must be computed FROM THE TWO TRACES it is about to "
+        f"export -- max|u_A - u_B| over the shared interface points, divided by "
+        f"max|u_A| -- and iterated until THAT is small. If it will not fall, "
+        f"the two sides are enforcing different transmission conditions: check "
+        f"the Dirichlet value one side APPLIES is exactly the trace the other "
+        f"side EXPORTED (same points, same sign), not a stale or re-sampled "
+        f"copy.")}
+
+
+def interface_continuity_findings(work: Path) -> list[dict]:
+    """CLASS 2 from the FILES: field continuity at the FINEST level, from the
+    agent's own interface_level<k>_A/B.csv, using the grader's own
+    two_sided_jumps so a finding here mirrors the INTERFACE_NOT_SATISFIED the
+    run would meet at grading. Fires only on a LARGE disagreement (>=25% of the
+    field scale) so a correct-but-coarse level is never charged; the real 27B
+    failures sit near 100%."""
+    _IF = _iface_module()
+    if _IF is None:
+        return []
+    import re as _re
+    ifs: dict[int, dict[str, Path]] = {}
+    for f in sorted(work.rglob("interface_level*_[ABab].csv")):
+        if _SCRATCH & set(f.relative_to(work).parts[:-1]):
+            continue
+        m = _re.search(r"interface_level(\d+)_([ABab])\.csv$", f.name)
+        if m:
+            ifs.setdefault(int(m.group(1)), {})[m.group(2).upper()] = f
+    worst = None
+    for lvl in sorted(ifs):                     # coarse -> fine, keep the finest
+        side = ifs[lvl]
+        if set(side) != {"A", "B"}:
+            continue
+        ga = _read_iface(side["A"], _IF, want_flux=True)
+        gb = _read_iface(side["B"], _IF, want_flux=True)
+        if not (ga and gb):
+            continue
+        try:
+            jd, _why = _IF.two_sided_jumps(ga, gb)
+        except Exception:                                   # noqa: BLE001
+            continue
+        if not jd:
+            continue
+        ju = jd.get("jump_u_rel")
+        if isinstance(ju, (int, float)) and ju == ju:
+            worst = (lvl, float(ju))
+    if worst is None or worst[1] < 0.25:
+        return []
+    lvl, ju = worst
+    return [{"sequence": f"interface field continuity level {lvl}",
+             "priority": 35, "values": [ju], "finding": (
+        f"YOUR TWO SUBDOMAINS DISAGREE AT THE INTERFACE at level {lvl}: the two "
+        f"exported traces differ by {ju:.0%} of the field's own scale "
+        f"(max relative field jump, matched point-for-point). THE COUPLING HAS "
+        f"NOT PHYSICALLY CONVERGED -- a partitioned scheme is converged when "
+        f"the two SIDES agree, and an iterate residual falling to tolerance is "
+        f"NOT the same statement (it can reach 1e-8 while the fields disagree "
+        f"by ~100%, which is what this submission shows). Recompute the stop "
+        f"criterion FROM THE TWO FILES you are about to submit -- "
+        f"max|u_A - u_B| over the shared interface rows, divided by max|u_A| -- "
+        f"and iterate on THAT. If it will not fall, the Dirichlet value one "
+        f"side applies is not the trace the other side exported: match them "
+        f"point-for-point, same sign.")}]
+
+
+def identical_solution_levels_findings(work: Path) -> list[dict]:
+    """CLASS 3: solution_level<i> == solution_level<j> point-for-point => one
+    mesh was saved to every level, so there is no refinement to measure. Skips
+    a near-zero field (the near-zero check owns that) so the two are not both
+    reported for the same files."""
+    import re as _re
+    pat = _re.compile(r"^solution_level(\d+)(?:_([A-Za-z0-9]+))?\.csv$")
+    groups: dict[str, dict[int, Path]] = {}
+    for q in sorted(work.rglob("solution_level*.csv")):
+        if not q.is_file() or _SCRATCH & set(q.relative_to(work).parts[:-1]):
+            continue
+        m = pat.match(q.name)
+        if not m:
+            continue
+        side = (m.group(2) or "").upper()
+        lv = int(m.group(1))
+        prev = groups.get(side, {}).get(lv)
+        # shallowest wins, so a build/ copy never shadows the real deliverable
+        if prev is None or (len(q.relative_to(work).parts)
+                            < len(prev.relative_to(work).parts)):
+            groups.setdefault(side, {})[lv] = q
+    out: list[dict] = []
+    for side, byl in sorted(groups.items()):
+        levels = sorted(byl)
+        if len(levels) < 2:
+            continue
+        vecs: dict[int, list[float]] = {}
+        for lv in levels:
+            vv = _solution_value_vector(byl[lv])
+            if vv is not None:
+                vecs[lv] = vv
+        ident = []
+        lvs = sorted(vecs)
+        for i in range(len(lvs)):
+            for j in range(i + 1, len(lvs)):
+                a, b = vecs[lvs[i]], vecs[lvs[j]]
+                if len(a) != len(b) or len(a) < 4:
+                    continue
+                scale = max((abs(x) for x in a), default=0.0)
+                if scale < 1e-8:
+                    continue                # near-zero field: not this finding
+                if all(abs(x - y) <= 1e-9 * scale for x, y in zip(a, b)):
+                    ident.append((lvs[i], lvs[j]))
+        if ident:
+            tag = f" side {side}" if side else ""
+            pairs = ", ".join(f"{i}&{j}" for i, j in ident)
+            out.append({"sequence": f"identical solution levels{tag}",
+                        "priority": 50, "values": [], "finding": (
+                f"YOUR SOLUTION IS IDENTICAL ACROSS DISTINCT MESH LEVELS{tag} "
+                f"(level pair(s) {pairs} agree point-for-point, the difference "
+                f"is exactly zero). A refinement study measures how the answer "
+                f"CHANGES as the mesh is refined, so identical levels carry no "
+                f"order at all -- log2(|L1-L2|/|L2-L3|) is 0/0 -- and the study "
+                f"grades as NOT RUN however correct each level is. You SAVED ONE "
+                f"MESH TO ALL THE LEVELS. Run three DISTINCT meshes (the "
+                f"prescribed coarsest, then halve, then halve again) and save "
+                f"each level's OWN result: if you drove this through couple(), "
+                f"each participant writes field_level<k>.csv per level -- use "
+                f"those, one file per level, not a single file copied across. "
+                f"Print the node/DOF count inside the solve at each level and "
+                f"confirm it actually changes.")})
+    return out
+
+
+def _solution_value_vector(path: Path):
+    """The concatenated non-coordinate columns of a solution CSV, in row order,
+    for the identical-levels comparison. Requires a header (x,y[,z],...) so a
+    headerless file is skipped rather than guessed at."""
+    try:
+        rows = [r for r in path.read_text(errors="replace").splitlines()
+                if r.strip()]
+    except OSError:
+        return None
+    if len(rows) < 2:
+        return None
+    first = rows[0].split(",")
+    if not first or any(ch.isdigit() for ch in first[0]):
+        return None                                     # headerless
+    hdr = [c.strip().lower() for c in first]
+    val_idx = [i for i, c in enumerate(hdr) if c not in ("x", "y", "z")]
+    if not val_idx:
+        return None
+    vec: list[float] = []
+    for r in rows[1:]:
+        parts = r.split(",")
+        if len(parts) < len(hdr):
+            continue
+        try:
+            for i in val_idx:
+                vec.append(float(parts[i]))
+        except ValueError:
+            return None
+    return vec or None
+
+
+def solution_rows_grow_findings(work: Path) -> list[dict]:
+    """CLASS 4: a solution row count that GROWS with the level is a mesh trace,
+    not a fixed probe grid. Every solution_level<k>.csv must carry the SAME
+    prescribed probe points at every level; a growing count means the agent
+    wrote its own mesh nodes instead of sampling the fixed points."""
+    import re as _re
+    pat = _re.compile(r"^solution_level(\d+)(?:_([A-Za-z0-9]+))?\.csv$")
+    per_side: dict[str, dict[int, int]] = {}
+    for q in sorted(work.rglob("solution_level*.csv")):
+        if not q.is_file() or _SCRATCH & set(q.relative_to(work).parts[:-1]):
+            continue
+        m = pat.match(q.name)
+        if not m:
+            continue
+        side = (m.group(2) or "").upper()
+        lv = int(m.group(1))
+        try:
+            n = sum(1 for _ in open(q, errors="ignore")) - 1     # minus header
+        except OSError:
+            continue
+        cur = per_side.setdefault(side, {})
+        if lv not in cur or n > cur[lv]:
+            cur[lv] = n
+    out: list[dict] = []
+    for side, per in sorted(per_side.items()):
+        ns = [per[l] for l in sorted(per)]
+        if len(ns) >= 2 and len(set(ns)) > 1 and all(
+                b > a for a, b in zip(ns, ns[1:])):
+            tag = f" side {side}" if side else ""
+            out.append({"sequence": f"solution rows grow{tag}", "priority": 55,
+                        "values": ns, "finding": (
+                f"YOUR SOLUTION ROW COUNT GROWS WITH THE LEVEL{tag}: "
+                + ", ".join(str(n) for n in ns) + " rows across the levels. The "
+                "task's SOLUTION PROBE POINTS are FIXED -- the same points at "
+                "every mesh level -- so every solution_level<k>.csv must carry "
+                "the SAME rows in the same order. A count that grows with the "
+                "mesh means you wrote your own MESH NODES instead of evaluating "
+                "(interpolating) your solution AT the prescribed points. "
+                "Re-read the task's probe-point list and sample your existing "
+                "solution there; no re-solve is needed, and the points are "
+                "deliberately NOT mesh nodes (interpolate inside the element "
+                "that contains each one).")})
+    return out
+
+
+def pde_source_findings(pde_json: str, task_text: str = "") -> list[dict]:
+    """OPTIONAL, public-only. Compares the agent's OWN declared source/equation
+    string against the PUBLIC task source text it also supplied. Reads nothing
+    sealed — both operands are strings the agent passed in. A silent wrong
+    forcing (right shape, wrong function) converges cleanly to a different
+    answer and no self-consistency check can see it, so this is the one place a
+    declared/public mismatch can be named without any key.
+
+    `pde_json` shape: {"A": {"source": "<what you implemented>",
+                             "task_source": "<the task's stated source>"},
+                       "B": {...}}  — task_text is a fallback task_source.
+    """
+    import json as _json
+    import re as _re
+    if not pde_json:
+        return []
+    try:
+        spec = _json.loads(pde_json)
+    except Exception:                                       # noqa: BLE001
+        return [{"sequence": "declared pde", "informational": True, "finding": (
+            "DECLARED PDE NOT CHECKED: the pde argument was not valid JSON. "
+            "Pass {\"A\": {\"source\": \"...\", \"task_source\": \"...\"}} to "
+            "have OASiS compare the forcing you implemented against the task's "
+            "stated forcing (both PUBLIC strings you supply).")}]
+    if not isinstance(spec, dict):
+        return []
+
+    def _norm(s: str) -> str:
+        return _re.sub(r"\s+", "", str(s or "")).lower().replace("**", "^")
+
+    out: list[dict] = []
+    for side, d in spec.items():
+        if not isinstance(d, dict):
+            continue
+        declared = d.get("source") or d.get("equation") or ""
+        public = d.get("task_source") or task_text or ""
+        nd, npub = _norm(declared), _norm(public)
+        if not nd or not npub:
+            continue
+        if nd not in npub and npub not in nd:
+            out.append({"sequence": f"declared source {side}", "priority": 45,
+                        "finding": (
+                f"THE SOURCE YOU DECLARED FOR SIDE {side} DOES NOT MATCH THE "
+                f"TASK TEXT YOU SUPPLIED: you declared '{str(declared)[:120]}', "
+                f"which does not appear in the task source "
+                f"'{str(public)[:160]}'. Confirm you implemented the task's "
+                f"actual source term/coefficient, not a paraphrase or a "
+                f"placeholder -- a different forcing converges cleanly to a "
+                f"different answer, and no self-consistency check can catch it. "
+                f"(This compares only the two PUBLIC strings you provided; "
+                f"OASiS reads nothing sealed.)")})
+    return out
+
+
+# Ordered high->low priority for the WHAT TO FIX NEXT lead. The FIRST row whose
+# any-substring appears in a finding (or the finding's explicit `priority`)
+# wins; lower rank = fix this FIRST = leads the reply. Matched on the STABLE
+# uppercase headlines the findings already carry, so no existing finding has to
+# be edited to be ranked.
+_PRIORITY_TABLE = [
+    (10, ("NOT COUPLED", "NEVER RECEIVED", "IDENTICALLY ZERO ON BOTH SIDES",
+          "NEGATED TO THE LAST BIT", "SMALLER THAN ITS PARTNER",
+          "TRANSMITTED NOTHING", "WAS NEVER RUN", "NEVER RUN",
+          "PRODUCED BYTE-IDENTICAL", "NOT A FUNCTION OF ITS IMPORTS",
+          "NOT COUPLED TO ITS PARTNER", "EXITED NON-ZERO", "TIMED OUT")),
+    (20, ("COUPLING HISTORY TOO SHORT", "NON-POSITIVE OR NON-FINITE RESIDUAL",
+          "RESIDUAL BARELY MOVED", "CONSTANT RESIDUAL COLUMN",
+          "WRITTEN-IN SEQUENCE", "IDENTICAL RESIDUAL HISTORY")),
+    (30, ("ADD INSTEAD OF CANCELLING", "SAME SIGN", "WRONG SIGN",
+          "FAIL TO CANCEL", "SIGN-CONVENTION")),
+    (35, ("DISAGREE AT THE INTERFACE", "FIELD CONTINUITY")),
+    (40, ("IS NOT THE DISAGREEMENT", "YOU REPORT INTERFACE_RESIDUAL",
+          "SHRINKS TOO SLOWLY", "DOES NOT SHRINK", "INCONSISTENT WITH YOUR "
+          "SOLVE", "NOT CANCELLING")),
+    (45, ("DOES NOT MATCH THE TASK TEXT",)),
+    (50, ("IDENTICAL ACROSS DISTINCT MESH LEVELS", "BIT-IDENTICAL")),
+    (55, ("ROWS GROW WITH THE LEVEL", "ROW COUNT GROWS WITH THE LEVEL",
+          "RUN TO THE ENDS OF THE INTERFACE", "DISTINCT VALUES ACROSS",
+          "NEAREST-NODE")),
+    (60, ("DELIVERABLE SET IS INCOMPLETE", "MISSING LEVEL", "DIFFERING COPY",
+          "NDOF = <INTEGER>", "MESH LADDER THAT WAS NOT HALVED",
+          "RESULT.TXT IS MISSING", "YOUR OWN NDOF IS")),
+    (70, ("NEAR-ZERO FIELD", "FLOOR:")),
+    (80, ("ORDER MISMATCH", "IMPROVE AT ONLY", "NON-MONOTONE", "FLUX JUMP",
+          "FIRST-ORDER INTERFACE RECOVERY")),
+]
+
+
+def _rank(f: dict) -> int:
+    p = f.get("priority")
+    if isinstance(p, (int, float)):
+        return int(p)
+    t = " ".join((f.get("finding") or "").upper().split())
+    for rank, subs in _PRIORITY_TABLE:
+        if any(s in t for s in subs):
+            return rank
+    return 85
+
+
+def what_to_fix_next(findings, *, converged: bool = True,
+                     clean_msg: str | None = None) -> str:
+    """The single leading line every route puts at the top of the reply.
+
+    A weak agent reads the top of the message, not the thirty-first finding
+    under a data dump, so the ONE highest-priority fix goes first, with its full
+    corrective sentence. A clean funnel leads with the necessary-not-sufficient
+    reminder — self-consistency cannot see a wrong-but-consistent answer.
+    """
+    real = [f for f in (findings or []) if not f.get("informational")]
+    if clean_msg is None:
+        clean_msg = (
+            "your output is SELF-CONSISTENT (necessary, not sufficient) -- now "
+            "check your FIELDS match the task: the right physics and boundary "
+            "conditions, the prescribed interface/solution probe points, and "
+            "the prescribed mesh levels. A self-consistency check reads only "
+            "your own files and cannot see a wrong-but-consistent answer.")
+    if not real:
+        if not converged:
+            return ("WHAT TO FIX NEXT: your coupling did NOT converge, so there "
+                    "is no result yet -- a non-converged iteration is not a "
+                    "solution. Fix convergence first (start relaxation at "
+                    "theta=0.5, and confirm each side actually reads "
+                    "imports.json and applies it), then re-run. Nothing "
+                    "downstream matters until the iteration reaches tolerance.")
+        return "WHAT TO FIX NEXT: " + clean_msg
+    real.sort(key=lambda f: (_rank(f), str(f.get("sequence", ""))))
+    top = real[0]
+    others = real[1:]
+    head = (f"WHAT TO FIX NEXT (highest priority of {len(real)} finding(s); "
+            f"reads ONLY your own output files, never any answer key):\n"
+            f"  >> {top.get('sequence', '')}: {top.get('finding', '')}")
+    if others:
+        head += ("\n\nTHEN, in priority order: "
+                 + "; ".join(str(o.get("sequence", "")) for o in others[:8])
+                 + (f" (+{len(others) - 8} more)" if len(others) > 8 else "")
+                 + ". Full corrective text for each is in the findings list.")
+    return head
+
+
 def audit(work_dir: str, claimed_order: float | None = None) -> dict:
     """The three questions, answered from the agent's own files."""
     work = Path(work_dir)
@@ -1784,19 +2299,26 @@ def audit(work_dir: str, claimed_order: float | None = None) -> dict:
         # filenames while saying nothing about a coupling that never converged.
         # THE INTERFACE FINDING SURVIVES AN AMBIGUOUS FIELD SET, for the
         # same reason the residual one does: it reads interface files, not
-        # the per-level field slot that collided.
+        # the per-level field slot that collided. So do the identity /
+        # sampling / continuity checks — each reads its own files, none of
+        # them the collided per-level field slot.
         findings = findings + interface_sign_findings(work)
+        findings.extend(interface_continuity_findings(work))
+        findings.extend(identical_solution_levels_findings(work))
+        findings.extend(solution_rows_grow_findings(work))
+        findings = findings + [
+            {"sequence": "level files", "values": [],
+             "finding": (
+                 "AMBIGUOUS INPUT: more than one file matches "
+                 "the per-level pattern at the top level (" +
+                 ", ".join(csvs["__ambiguous__"][:4]) +
+                 "). I will not guess which is your answer — "
+                 "name your per-level files uniquely, or "
+                 "remove the stale ones, and re-run this "
+                 "check.")}]
         return {"sequences_found": 0, "clean": False,
-                "findings": findings + [
-                    {"sequence": "level files", "values": [],
-                     "finding": (
-                         "AMBIGUOUS INPUT: more than one file matches "
-                         "the per-level pattern at the top level (" +
-                         ", ".join(csvs["__ambiguous__"][:4]) +
-                         "). I will not guess which is your answer — "
-                         "name your per-level files uniquely, or "
-                         "remove the stale ones, and re-run this "
-                         "check.")}],
+                "what_to_fix_next": what_to_fix_next(findings),
+                "findings": findings,
                 "note": ("the per-level field check did not run: input was "
                          "ambiguous. Any other finding above DID run and "
                          "stands.")}
@@ -1924,11 +2446,18 @@ def audit(work_dir: str, claimed_order: float | None = None) -> dict:
     findings.extend(contract_findings(Path(work_dir)))
     findings.extend(interface_sign_findings(work))
     findings.extend(export_findings(work))
+    findings.extend(interface_continuity_findings(work))
+    findings.extend(identical_solution_levels_findings(work))
+    findings.extend(solution_rows_grow_findings(work))
+    clean = not [f for f in findings if not f.get("informational")]
     return {
         "sequences_found": len(seqs),
+        # THE SINGLE NEXT FIX, FIRST. A weak agent reads the top of the reply,
+        # so the highest-priority finding leads with its full corrective text;
+        # a clean funnel leads with the necessary-not-sufficient reminder.
+        "what_to_fix_next": what_to_fix_next(findings),
         "findings": findings,
-        "clean": not [f for f in findings
-                      if not f.get("informational")],
+        "clean": clean,
         "note": ("This audit uses ONLY your own files — no reference "
                  "solution. 'clean' means self-consistent, not correct."),
     }

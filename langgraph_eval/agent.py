@@ -1106,8 +1106,13 @@ def _audit_submission(result_path: Path, content: str):
         return "NOEVIDENCE"
     if r.get("clean"):
         return ""
-    return "\n".join(f"  * {f['sequence']}: {f['finding']}"
-                      for f in r.get("findings", []))
+    # LEAD WITH THE SINGLE NEXT FIX, then the full findings. The prioritisation
+    # body lives in OASiS (tools/result_audit.what_to_fix_next); the harness
+    # only prints what it returns. Advisory only — the gate never blocks.
+    lead = r.get("what_to_fix_next") or ""
+    body = "\n".join(f"  * {f['sequence']}: {f['finding']}"
+                     for f in r.get("findings", []))
+    return f"{lead}\n\n{body}" if lead else body
 
 def _host_tools(workdir: Path, *, size: str, seed: int,
                 parent_tools: list[BaseTool], depth: int,

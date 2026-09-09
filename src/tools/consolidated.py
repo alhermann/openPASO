@@ -4797,7 +4797,7 @@ def register_consolidated_tools(mcp: FastMCP):
                      critic_approved: bool = False, noise_replicates: int = 0,
                      noise_floor: float = 0.0, noise_block: int = 3,
                      history_path: str = "",
-                     iface_level: int = 0) -> str:
+                     iface_level: int = 0, pde_sources: str = "") -> str:
         """GENERAL partitioned multi-code coupling — works for ANY physics/coupling.
 
         Have an independent critic review the setup before coupling; pass
@@ -4898,6 +4898,8 @@ def register_consolidated_tools(mcp: FastMCP):
                             ``residual_level<k>.csv`` path; never retype the returned history.
 
         iface_level: optional level number stamped into the suggested_filename of the interface_csv blocks the reply carries on convergence (each participant's own final interface data, ready to save verbatim).
+
+        pde_sources: OPTIONAL, public-only. JSON {"A": {"source": "<the forcing/coefficient you actually implemented>", "task_source": "<the task's stated source, verbatim>"}, "B": {...}}. When supplied, OASiS compares the two PUBLIC strings and flags a mismatch — a silent wrong forcing (right shape, wrong function) converges cleanly to a different answer and no self-consistency check can see it. Never required; OASiS reads nothing sealed and never supplies the equation for you.
 
         Returns: JSON with converged, iterations, residual, per-block residuals,
             exports, the coupling graph, per-participant responsiveness and exit
@@ -5483,6 +5485,71 @@ def register_consolidated_tools(mcp: FastMCP):
             "because only this arm has the file. A task that lists interior "
             "points only has excluded the interface ENDS on purpose; do not "
             "complete the list with them.")
+
+        # ── ALWAYS-RUN CORRECTIVE FUNNEL: lead the reply with the next fix ────
+        # The driver verdict above says whether the ITERATION was sound; it does
+        # not say whether the two PHYSICS match at the seam or whether the files
+        # the agent will submit are self-consistent. Those are computed here —
+        # LIVE from this run's own exports (flux cancellation, field continuity)
+        # and from any per-level files already on disk (identical levels, probe
+        # sampling, fabricated/short residual history, missing deliverables) —
+        # and the single highest-priority fix leads the reply, where a weak
+        # agent that merely "acts" will read it. Advisory only: nothing here
+        # touches `validation`, `verification` or `trustworthy_result`, and
+        # every input is the agent's OWN output or a PUBLIC string it supplied —
+        # never the sealed key. Wrapped so a fault in the funnel can never take
+        # down a real coupling reply.
+        _lead = None
+        _compact: list = []
+        try:
+            from . import result_audit as _ra
+            presub: list = []
+            _names = list(r.exports or {})
+            if len(_names) == 2:
+                _ea, _eb = r.exports[_names[0]], r.exports[_names[1]]
+                for _fn in (_ra.flux_cancellation_finding,
+                            _ra.field_continuity_finding):
+                    _f = _fn(_ea, _eb, _names[0], _names[1])
+                    if _f:
+                        presub.append(_f)
+            # per-level files already written (this or an earlier couple call)
+            _root = str(cell_root) if cell_root is not None else None
+            if _root is None:
+                try:
+                    _root = os.path.commonpath([str(p.work_dir) for p in parts])
+                except ValueError:
+                    _root = None
+            if _root:
+                # couple() runs MID-coupling, often once per level, so the
+                # whole-submission completeness checks ("only 1 level yet",
+                # "RESULT.txt missing") would nag about work not done yet.
+                # Those belong to the on-submit audit; here keep the physics,
+                # fabrication, identity and sampling findings that are true the
+                # moment a file exists.
+                _submit_only = ("level count", "level sequence",
+                                "levels claimed", "deliverable completeness",
+                                "RESULT.txt")
+                for _f in _ra.audit(_root).get("findings", []):
+                    if any(s in str(_f.get("sequence", "")) for s in _submit_only):
+                        continue
+                    presub.append(_f)
+            if pde_sources:
+                presub.extend(_ra.pde_source_findings(pde_sources))
+            # de-duplicate the same defect found twice (live vs file audit)
+            _seen = set()
+            for _f in presub:
+                _k = (_f.get("finding") or "")[:80]
+                if _k in _seen:
+                    continue
+                _seen.add(_k)
+                _compact.append({"sequence": _f.get("sequence"),
+                                 "finding": _f.get("finding")})
+            _lead = _ra.what_to_fix_next(_compact, converged=bool(r.converged))
+        except Exception:                                    # advisory only
+            _lead, _compact = None, []
+        if _lead:
+            result = {"what_to_fix_next": _lead,
+                      "presubmission_findings": _compact[:12], **result}
         return json.dumps(result, indent=2)
 
     @mcp.tool()

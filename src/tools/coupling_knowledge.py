@@ -2550,7 +2550,18 @@ def _fourc() -> str:
   `scatra-00000-0.vtu`, which is the INITIAL CONDITION — an all-zero field that
   looks like a converged solve of a trivial problem. Parse the FIRST number.
 * The scalar field is named `phi_1`, never `temperature`.
-* THE NEUMANN-SIDE PARTICIPANT, COMPLETE AND EXECUTION-VERIFIED (config-driven, imports->POINT NEUMANN Simpson loads->OPTIONAL spatial volume source wired as FUNCT1+SURF-NEUMANN from the source_expr config key (edit it there; a Python src() that never reached the deck was the old trap)->run the binary->meshio VTU read->flux recovered via 4C's OWN CALCFLUX_BOUNDARY (assembly-consistent; a hand re-assembly on a different element is first order -- measured, it cut the coarse interface imbalance 20x, 0.54 -> 0.026, and lifted the jump order from ~0.8 to ~2 on the graded interior). Delivery proven zero-vs-real (field moved 1.38e-1 vs 0); recovered flux -0.75 against applied +0.75). Copy it verbatim and edit config.json per level. NOTE the two measured traps inside: condition E ids reference GLOBAL DNODE numbers across ALL condition families (a Dirichlet block restarting at E: 1 silently rebinds the interface DNODEs and zeroes the field), and this build writes scatra VTU by default with NO VTK section (adding one is rejected as an invalid section).
+* THE NEUMANN-SIDE PARTICIPANT SCAFFOLD (config-driven). The handshake, 4C's
+  CALCFLUX_BOUNDARY flux-recovery route and the exports schema are served in the
+  block below; THE 4C DECK AND THE SOLVE ARE ELIDED -- write them from
+  `prepare_simulation(solver='fourc', physics='<your physics>')` and drop them
+  into the marked region. Measured facts it still encodes: 4C's own
+  CALCFLUX_BOUNDARY is assembly-consistent (a hand re-assembly on a different
+  element is first order -- it cut the coarse interface imbalance 20x,
+  0.54 -> 0.026, and lifted the jump order from ~0.8 to ~2 on the graded
+  interior; delivery proven zero-vs-real, field moved 1.38e-1 vs 0, recovered
+  flux -0.75 against applied +0.75), and two traps live in the elided deck --
+  the GLOBAL DNODE-id rule across condition families, and that this build writes
+  scatra VTU with no VTK section.
 
 ```python
 """4C as the NEUMANN side of a partitioned coupling (Scalar_Transport).
@@ -2559,43 +2570,40 @@ Reads ./config.json {"level":k,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
 "k":diffusivity,"iface":"left|right|bottom|top","source_expr":"<f(x,y) or 0.0>",
 "fourc_bin":..,"fourc_ld":..}.
 Contract: reads ./imports.json (partner's outward flux at its points), applies
-it as per-node POINT NEUMANN loads (Simpson-weighted), runs the real 4C binary,
-exports its interface TRACE as values and its own consistent outward flux.
+it as THIS side's interface Neumann load (opposite normals), runs YOUR 4C deck,
+and exports its interface TRACE as values plus its own consistent outward flux.
+
+WHAT IS SERVED HERE is the handshake (config + imports + sign convention), the
+CALCFLUX_BOUNDARY flux-recovery route, and the exports schema. THE 4C DECK AND
+THE SOLVE ARE YOURS to write -- see the banner. Get the deck from
+prepare_simulation(solver='fourc', physics='<your physics>').
 """
-import json, math, os, re, subprocess
+import json
 from pathlib import Path
 
 CFG = json.loads(Path("config.json").read_text())
 NX, NY = CFG["nx"], CFG["ny"]
 X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV = CFG["k"]; IF = CFG.get("iface", "left")
-HX, HY = (X1-X0)/NX, (Y1-Y0)/NY
 
-# Volumetric source f(x,y) in -div(k grad u) = f. EDIT PER TASK. This is a 4C
-# space-time EXPRESSION string, not a Python function: '^' is power (never
-# '**'), the coordinates are 'x','y', time is 't', and 'pi' is defined. It is
-# wired into the deck below as FUNCT1 + a volume (SURF in 2-D) source
-# condition, so -- unlike the old src() that was never called -- it ACTUALLY
-# enters the assembled system and drives the solve. "0.0" means no source (the
-# plain-coupling default). A bare constant in the legacy "source_const" key is
-# still honoured.
+# Volumetric source f(x,y) in -div(k grad u) = f, as a 4C space-time EXPRESSION
+# STRING (NOT a Python function): '^' is power (never '**'), the coordinates are
+# 'x','y', time is 't', and 'pi' is defined. "0.0" means no source. You wire this
+# into YOUR deck as FUNCT1 + a DESIGN SURF NEUMANN VAL*FUNCT block; a Python
+# src() that never reaches the deck is the classic 4C trap and does nothing.
 SRC_EXPR = str(CFG.get("source_expr", CFG.get("source_const", "0.0")))
 HAS_SRC = SRC_EXPR.strip() not in ("", "0", "0.", "0.0")
 
-nid = lambda i, j: j*(NX+1)+i+1
-nodes = [(X0+i*HX, Y0+j*HY) for j in range(NY+1) for i in range(NX+1)]
-iface_ids = ([nid(0, j) for j in range(NY+1)] if IF == "left" else
-             [nid(NX, j) for j in range(NY+1)] if IF == "right" else
-             [nid(i, 0) for i in range(NX+1)] if IF == "bottom" else
-             [nid(i, NY) for i in range(NX+1)])
-h_if = HY if IF in ("left", "right") else HX
-# interior interface nodes carry the load; corners belong to the outer BC
-interior = iface_ids[1:-1]
-
+# ---- the partner's interface samples, mapped onto THIS side (handshake) ----
 imp = {}
 if Path("imports.json").is_file():
     imp = json.loads(Path("imports.json").read_text())
 def partner_flux(y_or_x):
+    """The imported partner flux interpolated onto one of THIS side's interface
+    points. The driver does NOT interpolate between the two meshes -- each
+    participant maps the partner's samples onto its own points, here. Empty on
+    iteration 1, so fall back to 0.0. Call this when you build your Neumann loads
+    in the solve below."""
     for _n, d in imp.items():
         co = d.get("coordinates") or []; q = d.get("normal_fluxes") or []
         if co and q and len(q) == len(co):
@@ -2605,125 +2613,125 @@ def partner_flux(y_or_x):
             t = min(max(y_or_x, xs[0]), xs[-1])
             for a, b, qa, qb in zip(xs, xs[1:], qs, qs[1:]):
                 if a <= t <= b:
-                    w = 0.0 if b == a else (t-a)/(b-a)
-                    return qa + w*(qb-qa)
+                    w = 0.0 if b == a else (t - a) / (b - a)
+                    return qa + w * (qb - qa)
             return qs[-1]
     return 0.0
+# SIGN CONVENTION: the inward load on THIS side is the partner's OUTWARD flux --
+# the two interface normals are opposite. Apply the partner's number UNCHANGED
+# as your 4C Neumann VAL; there is no extra minus sign anywhere.
 
-# inward load on THIS side = partner's outward flux (opposite normals)
-ax = 1 if IF in ("left", "right") else 0
-g = {n: partner_flux(nodes[n-1][ax]) for n in iface_ids}
-# Simpson-weighted nodal forces on interior interface nodes (fact 14)
-F = {}
-for k_i, n in enumerate(iface_ids):
-    if n not in interior: continue
-    F[n] = h_if/6.0*(g[iface_ids[k_i-1]] + 4*g[n] + g[iface_ids[k_i+1]])
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# THE 4C DECK AND THE SOLVE ITSELF ARE YOURS AND ARE NOT SERVED HERE.
+#
+# Build the mesh, the material, the elements and the full 4C input deck for the
+# problem you were given, and run the 4C binary on it. That is ordinary 4C
+# input-deck work and OASiS has no business writing your deck. Get the deck
+# grammar (also `4C -p`), a runnable Scalar_Transport skeleton and the measured
+# gotchas from:
+#
+#     prepare_simulation(solver='fourc', physics='<your physics>')
+#     knowledge(topic='coupling', solver='fourc')     # the 4C traps below
+#
+# For THIS coupling your deck must:
+#   * be PROBLEMTYPE "Scalar_Transport", TIMEINTEGR "Stationary", a MAT_scatra
+#     material with DIFFUSIVITY = KV, and TRANSP QUAD4/TRI3 elements in a
+#     TRANSPORT ELEMENTS section (SOLID elements are rejected against MAT_scatra);
+#   * apply the imported partner flux as the interface load -- one
+#     DESIGN POINT NEUMANN per INTERIOR interface node, Simpson-weighted, with
+#     VAL = partner_flux(that node's coordinate), imported node-by-node (no
+#     polynomial fit). 4C's Neumann VAL is exactly the flux the partner exported;
+#     hand it over unchanged (opposite normals already give the sign);
+#   * keep at least one OUTER Dirichlet edge (u given) or the subdomain is singular;
+#   * if HAS_SRC, wire SRC_EXPR as FUNCT1 SYMBOLIC_FUNCTION_OF_SPACE_TIME plus a
+#     DESIGN SURF NEUMANN VAL*FUNCT block so it enters the assembled RHS -- '^'
+#     for powers, never '**';
+#   * request the consistent boundary flux for the recovery below: set
+#     CALCFLUX_BOUNDARY "diffusive" in SCALAR TRANSPORT DYNAMIC and add a
+#     `SCATRA FLUX CALC LINE CONDITIONS` (SURF in 3-D) entry on the interface
+#     line, so 4C writes flux_boundary_phi_1 into the VTU.
+#
+# THE DNODE-ID TRAP (measured): condition `E:` ids reference GLOBAL DNODE
+# numbers across ALL condition families. A Dirichlet block restarting at `E: 1`
+# silently rebinds the interface DNODEs and zeroes the field -- number the
+# families continuously. And this build writes scatra VTU by default with NO
+# `VTK` section; adding one is rejected as an invalid section.
+#
+# Run 4C with the binary at config `fourc_bin` (env FOURC_BIN; discover(
+# query='list') prints it on THIS install) and its dependency libraries on
+# config `fourc_ld` (FOURC_LD / LD_LIBRARY_PATH). OASiS does not run the solver
+# for you and ships no host-specific binary path.
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
 
-d = []
-d.append('PROBLEM TYPE:\\n  PROBLEMTYPE: "Scalar_Transport"')
-d.append('SCALAR TRANSPORT DYNAMIC:\\n  TIMEINTEGR: "Stationary"\\n  SOLVERTYPE: "linear_full"\\n  VELOCITYFIELD: "zero"\\n  TIMESTEP: 1.0\\n  NUMSTEP: 1\\n  MAXTIME: 1.0\\n  LINEAR_SOLVER: 1\\n  CALCFLUX_BOUNDARY: "diffusive"')
-d.append('SOLVER 1:\\n  SOLVER: "UMFPACK"')
-d.append(f'MATERIALS:\\n  - MAT: 1\\n    MAT_scatra:\\n      DIFFUSIVITY: {KV}')
-if HAS_SRC:
-    # Volumetric body source: FUNCT1 holds f(x,y); it is applied over the whole
-    # 2-D domain (a SURF in 4C) as VAL(=1) x FUNCT1. This is the SAME generic
-    # Neumann family as the interface POINT loads below, only element-
-    # dimensional, so 4C adds +integral(f*v) dA to the RHS -- exactly the f in
-    # -div(k grad u)=f. Without these two blocks 4C silently solves the source-
-    # FREE equation and the field is wrong; a Python src() edit does nothing.
-    d.append('FUNCT1:\\n  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "' + SRC_EXPR + '"')
-pt = "\\n".join(f'  - E: {i+1}\\n    NUMDOF: 1\\n    ONOFF: [1]\\n    VAL: [{F[n]:.16e}]\\n    FUNCT: [0]'
-               for i, n in enumerate(interior))
-d.append('DESIGN POINT NEUMANN CONDITIONS:\\n' + pt)
-if HAS_SRC:
-    d.append('DESIGN SURF NEUMANN CONDITIONS:\\n'
-             '  - E: 1\\n    NUMDOF: 1\\n    ONOFF: [1]\\n    VAL: [1.0]\\n    FUNCT: [1]')
-d.append('SCATRA FLUX CALC LINE CONDITIONS:\\n  - E: 1')
-d.append('DLINE-NODE TOPOLOGY:\\n' + "\\n".join(
-    f'  - "NODE {n} DLINE 1"' for n in iface_ids))
-# outer boundary Dirichlet u=0 on the three non-interface edges + corners
-outer = sorted({n for n in range(1, (NX+1)*(NY+1)+1)
-                if (abs(nodes[n-1][0]-X0)<1e-12 or abs(nodes[n-1][0]-X1)<1e-12
-                    or abs(nodes[n-1][1]-Y0)<1e-12 or abs(nodes[n-1][1]-Y1)<1e-12)
-                and n not in interior})
-dp = "\\n".join(f'  - E: {len(interior)+i+1}\\n    NUMDOF: 1\\n    ONOFF: [1]\\n    VAL: [0.0]\\n    FUNCT: [0]'
-               for i, n in enumerate(outer))
-d.append('DESIGN POINT DIRICH CONDITIONS:\\n' + dp)
-d.append('DNODE-NODE TOPOLOGY:\\n' + "\\n".join(
-    f'  - "NODE {n} DNODE {i+1}"' for i, n in enumerate(interior))
-    + "\\n" + "\\n".join(f'  - "NODE {n} DNODE {len(interior)+i+1}"'
-                       for i, n in enumerate(outer)))
-# careful: DNODE ids must match condition E ids per family — Neumann first
-if HAS_SRC:
-    # DSURF is its OWN design family (not DNODE/DLINE), so E:1 on the surface
-    # source does NOT collide with the POINT-condition DNODE ids above -- the
-    # interface DNODEs stay bound. Every domain node carries the source surface.
-    d.append('DSURF-NODE TOPOLOGY:\\n' + "\\n".join(
-        f'  - "NODE {i+1} DSURFACE 1"' for i in range(len(nodes))))
-d.append('NODE COORDS:\\n' + "\\n".join(
-    f'  - "NODE {i+1} COORD {x:.16e} {y:.16e} 0.0"' for i, (x, y) in enumerate(nodes)))
-els = []
-e = 1
-for j in range(NY):
-    for i in range(NX):
-        a, b = nid(i, j), nid(i+1, j)
-        c, dd = nid(i+1, j+1), nid(i, j+1)
-        els.append(f'  - "{e} TRANSP QUAD4 {a} {b} {c} {dd} MAT 1 TYPE Std"'); e += 1
-d.append('TRANSPORT ELEMENTS:\\n' + "\\n".join(els))
-Path("deck.4C.yaml").write_text("\\n".join(d) + "\\n")
-
-env = dict(os.environ); env["LD_LIBRARY_PATH"] = CFG.get("fourc_ld", "/opt/4C-dependencies/lib")
-r = subprocess.run(["stdbuf", "-oL", "-eL", CFG.get("fourc_bin", "/home/alexander/4C/build/4C"),
-                    "deck.4C.yaml", "out"], capture_output=True, text=True, env=env)
-Path("solver_console.log").write_text(r.stdout + r.stderr)
-if r.returncode != 0 or "finished normally" not in (r.stdout + r.stderr):
-    raise SystemExit(f"4C failed rc={r.returncode}; see solver_console.log")
-
+# ── CONSISTENT OUTWARD FLUX + EXPORTS -- the served recovery route ─────────
+# After YOUR deck has run, read 4C's OWN output. Never hand-parse the VTU XML,
+# and never recompute the flux from phi_1 differences.
 import glob
-vtu = sorted(glob.glob("out-vtk-files/*.vtu"))[-1]
-# 4C writes compressed VTU: read with meshio (available in the runtime venv),
-# never hand-parse the XML.
 import meshio
+# The VTU name is out-vtk-files/scatra-<step>-<rank>.vtu -- the TRAILING number
+# is the MPI RANK, not the step. Sorting on it returns scatra-00000-0.vtu, the
+# all-zero INITIAL CONDITION; take the last real step.
+vtu = sorted(glob.glob("out-vtk-files/*.vtu"))[-1]
 _m = meshio.read(vtu)
 vpts = [(float(p[0]), float(p[1])) for p in _m.points]
-phi = [float(x) for x in _m.point_data["phi_1"].ravel()]
-# collapse duplicated corner points by coordinate (scatra VTU has no node_gid)
+phi = [float(x) for x in _m.point_data["phi_1"].ravel()]   # the scalar is 'phi_1'
+# a 4C QUAD4 VTU repeats each node once per element; collapse by coordinate or
+# n_points comes out four times too large and changes with the mesh.
 val = {}
-for (x, y), u in zip(vpts, phi):
-    val[(round(x, 12), round(y, 12))] = u
+for (x, y), _u in zip(vpts, phi):
+    val[(round(x, 12), round(y, 12))] = _u
 u = [val[(round(x, 12), round(y, 12))] for (x, y) in nodes]
-
-# consistent outward flux from 4C's OWN boundary-flux output (assembly-
-# consistent by construction; a hand re-assembly on a different element is
-# first order -- measured). flux_boundary_phi_1 is the flux VECTOR; dot it
-# with this side's outward normal (interface is the 'IFACE' edge).
-fbname = None
-for da in _m.point_data:
-    if 'flux_boundary' in da:
-        fbname = da; break
+# CONSISTENT flux = 4C's CALCFLUX_BOUNDARY output (assembly-consistent by
+# construction, from 4C's true residual -- the same reaction recovery every
+# other backend in this corpus uses). flux_boundary_phi_1 is the flux VECTOR;
+# dot it with THIS side's outward normal at the interior interface nodes.
+# (CALCFLUX_DOMAIN -- the L2-projected -D grad(phi) -- is only order ~1 on the
+# boundary trace and drags the graded order down; do not use it.)
+fbname = next((da for da in _m.point_data if "flux_boundary" in da), None)
+if fbname is None:
+    raise SystemExit("no flux_boundary field in the VTU -- set CALCFLUX_BOUNDARY "
+                     "'diffusive' and add a SCATRA FLUX CALC condition on the interface")
 fb = _m.point_data[fbname]
-nrm = {'left':(-1,0),'right':(1,0),'bottom':(0,-1),'top':(0,1)}[IF]
+nrm = {"left": (-1, 0), "right": (1, 0), "bottom": (0, -1), "top": (0, 1)}[IF]
 fbmap = {}
-for (x,y),vec in zip(vpts, fb):
-    fbmap[(round(x,10),round(y,10))] = float(vec[0]*nrm[0] + vec[1]*nrm[1])
-q_own = [fbmap[(round(nodes[n-1][0],10),round(nodes[n-1][1],10))] for n in interior]
+for (x, y), vec in zip(vpts, fb):
+    fbmap[(round(x, 10), round(y, 10))] = float(vec[0] * nrm[0] + vec[1] * nrm[1])
+q_own = [fbmap[(round(nodes[n-1][0], 10), round(nodes[n-1][1], 10))] for n in interior]
 co = [list(nodes[n-1]) for n in interior]
 vals = [u[n-1] for n in interior]
+# exports.json LAST, only after the solve succeeded (the driver takes its
+# existence as proof of success): YOUR interface trace as values, YOUR consistent
+# outward flux as normal_fluxes.
 json.dump({"field_name": "u", "coordinates": co, "values": vals,
            "normal_fluxes": q_own, "n_points": len(co)},
           open("exports.json", "w"))
 # PER-LEVEL PERSISTENCE. Each mesh level writes its OWN field file named by the
-# config level, so running levels 1->2->3 leaves THREE distinct files instead of
-# the finest overwriting the coarse ones. Build your solution_level<k>_<side>.csv
-# deliverable from THESE (one per level, interpolated to the task's probe
-# points) -- NEVER from a single output the next level overwrites. That overwrite
-# is the top cause of identical-across-levels submissions graded UNPHYSICAL.
+# config level, so levels 1->2->3 leave THREE files instead of the finest
+# overwriting the coarse ones. Build solution_level<k>_<side>.csv from THESE
+# (interpolated to the task's probe points), NEVER from one output the next
+# level overwrites -- that overwrite is the top cause of identical-across-levels
+# submissions graded UNPHYSICAL.
 _LVL = CFG.get("level", "X")
 with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\\n")
     for (_px, _py), _u in zip(nodes, u):
         _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\\n")
-print(f"4C Neumann participant: NDOF = {len(nodes)}  max|u|={max(abs(x) for x in vals) if vals else 0:.6e}")
+print(f"4C Neumann participant: NDOF = {len(nodes)}  "
+      f"max|u| = {max(abs(t) for t in vals) if vals else 0:.6e}")
+
+# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ──────────────────────────────────────
+# The recovery and export above use these names; the elided deck-and-solve block
+# has to define every one, or the rest will not run:
+#
+#     nodes      every mesh node as (x, y), indexed by 4C node id via
+#                nodes[gid-1]; the recovery maps 4C's VTU points back onto it
+#     interior   the interior interface node ids -- the points you export. DROP
+#                the two endpoints: they also lie on the outer Dirichlet boundary
+#                and are a physically different quantity there
+#
+# and YOUR deck must have produced out-vtk-files/*.vtu carrying phi_1 and
+# flux_boundary_phi_1. OASiS does not serve the solve, but it will not make you
+# guess which variables the hole was filling.
 ```
 
 * USE THE BOUNDARY FLUX, NOT THE DOMAIN FLUX, ON THE DIRICHLET SIDE. Set
@@ -3878,28 +3886,37 @@ def _dune() -> str:
 * DUNE usually lives in its own conda environment. Use the interpreter
   `discover(query='list')` reports for it, not OASiS's own.
 
-* THE DUNE-fem DIRICHLET-SIDE PARTICIPANT, COMPLETE AND EXECUTION-VERIFIED (config-driven; imports the partner trace -> interface Dirichlet via an interpolated boundary function -> CG P1 solve on an aluConformGrid simplex mesh -> consistent outward flux export with reaction and source in the residual load; values: [] because the trace is imposed, not owned. Delivery proven zero-vs-real: max|u| hits the imposed trace exactly, flux shifts 4.4e-1). Copy verbatim, edit config.json per level. Traps measured while building it: ufl has no top-level abs import on this install, and DOF order is NOT vertex order -- map through interpolated coordinate fields as this template does, or the trace lands on the wrong nodes.
+* THE DUNE-fem DIRICHLET-SIDE PARTICIPANT SCAFFOLD (config-driven). The
+  handshake, the P1 consistent flux-recovery FORMULA and the exports schema are
+  served in the block below; THE SIMPLEX MESH, THE WEAK FORM AND THE CG P1 SOLVE
+  ARE ELIDED -- write them from `prepare_simulation(solver='dune',
+  physics='<your physics>')` and drop them into the marked region. Traps it
+  encodes for the elided solve: DOF order is NOT vertex order (map through
+  interpolated coordinate fields or the imposed trace lands on the wrong nodes),
+  and the two interface ENDPOINTS also lie on the outer Dirichlet boundary
+  (leave them at the outer value; the flux export drops them, interior =
+  ids[1:-1]).
 
 ```python
 """DUNE-fem as the DIRICHLET side of a partitioned coupling (CG P1).
 
-Reads ./config.json {"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
+Reads ./config.json {"level":..,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
 "k":..,"reaction":..,"source_const":..,"iface":"left|right|bottom|top"}.
-Contract: reads ./imports.json (partner's interface FIELD values at its
-points), imposes them as the interface Dirichlet trace, solves
--div(k grad u) + c*u = f, exports values: [] (the trace is imposed, not
-owned) and its OWN consistent outward flux at the interior interface nodes.
+Contract: reads ./imports.json (partner's interface FIELD values at its points),
+imposes them as the interface Dirichlet trace, solves -div(k grad u) + c*u = f,
+and exports values: [] (the trace is imposed, not owned) plus its OWN consistent
+outward flux at the interior interface nodes.
+
+WHAT IS SERVED HERE is the handshake (config + imports + trace mapping), the P1
+consistent flux-recovery FORMULA, and the exports schema. THE MESH, THE WEAK
+FORM AND THE SOLVE ARE YOURS to write -- see the banner. Get the DUNE-fem API
+and a runnable P1 pattern from prepare_simulation(solver='dune',
+physics='<your physics>').
 """
 import json
 from pathlib import Path
 
 import numpy as np
-from dune.alugrid import aluConformGrid
-from dune.fem.space import lagrange
-from dune.fem.scheme import galerkin
-from dune.ufl import DirichletBC
-from ufl import (TestFunction, TrialFunction, SpatialCoordinate, dx, grad,
-                 inner)
 
 CFG = json.loads(Path("config.json").read_text())
 NX, NY = CFG["nx"], CFG["ny"]
@@ -3908,6 +3925,7 @@ KV, CV, FV = CFG["k"], CFG.get("reaction", 0.0), CFG.get("source_const", 0.0)
 IF = CFG.get("iface", "right")
 HX, HY = (X1 - X0) / NX, (Y1 - Y0) / NY
 
+# ---- the partner's interface samples, mapped onto THIS side (handshake) ----
 imp = {}
 if Path("imports.json").is_file():
     imp = json.loads(Path("imports.json").read_text())
@@ -3920,6 +3938,11 @@ for _n, d in imp.items():
         pts_q = sorted(zip([c[ax] for c in co], [float(v) for v in va]))
         break
 def trace(t):
+    """The partner's field value interpolated onto one of THIS side's interface
+    points. The driver does NOT interpolate between meshes -- each participant
+    maps the partner's samples onto its own points, here. Empty on iteration 1,
+    so fall back to 0.0. Impose trace(coordinate) on the interface edge in the
+    solve below."""
     if not pts_q:
         return 0.0
     xs = [p[0] for p in pts_q]; vs = [p[1] for p in pts_q]
@@ -3929,108 +3952,80 @@ def trace(t):
             w = 0.0 if b == a else (t - a) / (b - a)
             return va_ + w * (vb - va_)
     return vs[-1]
+# SIGN CONVENTION: this is the DIRICHLET side -- it IMPORTS the partner's field
+# VALUE, imposes it as the interface trace, and exports its OWN outward flux. The
+# two sides' fluxes carry OPPOSITE normals; export yours w.r.t. THIS side's
+# outward normal and never write the partner's negated number.
 
-# simplex grid so the P1 consistent recovery applies exactly
-verts, simps = [], []
-nid = lambda i, j: j * (NX + 1) + i
-for j in range(NY + 1):
-    for i in range(NX + 1):
-        verts.append([X0 + i * HX, Y0 + j * HY])
-for j in range(NY):
-    for i in range(NX):
-        a, b = nid(i, j), nid(i + 1, j)
-        c, d2 = nid(i + 1, j + 1), nid(i, j + 1)
-        simps += [[a, b, c], [a, c, d2]]
-grid = aluConformGrid({"vertices": np.array(verts), "simplices": np.array(simps)})
-space = lagrange(grid, order=1)
-u = TrialFunction(space); v = TestFunction(space)
-x = SpatialCoordinate(space)
-a_form = (KV * inner(grad(u), grad(v)) + CV * u * v) * dx
-# vertex-order -> dof-order map via interpolated coordinate fields (DOF order
-# is NOT vertex order). Built once and reused for the source fh, the
-# Dirichlet gf, and reading the solution back.
-coords = np.array(verts)
-xs_gf = space.interpolate(x[0], name="cx").as_numpy.copy()
-ys_gf = space.interpolate(x[1], name="cy").as_numpy.copy()
-key = {(round(float(a2), 10), round(float(b2), 10)): i
-       for i, (a2, b2) in enumerate(zip(xs_gf, ys_gf))}
-# VOLUME SOURCE f(x,y): ONE definition, used by BOTH the solve and the flux
-# recovery so the exported flux stays consistent with the field under
-# refinement. Default is the config constant; EDIT HERE for a spatial source,
-# e.g.  return 23.0 * np.sin(3.0 * px) * np.cos(2.0 * py)
-def fsrc(px, py):
-    return FV
-fvals = np.array([fsrc(px, py) for px, py in verts])   # nodal, VERTEX order
-# interpolate the SAME nodal source into a P1 discrete function (DOF order),
-# the identical mapping used for the Dirichlet gf, so the assembled element
-# load of l_form is exactly me @ fvals[el] -- matching the recovery below.
-f_dof = np.zeros(len(xs_gf))
-for n, (px, py) in enumerate(verts):
-    f_dof[key[(round(px, 10), round(py, 10))]] = fvals[n]
-fh = space.interpolate(0.0, name="fh")
-fh.as_numpy[:] = f_dof
-l_form = fh * v * dx
-# Dirichlet everywhere on the boundary: 0 outer, imported trace on the
-# interface edge — realised by interpolating a boundary function.
-iface_val = {"left": X0, "right": X1, "bottom": Y0, "top": Y1}[IF]
-tol = 1e-9
-gf = space.interpolate(0.0, name="g")
-gvals = np.zeros(len(verts))
-for n, (px, py) in enumerate(verts):
-    on_if = (abs((px if ax == 0 else py) * 0 + (px if IF in ("left","right") else py)
-                 - iface_val) < tol) if False else (
-        abs((px - iface_val) if IF in ("left", "right") else (py - iface_val)) < tol)
-    if on_if:
-        # CORNER FIX: the two interface ENDPOINTS also lie on the OUTER Dirichlet
-        # boundary. trace() CLAMPS there, so imposing the partner trace at a
-        # corner is an O(h)-wrong value that caps the whole Dirichlet side at
-        # order 1 (measured). Leave the endpoints at the outer Dirichlet value;
-        # the flux export already drops them (interior = ids[1:-1]).
-        endpt = ((abs(py - Y0) < tol or abs(py - Y1) < tol)
-                 if IF in ("left", "right")
-                 else (abs(px - X0) < tol or abs(px - X1) < tol))
-        if endpt:
-            on_if = False
-    if on_if:
-        gvals[n] = trace(py if IF in ("left", "right") else px)
-# map vertex order to dof order (same `key` as the source above)
-g_dof = np.zeros(len(xs_gf))
-for n, (px, py) in enumerate(verts):
-    g_dof[key[(round(px, 10), round(py, 10))]] = gvals[n]
-gf.as_numpy[:] = g_dof
-scheme = galerkin([a_form == l_form, DirichletBC(space, gf)],
-                  solver="cg",
-                  parameters={"linear.tolerance": 1e-12,
-                              "linear.verbose": True,
-                              "linear.preconditioning.method": "ssor"})
-uh = space.interpolate(0.0, name="u")
-info = scheme.solve(target=uh)
-uv = uh.as_numpy.copy()
-# back to vertex order
-u_vert = np.array([uv[key[(round(px, 10), round(py, 10))]] for px, py in verts])
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# THE MESH, THE WEAK FORM AND THE SOLVE ITSELF ARE YOURS AND ARE NOT SERVED HERE.
+#
+# Build the simplex grid, the P1 space, the weak form -div(k grad u) + c*u = f
+# and the linear solve for the problem you were given, however you judge best.
+# That is ordinary DUNE-fem work and OASiS has no business dictating it. Get the
+# DUNE-fem API, a runnable P1 pattern and the measured gotchas from:
+#
+#     prepare_simulation(solver='dune', physics='<your physics>')
+#     knowledge(topic='coupling', solver='dune')      # the DUNE traps above
+#
+# For THIS coupling the solve must:
+#   * mesh with a SIMPLEX grid (e.g. aluConformGrid) so the P1 consistent flux
+#     recovery below applies exactly;
+#   * impose the imported partner trace as the interface Dirichlet datum --
+#     interpolate a boundary function equal to trace(coordinate) on the
+#     interface edge. A structuredGrid CARRIES NO BOUNDARY IDS, so select the
+#     interface/outer boundaries with a coordinate predicate;
+#   * MAP THROUGH INTERPOLATED COORDINATE FIELDS -- DOF order is NOT vertex order
+#     in DUNE-fem (measured). `space.interpolate(x[0]).as_numpy` gives the x of
+#     every dof in dof order; build a coord->dof key from it and reuse the SAME
+#     key for the source, the Dirichlet function and reading the solution back,
+#     or the trace lands on the wrong nodes;
+#   * CORNER RULE (measured): the two interface ENDPOINTS also lie on the OUTER
+#     Dirichlet boundary, where trace() clamps -- imposing the partner trace
+#     there is an O(h)-wrong value that caps the whole side at order 1. Leave the
+#     endpoints at the outer Dirichlet value; the flux export drops them
+#     (interior = ids[1:-1]);
+#   * keep the FORM TEXT structurally constant across iterations -- DUNE-fem JIT-
+#     compiles each distinct form and the participant is a FRESH PROCESS every
+#     iteration, so put imported data in a dof vector / dune.ufl.Constant, never
+#     in the form text, or you recompile (and appear to hang) every iteration.
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
 
-# consistent outward flux at interior interface nodes (P1, own system;
-# reaction and volume source enter the residual load)
-if IF in ("left", "right"):
-    ids = [nid(0 if IF == "left" else NX, j) for j in range(NY + 1)]
-    h_if = HY
-else:
-    ids = [nid(i, 0 if IF == "bottom" else NY) for i in range(NX + 1)]
-    h_if = HX
-interior = ids[1:-1]
-resid = np.zeros(len(verts))
-for el in simps:
-    P = coords[el]
+# ── CONSISTENT OUTWARD FLUX + EXPORTS -- the served recovery FORMULA ────────
+# ONE formula, every backend, both sides. Your solve leaves an assembled operator
+# K (the stiffness KV*grad(u).grad(v) plus any reaction CV*u*v) and a VOLUME load
+# b_vol -- the P1-CONSISTENT element load (the source in the load as Me @ f_el,
+# NOT a lumped nodal f), reaction and source in the load, with NO Dirichlet
+# lifting and the constrained rows NOT zeroed. On the FREE interface rows the
+# residual r = K u - b_vol then equals the interface functional, so
+#
+#     q_i = -r_i / w_i        w_i = interface nodal weight  (= h_if, uniform P1)
+#
+# is the consistent outward flux density at interface node i. It is mesh- and
+# material-agnostic -- the same expression the Dirichlet and Neumann sides both
+# use, and exactly what the verification gate grades; keep the P1 consistent load
+# or the recovery loses an order (a projected -k grad(u) on the boundary is only
+# order ~1 there).
+#
+# Formed here over YOUR mesh with the standard P1 element matrices (Ke, Me below
+# are the same for every P1 triangle -- they are not tied to any served mesh):
+resid = np.zeros(len(node_coords))
+for el in elements:                       # el = the 3 vertex ids of one triangle
+    P = node_coords[list(el)]
     area = 0.5 * abs((P[1,0]-P[0,0])*(P[2,1]-P[0,1]) - (P[1,1]-P[0,1])*(P[2,0]-P[0,0]))
     gr = np.array([[P[1,1]-P[2,1], P[2,0]-P[1,0]],
                    [P[2,1]-P[0,1], P[0,0]-P[2,0]],
                    [P[0,1]-P[1,1], P[1,0]-P[0,0]]]) / (2.0 * area)
-    ke = KV * area * (gr @ gr.T)
-    me = area / 12.0 * (np.ones((3, 3)) + np.eye(3) * 1.0)
-    ue = u_vert[el]
-    resid[el] += ke @ ue + CV * (me @ ue) - (me @ fvals[el])
-q_own = [float(-resid[n] / h_if) for n in interior]
-co_out = [[float(coords[n][0]), float(coords[n][1])] for n in interior]
+    Ke = KV * area * (gr @ gr.T)                       # element stiffness
+    Me = area / 12.0 * (np.ones((3, 3)) + np.eye(3))   # CONSISTENT mass, not lumped
+    ue = u_vert[list(el)]
+    resid[list(el)] += Ke @ ue + CV * (Me @ ue) - (Me @ f_vals[list(el)])
+h_if = HY if IF in ("left", "right") else HX
+q_own = [float(-resid[n] / h_if) for n in interior]    # interior = interface ids[1:-1]
+co_out = [[float(node_coords[n][0]), float(node_coords[n][1])] for n in interior]
+# exports.json LAST (the driver takes its existence as proof of success).
+# values: [] -- the DIRICHLET side does not OWN a value, it IMPOSED one; echoing
+# the imposed trace back trips the driver's per-block change checks.
 json.dump({"field_name": "u", "coordinates": co_out, "values": [],
            "normal_fluxes": q_own, "n_points": len(co_out)},
           open("exports.json", "w"))
@@ -4041,10 +4036,28 @@ json.dump({"field_name": "u", "coordinates": co_out, "values": [],
 _LVL = CFG.get("level", "X")
 with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\\n")
-    for (_px, _py), _u in zip(verts, u_vert):
+    for (_px, _py), _u in zip(node_coords, u_vert):
         _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\\n")
-print(f"DUNE Dirichlet participant: NDOF = {space.size}  "
-      f"max|u|={float(np.abs(u_vert).max()):.6e}")
+print(f"DUNE Dirichlet participant: NDOF = {len(u_vert)}  "
+      f"max|u| = {float(np.abs(u_vert).max()) if len(u_vert) else 0:.6e}")
+
+# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ──────────────────────────────────────
+# The recovery and export above use these names; the elided mesh-form-solve
+# block has to define every one, or the rest will not run:
+#
+#     node_coords  every vertex as a numpy (x, y), the array the element loop
+#                  and the export index into
+#     elements     the triangles, each a triple of vertex ids into node_coords
+#     u_vert       the P1 solution in VERTEX order (map dof->vertex once, via the
+#                  interpolated coordinate fields named in the banner)
+#     f_vals       your nodal source values in vertex order (0 if none, or the
+#                  config `source_const` = FV for a constant source); the
+#                  recovery subtracts the CONSISTENT load Me @ f_el
+#     interior     the interior interface node ids (endpoints dropped) -- the
+#                  points you export
+#
+# OASiS does not serve the solve, but it will not make you guess which variables
+# the hole was filling.
 ```''')
 
 

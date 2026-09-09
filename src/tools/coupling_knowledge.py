@@ -2620,10 +2620,10 @@ for k_i, n in enumerate(iface_ids):
     F[n] = h_if/6.0*(g[iface_ids[k_i-1]] + 4*g[n] + g[iface_ids[k_i+1]])
 
 d = []
-d.append('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"')
-d.append('SCALAR TRANSPORT DYNAMIC:\n  TIMEINTEGR: "Stationary"\n  SOLVERTYPE: "linear_full"\n  VELOCITYFIELD: "zero"\n  TIMESTEP: 1.0\n  NUMSTEP: 1\n  MAXTIME: 1.0\n  LINEAR_SOLVER: 1\n  CALCFLUX_BOUNDARY: "diffusive"')
-d.append('SOLVER 1:\n  SOLVER: "UMFPACK"')
-d.append(f'MATERIALS:\n  - MAT: 1\n    MAT_scatra:\n      DIFFUSIVITY: {KV}')
+d.append('PROBLEM TYPE:\\n  PROBLEMTYPE: "Scalar_Transport"')
+d.append('SCALAR TRANSPORT DYNAMIC:\\n  TIMEINTEGR: "Stationary"\\n  SOLVERTYPE: "linear_full"\\n  VELOCITYFIELD: "zero"\\n  TIMESTEP: 1.0\\n  NUMSTEP: 1\\n  MAXTIME: 1.0\\n  LINEAR_SOLVER: 1\\n  CALCFLUX_BOUNDARY: "diffusive"')
+d.append('SOLVER 1:\\n  SOLVER: "UMFPACK"')
+d.append(f'MATERIALS:\\n  - MAT: 1\\n    MAT_scatra:\\n      DIFFUSIVITY: {KV}')
 if HAS_SRC:
     # Volumetric body source: FUNCT1 holds f(x,y); it is applied over the whole
     # 2-D domain (a SURF in 4C) as VAL(=1) x FUNCT1. This is the SAME generic
@@ -2631,36 +2631,36 @@ if HAS_SRC:
     # dimensional, so 4C adds +integral(f*v) dA to the RHS -- exactly the f in
     # -div(k grad u)=f. Without these two blocks 4C silently solves the source-
     # FREE equation and the field is wrong; a Python src() edit does nothing.
-    d.append('FUNCT1:\n  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "' + SRC_EXPR + '"')
-pt = "\n".join(f'  - E: {i+1}\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [{F[n]:.16e}]\n    FUNCT: [0]'
+    d.append('FUNCT1:\\n  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "' + SRC_EXPR + '"')
+pt = "\\n".join(f'  - E: {i+1}\\n    NUMDOF: 1\\n    ONOFF: [1]\\n    VAL: [{F[n]:.16e}]\\n    FUNCT: [0]'
                for i, n in enumerate(interior))
-d.append('DESIGN POINT NEUMANN CONDITIONS:\n' + pt)
+d.append('DESIGN POINT NEUMANN CONDITIONS:\\n' + pt)
 if HAS_SRC:
-    d.append('DESIGN SURF NEUMANN CONDITIONS:\n'
-             '  - E: 1\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [1.0]\n    FUNCT: [1]')
-d.append('SCATRA FLUX CALC LINE CONDITIONS:\n  - E: 1')
-d.append('DLINE-NODE TOPOLOGY:\n' + "\n".join(
+    d.append('DESIGN SURF NEUMANN CONDITIONS:\\n'
+             '  - E: 1\\n    NUMDOF: 1\\n    ONOFF: [1]\\n    VAL: [1.0]\\n    FUNCT: [1]')
+d.append('SCATRA FLUX CALC LINE CONDITIONS:\\n  - E: 1')
+d.append('DLINE-NODE TOPOLOGY:\\n' + "\\n".join(
     f'  - "NODE {n} DLINE 1"' for n in iface_ids))
 # outer boundary Dirichlet u=0 on the three non-interface edges + corners
 outer = sorted({n for n in range(1, (NX+1)*(NY+1)+1)
                 if (abs(nodes[n-1][0]-X0)<1e-12 or abs(nodes[n-1][0]-X1)<1e-12
                     or abs(nodes[n-1][1]-Y0)<1e-12 or abs(nodes[n-1][1]-Y1)<1e-12)
                 and n not in interior})
-dp = "\n".join(f'  - E: {len(interior)+i+1}\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [0.0]\n    FUNCT: [0]'
+dp = "\\n".join(f'  - E: {len(interior)+i+1}\\n    NUMDOF: 1\\n    ONOFF: [1]\\n    VAL: [0.0]\\n    FUNCT: [0]'
                for i, n in enumerate(outer))
-d.append('DESIGN POINT DIRICH CONDITIONS:\n' + dp)
-d.append('DNODE-NODE TOPOLOGY:\n' + "\n".join(
+d.append('DESIGN POINT DIRICH CONDITIONS:\\n' + dp)
+d.append('DNODE-NODE TOPOLOGY:\\n' + "\\n".join(
     f'  - "NODE {n} DNODE {i+1}"' for i, n in enumerate(interior))
-    + "\n" + "\n".join(f'  - "NODE {n} DNODE {len(interior)+i+1}"'
+    + "\\n" + "\\n".join(f'  - "NODE {n} DNODE {len(interior)+i+1}"'
                        for i, n in enumerate(outer)))
 # careful: DNODE ids must match condition E ids per family — Neumann first
 if HAS_SRC:
     # DSURF is its OWN design family (not DNODE/DLINE), so E:1 on the surface
     # source does NOT collide with the POINT-condition DNODE ids above -- the
     # interface DNODEs stay bound. Every domain node carries the source surface.
-    d.append('DSURF-NODE TOPOLOGY:\n' + "\n".join(
+    d.append('DSURF-NODE TOPOLOGY:\\n' + "\\n".join(
         f'  - "NODE {i+1} DSURFACE 1"' for i in range(len(nodes))))
-d.append('NODE COORDS:\n' + "\n".join(
+d.append('NODE COORDS:\\n' + "\\n".join(
     f'  - "NODE {i+1} COORD {x:.16e} {y:.16e} 0.0"' for i, (x, y) in enumerate(nodes)))
 els = []
 e = 1
@@ -2669,8 +2669,8 @@ for j in range(NY):
         a, b = nid(i, j), nid(i+1, j)
         c, dd = nid(i+1, j+1), nid(i, j+1)
         els.append(f'  - "{e} TRANSP QUAD4 {a} {b} {c} {dd} MAT 1 TYPE Std"'); e += 1
-d.append('TRANSPORT ELEMENTS:\n' + "\n".join(els))
-Path("deck.4C.yaml").write_text("\n".join(d) + "\n")
+d.append('TRANSPORT ELEMENTS:\\n' + "\\n".join(els))
+Path("deck.4C.yaml").write_text("\\n".join(d) + "\\n")
 
 env = dict(os.environ); env["LD_LIBRARY_PATH"] = CFG.get("fourc_ld", "/opt/4C-dependencies/lib")
 r = subprocess.run(["stdbuf", "-oL", "-eL", CFG.get("fourc_bin", "/home/alexander/4C/build/4C"),
@@ -2712,6 +2712,17 @@ vals = [u[n-1] for n in interior]
 json.dump({"field_name": "u", "coordinates": co, "values": vals,
            "normal_fluxes": q_own, "n_points": len(co)},
           open("exports.json", "w"))
+# PER-LEVEL PERSISTENCE. Each mesh level writes its OWN field file named by the
+# config level, so running levels 1->2->3 leaves THREE distinct files instead of
+# the finest overwriting the coarse ones. Build your solution_level<k>_<side>.csv
+# deliverable from THESE (one per level, interpolated to the task's probe
+# points) -- NEVER from a single output the next level overwrites. That overwrite
+# is the top cause of identical-across-levels submissions graded UNPHYSICAL.
+_LVL = CFG.get("level", "X")
+with open(f"field_level{_LVL}.csv", "w") as _f:
+    _f.write("x,y,u\\n")
+    for (_px, _py), _u in zip(nodes, u):
+        _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\\n")
 print(f"4C Neumann participant: NDOF = {len(nodes)}  max|u|={max(abs(x) for x in vals) if vals else 0:.6e}")
 ```
 
@@ -4023,6 +4034,15 @@ co_out = [[float(coords[n][0]), float(coords[n][1])] for n in interior]
 json.dump({"field_name": "u", "coordinates": co_out, "values": [],
            "normal_fluxes": q_own, "n_points": len(co_out)},
           open("exports.json", "w"))
+# PER-LEVEL PERSISTENCE. Each level writes its own field file (named by the
+# config level) so the coarse levels are not overwritten by the finest. Assemble
+# solution_level<k>_<side>.csv from THESE per-level files (interpolated to the
+# task's probe points), never from one output the next level overwrites.
+_LVL = CFG.get("level", "X")
+with open(f"field_level{_LVL}.csv", "w") as _f:
+    _f.write("x,y,u\\n")
+    for (_px, _py), _u in zip(verts, u_vert):
+        _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\\n")
 print(f"DUNE Dirichlet participant: NDOF = {space.size}  "
       f"max|u|={float(np.abs(u_vert).max()):.6e}")
 ```''')

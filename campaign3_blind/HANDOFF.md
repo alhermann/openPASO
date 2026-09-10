@@ -456,6 +456,23 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   fill). Dirichlet-role worker trial dir4c1: 2/3 PASS, both with flux error
   1.85e-2, identical to the validated fill; the failure wrote a THERMAL
   DYNAMIC section and was told so by the finish check.
+- 01:00: 4C contract text tightened from the Neumann trials graded against
+  the manufactured solution (part4c7 0/3 on the older text): the point-load
+  formula VAL = (h/6)(q(y-h) + 4q(y) + q(y+h)) is stated (a worker put the
+  density in VAL: 10x flux), no `IO:` section at all (three decks aborted
+  on one), the dynamics section is SCALAR TRANSPORT DYNAMIC and PROBLEMTYPE
+  Thermo is named by the finish lint as the reason no scatra output exists
+  (two decks). part4c8 on the point-load text: 2/3 (both passes exact to the
+  validated fill; the failure was PROBLEMTYPE Thermo, now named by the
+  lint). part4c9 on the final text: sample 0 PASS exact; sample 1 wrote
+  `PI` in the source expression and had dropped every served check (the
+  lowercase-pi rule is now in the contract head and grammar trap (b)).
+- 01:15: part4c9 (final text before this) 1/3: one exact pass, one `PI`
+  abort with every served check deleted, one deck that RAN and exported a
+  60%-wrong trace with no word said. Served now: a Neumann load-consistency
+  self-check (recovered flux must match the applied load to 30%; a
+  validated deck gives 1.6%, a density-in-VAL deck 9x) -- validated on both
+  roles and on a deliberately wrong load (commit ff3ea506). part4c10 running.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

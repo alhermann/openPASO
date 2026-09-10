@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_finished=False :: 4C FAILED -- see run.log\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 178.4,
+  "lines": 325
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "exports n=9 values=9 flux_err=4.50e+01 trace_err=2.85e+00 4C_finished=True",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 252.5,
+  "lines": 302
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_finished=False :: 4C DID NOT FINISH -- 4C said: PROC 0 ERROR in /home/alexander/4C/src/core/io/src/4C_io_input_spec_builders.cpp, line 633: | Could not match this input | IO: | RUNTIME_VTK_OUTPUT: | OUTPUT_DATA_FORMAT: ascii | PREFIX: \"scatra\" | against the given input specification. This was the best attempt to match the input: | [!] Candidate group 'IO' | { | [ ] Defaulted parameter 'OUTPUT_GMSH'\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 177.8,
+  "lines": 310
+ }
+]

@@ -47,8 +47,8 @@ X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV = CFG["k"]; IF = CFG.get("iface", "left")
 SIDE = CFG.get("side", "neumann")   # "neumann" | "dirichlet": the role the task gives this subdomain
 
-# Volumetric source f(x,y) in -div(k grad u) = f, as a 4C space-time EXPRESSION
-# STRING (NOT a Python function): '^' is power (never '**'), the coordinates are
+# SOURCE f(x,y) AS A 4C EXPRESSION STRING (not a Python function): '^' for
+# powers (never '**'), lowercase 'pi' ('PI' aborts: "Missing variables PI"),
 # ... (explanation continues in the annotated block)
 SRC_EXPR = str(CFG.get("source_expr", CFG.get("source_const", "0.0")))
 HAS_SRC = SRC_EXPR.strip() not in ("", "0", "0.", "0.0")
@@ -138,6 +138,14 @@ def why_4c_did_not_finish():
                 _bad = [s for s in dict.fromkeys(_secs) if s not in _valid and not _re.fullmatch(r"FUNCT\d+", s)]
                 if _bad:
                     _why.append("section name(s) the binary's own grammar (`4C -p`) does not know: " + ", ".join(_bad))
+            if _re.search(r'PROBLEMTYPE:\s*"?Thermo"?\s*$', _txt, _re.M):
+                _why.append("PROBLEMTYPE Thermo: this contract's recovery reads Scalar_Transport output "
+                            "(phi_1 and flux_boundary_phi_1 in out-vtk-files/), which a Thermo problem never "
+                            "writes, and Thermo does not know SOLVERTYPE/CALCFLUX_BOUNDARY -- use PROBLEMTYPE "
+                            "Scalar_Transport with a SCALAR TRANSPORT DYNAMIC section, MAT_scatra and TRANSP elements")
+            if "Scalar_Transport" in _txt and "THERMAL DYNAMIC:" in _txt and "SCALAR TRANSPORT DYNAMIC:" not in _txt:
+                _why.append("PROBLEMTYPE Scalar_Transport needs its dynamics under `SCALAR TRANSPORT DYNAMIC`, "
+                            "not `THERMAL DYNAMIC` (that is the Thermo problem type)")
             if "CALCFLUX_BOUNDARY" in _txt and "FLUX CALC" not in _txt:
                 _why.append("CALCFLUX_BOUNDARY is set but no `SCATRA FLUX CALC LINE CONDITIONS` (SURF in 3-D) entry "
                             "names the interface, and 4C refuses flux output without one")
@@ -179,15 +187,25 @@ atexit.register(_diagnose_at_exit)
 #     knowledge(topic='coupling', solver='fourc')     # the 4C traps below
 #
 # For THIS coupling your deck must:
-#   * be PROBLEMTYPE "Scalar_Transport", TIMEINTEGR "Stationary", a MAT_scatra
-#     material with DIFFUSIVITY = KV, and TRANSP QUAD4/TRI3 elements in a
-#     TRANSPORT ELEMENTS section (SOLID elements are rejected against MAT_scatra);
+#   * be PROBLEMTYPE "Scalar_Transport" with its dynamics in a section named
+#     exactly `SCALAR TRANSPORT DYNAMIC` (TIMEINTEGR "Stationary", SOLVERTYPE
+#     "linear_full", CALCFLUX_BOUNDARY "diffusive"), a MAT_scatra material
+#     with DIFFUSIVITY = KV, and TRANSP QUAD4/TRI3 elements in a TRANSPORT
+#     ELEMENTS section (SOLID elements are rejected against MAT_scatra). NOT
+#     `THERMAL DYNAMIC`: that is the Thermo problem type, it has no CALCFLUX
+#     and writes no scatra VTU, and 4C aborts with "Could not match this
+#     input" on the scatra keys (measured in two trial decks tonight);
 #   * on the NEUMANN side (SIDE == "neumann"): apply the imported partner flux
 #     as the interface load -- one DESIGN POINT NEUMANN per INTERIOR interface
-#     node, Simpson-weighted, with VAL = partner_flux(that node's coordinate),
-#     imported node-by-node (no polynomial fit). 4C's Neumann VAL is exactly
-#     the flux the partner exported; hand it over unchanged (opposite normals
-#     already give the sign);
+#     node whose VAL is that node's NODAL LOAD: the flux density integrated
+#     over the node's share of the interface line. With h the interface node
+#     spacing and y the node's coordinate along the interface,
+#         VAL = (h/6) * (partner_flux(y-h) + 4*partner_flux(y) + partner_flux(y+h))
+#     (Simpson; imported node-by-node, no polynomial fit). The density itself
+#     is NOT the VAL of a POINT condition: measured, a deck that put
+#     partner_flux(y) in VAL recovered a flux 10x too small at h = 0.1 and one
+#     that divided by h a flux 10x too large. No extra sign anywhere: the
+#     opposite normals already give it;
 #   * on the DIRICHLET side (SIDE == "dirichlet"): impose the imported partner
 #     values as the interface trace -- one DESIGN POINT DIRICH per INTERIOR
 #     interface node with VAL = partner_value(that node's coordinate) (the two
@@ -208,7 +226,11 @@ atexit.register(_diagnose_at_exit)
 # numbers across ALL condition families. A Dirichlet block restarting at `E: 1`
 # silently rebinds the interface DNODEs and zeroes the field -- number the
 # families continuously. And this build writes scatra VTU by default with NO
-# `VTK` section; adding one is rejected as an invalid section.
+# `VTK` section; adding one is rejected as an invalid section. WRITE NO `IO:`
+# SECTION AT ALL -- no VERBOSITY, no RUNTIME VTK OUTPUT, no PREFIX: measured
+# in three trial decks tonight, every `IO:` block aborted the read with
+# "Could not match this input"; the VTU files appear under out-vtk-files/
+# without it.
 #
 # Run 4C with the binary at config `fourc_bin` (env FOURC_BIN; discover(
 # query='list') prints it on THIS install) and its dependency libraries on
@@ -287,6 +309,21 @@ if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size 
     raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array "
                      "negated, bit for bit: a copy, not a recovery from this side's "
                      "own assembled system")
+# NEUMANN LOAD CONSISTENCY (served). A Neumann side's recovered outward flux at
+# the interface reproduces the load it applied, with the opposite sign: a
+# ... (explanation continues in the annotated block)
+if SIDE == "neumann" and q_own:
+    _ax = 1 if IF in ("left", "right") else 0
+    _q_applied = [partner_flux(float(nodes[n - 1][_ax])) for n in interior]
+    _scale = max(abs(x) for x in _q_applied) if _q_applied else 0.0
+    if _scale > 0:
+        _mis = max(abs(a + b) for a, b in zip(q_own, _q_applied)) / _scale
+        if _mis > 0.3:
+            raise SystemExit(f"EXPORT SELF-CHECK: the recovered interface flux does not match the load you "
+                             f"applied: max|q_own + q_imported| / max|q_imported| = {_mis:.2f}, while a correct "
+                             f"Neumann side reproduces its load to a few percent. The imported flux entered the "
+                             f"deck wrongly scaled or at the wrong nodes -- check the point-load formula "
+                             f"VAL = (h/6)*(q(y-h) + 4q(y) + q(y+h)) and the node coordinates. Nothing was exported")
 json.dump({"field_name": "u", "coordinates": co, "values": (vals if SIDE == "neumann" else []),
            "normal_fluxes": q_own, "n_points": len(co)},
           open("exports.json", "w"))

@@ -2328,6 +2328,7 @@ _PRIORITY_TABLE = [
           "NOT COUPLED TO ITS PARTNER", "EXITED NON-ZERO", "TIMED OUT")),
     (12, ("NO LINE ANY SOLVER EMITS",)),
     (11, ("NAMES", "FILE(S) THAT DO NOT EXIST")),
+    (15, ("NO PER-LEVEL FIELD FILE AND NO INTERFACE FILE",)),
     (20, ("COUPLING HISTORY TOO SHORT", "NON-POSITIVE OR NON-FINITE RESIDUAL",
           "RESIDUAL BARELY MOVED", "CONSTANT RESIDUAL COLUMN",
           "WRITTEN-IN SEQUENCE", "IDENTICAL RESIDUAL HISTORY")),
@@ -2400,6 +2401,39 @@ def what_to_fix_next(findings, *, converged: bool = True,
                  + (f" (+{len(others) - 8} more)" if len(others) > 8 else "")
                  + ". Full corrective text for each is in the findings list.")
     return head
+
+
+def missing_fields_findings(work: Path) -> list[dict]:
+    """A coupling that ran and wrote no field is not a result yet.
+
+    Measured twice on the honest build: a run coupled three real levels
+    (driver histories, eight or nine iterations to 1e-7 each), wrote its run
+    logs and its residual histories, and handed in with NO per-level field
+    file and NO interface file -- once listing invented names, once honestly
+    listing only what existed. Nothing in the audit named the missing piece,
+    because generic discovery cannot see a family that was never written.
+    The agent's own histories and logs are the evidence that the solves ran,
+    so the absence of any field file is a finding, not an unknown.
+    """
+    hist = _history_files(work)
+    logs = _level_logs(work)
+    if not (hist or logs):
+        return []
+    if _field_files(work) or _interface_files(work):
+        return []
+    levels = sorted({_level_of(q) for q in hist + logs if _level_of(q) is not None})
+    return [{"sequence": "no field files", "priority": 15, "values": [], "finding": (
+        f"NO PER-LEVEL FIELD FILE AND NO INTERFACE FILE EXISTS, while "
+        f"{len(hist)} residual history file(s) and {len(logs)} per-level run "
+        f"log(s) do (levels {levels}). The coupling ran and nothing was "
+        f"written at the points your task prescribes, so there is no result "
+        f"to check yet. For EACH level and EACH side: evaluate that side's "
+        f"converged field at the prescribed probe points (interpolate inside "
+        f"the element, never nearest node) and write the per-level field "
+        f"file; write the per-level interface file from that side's own "
+        f"converged trace and flux at the prescribed interface points. Every "
+        f"number you already have is on disk in your participants' per-level "
+        f"dumps and exports.json; no re-solve is needed.")}]
 
 
 def summary_names_findings(work: Path) -> list[dict]:
@@ -2517,6 +2551,7 @@ def audit(work_dir: str, claimed_order: float | None = None,
     findings.extend(unlaunched_participants_findings(work))
     findings.extend(run_log_identity_findings(work))
     findings.extend(summary_names_findings(work))
+    findings.extend(missing_fields_findings(work))
     seqs = _sequences_from_workdir(work)
     csvs = _sequences_from_level_csvs(work)
     if "__ambiguous__" in csvs:

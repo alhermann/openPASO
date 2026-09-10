@@ -1,0 +1,26 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 no_exports=True :: Invalid MIT-MAGIC-COOKIE-1 keyTraceback (most recent call last):\n  File \"/tmp/tmpofezl6jw/participant_A.py\", line 129, in <module>\n    a_form = dot(grad(u), grad(v)) * dx + CV * u * v * dx\n                                          ~~~~~~~~~~~^~~~\n  File \"/home/alexander/miniconda3/envs/dune-py313/lib/python3.13/site-packages/ufl/measure.py\", line 422, in __rmul__\n    raise ValueError(\"This integral is missing an integration domain.\")\nValueError: This integral is missing an integration domain.\n",
+  "kept_selfcheck": true,
+  "secs": 79.5,
+  "lines": 249
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=0 no_exports=True :: ",
+  "kept_selfcheck": false,
+  "secs": 205.1,
+  "lines": 1
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 no_exports=True :: Invalid MIT-MAGIC-COOKIE-1 keyTraceback (most recent call last):\n  File \"/tmp/tmp8hoyyqce/participant_A.py\", line 73, in <module>\n    space = lagrange(gridView, order=1)\n            ^^^^^^^^\nNameError: name 'lagrange' is not defined\n",
+  "kept_selfcheck": true,
+  "secs": 293.3,
+  "lines": 227
+ }
+]

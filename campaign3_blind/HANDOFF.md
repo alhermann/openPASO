@@ -406,7 +406,7 @@ idioms measured, Constant() for coefficients, ** not ^).
 **4C worker step, re-read of the failed sample:** `Section 'DNODE-NODE
 TOPOLOGY' is defined more than once` -> deck grammar trap (h).
 
-**Later the same night (22:40-23:40):**
+**Later the same night (22:20-23:05):**
 
 - Parent first move on the orchestrator-rule tree: 2 of 2 samples spawned a
   worker at call 4 (right after the coupling doors) and the worker copied the
@@ -441,6 +441,12 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   loop gives.
 - Tests added: `test_the_4c_contract_names_why_the_deck_did_not_run.py`,
   `test_the_dune_contract_has_two_holes_and_serves_the_mesh_access.py`.
+- DUNE worker step, final trials of the night (contract with served UFL
+  constants, graded against the reference flux): dune11 without a repair
+  round 1/3 (the two failures were a missing `import dune` and
+  `from ufl import SubDomain`, both now in fact 15); dune12 WITH one repair
+  round 3/3, every flux identical to the reference, two on the first try and
+  one after the repair. Six trials at 0/3 before tonight's served-side fixes.
 
 Whole-problem rounds stop until each failing step passes cheap OpenRouter trials with the same 27B:
 `campaign3_blind/step_trials/` (see its scripts' docstrings). Each trial hands the model exactly the

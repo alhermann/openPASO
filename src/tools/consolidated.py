@@ -5651,6 +5651,18 @@ def register_consolidated_tools(mcp: FastMCP):
                     "that names files not on disk is read as invented."))
         except Exception:                                    # advisory only
             _lead, _compact = None, []
+        # THE LADDER RIDES ON EVERY couple() REPLY: the next unmet step, from
+        # the files, as a sub-agent brief -- so the agent that just coupled a
+        # level is told the one thing to do next instead of judging the job.
+        _next = None
+        try:
+            if _root:
+                _next = (_ra.coupled_ladder(Path(_root)) or {}).get("text")
+        except Exception:                                # advisory only
+            _next = None
+        if _next:
+            _lead = (_lead + "\n" + _next) if _lead else _next
+            result = {"next_step": _next, **result}
         if _lead:
             result = {"what_to_fix_next": _lead,
                       "presubmission_findings": _compact[:12], **result}
@@ -7407,6 +7419,14 @@ every interface quantity per point: values = [T, ux, uy] and normal_fluxes =
 every iteration); the driver compares them component by component. A FIELD
 coupling in which both codes own the whole body (the `tsi` route) is a
 different setup and does not apply to a split domain.
+
+WORK THE LADDER, ONE SUB-AGENT PER STEP. audit_results(work_dir) and every
+couple() reply name the next unmet step, read from your own files, as a
+ready sub-agent brief: two participants -> each exports standalone -> couple
+level k -> level k's field and interface files -> its captured run logs ->
+the summary. Hand the brief to spawn_subagent(role='worker', task=<brief>)
+as is; the step ends when its check passes on disk. Never judge the whole
+job at once -- every single step is small.
 
 The tool runs the whole iteration -- relaxation, convergence, validation --
 and on success returns your interface tables READY TO SAVE plus the paths of

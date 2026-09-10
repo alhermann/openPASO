@@ -815,7 +815,7 @@ def _make_spawn_subagent_tool(
 
     @tool
     async def spawn_subagent(role: str, task: str, context: str = "") -> str:
-        """Spawn a sub-agent. role∈{critic, researcher, verifier}; task = what it should do; context = facts to pass in.
+        """Spawn a sub-agent. role∈{critic, researcher, verifier, worker}; task = what it should do; context = facts to pass in.
 
         The critic role should ruthlessly challenge the parent's setup; the
         verifier should re-derive numbers independently; the researcher
@@ -851,6 +851,19 @@ def _make_spawn_subagent_tool(
                 "You are an independent verifier. Re-derive the requested "
                 "quantity from first principles or by an alternative "
                 "method/solver, then compare with the parent's number."
+            )
+        elif role == "worker":
+            # A bounded step worker: the same tools, one step, one check.
+            # Plumbing only -- the step and its check come from the parent's
+            # task text (which OASiS's ladder writes); nothing here knows
+            # any task.
+            sys = (
+                "You are the worker for exactly ONE step of a larger job. Do "
+                "only what the task text asks, in the working directory it "
+                "names, using the tools; the step ends when the CHECK stated "
+                "in the task passes on disk. Report either DONE with the "
+                "files you produced, or the exact error text you could not "
+                "get past. Do not judge or attempt the rest of the job."
             )
         else:
             sys = (

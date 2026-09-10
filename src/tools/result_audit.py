@@ -2403,6 +2403,154 @@ def what_to_fix_next(findings, *, converged: bool = True,
     return head
 
 
+def coupled_ladder(work: Path) -> dict | None:
+    """The next unmet step of a partitioned coupled run, read from the files,
+    phrased as the brief of the sub-agent that should do it.
+
+    A small model that sees the whole job at once judges it too big and gives
+    up (measured: 8 of 9 runs in one round, most with 25 minutes left); given
+    ONE step whose end is a file it can see, it keeps the served contract and
+    finishes the step (measured in single-step trials: 6 of 6 kept it against
+    0 of 45 whole-problem runs). So every audit and every couple() reply names
+    the next unmet step -- two participant scripts -> each exports standalone
+    -> a coupling history per level -> that level's field and interface files
+    for both sides -> that level's captured run logs -> the summary -- and
+    returns it as a brief to hand to a sub-agent. No task knowledge: every
+    check reads the agent's own files; the level count is the task's.
+    """
+    import re as _re
+    try:
+        from blind_eval.evidence import (PER_CODE_SIGNATURES,
+                                         strip_terminal_noise)
+        sig_pats = [pp for pl in PER_CODE_SIGNATURES.values() for pp in pl]
+    except Exception:                                   # noqa: BLE001
+        sig_pats, strip_terminal_noise = [], (lambda t: t)
+    scripts, exports = [], []
+    for q in work.rglob("*"):
+        if not q.is_file():
+            continue
+        try:
+            rel = q.relative_to(work)
+        except ValueError:
+            continue
+        if _SCRATCH & set(rel.parts[:-1]):
+            continue
+        if q.suffix == ".py":
+            try:
+                t = q.read_text(errors="ignore")
+            except OSError:
+                continue
+            if "imports.json" in t and "exports.json" in t and not _re.search(
+                    r"run_|driver|coupl|orchestr|main_", q.name, _re.I):
+                scripts.append(q)          # a participant, not the driver that launches them
+        elif q.name == "exports.json":
+            try:
+                e = json.loads(q.read_text())
+                if e.get("normal_fluxes") or e.get("values"):
+                    exports.append(q)
+            except Exception:                           # noqa: BLE001
+                continue
+    hist = _history_files(work)
+    if not (scripts or exports):
+        return None                    # no sign of a partitioned coupling here
+    fields = _field_files(work)
+    ifaces = _interface_files(work, sided=True)
+    logs = _level_logs(work)
+
+    def step(n, what, brief):
+        return {"step": n, "text": (
+            f"LADDER STEP {n} OF 6 -- {what}\n"
+            f"HAND THIS STEP TO A SUB-AGENT AS IS: spawn_subagent(role='worker', "
+            f"task=\"{brief}\"). The step ends when its check passes on disk; "
+            f"the sub-agent reports the exact error otherwise. Judge nothing about "
+            f"the whole task -- only this step."), "brief": brief}
+
+    if len(scripts) < 2:
+        have = (f"{len(scripts)} participant script(s) found"
+                + (f" ({scripts[0].relative_to(work)})" if scripts else ""))
+        return step(1, f"WRITE THE {'SECOND' if scripts else 'FIRST'} PARTICIPANT: {have}.",
+                    "Write the participant script of ONE code for ONE subdomain in its own directory ./side_<x>: "
+                    "call knowledge(topic='coupling', solver=<that code>) and copy the served CONTRACT into "
+                    "the file unchanged (imports.json handshake, sign convention, flux recovery, exports "
+                    "schema, export self-check); fill only its marked hole with the mesh, form, material, "
+                    "source and solve for this subdomain from the task; write ./config.json for level 1 and a "
+                    "synthetic ./imports.json; run it with that code's own interpreter until ./exports.json "
+                    "appears with finite values. CHECK: ./side_<x>/exports.json exists and the script exited 0.")
+    dirs_with_export = {q.parent for q in exports}
+    unrun = [q for q in scripts if q.parent not in dirs_with_export]
+    if len(dirs_with_export) < 2 and unrun:
+        who = ", ".join(str(q.relative_to(work)) for q in unrun[:2])
+        return step(2, f"RUN EACH PARTICIPANT STANDALONE: {who} has not exported yet.",
+                    f"In the directory of {who}: write a synthetic ./imports.json (the partner's field name, "
+                    "coordinates along the interface, values and normal_fluxes -- plausible numbers) and "
+                    "./config.json for level 1; run the script with that code's own interpreter and a "
+                    "generous timeout (first runs compile); read the traceback from the top, fix the script, "
+                    "repeat. CHECK: ./exports.json appears beside the script with finite values and the "
+                    "script exited 0.")
+    rows_by_level: dict[int, int] = {}
+    for q in hist:
+        k = _level_of(q)
+        if k is None:
+            continue
+        try:
+            n = sum(1 for _ in q.open(errors="ignore")) - 1
+        except OSError:
+            n = 0
+        rows_by_level[k] = max(rows_by_level.get(k, 0), n)
+    done_levels = sorted(k for k, n in rows_by_level.items() if n >= 3)
+    for k in done_levels:
+        sides_f = {_side_of(q) for q in fields if _level_of(q) == k and _side_of(q)}
+        sides_i = {_side_of(q) for q in ifaces if _level_of(q) == k}
+        if len(sides_f) < 2 or len(sides_i) < 2:
+            return step(4, f"WRITE LEVEL {k}'S DELIVERABLES: the coupling converged but level {k} has field "
+                           f"files for {sorted(sides_f) or 'no'} side(s) and interface files for "
+                           f"{sorted(sides_i) or 'no'} side(s).",
+                        f"For level {k}, for EACH side: read that side's converged field (its per-level dump "
+                        "and exports.json in its directory), evaluate it at the probe points the task "
+                        "prescribes by interpolating inside the element (never nearest node) and write the "
+                        "per-level field file the task names; write the per-level interface file from that "
+                        "side's own converged trace and its own outward flux at the prescribed interface "
+                        "points. CHECK: both sides' field files and interface files for this level exist and "
+                        "audit_results(work_dir) reports no missing-fields finding for it.")
+        sides_l = set()
+        for q in logs:
+            if _level_of(q) != k or not _side_of(q):
+                continue
+            try:
+                txt = strip_terminal_noise(q.read_text(errors="ignore"))
+            except Exception:                           # noqa: BLE001
+                continue
+            if not sig_pats or any(_re.search(pp, txt, _re.IGNORECASE | _re.MULTILINE) for pp in sig_pats):
+                sides_l.add(_side_of(q))
+        if len(sides_l) < 2:
+            return step(5, f"CAPTURE LEVEL {k}'S RUN LOGS: level {k} has a log holding the solver's own "
+                           f"console output for {sorted(sides_l) or 'no'} side(s).",
+                        f"For level {k}, for EACH side: the per-level run log the task names must hold that "
+                        "solver's OWN console output (banner, iteration lines) plus the DOF-count line. The "
+                        "driver kept each participant's captured output next to its exports.json -- copy that "
+                        "file into the run log; never summarise or retype it. CHECK: audit_results(work_dir) "
+                        "reports no run-log finding for this level.")
+    next_level = (max(done_levels) + 1) if done_levels else 1
+    short = (f" (its history so far has {rows_by_level.get(next_level, 0)} row(s))"
+             if next_level in rows_by_level else "")
+    if done_levels:
+        what = (f"LEVELS {done_levels} ARE COMPLETE ON DISK. If your task prescribes more levels, couple "
+                f"level {next_level}; otherwise write the summary.")
+        brief = (f"If the task prescribes a level {next_level}: set level={next_level} in both ./config.json, "
+                 "call couple(participants=..., history_path=<absolute path of this level's residual-history "
+                 "file>) and iterate until it converges; then do steps 4 and 5 for it. If not: write the "
+                 "summary file naming ONLY files that exist, then run audit_results(work_dir). CHECK: the "
+                 "audit reports no missing level, no invented name and no missing field file.")
+        return step(6, what, brief)
+    return step(3, f"COUPLE LEVEL {next_level}{short}.",
+                f"Set level={next_level} in both ./config.json; call couple(participants=[{{name, command, "
+                f"work_dir (absolute), imports_from}} for both sides], max_iter from the served rho guidance, "
+                "tol from the task, history_path=<absolute path of this level's residual-history file>); "
+                "read the reply's WHAT TO FIX NEXT and fix the named side until converged is true. CHECK: "
+                "the residual-history file for this level exists with at least three rows and a falling "
+                "residual, and the couple() reply says converged.")
+
+
 def missing_fields_findings(work: Path) -> list[dict]:
     """A coupling that ran and wrote no field is not a result yet.
 
@@ -2715,12 +2863,23 @@ def audit(work_dir: str, claimed_order: float | None = None,
     findings.extend(identical_solution_levels_findings(work))
     findings.extend(solution_rows_grow_findings(work))
     clean = not [f for f in findings if not f.get("informational")]
+    # THE LADDER: the next unmet step of a coupled run, from the files. It
+    # leads a clean reply and closes a dirty one, so the agent always knows
+    # the one thing to do next.
+    try:
+        _ladder = coupled_ladder(work)
+    except Exception:                                   # noqa: BLE001
+        _ladder = None
+    _lead = what_to_fix_next(findings, clean_msg=(_ladder["text"] if _ladder else None))
+    if _ladder and _ladder["text"] not in _lead:
+        _lead += "\n" + _ladder["text"]
     return {
         "sequences_found": len(seqs),
+        "next_step": (_ladder or {}).get("text"),
         # THE SINGLE NEXT FIX, FIRST. A weak agent reads the top of the reply,
         # so the highest-priority finding leads with its full corrective text;
-        # a clean funnel leads with the necessary-not-sufficient reminder.
-        "what_to_fix_next": what_to_fix_next(findings),
+        # a clean funnel leads with the next ladder step.
+        "what_to_fix_next": _lead,
         "findings": findings,
         "clean": clean,
         "note": ("This audit uses ONLY your own files — no reference "

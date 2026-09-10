@@ -1,14 +1,14 @@
-"""Transient thermal MMS generator for 4C — temporal convergence grading.
+"""Transient thermal MMS generator for 4C — temporal convergence measurement.
 
 Unsteady heat conduction (PROBLEMTYPE "Thermo", One-Step-Theta) with a
 manufactured time-and-space-dependent solution u*(x,t), a matching
 volumetric heat source q = rho*c*du*/dt - kappa*lap(u*) as a
 SYMBOLIC_FUNCTION_OF_SPACE_TIME body load, time-dependent Dirichlet u*
 on the whole boundary, and initial field u*(x,0). On a fixed fine mesh
-a dt-halving study grades the temporal order of the time integrator:
+a dt-halving study measures the temporal order of the time integrator:
 theoretical order 2 for theta = 0.5 (Crank-Nicolson), 1 for theta = 1
 (backward Euler). The order a given study attains is an OUTPUT of that
-study — grade it from the emitted errors, do not assume it.
+study — compute it from the emitted errors, do not assume it.
 
 The 4C-behaviour claims below (which sections are honoured, what is
 silently dropped, what the parser accepts) were checked live against a
@@ -37,7 +37,7 @@ class ThermoTransientMMSGenerator(BaseGenerator):
                 "volumetric source rho*c*du*/dt - kappa*lap(u*) is "
                 "applied as a space-time function body load, u* as "
                 "time-dependent Dirichlet on the whole boundary and "
-                "as the initial field. Fixed mesh + dt-halving grades "
+                "as the initial field. Fixed mesh + dt-halving measures "
                 "the TEMPORAL order of One-Step-Theta: ~2 for "
                 "theta=0.5, ~1 for theta=1."
             ),
@@ -55,7 +55,7 @@ class ThermoTransientMMSGenerator(BaseGenerator):
                     "genuinely 2nd-order in time and theta=1.0 is "
                     "1st-order. Confirm on YOUR case with a dt-halving "
                     "study; see the spatial-floor pitfall for how to "
-                    "grade it correctly."
+                    "measure it correctly."
                 ),
             },
             "materials": {
@@ -189,7 +189,7 @@ class ThermoTransientMMSGenerator(BaseGenerator):
                 "times across a dt series produce error ratios that "
                 "wander instead of approaching 2^p — check the "
                 "actual MAXTIME/NUMSTEP echoed in the 4C stdout "
-                "header before grading.",
+                "header before fitting the order.",
             ],
         }
 

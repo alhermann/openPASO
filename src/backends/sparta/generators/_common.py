@@ -132,7 +132,7 @@ def output_idioms(*keys: str) -> dict:
     base = ("stats", "stats_style keywords", "vector vs array rule")
     return {k: READING_OUTPUT[k] for k in base + keys if k in READING_OUTPUT}
 
-# ── what this build can and cannot do (no host paths, no campaign refs) ───
+# ── what this build can and cannot do (no host paths, no run refs) ───
 BUILD_FACTS = {
     "invocation": "spa_serial -in in.<case>, run from the directory that holds "
                   "the deck and its data files; log.sparta is written to cwd.",

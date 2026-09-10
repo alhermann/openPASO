@@ -43,43 +43,51 @@ MEASURED_APPLIED = "3.605675e-03"
 SUBMITTED = "2.367156e-03"
 
 
-def _template():
-    from backends.kratos.generators.heat import GENERATORS
-    assert "interface_neumann_2d" in GENERATORS, (
-        "there is no served route for the NEUMANN side of a coupling, which is "
-        "the half of every coupled cell that has a silent failure mode")
-    return GENERATORS["interface_neumann_2d"]({})
+def _served_kratos_coupling() -> str:
+    from tools.coupling_knowledge import coupling_knowledge
+    return coupling_knowledge("kratos")
 
 
-def test_the_served_neumann_route_creates_the_conditions():
-    t = _template()
+def test_the_served_kratos_neumann_route_creates_the_conditions():
+    """The Neumann-side contract OASiS serves for Kratos must create the
+    interface flux conditions in a loop over the interface edges, with the
+    solve elided; without the conditions the imported flux is silently
+    discarded."""
+    from tools.coupling_knowledge import _PARTICIPANT_DIR, _serve_participant
+    p = _PARTICIPANT_DIR / "participant_kratos_neumann.py"
+    assert p.is_file(), "no served Neumann-side contract for Kratos"
+    t = _serve_participant(p)
     assert "import KratosMultiphysics" in t
-    assert "ThermalFace2D2N" in t, (
-        "the served Neumann route must CREATE the interface conditions; "
+    assert re.search(r'CreateNewCondition\("(?:FluxCondition2D2N|ThermalFace2D2N)"', t), (
+        "the served Neumann contract must CREATE the interface conditions; "
         "without them the imported flux is silently discarded")
-    # the creation must be in a loop over interface edges, not a single call
-    assert re.search(r"for c in range\(len\(iface\) - 1\)", t), t[:200]
-    # and it must refuse to run a nonzero flux with no conditions
-    assert "silently ignored" in t and "raise SystemExit" in t, (
-        "the route must refuse rather than return the no-flux answer")
+    assert re.search(r"for j in range\(NY\):\s*\n\s*mp\.CreateNewCondition", t), (
+        "the conditions must be created in a loop over the interface edges")
+    assert "strategy.Solve()" not in t and "CreateModelPart" not in t, (
+        "the served contract must not carry the solve")
+    payload = _served_kratos_coupling()
+    assert "THE NEUMANN-SIDE PARTICIPANT" in payload and t in payload, (
+        "the Neumann-side contract is not reached from the Kratos coupling payload")
 
 
-def test_the_served_route_carries_the_measurement_that_proves_it():
-    t = _template()
+def test_the_served_kratos_traps_carry_the_measurement_that_proves_it():
+    payload = _served_kratos_coupling()
     for number in (MEASURED_IGNORED, MEASURED_APPLIED):
-        assert number in t, (
+        assert number in payload, (
             f"{number} is the measurement that makes this actionable; without "
             f"the numbers a reader cannot tell an assertion from a guess")
-    assert "BIT-IDENTICAL" in t or "IDENTICAL" in t
+    assert "solve once with the imported flux" in payload, (
+        "the one-step check (zeroed import vs real import) must be served")
+    assert "CreateNewCondition" in payload and "by NAME" in payload
 
 
 def test_the_two_signs_are_stated_and_are_opposite():
-    """The other half of the trap: FACE_HEAT_FLUX is INWARD, the task's q_n is
-    OUTWARD, so the number you report is the negative of the one you apply."""
-    t = _template()
-    assert "INWARD" in t and "OUTWARD" in t
-    assert "-qin" in t or "-q_in" in t, (
-        "the exported flux must be the negative of the applied one")
+    """The other half of the trap: the flux you APPLY is the partner's number
+    unchanged, the flux you REPORT is your OWN outward flux."""
+    from tools.coupling_knowledge import _PARTICIPANT_DIR, _serve_participant
+    t = _serve_participant(_PARTICIPANT_DIR / "participant_kratos_neumann.py")
+    assert "UNCHANGED" in t, "the contract must say the imported flux is applied unchanged"
+    assert "outward" in t.lower(), "the contract must state the exported flux is this side's own OUTWARD flux"
 
 
 def test_the_coupling_must_read_leads_with_it():

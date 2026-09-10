@@ -262,11 +262,37 @@ Do not run the campaign from it.
   never a file, never an environment variable.
 - Do not read credentials from another process's `/proc/<pid>/environ`.
 
+### What OASiS may say about itself, and where (rule of 2026-09-03, applied 2026-09-10)
+
+- OASiS is a general product: **no benchmark file name, verdict token, run
+  identifier or grader vocabulary anywhere in `src/`** — served strings,
+  docstrings, comments and code alike. The task text is the only contract
+  carrier. Swept on 2026-09-10 on Alexander's explicit scope ("that should not
+  be in there, of course not... check other places").
+- The audit and the workspace advisor discover deliverables generically:
+  `<kind>_level<k>[_<side>].<ext>` read from the agent's own file names and
+  classified by content (field / interface / residual history / run log); the
+  summary file is the caller's hint (the harness passes the file it saw
+  written) or a `result|summary|report|answer` name. A DOF-count line is any
+  `NDOF|DOFS|degrees of freedom = n` spelling.
+- The harness carries no coaching text at all: its OASiS-arm system prompt IS
+  the server's own instructions string (`core.instructions.INSTRUCTIONS`, the
+  same bytes server.py hands to FastMCP) plus the host-tool list.
+- The participant PARTS door (`signal='participant[:role]:partN'`) serves the
+  ELIDED contract in bounded chunks and claims no complete file; it used to
+  read the raw file and hand over its SHA-256. Kratos participants kept
+  `strategy.Solve()` outside the markers until 2026-09-10; every shipped
+  participant now ends with an EXPORT SELF-CHECK (non-finite export, a Neumann
+  side whose imported load never arrived, a Dirichlet side exporting the
+  partner's negated array), execution-verified with scikit-fem.
+
 ### Disclosure obligation
 
 The paper **must state** that OASiS was hardened against this benchmark's I/O
 contract during development. It was. Saying so is the difference between a
-result and a claim.
+result and a claim. Since 2026-09-10 the product no longer names that contract
+anywhere (see the section above); the statement stays, because the checks
+were still shaped by the development runs' failure classes.
 
 ---
 

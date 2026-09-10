@@ -2,7 +2,6 @@
 
 
 from ._convdiff_real import (CROSS_CHECK_NOTE, real_convdiff_script,
-                             real_interface_neumann_script,
                              real_transient_script)
 
 
@@ -58,48 +57,6 @@ def _heat_transient_2d_kratos(params: dict) -> str:
             f"        return {params.get('T_right', 0.0)}\n"
             f"    return None"),
         t_init=params.get("T_init", 0.0))
-
-
-def _heat_interface_neumann_kratos(params: dict) -> str:
-    """FORMAT TEMPLATE - values are defaults, determine appropriate values for your specific problem.
-
-    THE NEUMANN SIDE of a partitioned coupling, solved BY KRATOS: it imports a
-    normal flux on the interface, applies it as a natural boundary condition
-    through ThermalFace2D2N, and exports its own field and its own OUTWARD
-    flux.
-
-    Served because this is the one route in the coupled cells with a silent
-    failure. Setting FACE_HEAT_FLUX on the interface NODES does nothing unless
-    ThermalFace2D2N conditions exist on the interface EDGES -- the nodal value
-    is only integrated BY a condition. Measured on one mesh, three runs
-    differing only in this:
-        zero flux, conditions present   max|T| = 2.307291e-03
-        flux on nodes, NO conditions    max|T| = 2.307291e-03  BIT-IDENTICAL
-        flux on nodes AND conditions    max|T| = 3.605675e-03
-    numpy.allclose on the first two is True.
-
-    The condition is created BY NAME through the factory,
-    `mp.CreateNewCondition("ThermalFace2D2N", cid, [n1, n2], prop)`, and never
-    as a Python attribute: registered components live in a C++ registry, so
-    `SomeApplication.ThermalFace2D2N(...)` raises `has no attribute` for every
-    name that exists -- measured python-attribute=False and
-    factory-by-name=True for LaplacianElement2D3N, ThermalFace2D2N and
-    FluxCondition2D2N alike. That AttributeError is not a version limit.
-
-    And it is not hypothetical. A submitted coupled run whose side A was
-    correct to three digits, whose two prescribed codes both genuinely ran and
-    whose interface FIELD matched across the seam to 0.000e+00, reported a
-    side-B peak of 2.367156e-03. An independent zero-flux solve on the same
-    mesh gives 2.367156e-03 -- identical to seven figures -- against a correct
-    3.670103e-03. Its imported flux never reached the operator, and nothing in
-    the run said so.
-    """
-    nx = params.get("nx", 7)
-    return real_interface_neumann_script(
-        title="Neumann side of a partitioned conduction coupling, Kratos",
-        nx=nx, ny=params.get("ny", 8), k=params.get("k", 200.0),
-        f_expr=str(params.get("f", 0.0)),
-        x0=params.get("x0", 0.625), x1=params.get("x1", 1.5))
 
 
 KNOWLEDGE = {
@@ -161,5 +118,4 @@ KNOWLEDGE = {
 GENERATORS = {
     "heat_2d": _heat_2d_kratos,
     "heat_transient_2d": _heat_transient_2d_kratos,
-    "interface_neumann_2d": _heat_interface_neumann_kratos,
 }

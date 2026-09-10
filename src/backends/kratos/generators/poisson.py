@@ -13,10 +13,10 @@ def _poisson_2d_kratos(params: dict) -> str:
     This used to emit a numpy/scipy assembly with no `import
     KratosMultiphysics` in it. It was labelled "(manual assembly)", which was
     honest but still the wrong artefact: an agent told to solve with Kratos got
-    a script that cannot run Kratos, and its submission cannot be attributed to
+    a script that cannot run Kratos, and its output cannot be attributed to
     the code the task named. Measured consequence -- a coupled 4C+Kratos task
-    was passed on the numbers by a run whose two participants were both this
-    template, having invoked neither code.
+    got numerically right answers from a run whose two participants were both
+    this template, having invoked neither code.
     """
     nx = params.get("nx", 32)
     ny = params.get("ny", nx)

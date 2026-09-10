@@ -36,7 +36,7 @@ def _viscoelasticity_3d_stress_relax(params: dict) -> str:
     # (An XML comment inside <material> was first blamed for that error and is
     # exonerated: the failure is identical without it.) The COUPLED wrapper
     # type="viscoelastic" accepts the isotropic child and runs to NORMAL
-    # TERMINATION; a submission on this install solved a full three-level
+    # TERMINATION; a run on this install solved a full three-level
     # relaxation study with exactly that pairing.
     E = params.get("youngs_modulus", 1000.0)
     v = params.get("poisson_ratio", 0.3)

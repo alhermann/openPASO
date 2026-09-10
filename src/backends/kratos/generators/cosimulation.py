@@ -13,7 +13,7 @@ the temperature, StructuralMechanicsApplication for the displacement -- with
 the thermal field driving a thermal-expansion load. The previous version of
 this template solved both fields with a numpy/scipy assembly and never
 imported KratosMultiphysics, while calling itself "CoSimulation ... Kratos
-(standalone)"; a coupled submission built from it can be attributed to neither
+(standalone)"; a coupled result built from it can be attributed to neither
 participant.
 
 FOR A REAL TWO-CODE COUPLING, DRIVE IT WITH OASiS's `couple` TOOL rather than

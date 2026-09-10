@@ -251,10 +251,10 @@ _PHYSICS = {
 #
 # The mechanism was already in the corpus, filed under surface_interaction and
 # written about `compute surf` in a dump. An agent doing a boundary-flux
-# problem in rarefied_flow or conjugate_heat_transfer never saw it, and the
-# arm lost 5-1 on exactly this point: five of six unequipped runs used
-# Nevery=1, one of six equipped runs did. Filing a rule where the relevant
-# reader does not look is the same as not having it.
+# problem in rarefied_flow or conjugate_heat_transfer never saw it, and that
+# cost a 5-1 loss on exactly this point: five of six runs without this
+# knowledge used Nevery=1, one of six runs with it did. Filing a rule where
+# the relevant reader does not look is the same as not having it.
 _TALLY_SAMPLING = (
     "SAMPLING RULE, and it decides the number. SPARTA CLEARS a tally compute "
     "on every timestep it is invoked, so reading `compute <tally>` straight "
@@ -286,9 +286,9 @@ file. Then level 3, rewrite it again. Rewriting a small text file costs
 nothing next to one solver run.
 
 This is not bookkeeping advice, it is what the run is FOR. A finished sequence
-that exists only in your reasoning scores zero, and scores it identically to
-having done nothing at all. A partial sequence on disk is a partial result and
-is scored as one.
+that exists only in your reasoning counts for nothing, exactly as if you had
+done nothing at all. A partial sequence on disk is a partial result and counts
+as one.
 
 The same rule applies to a run you believe is going badly: write what you have
 before you investigate why, because the investigation is what runs out of
@@ -302,11 +302,11 @@ DSMC is a stochastic method. Every tallied quantity carries statistical
 scatter, and that scatter does not shrink when you refine the grid — it shrinks
 when you average over more samples, or more particles. So a refinement study
 that compares one number per level is comparing mesh error PLUS noise, and if
-the noise is the larger of the two the study answers nothing. Measured in this
-campaign: two runs completed a clean three-level sequence and then reported
-their own result as NOT CONVERGED at 7.4% and 24% level-to-level change, while
-another run of the SAME problem reached 0.2%. That spread is sampling, not
-physics.
+the noise is the larger of the two the study answers nothing. Measured across
+the development runs: two runs completed a clean three-level sequence and
+then reported their own result as NOT CONVERGED at 7.4% and 24% level-to-level
+change, while another run of the SAME problem reached 0.2%. That spread is
+sampling, not physics.
 
 Before you call a sequence converged or not converged, you must know your own
 noise floor. Two ways, both cheap:
@@ -418,8 +418,9 @@ class SpartaBackend(SolverBackend):
         #
         # Measured on the `heat` payload: 1,084 characters in total, with no
         # `fix` and no `run` -- the two commands without which the binary does
-        # nothing at all. Same shape of gap as 4C, where it cost all three
-        # OASiS-arm runs of coupled C2 their whole attempt, and as FEBio.
+        # nothing at all. Same shape of gap as 4C, where it cost three
+        # development runs of one coupled problem their whole attempt, and as
+        # FEBio.
         #
         # It is attached to the unknown-physics reply too: that is exactly when
         # an agent most needs to know how a script is shaped, and a bare
@@ -628,7 +629,7 @@ class SpartaBackend(SolverBackend):
 
             # TIMEOUT MUST KILL THE SOLVER, AND THE WHOLE GROUP. Without this, a
             # timed-out solve kept running forever: wait_for() abandoned the
-            # process but never terminated it, and a campaign sweep found one such
+            # process but never terminated it, and a sweep found one such
             # solver 3.2 CPU-hours later at 100%% of a core, its MPI daemon
             # (orted) beside it. start_new_session puts the solver and every child
             # it spawns into their own process group, so one killpg reaps MPI

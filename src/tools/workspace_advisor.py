@@ -1,8 +1,9 @@
 """Workspace advisor: OASiS's checks on what an agent leaves behind.
 
-EVERY CHECK IN THIS MODULE IS PRODUCT CODE, NOT EVALUATION CODE. The campaign
-harness (langgraph_eval/agent.py) fires these at its hook points -- a file
-written, a shell command's output, a submission -- but defines none of them:
+EVERY CHECK IN THIS MODULE IS PRODUCT CODE, NOT EVALUATION CODE. The external
+harness that drives development runs (langgraph_eval/agent.py) fires these at
+its hook points -- a file written, a shell command's output, a result set
+delivered -- but defines none of them:
 the boundary, set explicitly on 2026-09-03, is that the harness carries no
 domain or contract knowledge of its own, because any capability that lives
 only in the runner is not OASiS's and cannot be claimed, shipped, or exercised
@@ -12,12 +13,20 @@ script as written, the artefact as it lands, the error as it is read.
 
 Each check states the measured failure it exists for in its own docstring, is
 calibrated against the real run that motivated it AND against a reference
-submission that grades CORRECT, and returns "" when it has nothing to say.
+result set verified correct against an independent reference, and returns ""
+when it has nothing to say.
 """
 from __future__ import annotations
 
 import re as _re_mod
 from pathlib import Path
+
+# Deliverable discovery is shared with the audit and knows no task's naming
+# scheme: level-indexed files are read from the agent's own names and
+# classified by content (field / interface / history / run log).
+from tools.result_audit import (          # noqa: E402
+    _DOF_LINE, _LEVEL_FILE as _A_LEVEL_FILE, _csv_role, _field_files,
+    _history_files, _interface_files, _level_of, _side_of)
 
 def _flat(v):
     """Every scalar in a nested list, however the participant shaped it."""
@@ -31,12 +40,12 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
     """A give-up written on top of a finished run — reported structurally.
 
     Measured twice. Ten coupled runs drove a coupling to convergence, hit a
-    flux-balance finding, and declared COULD_NOT_COMPLETE with a median 69% of
-    their budget unspent. The tool's reply was then rewritten to say NOT
+    flux-balance finding, and filed a could-not-finish report with a median 69%
+    of their budget unspent. The tool's reply was then rewritten to say NOT
     VERIFIED and NOT A RESULT are different verdicts and to write the
     deliverables first — and in the very next probe three of six runs did it
-    again anyway (C7, C8, C9), one of them stating in its own words that the
-    coupling converged in ~7 iterations before giving up on the balance check.
+    again anyway, one of them stating in its own words that the coupling
+    converged in ~7 iterations before giving up on the balance check.
 
     Wording the imperative better does not work; the same lesson as the audit
     tool that was called by 1 of 51 runs when merely offered. So this reads the
@@ -45,18 +54,19 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
     refuses to let a finished run be filed as an unfinished one silently.
     """
     import csv as _csv
-    sol = sorted(work.rglob("solution_level*.csv"))
-    iface = sorted(work.rglob("interface_level*.csv"))
-    resid = sorted(work.rglob("residual_level*.csv"))
-    # A PARTICIPANT'S OWN EXPORT COUNTS AS WORK. C8 of the seed-13 probe wrote
-    # no CSV at all and still had exports.json for both halves of level 1 —
-    # a solve that ran and an interface exchange that completed, filed as
-    # COULD_NOT_COMPLETE. Looking only for the task's deliverables misses
-    # exactly the run that did the work and never wrote it down.
+    sol = _field_files(work)
+    iface = _interface_files(work)
+    resid = _history_files(work)
+    # A PARTICIPANT'S OWN EXPORT COUNTS AS WORK. One run of a later batch of
+    # development runs wrote no CSV at all and still had exports.json for both
+    # halves of level 1 — a solve that ran and an interface exchange that
+    # completed, filed as could-not-finish. Looking only for the task's
+    # deliverables misses exactly the run that did the work and never wrote it
+    # down.
     # Non-empty AND not the iteration-1 fallback: a participant that wrote
     # only placeholder zeros has not solved anything, and calling that "work
     # on disk" would be the same crying-wolf that teaches agents to ignore a
-    # gate. Checked on the four seed-13 give-ups: all four carry real numbers
+    # gate. Checked on that batch's four give-ups: all four carry real numbers
     # (|q| up to 0.98), so none of them is a false positive.
     def _real(q):
         try:
@@ -74,7 +84,7 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
     # RAW SOLVER OUTPUT IS WORK TOO. Measured: two runs drove FEBio to NORMAL
     # TERMINATION 8 and 10 times, logged full nodal output through
     # <node_data> into per-step CSV blocks, wrote NO deliverable at all, and
-    # filed COULD_NOT_COMPLETE at 32% of their wall budget -- this check
+    # filed a could-not-finish report at 32% of their wall budget -- this check
     # stayed silent because its evidence list held only the task's own file
     # names. A solve that terminated normally plus its native output on disk
     # means the ONLY missing step is reading the numbers back at the probe
@@ -89,8 +99,7 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
             pass
     for pat in ("*.csv", "*.xplt", "*.vtu", "*.exo", "*.pvd"):
         for q in sorted(work.rglob(pat)):
-            if q.name.startswith(("solution_level", "interface_level",
-                                  "residual_level")):
+            if _A_LEVEL_FILE.match(q.name) and _csv_role(q) != "raw":
                 continue
             try:
                 if q.suffix == ".csv":
@@ -139,9 +148,9 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
 
     bits = []
     if sol:
-        bits.append(f"{len(sol)} solution_level*.csv")
+        bits.append(f"{len(sol)} per-level field file(s)")
     if iface:
-        bits.append(f"{len(iface)} interface_level*.csv")
+        bits.append(f"{len(iface)} per-level interface file(s)")
     if exports and not (sol or iface):
         bits.append(f"{len(exports)} participant exports.json — a solve ran "
                     f"and an interface exchange completed, but none of the "
@@ -156,7 +165,7 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
             f"residual history anywhere: the participants were built and "
             f"the coupling iteration over them was never run. That "
             f"single remaining step is what stands between the work on "
-            f"disk and a submission with coupling evidence.")
+            f"disk and a result set with coupling evidence.")
     if ok_logs and native and not (sol or iface):
         bits.append(
             f"{len(ok_logs)} solver log(s) with the solver's own successful "
@@ -168,8 +177,9 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
     # residual histories were written-in (ratio cv 7.0e-14) received this
     # notice listing them as "12 iterations ending at 5.66e-07" — the give-up
     # gate endorsing files the auto-audit was simultaneously calling
-    # fabrication, and the agent obeyed the flattering voice and was graded
-    # FABRICATED_NO_RUN. The same detector the audit uses screens this list,
+    # fabrication, and the agent obeyed the flattering voice and its result
+    # was read as fabricated, with no run behind it. The same detector the
+    # audit uses screens this list,
     # so the two notices cannot disagree about the same file again.
     flagged = {}
     try:
@@ -181,7 +191,7 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
         pass
     # Two classes of finding, two different imperatives. A WRITTEN-IN,
     # CONSTANT or NON-FINITE history is a liability: it reads as fabrication
-    # and scores below an honest unconverged report — delete it. A TOO-SHORT
+    # and is worth less than an honest unconverged report — delete it. A TOO-SHORT
     # or BARELY-MOVED history is real but insufficient evidence — extend it,
     # never delete it.
     _fatal = ("WRITTEN-IN", "CONSTANT RESIDUAL", "NON-POSITIVE OR NON-FINITE")
@@ -190,10 +200,10 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
         if any(k in finding for k in _fatal):
             bits.append(
                 f"{name}: NOT WORK — {finding}. A written-in, constant or "
-                f"non-finite history is a liability in a submission, not "
+                f"non-finite history is a liability in a result set, not "
                 f"evidence: it is read as invented, below an honest "
                 f"unconverged report. Delete it and either couple for real "
-                f"or submit the honest state.")
+                f"or hand in the honest state.")
         elif finding:
             bits.append(
                 f"{name} with {n} iterations ending at {last:.3g} — but "
@@ -205,12 +215,12 @@ def _work_on_disk_contradicting_a_give_up(work: Path) -> str:
     return (
         "YOU ARE FILING A GIVE-UP ON TOP OF WORK THAT IS ON DISK.\n  "
         + "\n  ".join(bits)
-        + "\nCOULD_NOT_COMPLETE is graded as nothing. A submission built from "
-          "the numbers you already have is graded on those numbers, PROVIDED "
+        + "\nA could-not-finish report counts for nothing. A result set built "
+          "from the numbers you already have stands on those numbers, PROVIDED "
           "it is complete: every level the task prescribes and, where the "
-          "task names two subdomains, both files per level. A submission "
+          "task names two subdomains, both files per level. A result set "
           "missing a level or a side is unusable, worth the same "
-          "as no submission, so complete the sequence from what you have "
+          "as no result set, so complete the sequence from what you have "
           "rather than filing part of it. A verification "
           "finding — a flux imbalance, a failed conservation check — is NOT a "
           "reason to withhold a field your solve already produced: those are "
@@ -248,15 +258,15 @@ def _REGISTRY_MSG(name: str, where: str) -> str:
         "        mp.CreateNewCondition(\"" + name + "\", cid, [n1, n2], prop)\n"
         "        mp.CreateNewElement(\"LaplacianElement2D3N\", eid, "
         "[a, b, c], prop)\n"
-        "    DO NOT CHANGE CODES OVER THIS. A previous run on this cell read "
+        "    DO NOT CHANGE CODES OVER THIS. A previous run on this problem read "
         "this same AttributeError as \"not available in version 10.3.0\", "
         "abandoned the two codes the task prescribes, went looking for a "
-        "third, and submitted nothing at all.")
+        "third, and delivered nothing at all.")
 
 def _registry_attribute_check(written: Path, content: str) -> str:
     """A registered component written as a module attribute never resolves.
 
-    MEASURED, C2_27b_MCP_seed1203. The served pitfall NAMES the condition, and
+    MEASURED, one development run. The served pitfall NAMES the condition, and
     the write-time check hands over the exact factory line, and the run still
     wrote `KM.ConvectionDiffusionApplication.ThermalFace2D2N(condition_id,
     ...)`. Python raised `has no attribute 'ThermalFace2D2N'`; the agent
@@ -280,7 +290,7 @@ def _registry_attribute_check(written: Path, content: str) -> str:
 def _registry_error_check(output: str) -> str:
     """The same truth, keyed on the ERROR the agent actually read.
 
-    This is the channel that matters. The broken constructor in seed1203 was
+    This is the channel that matters. The broken constructor in that run was
     not in any file at the end of the run -- all three of its scripts hold
     zero attribute-constructor calls -- so a check that reads what is on disk
     would have missed it. What the agent ended up with was the traceback, and
@@ -318,20 +328,20 @@ def _value_column(p: Path) -> list[str] | None:
     return out or None
 
 def _identical_levels_check(workdir: Path, written: Path) -> str:
-    """The same field submitted at every level. An order cannot come from it.
+    """The same field delivered at every level. An order cannot come from it.
 
-    MEASURED, C2_27b_MCP_seed1202. Its side A is BIT-IDENTICAL at all three
+    MEASURED, one development run. Its side A is BIT-IDENTICAL at all three
     levels -- max|u_i - u_j| = 0.000e+00 for every pair, peak 0.1332715818041668
     three times -- so it solved subdomain A once and wrote the same 1936 values
-    into solution_level1_A.csv, solution_level2_A.csv and solution_level3_A.csv.
+    into the side-A field file at every one of the three levels.
     log2(|L1-L2| / |L2-L3|) is 0/0 on that. Its side B does refine
     (2.307290e-03, 2.364044e-03, 2.370374e-03), which is what makes the copied
-    side A a silent defect rather than an obvious one: the submission looks
+    side A a silent defect rather than an obvious one: the result set looks
     like a three-level study and half of it is one solve.
 
     The shape is general and not coupled-specific: a level index that never
     reaches the mesh, or a solve whose result is written in a loop that forgot
-    to re-solve, produces exactly this on any cell. It is also the cheapest
+    to re-solve, produces exactly this on any task. It is also the cheapest
     fabrication signature there is -- identical bytes.
     """
     m = _LEVEL_FILE.match(written.name)
@@ -345,7 +355,7 @@ def _identical_levels_check(workdir: Path, written: Path) -> str:
     for other_k in (k - 1, k + 1):
         if other_k < 1:
             continue
-        sib = written.with_name(f"solution_level{other_k}{side}.csv")
+        sib = written.with_name(written.name.replace(f"_level{k}", f"_level{other_k}", 1))
         if not sib.exists():
             continue
         theirs = _value_column(sib)
@@ -359,14 +369,14 @@ def _identical_levels_check(workdir: Path, written: Path) -> str:
                 + str(len(mine)) + " values equal, so the difference between "
                 "them is exactly zero. A convergence order is computed from "
                 "level DIFFERENCES: log2(|L1-L2|/|L2-L3|) on identical levels "
-                "is 0/0, and a submission whose levels do not differ cannot "
+                "is 0/0, and a result set whose levels do not differ cannot "
                 "show an order however correct each level is. Either the solve "
                 "ran once and the result was written into every level file, or "
                 "the level index never reached the mesh -- print the node or "
                 "DOF count inside the solve at each level and check that it "
                 "actually changes. A run that did this wrote the same 1936 "
                 "values three times on one subdomain while the other subdomain "
-                "refined normally, so nothing else in the submission looked "
+                "refined normally, so nothing else in the result set looked "
                 "wrong.")
     return ""
 _SOLVER_MARKERS = (
@@ -392,31 +402,33 @@ def _looks_like_captured_output(text: str) -> bool:
 def _discarded_proof_check(written: Path, content: str) -> str:
     """An execution log carrying the agent's prose instead of the capture.
 
-    MEASURED, C2_27b_MCP_seed1301 -- the furthest any OASiS run has reached on
-    this cell: both participants really ran, the partitioned iteration really
+    MEASURED, one development run that got everything else right on this
+    problem: both participants really ran, the partitioned iteration really
     converged (1.3901141511 -> 4.3834e-07 in eight iterations at level 1), and
-    the graded order came out 1.9367. Its participant_A.py line 151 is
+    the order, checked against an independent reference, came out 1.9367. Its
+    participant_A.py line 151 is
 
         cmd = ['stdbuf', '-oL', '-eL', '/home/.../4C', deck_path, prefix]
         result = subprocess.run(cmd, cwd=work_dir, capture_output=True, ...)
 
     so it invoked the binary correctly AND captured what the binary said. Line
-    226 then writes its own three-line summary -- `NDOF = 54`, `4C Multiphysics
-    solver`, `Elements: TRANSP QUAD4` -- into run_log.txt, and that file is what
-    gets copied to run_level1_A.log. 56 bytes of prose; result.stdout was never
-    written anywhere. The proof of the hardest thing the run achieved sat in a
-    local variable and was dropped.
+    226 then writes its own three-line summary -- a DOF-count line, `4C
+    Multiphysics solver`, `Elements: TRANSP QUAD4` -- into run_log.txt, and that
+    file is what gets copied to the level-1 side-A run log. 56 bytes of prose;
+    result.stdout was never written anywhere. The proof of the hardest thing
+    the run achieved sat in a local variable and was dropped.
 
-    For contrast, on the same cell and the same two codes, a captured log is
+    For contrast, on the same problem and the same two codes, a captured log is
     2947 and 1476 bytes and carries 4C's banner and Kratos's `KRATOS ___`
     importer line.
 
-    GENERAL: every cell that prescribes an execution log wants the code's own
+    GENERAL: every task that prescribes an execution log wants the code's own
     output, and every code here can be made to produce it. The fix is one line
     -- write what you captured -- and an agent that has already done the work
     has already got the bytes in hand.
     """
-    if not _re_mod.match(r"^run_level\d+(_[AB])?\.log$", written.name):
+    _lm = _A_LEVEL_FILE.match(written.name)
+    if not _lm or _lm.group("ext").lower() != "log":
         return ""
     if _looks_like_captured_output(content):
         return ""
@@ -431,13 +443,14 @@ def _discarded_proof_check(written: Path, content: str) -> str:
         "however right its numbers are. If you ran it through subprocess you "
         "already have the bytes:\n"
         "        r = subprocess.run(cmd, capture_output=True, text=True)\n"
-        "        Path(log).write_text(f\"NDOF = {ndof}\\n\" + r.stdout "
-        "+ r.stderr)\n"
+        "        Path(log).write_text(r.stdout + r.stderr)   # plus any "
+        "summary line your task asks for, such as the DOF count\n"
         "    -- or drop capture_output and redirect instead, "
-        "`cmd > run_level<k>_<side>.log 2>&1`. Do not summarise it and do not "
-        "retype it. A run that got everything else right on this cell -- both "
-        "codes really running, the interface iteration converging to 4.4e-07, "
-        "a graded order of 1.94 -- wrote three lines of its own prose here and "
+        "`cmd > <that side's run log> 2>&1`. Do not summarise it and do not "
+        "retype it. A run that got everything else right on this problem -- "
+        "both codes really running, the interface iteration converging to "
+        "4.4e-07, an order of 1.94 checked against an independent reference -- "
+        "wrote three lines of its own prose here and "
         "could not be credited for any of it. For reference, a real capture of "
         "these two codes is 2947 and 1476 bytes.")
 _WRAPPERS = ("stdbuf", "timeout", "nice", "nohup", "ionice", "setsid")
@@ -445,7 +458,7 @@ _WRAPPERS = ("stdbuf", "timeout", "nice", "nohup", "ionice", "setsid")
 def _env_after_wrapper_check(command: str) -> str:
     """`stdbuf -oL VAR=x prog` runs VAR=x as the program. Measured.
 
-    C2_27b_MCP_seed1401 was served `stdbuf -oL -eL <binary> deck out` and also
+    One development run was served `stdbuf -oL -eL <binary> deck out` and also
     wanted a library path, so it wrote
 
         stdbuf -oL -eL LD_LIBRARY_PATH=/opt/4C-dependencies/lib .../4C deck out
@@ -516,11 +529,11 @@ def _env_after_wrapper_check(command: str) -> str:
 def _eaten_error_check(output: str) -> str:
     """A nonzero exit whose captured output does not contain the reason.
 
-    MEASURED, C2_27b_MCP_seed1201. Its run_log.txt reads, in full: `4C stdout:`
+    MEASURED, one development run. Its run_log.txt reads, in full: `4C stdout:`
     (empty), then the MPI_ABORT boilerplate, then `4C return code: 1`. From
     that the run concluded "the 4C binary requires specific MPI environment
-    configuration", listed it as blocker number one, and filed
-    COULD_NOT_COMPLETE.
+    configuration", listed it as blocker number one, and filed a
+    could-not-finish report.
 
     The reason had not been withheld, it had been destroyed. 4C's stdout is
     block-buffered and MPI_Abort tears the process down before the flush. Same
@@ -559,15 +572,16 @@ def _eaten_error_check(output: str) -> str:
         "bytes, the same. `No protocol specified` and `Invalid "
         "MIT-MAGIC-COOKIE-1 key` are X11 noise from a headless session and "
         "appear on successful runs too -- they are not the failure. A previous "
-        "run on this cell read this exact output as an MPI configuration "
-        "issue and submitted nothing.")
+        "run on this problem read this exact output as an MPI configuration "
+        "issue and delivered nothing.")
 
 def _script_noop_check(written: Path, content: str) -> str:
     """A participant that sets a nodal flux and creates no condition is inert.
 
     MEASURED, and this is the reason this check exists rather than another
-    paragraph of advice. Over the 18 OASiS runs of this cell served the fact:
-    18 of 18 called a knowledge door, 18 of 18 set FACE_HEAT_FLUX, and ZERO of
+    paragraph of advice. Over 18 development runs on this problem that were
+    served the fact: 18 of 18 called a knowledge door, 18 of 18 set
+    FACE_HEAT_FLUX, and ZERO of
     18 created the condition that makes it do anything. They find OASiS, they
     read it, they get the concept, and the one line that turns a nodal value
     into a boundary condition does not survive into the code.
@@ -596,9 +610,9 @@ def _script_noop_check(written: Path, content: str) -> str:
 def _extra_script_checks(written: Path, content: str) -> str:
     """Two more defects that are visible in the script and invisible at runtime.
 
-    Both were reproduced by execution, and both are counted in the campaign's
-    own OASiS-arm scripts (per file, so a correct usage elsewhere cannot excuse
-    a broken one here):
+    Both were reproduced by execution, and both are counted across the scripts
+    the development runs wrote (per file, so a correct usage elsewhere cannot
+    excuse a broken one here):
 
       DUNE `solver="cg"` on an operator carrying advection -- 20 runs. cg is
         accepted on a NON-SYMMETRIC operator and scheme.solve does not raise:
@@ -623,8 +637,9 @@ def _extra_script_checks(written: Path, content: str) -> str:
         return ""
     out = []
     # A TWO-POINT FIRST-ORDER FLUX RECOVERY CAPS THE WHOLE RUN AT ORDER ~1.
-    # MEASURED: two submissions with converged three-level couplings graded
-    # orders 0.85 and 0.97 against a theoretical 2, both flagged
+    # MEASURED: two result sets with converged three-level couplings came out
+    # at orders 0.85 and 0.97 against a theoretical 2 when checked against an
+    # independent reference, both flagged
     # flux-inconsistent-with-field; their recovery was literally
     # `du_dx = (u_val - u_a[idx_inner]) / 0.005` -- one difference of two
     # nearest-node values over a hard-coded spacing. The exchanged interface
@@ -642,7 +657,7 @@ def _extra_script_checks(written: Path, content: str) -> str:
             "DIFFERENCE OVER NEAREST-NODE LOOKUPS. That recovery is first "
             "order, so the exchanged interface datum is O(h) accurate and "
             "CAPS THE WHOLE COUPLED FIELD AT ORDER ~1 whatever the elements "
-            "do (measured: converged couplings graded 0.85 and 0.97 against "
+            "do (measured: converged couplings checked at 0.85 and 0.97 against "
             "a theoretical 2, both also flagged as flux inconsistent with "
             "their own field). Use the consistent recovery -- assemble "
             "r = A u - b_vol on the free interface rows of YOUR OWN system "
@@ -652,8 +667,9 @@ def _extra_script_checks(written: Path, content: str) -> str:
             "over a hard-coded spacing.")
     # A HAND-ROLLED PARTITIONED COUPLING LOOP. Re-added with 12 measured
     # instances after being withdrawn once for want of evidence: across the
-    # last 18 runs of one coupled cell, 12 hand-rolled this loop instead of
-    # calling the couple tool, and every graded one of their exchanges
+    # last 18 runs of one coupled problem, 12 hand-rolled this loop instead of
+    # calling the couple tool, and every one of their exchanges that could be
+    # checked
     # stalled -- 9.92 -> 9.98 over 100 iterations, 1.5 -> 1.3, constant
     # 1.0 -- the placeholder-exchange class, hand-rolled edition. The shape,
     # keyed to the real scripts: an iteration loop, a residual, and
@@ -739,34 +755,33 @@ def _FLUX_NOOP_MSG(written: Path) -> str:
             "                                  [iface[c] + 1, iface[c+1] + 1], "
             "prop)\n"
             "    then set FACE_HEAT_FLUX on those nodes. FluxCondition2D2N "
-            "works too. 18 of the last 18 runs on this cell omitted this and "
-            "every one of them submitted the no-flux answer.")
+            "works too. 18 of the last 18 runs on this problem omitted this and "
+            "every one of them delivered the no-flux answer.")
 
 def _level_index_check(workdir: Path, written: Path) -> str:
     """`<k>` in a deliverable name is the LEVEL INDEX, not the mesh count.
 
-    MEASURED. C2_27b_MCP_seed1102 solved three levels and wrote them as
-    `level1/solution_level8_A.csv`, `.../solution_level16_A.csv` and so on --
+    MEASURED. One development run solved three levels and wrote them as
+    `level1/<stem>_level8_A.csv`, `.../<stem>_level16_A.csv` and so on --
     naming each file by the mesh resolution the task lists (h = 1/8, 1/16,
-    1/32) instead of by k = 1, 2, 3. The grader reads `level8` as level eight,
-    which is not in the prescribed sequence, so a complete three-level
-    submission was graded as having no usable levels at all. The file is even
-    self-contradictory: `solution_level8_A.csv` sits inside a directory the
-    same run called `level1`.
+    1/32) instead of by k = 1, 2, 3. Whoever verifies the results reads
+    `level8` as level eight, which is not in the prescribed sequence, so a
+    complete three-level result set was read as having no usable levels at
+    all. The file is even self-contradictory: a `_level8_A.csv` file sits
+    inside a directory the same run called `level1`.
 
     Two signals, both free and both from the name alone:
       * an index that is a power of two at or above 8 -- those are mesh counts,
-        and no blind cell in this campaign prescribes eight refinement levels;
+        not positions in a prescribed sequence of a few levels;
       * a file whose own `level<N>` disagrees with the `level<M>` directory it
         was written into.
     """
     import re as _re
 
-    m = _re.match(r"(solution|interface|residual|run)_level(\d+)"
-                  r"(_[AB])?\.(csv|log)$", written.name)
+    m = _A_LEVEL_FILE.match(written.name)
     if not m:
         return ""
-    n = int(m.group(2))
+    n = int(m.group("k"))
     parent = _re.match(r"level(\d+)$", written.parent.name or "")
     contradicts = parent and int(parent.group(1)) != n
     if n < 8 and not contradicts:
@@ -781,49 +796,50 @@ def _level_index_check(workdir: Path, written: Path) -> str:
         return ""
     return ("\n\n[early check of " + written.name + ":]\n"
             "  * WRONG LEVEL INDEX -- " + "; and ".join(why) + ". In "
-            "`solution_level<k>_<side>.csv` and its siblings, `<k>` is the "
+            "`<stem>_level<k>[_<side>].<ext>`, your per-level files, `<k>` is the "
             "REFINEMENT INDEX: 1, 2, 3 for the first, second and third mesh "
             "in the prescribed sequence. It is NOT the number of cells and "
-            "NOT 1/h. A submission named by the mesh count is read as levels "
+            "NOT 1/h. A result set named by the mesh count is read as levels "
             "8, 16 and 32, none of which the task asked for, so a complete "
-            "three-level result grades as having no usable levels -- measured "
-            "on a real run that had solved all three. Rename to "
-            "`solution_level1_A.csv`, `solution_level2_A.csv`, "
-            "`solution_level3_A.csv`, and likewise for interface_, residual_ "
-            "and run_.")
+            "three-level result is read as having no usable levels -- measured "
+            "on a real run that had solved all three. Rename every per-level "
+            "file by its refinement index (level1, level2, level3), the same "
+            "index for the field, interface, residual and log files.")
 
 def _early_artefact_check(workdir: Path, written: Path) -> str:
-    """Check a per-level artefact THE MOMENT IT IS WRITTEN, not at submission.
+    """Check a per-level artefact THE MOMENT IT IS WRITTEN, not at hand-in.
 
-    WHY, MEASURED. The submission audit is correct, it arrives, and it cannot
-    be acted on. File mtimes over six C2 runs of the last two rounds: five of
-    them wrote RESULT.txt at 93-99% of their whole file-activity span, with
-    only 8 to 115 seconds of activity left afterwards. The one that wrote it
-    at 68%, with 357 seconds still to go, is the ONLY one of the six that
-    reached a gradeable convergence order with both prescribed codes proven.
-    seed301 received SEVEN findings at that moment -- three too-short
-    histories, an identical-history-across-levels, near-zero fields -- and had
-    40 seconds. Findings delivered with no budget to spend on them change
-    nothing.
+    WHY, MEASURED. The hand-in audit is correct, it arrives, and it cannot
+    be acted on. File mtimes over six development runs of one coupled problem:
+    five of them wrote their summary file at 93-99% of their whole
+    file-activity span, with only 8 to 115 seconds of activity left afterwards.
+    The one that wrote it at 68%, with 357 seconds still to go, is the ONLY one
+    of the six that reached a convergence order that could be checked, with
+    both prescribed codes proven to have run. One of them received SEVEN
+    findings at that moment -- three too-short histories, an
+    identical-history-across-levels, near-zero fields -- and had 40 seconds.
+    Findings delivered with no budget to spend on them change nothing.
 
     So the coupled checks fire on the artefact write. Each one runs ONLY the
     check its own file makes possible, so this costs the agent no actions and
     adds no noise to unrelated writes:
 
-        residual_level<k>.csv        -> is this a history at all? how long,
+        the residual history        -> is this a history at all? how long,
                                         and is it identical to another level's?
-        interface_level<k>_<side>.csv -> once both sides and the matching
+        an interface file (one side) -> once both sides and the matching
                                         solution file exist, the flux SIGN
 
-    OASiS arm only, like every other audit hook: the caller gates it.
+    The caller gates it, like every other audit hook.
     """
     import re as _re
 
     name = written.name
     try:
-        if _re.fullmatch(r"run_level\d+(?:_[A-Za-z0-9]+)?\.log", name):
+        _lm = _A_LEVEL_FILE.match(name)
+        _ext = _lm.group("ext").lower() if _lm else ""
+        if _lm and _ext == "log":
             # A LOG THAT HOLDS A CRASH IS NOT A RUN LOG. Measured: a
-            # submission with sound coupling evidence at every level fell on
+            # result set with sound coupling evidence at every level fell on
             # ONE file -- its level-1 side-B log captured a Python traceback
             # from a typo re-run script (a mangled expression), no solver
             # banner, no NDOF line -- and a level whose log carries no
@@ -834,23 +850,24 @@ def _early_artefact_check(workdir: Path, written: Path) -> str:
                 _lg = ""
             _crash = ("Traceback (most recent call last)" in _lg
                       or "SyntaxError:" in _lg)
-            _has_ndof = bool(_re.search(r"^\s*NDOF\s*=\s*\d+", _lg, _re.M))
+            _has_ndof = bool(_DOF_LINE.search(_lg))
             if _crash and not _looks_like_captured_output(_lg):
                 return ("\n\n[early check of " + name + ", read from the "
                         "file you just wrote:]\n  * THIS LOG HOLDS A CRASH "
                         "TRACEBACK, NOT THE NAMED CODE'S OUTPUT"
-                        + ("" if _has_ndof else " (and no NDOF line)")
+                        + ("" if _has_ndof else " (and no DOF-count line)")
                         + ". A level whose log carries no solver output "
                         "counts as not run, however sound the numbers "
                         "beside it are. Fix the script, re-run this level, "
                         "and recapture the log so it holds the solver's own "
-                        "console output plus the NDOF line.")
-        if _re.fullmatch(r"residual_level\d+\.csv", name):
+                        "console output plus the DOF-count line your task "
+                        "asks for.")
+        if _lm and _ext == "csv" and _csv_role(written) == "history":
             from tools.result_audit import residual_findings
             # THE RESIDUAL FILE IS THE MOMENT TO CHECK IT AGAINST THE
-            # INTERFACE FILES: measured on seed1501, the interfaces existed
-            # first and the residual landed last, so a check that fires only
-            # on interface writes never sees the finished pair.
+            # INTERFACE FILES: measured on one development run, the interfaces
+            # existed first and the residual landed last, so a check that fires
+            # only on interface writes never sees the finished pair.
             try:
                 from tools.result_audit import interface_sign_findings
                 rv = [f for f in interface_sign_findings(workdir)
@@ -863,7 +880,7 @@ def _early_artefact_check(workdir: Path, written: Path) -> str:
                         or "IDENTICAL" in f.get("finding", "")):
                     continue
                 # DEDUPE BY TEXT. residual_findings reports per-level, so a
-                # three-level submission with the same defect at every level
+                # three-level result set with the same defect at every level
                 # gave the identical sentence three times in one reply.
                 key = f.get("finding", "")[:80]
                 if key in seen:
@@ -874,13 +891,14 @@ def _early_artefact_check(workdir: Path, written: Path) -> str:
                 return ("\n\n[early check of " + name + ", from your own file:]\n"
                         + "\n".join(f"  * {f['finding']}" for f in found[:2])
                         + "\nYou have budget left now. Fixing this after "
-                          "RESULT.txt is written is usually too late.")
-        elif _re.fullmatch(r"solution_level\d+(_[AB])?\.csv", name):
+                          "your summary file is written is usually too late.")
+        elif _lm and _ext == "csv" and _csv_role(written) == "field":
             # THE EXPORT CAN RUIN A PERFECT SOLVE, and the agent can fix it
-            # without re-running anything. Proven against the sealed answer:
-            # a submission graded CORRECT at order 1.9796 re-exported by
-            # nearest-node lookup graded CONFIDENTLY_WRONG at 0.9815, nothing
-            # else changed. 99 OASiS-arm runs carry the fingerprint.
+            # without re-running anything. Proven against an independent
+            # reference: a result set verified correct at order 1.9796,
+            # re-exported by nearest-node lookup, came out confidently wrong at
+            # 0.9815, nothing else changed. 99 development runs carry the
+            # fingerprint.
             from tools.result_audit import export_findings
             found = [f for f in export_findings(workdir)
                      if name in str(f.get("sequence", ""))]
@@ -889,16 +907,16 @@ def _early_artefact_check(workdir: Path, written: Path) -> str:
                         + "\n".join(f"  * {f['finding']}" for f in found[:1])
                         + "\nThis is a POST-PROCESSING fix: you do not need to "
                           "re-run the solver, only to re-read it.")
-        elif _re.fullmatch(r"interface_level\d+_[AB]\.csv", name):
+        elif (_lm and _ext == "csv" and _lm.group("side")
+              and _csv_role(written) == "interface"):
             from tools.result_audit import interface_sign_findings
-            lvl = _re.search(r"level(\d+)", name).group(1)
-            both = all((workdir / f"interface_level{lvl}_{s}.csv").is_file()
-                       or list(workdir.rglob(f"interface_level{lvl}_{s}.csv"))
-                       for s in ("A", "B"))
+            lvl = _lm.group("k")          # a string: it is pasted into the reply below
+            both = len({_side_of(q) for q in _interface_files(workdir, sided=True)
+                        if _level_of(q) == int(lvl)}) >= 2
             if not both:
                 return ""                  # the other side is not written yet
             found = interface_sign_findings(workdir)
-            # The two round-15 defects join the filter: a probe-set that
+            # Two defects found later join the filter: a probe-set that
             # tracks the mesh (rows grow per level), and an iteration whose
             # residual is not the disagreement in the exported files.
             _HARD = ("WRONG SIGN", "DOES NOT SHRINK", "SAME SIGN",

@@ -293,6 +293,14 @@ measured at round scale — round 8 is that measurement):
     a test walks every MCP tool and fails on any that installs a solver.
     The three contaminated C9 probe runs are quarantined
     (20260829_materialize_contaminated) and excluded from every count.
+    2026-09-10: two further doors found and closed -- the participant
+    PARTS route (`signal='participant[:role]:partN'`) served the raw file,
+    solve included, with its SHA-256 (used by one development run, C2
+    seed 1503, which is therefore void as an honest data point), and the
+    three Kratos participants kept `strategy.Solve()` outside the SOLVE
+    markers. Every coupled CORRECT recorded before that date on C3
+    (2/3, 3/6) was measured with complete participants served and is not
+    a paper number; the honest C3 tally at that date is 0/3.
   * The clock (4dd880c5): every command result now carries
     `[clock: N min left of M]`, both arms by construction. Probe seeds 22
     and 23 had filed give-ups blaming a 45-minute budget after using ~18

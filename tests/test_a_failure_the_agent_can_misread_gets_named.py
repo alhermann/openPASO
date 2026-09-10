@@ -229,8 +229,8 @@ def test_a_give_up_written_by_heredoc_is_contradicted(tmp_path):
     out = shell.invoke({"command": "cat > RESULT.txt <<'XEOF'\n" + GIVEUP
                                    + "XEOF"})
     assert "FILING A GIVE-UP ON TOP OF WORK THAT IS ON DISK" in out
-    assert "solution_level" in out and "residual_level1.csv" in out
-    assert "graded as nothing" in out
+    assert "per-level field file" in out and "residual_level1.csv" in out
+    assert "counts for nothing" in out
 
 
 def test_the_bare_arm_is_not_told_by_the_shell_either(tmp_path):

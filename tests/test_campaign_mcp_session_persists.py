@@ -189,7 +189,7 @@ def test_mcp_couple_persists_native_participant_output(tmp_path):
     assert result["history_file"]["rows_written"] == len(history) - 1
     assert result["history_file"]["driver_iterations"] == result["iterations"]
     assert result["history_file"]["nonfinite_omitted"] == 1
-    assert "outside this cell" in escaped["history_file"]["error"]
+    assert "outside this task" in escaped["history_file"]["error"]
     assert not (tmp_path.parent / "outside.csv").exists()
     for name, marker in (("A", "NATIVE_A_SIGNATURE = 17"),
                          ("B", "NATIVE_B_SIGNATURE = 23")):

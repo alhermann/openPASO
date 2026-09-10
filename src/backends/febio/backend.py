@@ -459,8 +459,8 @@ class FebioBackend(SolverBackend):
         # no `<MeshDomains`, no `<Boundary`, no `<node id=`, no `fix=`. The
         # corpus is rich on material models and pitfalls and silent on the
         # document that carries them, so an agent cannot begin. Same shape of
-        # gap as 4C, where it cost all three OASiS runs of coupled C2 their
-        # whole attempt.
+        # gap as 4C, where it cost three development runs of one coupled
+        # problem their whole attempt.
         #
         # It is attached even when there is no per-physics entry: an unknown
         # physics is exactly when the agent most needs to know how a deck is
@@ -527,7 +527,7 @@ class FebioBackend(SolverBackend):
 
             # TIMEOUT MUST KILL THE SOLVER, AND THE WHOLE GROUP. Without this, a
             # timed-out solve kept running forever: wait_for() abandoned the
-            # process but never terminated it, and a campaign sweep found one such
+            # process but never terminated it, and a sweep found one such
             # solver 3.2 CPU-hours later at 100%% of a core, its MPI daemon
             # (orted) beside it. start_new_session puts the solver and every child
             # it spawns into their own process group, so one killpg reaps MPI

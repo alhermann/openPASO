@@ -596,6 +596,7 @@ def main():
         for c, t in enumerate(tris):
             mp.CreateNewCondition("FluxCondition3D3N", c + 1, t, props)
 
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
     # AddDof with a REACTION variable: without the second argument the fixed
     # dofs have nowhere to store their reaction and it is silently discarded.
     KM.VariableUtils().AddDof(KM.TEMPERATURE, KM.REACTION_FLUX, mp)
@@ -608,6 +609,15 @@ def main():
                                               True, False, False, False)
     strategy.Initialize()
     strategy.Solve()
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+    # TWO THINGS YOUR SOLVE ABOVE MUST DO, or the recovery below reads zeros:
+    #   * AddDof(TEMPERATURE, REACTION_FLUX, mp) -- the SECOND argument gives
+    #     every fixed dof a place to store its reaction; without it the
+    #     reaction is silently discarded.
+    #   * run the strategy with CalculateReactionsFlag=True (the 4th positional
+    #     argument of ResidualBasedLinearStrategy): the Dirichlet side's
+    #     interface flux IS the reaction, and the conservation self-check on
+    #     both sides is built from REACTION_FLUX.
 
     T = np.array([mp.Nodes[int(i)].GetSolutionStepValue(KM.TEMPERATURE) for i in ids])
     r = np.array([mp.Nodes[int(i)].GetSolutionStepValue(KM.REACTION_FLUX) for i in ids])

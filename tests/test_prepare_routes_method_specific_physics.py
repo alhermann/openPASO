@@ -43,13 +43,14 @@ def test_fenics_taylor_hood_phrases_do_not_route_to_primal_elasticity():
 
 
 def test_agent_is_told_not_to_erase_method_qualifiers():
-    agent_source = (ROOT / "langgraph_eval" / "agent.py").read_text()
-    prompt_literals = "".join(
-        node.value for node in ast.walk(ast.parse(agent_source))
-        if isinstance(node, ast.Constant) and isinstance(node.value, str))
+    """The guidance lives in the PRODUCT (the server's own instructions, which
+    the harness puts in front of the model verbatim) and in the coupled
+    must-read -- not in harness prose of its own."""
+    from core.instructions import INSTRUCTIONS
+    from tools.consolidated import _COUPLING_MUST_READ
     for phrase in ("nearly incompressible Taylor-Hood elasticity",
                    "steady SIPG advection-diffusion",
                    "Crank-Nicolson transient heat"):
-        assert phrase in prompt_literals
-    assert "history_path" in prompt_literals
-    assert "never retype or synthesize" in prompt_literals
+        assert phrase in INSTRUCTIONS
+    assert "history_path" in _COUPLING_MUST_READ[:1500]
+    assert "never retype" in _COUPLING_MUST_READ[:1500]

@@ -9,8 +9,8 @@ leaves the agent with nothing to start from.
 MEASURED on the payload a single-code SPARTA agent received for `heat`: 1,084
 characters in total, with no `fix` and no `run` — the two commands without which
 the binary does nothing at all. The same shape of gap was measured for 4C (where
-it cost all three OASiS-arm runs of coupled cell C2 their whole attempt) and for
-FEBio.
+it cost three development runs of one coupled problem their whole attempt) and
+for FEBio.
 
 WHAT IS SERVED IS THE GRAMMAR, NOT A SOLVE. Every number is an arbitrary
 placeholder; the agent still chooses its own domain, grid, species, mixture and
@@ -18,9 +18,8 @@ sampling. The command sequence and its ORDER are taken from this repo's own
 executed SPARTA fixtures.
 
 SPARTA IS A DSMC CODE, NOT A FEM CODE. It samples a stochastic estimate, so a
-Monte-Carlo noise floor exists that no tolerance can go below — which is why the
-band-only grading path exists for these cells, and why a residual that stops
-falling is not automatically a defect.
+Monte-Carlo noise floor exists that no tolerance can go below — which is why a
+residual that stops falling is not automatically a defect.
 """
 
 SPARTA_INPUT_GRAMMAR = """\

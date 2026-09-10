@@ -45,11 +45,11 @@ def test_it_fires_on_a_give_up_over_a_converged_run(tmp_path):
     _converged_run(tmp_path)
     out = _fn()(tmp_path)
     assert out, "silent on a give-up filed over three converged levels"
-    assert "6 solution_level" in out, out
-    assert "6 interface_level" in out, out
+    assert "6 per-level field file" in out, out
+    assert "6 per-level interface file" in out, out
     assert "5.7e-07" in out or "5.7e-7" in out, out
     # it must name the remedy, not merely scold
-    assert "COULD_NOT_COMPLETE is graded as nothing" in out
+    assert "A could-not-finish report counts for nothing" in out
     assert "different verdicts" in out
     # and the remedy must be true to the grader: a submission is graded on
     # its numbers only when it is COMPLETE. grade_blind_v2 returns
@@ -79,7 +79,7 @@ def test_partial_work_still_fires(tmp_path):
     """
     (tmp_path / "solution_level1_A.csv").write_text("x,y,ux,uy\n0,0,1,1\n")
     out = _fn()(tmp_path)
-    assert out and "1 solution_level" in out
+    assert out and "1 per-level field file" in out
     assert "unusable, worth the same" in out
     assert "graded on the part you supply" not in out
 

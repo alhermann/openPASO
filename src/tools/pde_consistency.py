@@ -1,19 +1,20 @@
-"""Does the submitted field actually satisfy the equation the task stated?
+"""Does the delivered field actually satisfy the equation the task stated?
 
 WHY THIS EXISTS. Measured over 464 single-code runs, among
-submissions with a complete level set the SELF-convergence order — computed
+those with a complete level set the SELF-convergence order — computed
 from the agent's own numbers, no reference — has a median of 1.96 (bare) and
-1.99 (OASiS). The discretisations converge cleanly. So a graded order near zero
-is almost never the finite element method failing to converge; it is a field
-converging beautifully TO THE WRONG FUNCTION (7% of all runs), or a field whose
-overall size is wrong by orders of magnitude (11-30% of submissions).
+1.99 (OASiS). The discretisations converge cleanly. So an order near zero
+against an independent reference is almost never the finite element method
+failing to converge; it is a field converging beautifully TO THE WRONG
+FUNCTION (7% of all runs), or a field whose overall size is wrong by orders
+of magnitude (11-30% of runs).
 
 A refinement study cannot see either one, and neither can the agent's own
 verdict: MESH_INDEPENDENCE = NOT_CONVERGED catches about three quarters of the
 wrong runs but also fires on HALF the correct ones, so on its own it is close to
 uninformative.
 
-WHAT THIS CHECKS, AND WHY IT IS LEGAL UNDER BLIND GRADING. For any smooth test
+WHAT THIS CHECKS, AND WHY IT LEAKS NO REFERENCE SOLUTION. For any smooth test
 function v that vanishes on the boundary, a field u solving
 
     L u = -div(K grad u) = f          with u prescribed on the boundary
@@ -24,7 +25,7 @@ satisfies the weak identity
 
 where L* is the adjoint, and L* = L for symmetric constant K. Every ingredient
 is PUBLIC: the operator and the source come from the task text, and the values
-come from the agent's own submission. No exact solution is used, none is
+come from the agent's own run. No exact solution is used, none is
 revealed, and nothing here can be run backwards to obtain one — a single
 scalar identity per test function cannot reconstruct a field.
 
@@ -104,7 +105,7 @@ def _boundary_layer_ratio(pts, u, box):
 
     On a midpoint grid a field that vanishes on the box boundary has an
     outermost layer of size O(h); a face carrying imposed data does not. This
-    is the only way to tell, from the submitted field alone, whether the weak
+    is the only way to tell, from the delivered field alone, whether the weak
     identity above is applicable.
     """
     import numpy as np
@@ -213,7 +214,7 @@ def check_levels(levels: dict, source_expr: str, coefficient,
         if not np.all(np.isfinite(u)):
             res.levels.append(LevelResult(
                 lvl, len(rows), float("nan"),
-                "the submitted field carries a non-finite value"))
+                "the delivered field carries a non-finite value"))
             continue
         weight, why = _detect_midpoint_grid(pts)
         if weight is None:
@@ -229,20 +230,21 @@ def check_levels(levels: dict, source_expr: str, coefficient,
         # coupling, since the interface carries data -- the identity fails for
         # a perfectly correct field.
         #
-        # Measured on C2, whose side B has an interface trace of about
-        # -3.7e-03: this check called side B INCONSISTENT for all four runs
-        # examined, INCLUDING C2_27b_MCP_seed15, which grades CORRECT with
-        # order 1.95. A false accusation against the one right answer, and the
-        # coupling payload was telling agents to run it on each side.
+        # Measured on one coupled problem, whose side B has an interface trace
+        # of about -3.7e-03: this check called side B INCONSISTENT for all four
+        # runs examined, INCLUDING one verified correct against an independent
+        # reference with order 1.95. A false accusation against the one right
+        # answer, and the coupling payload was telling agents to run it on
+        # each side.
         #
-        # Detected from the submitted field alone: on a grid of cell midpoints
+        # Detected from the delivered field alone: on a grid of cell midpoints
         # a field vanishing on the boundary has an outermost layer of size
         # O(h) relative to its own scale, while a face carrying data does not.
         edge = _boundary_layer_ratio(pts, u, box)
         if edge is not None and edge > 0.25:
             res.levels.append(LevelResult(
                 lvl, len(rows), float("nan"),
-                f"the submitted field is not near zero on the boundary of the "
+                f"the delivered field is not near zero on the boundary of the "
                 f"box (outermost probe layer is {edge:.0%} of the field's own "
                 f"scale). This check's identity needs u = 0 on the whole "
                 f"boundary, so it does not apply here -- which is the normal "
@@ -256,7 +258,7 @@ def check_levels(levels: dict, source_expr: str, coefficient,
         denom = max(abs(rhs), 1e-300)
         res.levels.append(LevelResult(lvl, len(rows), abs(lhs - rhs) / denom,
                                       f"lhs={lhs:.6e} rhs={rhs:.6e}"))
-    # A RESIDUAL OF 1e+297 IS NOT A VERDICT. Measured on real submissions
+    # A RESIDUAL OF 1e+297 IS NOT A VERDICT. Measured on real runs
     # outside this check's operator, the relative residual came back as
     # 1.197e+297 and 5.190e+293 — the ratio of two quantities that have nothing
     # to do with each other. The magnitudes were reported with a confident

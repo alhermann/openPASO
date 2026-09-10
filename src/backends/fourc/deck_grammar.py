@@ -7,9 +7,9 @@ driver's: it cannot be guessed, and no solve happens without it. OASiS elides
 
 MEASURED. The coupling payload for solver='fourc' contained no PROBLEM TYPE, no
 MATERIALS, no SCALAR TRANSPORT DYNAMIC, no DESIGN LINE DIRICH, no NODE COORDS and
-no NUMDOF; all three OASiS-arm runs of coupled cell C2 died on the 4C side, and
-seed71 named the cause itself ("4C scalar transport module requires specific
-topology definitions"). The SINGLE-CODE 4C cells (FC1, FC2) were worse off
+no NUMDOF; three development runs of one coupled problem all died on the 4C
+side, and one of them named the cause itself ("4C scalar transport module
+requires specific topology definitions"). Single-code 4C runs were worse off
 still: they never call knowledge(topic='coupling'), so they received none of it.
 
 AND IT MUST NOT BECOME FOUR COPIES. The interface-probe text taught that lesson
@@ -20,7 +20,8 @@ serving paths import it.
 WHAT THIS IS NOT. It is a GRAMMAR, not a solve: every number is an arbitrary
 placeholder, and the agent still derives its own mesh, materials, boundary data
 and source term. Verified by dogfooding — a deck written from this text alone
-runs C2 side A to completion (tests/fixtures/fourc_running_deck/).
+runs one side of a coupled problem to completion
+(tests/fixtures/fourc_running_deck/).
 """
 
 FOURC_DECK_GRAMMAR = """\
@@ -105,15 +106,15 @@ NODE can, and it is exact:
     - "NODE 34 DNODE 2"
 
 One `E` id per interface node, one topology line mapping that node to it. The
-values above are verbatim from a real submission that ran to completion.
+values above are verbatim from a real deck that ran to completion.
 
 DO NOT least-squares-fit the profile into a SYMBOLIC_FUNCTION_OF_SPACE_TIME
 unless there is no alternative. A fit converges to a slightly DIFFERENT
 boundary-value problem, so the refinement study measures the fit rather than the
 method and the error does not fall at the expected rate. Measured: one agent
-concluded "4C cannot impose per-node Dirichlet values" and wrote
-COULD_NOT_COMPLETE, while another used point conditions and produced a complete
-three-level submission from the same binary.
+concluded "4C cannot impose per-node Dirichlet values" and wrote a
+could-not-finish report, while another used point conditions and produced a
+complete three-level study from the same binary.
 
 WHICH PROBLEM TYPE YOU PICK DECIDES WHETHER YOU CAN READ YOUR OWN ANSWER.
 Measured on this build:

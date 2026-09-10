@@ -274,24 +274,24 @@ def _find_reference_test_files(solver: str, physics: str) -> str:
 # This first went into the generic capture recipe, which lives in the full
 # block on the topic="physics" path — and coupled agents call topic="coupling".
 # Measured right after writing it: the physics reply carried it, the coupling
-# reply did not, which is the exact defect class this campaign keeps hitting.
-_PER_SIDE_NAMING = """ON A COUPLED TASK THE NAME CARRIES THE SIDE: run_level<k>_<side>.log, one per
-participant per level, each holding THAT participant's own solver output. Two
-codes writing into one file cannot be told apart, and a submission whose logs
-are named the single-code way is read as one code having produced everything.
-The same applies to solution_level<k>_<side>.csv and interface_level<k>_<side>.csv:
-copy the exact names out of the task's own output clause rather than the shape
-you saw in an example."""
+# reply did not, the exact defect class the development runs keep hitting.
+_PER_SIDE_NAMING = """ON A COUPLED TASK THE NAME CARRIES THE SIDE: one run log per participant per
+level, named for its side, each holding THAT participant's own solver output.
+Two codes writing into one file cannot be told apart, and a result set whose
+logs are named the single-code way is read as one code having produced
+everything. The same applies to the per-level field file and the per-level
+interface file for each side: copy the exact names out of the task's own output
+clause rather than the shape you saw in an example."""
 
 
 _UNIVERSAL = """
-IF YOU DID SUBMIT AND WANT TO KNOW WHETHER IT IS RIGHT
+IF YOU HAVE DELIVERED AND WANT TO KNOW WHETHER IT IS RIGHT
 ──────────────────────────────────────────────────────────────────────
-   GUESS. Among submissions with a complete level set the self-convergence
-   order is a median 1.96 to 1.99 in both arms: the discretisation converges
-   cleanly. Two failures survive that, and neither shows up in a refinement
-   study — a solution converging beautifully TO THE WRONG FUNCTION (7% of all
-   runs), and a field off by orders of magnitude in its overall size.
+   GUESS. Among result sets with a complete level set the self-convergence
+   order is a median 1.96 to 1.99 across measured runs: the discretisation
+   converges cleanly. Two failures survive that, and neither shows up in a
+   refinement study — a solution converging beautifully TO THE WRONG FUNCTION
+   (7% of all runs), and a field off by orders of magnitude in its overall size.
 
    YOUR OWN CONVERGENCE VERDICT DOES NOT SEPARATE THEM. Measured, a run's
    MESH_INDEPENDENCE = NOT_CONVERGED catches about three quarters of the wrong
@@ -305,7 +305,7 @@ IF YOU DID SUBMIT AND WANT TO KNOW WHETHER IT IS RIGHT
         K, L* = L). Refine and watch it. Measured: fields that solve the stated
         problem give 6.7e-2 -> 1.5e-2 -> 4.3e-3, falling at order 2; fields
         that do not give 5.49 -> 5.62 -> 5.64, flat. It costs no solver run and
-        separated a third of all submissions.
+        separated a third of all result sets.
      b. IS YOUR EVALUATOR ITSELF SECOND ORDER? Push a function you KNOW (say
         x(1-x)y(1-y)) through the SAME code that produces your probe values.
         Measured on a 44x44 grid at N = 8, 16, 32:
@@ -320,12 +320,12 @@ IF YOU DID SUBMIT AND WANT TO KNOW WHETHER IT IS RIGHT
         everywhere.
      d. IS THE SIZE PLAUSIBLE? Compare the magnitude of your field against what
         the source term and the domain size imply. Measured, 11 to 30% of
-        submissions are off by more than a factor of ten, including fields that
+        result sets are off by more than a factor of ten, including fields that
         are all zero and fields of order 1e11.
      e. DID THE MESH CHANGE? The degree-of-freedom count must GROW per level.
 
    Report what you measured either way: a run that states NOT_CONVERGED with
-   its largest relative change scores better than one claiming a convergence
+   its largest relative change is worth more than one claiming a convergence
    it cannot show.
 
 5. IF YOUR SOLVER IS A BINARY, ITS INPUT FILE IS THE RUN INTERFACE and you
@@ -349,28 +349,30 @@ WHERE THE DELIVERABLE HAS TO END UP
 ──────────────────────────────────
 OASiS's run tools write their results into a TIMESTAMPED directory of their own,
 e.g. work/simulation_outputs/ngsolve_20260821_113326/. That is convenient for
-you and invisible to the assessment, which looks for the files the task names.
+you and invisible to whoever verifies your results, who looks for the files the
+task names.
 
   * COPY (or move) each deliverable to the TOP of your sandbox when you are
-    done: work/solution_level<k>.csv, work/RESULT.txt, and so on. A file that
-    exists only inside a tool's output directory is an intermediate artefact.
+    done: the per-level field files, your summary file, and so on, directly
+    under work/. A file that exists only inside a tool's output directory is
+    an intermediate artefact.
   * IF YOU RUN THE SAME LEVEL TWICE, the second run gets a NEW timestamped
-    directory and the first one stays. Two differing copies of
-    solution_level<k>.csv with no copy at the top of the sandbox is an
-    AMBIGUOUS submission -- nothing in the task says which attempt is your
+    directory and the first one stays. Two differing copies of the same
+    per-level field file with no copy at the top of the sandbox is an
+    AMBIGUOUS result set -- nothing in the task says which attempt is your
     answer -- and it is rejected as malformed rather than guessed at. Overwrite
     the copy at the top, or delete the superseded directory.
 
-Measured: 16 runs were rejected for exactly this, every one of
-them in the tool-using arm and none in the arm that wrote straight to the
-sandbox. It costs you the whole cell for a file-copy.
+Measured: 16 runs were rejected for exactly this, every one of them a run that
+left its files in the tools' output directories and none among the runs that
+wrote straight to the sandbox. It costs you the whole task for a file-copy.
 
-CAPTURING YOUR SOLVER'S OWN OUTPUT (asked for by every task's run-log clause)
+CAPTURING YOUR SOLVER'S OWN OUTPUT (asked for wherever a task has a run-log clause)
 ────────────────────────────────────────────────────────────────────────────
 The run log must carry the text YOUR SOLVER printed, not a line you wrote about
 it, because that text is what shows WHICH code ran. Redirect the run:
 
-    <your run command>  > run_level<k>.log 2>&1        # keep 2>&1
+    <your run command>  > <the run log your task names> 2>&1        # keep 2>&1
 
 """ + _PER_SIDE_NAMING + """
 
@@ -401,13 +403,13 @@ Measured on this machine, per code:
     4C also writes <name>.control next to its results, carrying its own git sha
     and a num_dof field -- keep it, it is strong evidence the binary ran.
 
-EVALUATING YOUR SOLUTION AT THE GRADED PROBE POINTS
-───────────────────────────────────────────────────
-Every cell is graded at a FIXED set of points that does not move with your
-mesh, so the points sit INSIDE elements, not on nodes.
+EVALUATING YOUR SOLUTION AT THE PRESCRIBED PROBE POINTS
+───────────────────────────────────────────────────────
+A task that prescribes probe points evaluates you at a FIXED set of points that
+does not move with your mesh, so the points sit INSIDE elements, not on nodes.
 
 READING THE NEAREST NODE'S VALUE CAPS YOUR MEASURED ORDER AT 1, whatever your
-solver did. It is the most common scoring defect measured -- 144 runs
+solver did. It is the most common post-processing defect measured -- 144 runs
 did it, and their observed orders cluster at 0 and 1. Nearest-node lookup is a
 piecewise-CONSTANT reconstruction with O(h) error, which swamps the O(h^2) or
 O(h^3) error of the solve, so you measure the reconstruction. Measured on an
@@ -432,25 +434,25 @@ precision against u = 3x + 2y:
     NGSolve      values = [gfu(mesh(px, py)) for px, py in pts]
     VTK/VTU      values = pv.PolyData(pts).sample(mesh).point_data[name]
 
-VERIFY THE SAMPLER AGAINST THE IDENTITY MAP FIRST. An MMS submission is TWO
+VERIFY THE SAMPLER AGAINST THE IDENTITY MAP FIRST. An MMS result set is TWO
 independent programs -- the deck and the sampler -- and the solver's own
-convergence checks cover only the first. Nothing in a blind run checks the
-second, so check it yourself, with the one field whose answer you know without
-any key: the COORDINATES.
+convergence checks cover only the first. Nothing in a run without a reference
+solution checks the second, so check it yourself, with the one field whose
+answer you know without any reference: the COORDINATES.
 
     sample the field u(x,y) = x at your probe points
     -> it must return the probe points' x, to machine precision
 
 If it does not, the sampler is broken and every physical number it reports is
-broken. This costs one line and needs no reference solution, which is what a
-blind evaluation demands. It catches the whole family: a wrong shape-function
+broken. This costs one line and needs no reference solution, which is exactly
+the situation you are in. It catches the whole family: a wrong shape-function
 normalisation, a wrong node ordering in the connectivity, wrong natural
 coordinates, the wrong element selected, a z-layer mix-up.
 
-MEASURED, on a real submission: an extractor wrote the QUAD4 factor 0.25 into
+MEASURED, on a real result set: an extractor wrote the QUAD4 factor 0.25 into
 a HEX8 shape function instead of 0.125, so sum(N) = 2 everywhere. The same
 doubled N was used inside the Newton inversion of the geometry, so the point
-located was (x/2, y/2). The submitted field was exactly 2*u(x/2, y/2): a FIXED
+located was (x/2, y/2). The delivered field was exactly 2*u(x/2, y/2): a FIXED
 wrong function, converged to beautifully, at order -0.035 -- refinement cannot
 help because the map is mesh-independent. The deck was correct and its own
 solution converged at order 1.98. Fixing that one character in the extractor,
@@ -476,13 +478,14 @@ about to claim, the extraction is the defect, not the solver.
 # MEASURED, and this is why a switch exists rather than an edit. Served volume
 # is dominated by the topic="physics" reply: 51,402 characters for 4C, of which
 # `_UNIVERSAL` is 22,501 — and 93% of the Kratos reply, whose own knowledge is
-# 1,595 characters. The arm that receives all this carries 90,740 input tokens
-# per call against the unassisted arm's 58,626, takes 41 tool calls against 99,
-# and stops at 44% of its time budget while blaming the clock.
+# 1,595 characters. Runs that receive all this carry 90,740 input tokens per
+# call against 58,626 for runs without it, take 41 tool calls against 99, and
+# stop at 44% of their time budget while blaming the clock.
 #
-# Within the assisted arm the correlation is monotone: runs graded CORRECT
-# carry 70,273 tokens per call and make 52 calls; runs that give up carry
-# 87,523 and make 37. That is CORRELATION and the direction is not settled — a
+# Among the runs that receive it the correlation is monotone: runs verified
+# correct against an independent reference carry 70,273 tokens per call and
+# make 52 calls; runs that give up carry 87,523 and make 37. That is
+# CORRELATION and the direction is not settled — a
 # run that solves quickly naturally makes fewer heavy knowledge calls, which is
 # reverse causation and equally consistent with the numbers.
 #
@@ -490,26 +493,26 @@ about to claim, the extraction is the defect, not the solver.
 # reply carries the CORE plus a pointer to the elaboration, instead of the full
 # block.
 #
-# THE EXPERIMENT HAS BEEN RUN AND IT REFUTED THE HYPOTHESIS. NG1, KR1 and FC1,
-# one seed each per arm:
+# THE EXPERIMENT HAS BEEN RUN AND IT REFUTED THE HYPOTHESIS. Three single-code
+# problems (one NGSolve, one Kratos, one FEniCSx), one seed each per setting:
 #
-#     FULL block   CORRECT, CORRECT, CORRECT   (orders 2.063, 2.005, 2.000)
-#     LEAN         CONFIDENTLY_WRONG (0.071), MALFORMED, CONFIDENTLY_WRONG
-#                  (-0.033)
+#     FULL block   correct, correct, correct   (orders 2.063, 2.005, 2.000)
+#     LEAN         confidently wrong (0.071), a malformed result set,
+#                  confidently wrong (-0.033)
 #
 # Total served tokens fell as designed, 4.2M -> 3.5M, and the hoped-for
 # consequence did not follow: context per call moved only -9.3% and ACTIONS
-# fell 7.7%, with one of the three cells reversing both signs (FC1 went
-# 80,780 -> 111,923 tokens per call and 52 -> 34 calls). One lean run of three
-# took up the offer of the removed material.
+# fell 7.7%, with one of the three problems reversing both signs (the FEniCSx
+# one went 80,780 -> 111,923 tokens per call and 52 -> 34 calls). One lean run
+# of three took up the offer of the removed material.
 #
 # So the correlation between heavy context and giving up was, at least in part,
 # reverse causation: a run that solves quickly makes fewer heavy calls. The
-# elaboration the lean form removes — how to evaluate at the graded probe
+# elaboration the lean form removes — how to evaluate at the prescribed probe
 # points in this backend, which norm converges at which order, the quadrature
 # and time-integration traps — is LOAD-BEARING, and 3/3 against 0/3 is the
-# evidence. n=3 per arm with different seeds, so this is suggestive rather than
-# conclusive; it is more than enough to stop the cut.
+# evidence. n=3 per setting with different seeds, so this is suggestive rather
+# than conclusive; it is more than enough to stop the cut.
 #
 # The switch stays, OFF, so the experiment can be repeated at a larger n by
 # whoever wants to argue the other way. Do not make it the default on the
@@ -520,7 +523,7 @@ def _physics_tail() -> str:
     if os.environ.get("OASIS_LEAN_PHYSICS", "") not in ("1", "true", "TRUE"):
         return _UNIVERSAL
     return _UNIVERSAL_CORE + (
-        "\nTHE LONGER FORM OF THE ABOVE — how to evaluate at the graded probe\n"
+        "\nTHE LONGER FORM OF THE ABOVE — how to evaluate at the prescribed probe\n"
         "points in this backend, which norm converges at which order, the\n"
         "quadrature and time-integration traps, and how to capture each\n"
         "solver's own output — is available on request:\n"
@@ -533,9 +536,9 @@ def _physics_tail() -> str:
 # ── THE CORE THAT MUST REACH EVERY knowledge() CALL ────────────────────────────
 # MEASURED, and this is why this constant exists. `_UNIVERSAL` was appended on
 # exactly ONE of the 31 return paths of tools.consolidated.knowledge() — the
-# topic="physics" path. Across the campaign's 995 measured knowledge calls from
-# 193 OASiS-arm runs, topic="pitfalls" was 66.3% and topic="physics" only 11.5%,
-# so 75.6% OF OASiS-ARM RUNS RECEIVED NONE OF IT. Every universal rule added
+# topic="physics" path. Across 995 measured knowledge calls from 193
+# development runs, topic="pitfalls" was 66.3% and topic="physics" only 11.5%,
+# so 75.6% OF THOSE RUNS RECEIVED NONE OF IT. Every universal rule added
 # during development — the deliverable's location, the input-language warning,
 # the do-not-declare-the-solver-broken rule, the refinement ladder — reached at
 # most a quarter of the runs it was written for.
@@ -545,8 +548,8 @@ def _physics_tail() -> str:
 # lives in. Why not "serve the full block once per session": the runner executes
 # several run_one() calls in ONE process and nothing in the tool process
 # identifies the current run, so a module-level flag would serve run 1 and
-# starve runs 2..N — order-dependent, and asymmetric between arms and cells.
-# A fixed core on every path is deterministic and arm-symmetric.
+# starve runs 2..N — order-dependent, and different from run to run.
+# A fixed core on every path is deterministic and the same for every run.
 _UNIVERSAL_CORE = """
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -556,7 +559,7 @@ SEVEN RULES THAT APPLY WHATEVER YOU ASKED FOR
 1. THE DELIVERABLE GOES IN THE DIRECTORY YOU WERE GIVEN. Write your results
    file, your scripts and your solver output under the working directory named
    in your task, not in a temporary directory, not in the tool's installation
-   tree, and not in $HOME. Work that cannot be found is scored as absent.
+   tree, and not in $HOME. Work that cannot be found counts as absent.
 
 2. A SOLVER'S INPUT LANGUAGE IS NOT PYTHON. In decks and expression strings,
    powers are `^` and not `**` (`-1*X^2`, never `-1*X**2`), and `pi`, `sin`
@@ -564,8 +567,8 @@ SEVEN RULES THAT APPLY WHATEVER YOU ASKED FOR
    prefix is taken and the rest discarded, so the run succeeds with the wrong
    load. Rewrite every term of a source you copied out of the task text.
 
-3. DO NOT CONCLUDE A SOLVER IS BROKEN. Almost every "broken solver" in this
-   campaign was a missing capture or an unread log. Redirect BOTH streams
+3. DO NOT CONCLUDE A SOLVER IS BROKEN. Almost every "broken solver" seen in
+   development was a missing capture or an unread log. Redirect BOTH streams
    (`cmd > out.log 2>&1`), read the log rather than the exit code — several
    codes print their fatal error and still exit 0, and several print success
    letter-spaced so a grep for the contiguous word never matches — and re-run
@@ -582,12 +585,13 @@ SEVEN RULES THAT APPLY WHATEVER YOU ASKED FOR
    the run. Do one coarse level end to end — solve,
    extract at the prescribed points, write the file — before refining anything.
 
-5. IF YOU DID SUBMIT AND WANT TO KNOW WHETHER IT IS RIGHT, MEASURE, DO NOT
-   GUESS. Among submissions with a complete level set the self-convergence
-   order is a median 1.96 to 1.99 in both arms — the discretisation converges
-   cleanly — and the failures that survive that do not show up in a refinement
-   study at all: a solution converging beautifully TO THE WRONG FUNCTION, and a
-   field off by orders of magnitude in size. Your own MESH_INDEPENDENCE verdict
+5. IF YOU HAVE DELIVERED AND WANT TO KNOW WHETHER IT IS RIGHT, MEASURE, DO NOT
+   GUESS. Among result sets with a complete level set the self-convergence
+   order is a median 1.96 to 1.99 across measured runs — the discretisation
+   converges cleanly — and the failures that survive that do not show up in a
+   refinement study at all: a solution converging beautifully TO THE WRONG
+   FUNCTION, and a field off by orders of magnitude in size. Your own
+   MESH_INDEPENDENCE verdict
    does not separate them: it catches three quarters of the wrong runs and also
    fires on HALF the correct ones.
 
@@ -606,7 +610,7 @@ SEVEN RULES THAT APPLY WHATEVER YOU ASKED FOR
    knowledge(topic="physics", solver=..., physics=...).
 
    Report what you measured either way: a run that states NOT_CONVERGED with
-   its largest relative change scores better than one claiming a convergence
+   its largest relative change is worth more than one claiming a convergence
    it cannot show.
 
 6. IF YOUR SOLVER IS A BINARY, ITS INPUT FILE IS THE RUN INTERFACE and you
@@ -633,8 +637,8 @@ SEVEN RULES THAT APPLY WHATEVER YOU ASKED FOR
 
 7. REFINEMENT COUNTS HALVINGS, NOT CELLS. `refined(k)` (scikit-fem),
    `refine_global(k)` (deal.II), `globalRefine(k)` (DUNE) give 2^k cells per
-   side, so a prescribed N needs k = log2(N): N=8 is k=3, not 8. Measured in
-   both arms: k=8 built 256 cells/side, 592,387 DOFs, and the run died at
+   side, so a prescribed N needs k = log2(N): N=8 is k=3, not 8. Measured more
+   than once: k=8 built 256 cells/side, 592,387 DOFs, and the run died at
    level 2 with one level delivered.
 
 Full detail, per backend: knowledge(topic="physics", solver=..., physics=...)
@@ -659,9 +663,9 @@ Full detail, per backend: knowledge(topic="physics", solver=..., physics=...)
        linear_iterations=-10000, and leaves the field at the initial guess,
        so every level is exactly zero. Measured: cg gave peak 0.000000e+00 at
        all three levels, bicgstab gave 8.875850e-02. `solver="cg"` appears 82
-       times across 19 of 32 DU2 run directories on this machine;
-       bicgstab appears once. gmres is worse than useless here: it converged
-       at N=8 and N=16 and then silently returned zero at N=32
+       times across 19 of 32 run directories of one DUNE problem on this
+       machine; bicgstab appears once. gmres is worse than useless here: it
+       converged at N=8 and N=16 and then silently returned zero at N=32
        (linear_iterations=-10002). If your operator has an advection term it
        is not symmetric -- use bicgstab, gmres WITH a convergence assertion,
        or a direct solver.
@@ -680,7 +684,7 @@ Full detail, per backend: knowledge(topic="physics", solver=..., physics=...)
        factory-by-name=True). That error is not a version limit and is never a
        reason to change codes.
 
-9. GATE ON THREE THINGS BEFORE YOU WRITE RESULT.txt, at EVERY level:
+9. GATE ON THREE THINGS BEFORE YOU WRITE YOUR SUMMARY FILE, at EVERY level:
    the solver reported convergence (`info['converged'] is True`, not just the
    absence of an exception); peak|u| > 0; and your load is not constant
    (evaluate it at three separated points and check the values differ). Then
@@ -695,17 +699,17 @@ Full detail, per backend: knowledge(topic="physics", solver=..., physics=...)
     with the value at the closest node is O(h) accurate, so it caps your
     reported order at 1 no matter how good the solve was.
 
-    PROVEN against the sealed answer, one solve exported two ways and nothing
-    else changed:
-        interpolated       CORRECT            order 1.9796
-        nearest node       CONFIDENTLY_WRONG  order 0.9815
-    A second cell gave +1.9516 interpolated against +1.0179 nearest-node, and
-    +1.0179 is exactly what that submission reported.
+    PROVEN against an independent reference, one solve exported two ways and
+    nothing else changed:
+        interpolated       verified correct   order 1.9796
+        nearest node       confidently wrong  order 0.9815
+    A second problem gave +1.9516 interpolated against +1.0179 nearest-node,
+    and +1.0179 is exactly what that result set reported.
 
     CHECK IT FOR FREE, no reference needed: count the DISTINCT values you
     wrote. Nearest-node sampling on a mesh of N cells per side can only ever
     return (N-1)^2 + 1 distinct interior values, so 1936 probe points collapse
-    to 50, 226 and 962 at N = 8, 16, 32. Measured on real submissions: four
+    to 50, 226 and 962 at N = 8, 16, 32. Measured on real result sets: four
     reported exactly 50/1936, 226/1936, 962/1936; a correct one reported
     1908/1928/1936. If distinct is far below the probe count, you sampled
     nodes.
@@ -755,7 +759,7 @@ BEFORE YOU CONCLUDE A SOLVER IS BROKEN ON THIS MACHINE
 ──────────────────────────────────────────────────────
 Two measured runs gave up entirely -- zero output files, at a quarter of
 their time budget -- after deciding the 4C binary did not work. It worked. The
-same binary produced a complete three-level submission in the same minutes for
+same binary produced a complete three-level result set in the same minutes for
 another agent. What they saw was this:
 
   * A WARNING BEFORE THE BANNER IS THE ENVIRONMENT, NOT THE SOLVER.
@@ -781,10 +785,10 @@ another agent. What they saw was this:
     broken" is a dead end.
 
   * A NON-ZERO EXIT WITH NO MESSAGE IS NOT EVIDENCE THE TOOL IS BROKEN. It is
-    evidence you have not found the message yet. Before writing
-    COULD_NOT_COMPLETE for an infrastructure reason, run the binary on its own
-    trivial self-test (`-p`, `--help`) and report THAT result: if the self-test
-    passes, the defect is in your input.
+    evidence you have not found the message yet. Before writing a
+    could-not-finish report for an infrastructure reason, run the binary on
+    its own trivial self-test (`-p`, `--help`) and report THAT result: if the
+    self-test passes, the defect is in your input.
 
   * IF THE MESSAGE IS NOT THERE AT ALL, IT WAS DESTROYED, NOT WITHHELD, AND ONE
     FLAG BRINGS IT BACK. 4C's stdout is block-buffered; when it rejects a deck
@@ -846,9 +850,9 @@ expression field fails, and the two failures below were both measured here.
 
 Agents stop VOLUNTARILY at a median of about half their wall budget, and
 roughly one in six is stopped by the clock mid-thought. Both leave the same wreckage: a solver that ran correctly, a
-result understood, and nothing written where a grader can read it. One run
+result understood, and nothing written where anyone can read it. One run
 solved its first mesh level cleanly and ended without writing a single
-deliverable — that scores exactly what doing nothing scores.
+deliverable — that counts for exactly what doing nothing counts for.
 
 So invert the order of work:
 
@@ -860,7 +864,7 @@ So invert the order of work:
 
 The same rule applies when a run looks like it is going badly: write what you
 have BEFORE you investigate why, because the investigation is what runs out of
-clock. A partial result on disk is a partial result and is scored as one; a
+clock. A partial result on disk is a partial result and counts as one; a
 finished result that exists only in your reasoning is not a result at all.
 
 NOT VERIFIED and NOT A RESULT are different outcomes. If a check you ran
@@ -923,7 +927,7 @@ posed — usually a field that is identically zero, or identically your boundary
 value.
 
 It is common to write a complete manufactured source into a deck, leave the
-condition that references it switched off, and submit a field of exactly 0.0 at
+condition that references it switched off, and deliver a field of exactly 0.0 at
 every probe point — with no error raised anywhere.
 
 So after you build the ingredient, CHECK THE WIRE. Each code has its own, and
@@ -962,17 +966,17 @@ THE CHECK COSTS ONE COMMAND. Before you believe a result, grep your own input
 for the ingredient's name and confirm something CONSUMES it. A driven problem
 whose field is identically zero is this bug until you have proven otherwise.
 
-## BEFORE YOU SUBMIT: RUN `audit_results` ON YOUR OWN OUTPUT
+## BEFORE YOU HAND IN: RUN `audit_results` ON YOUR OWN OUTPUT
 
 One tool call: `audit_results(work_dir=<your results directory>,
 claimed_order=<the order you are about to claim>)`. It reads only files YOU
 produced and catches, in seconds, the failures that most often sink an
-otherwise complete submission — a field that is numerically zero because the
+otherwise complete result set — a field that is numerically zero because the
 source was defined but never referenced by any condition; error levels sitting
 at a solver-tolerance floor so refinement changes nothing; a convergence rate
 your own numbers contradict. Calibrated against 94 independently-checked
-correct submissions it raised no false alarm on any of them, and it catches
-about four in ten submissions that are complete but wrong. It catches many
+correct result sets it raised no false alarm on any of them, and it catches
+about four in ten result sets that are complete but wrong. It catches many
 more when your summary states the convergence order you are claiming — the
 order check has nothing to compare against otherwise.
 
@@ -1020,9 +1024,10 @@ the ingredient.
 #   ACON (arXiv 2510.00615)      compression keeps >95% accuracy at 26-54%
 #                                fewer peak tokens, worth up to +46% for SMALL
 #                                models
-# And from our own side: 5 of 6 coupled runs wrote their submission at 93-99%
-# of their whole file-activity span; the only one that reached a gradeable
-# order with both prescribed codes proven submitted at 68%.
+# And from our own side: 5 of 6 coupled runs wrote their result set at 93-99%
+# of their whole file-activity span; the only one that reached an order that
+# could be checked, with both prescribed codes proven to have run, delivered
+# at 68%.
 #
 # WHAT IS CUT IS ONLY ELABORATION. The core carries ALL TEN numbered rules and
 # ALL SIXTEEN of the decisive measurements and API calls -- 0.000000000e+00,
@@ -1040,11 +1045,11 @@ the ingredient.
 #
 #     read the log FROM THE TOP, not `| tail`, which shows only boilerplate
 #     `Invalid MIT-MAGIC-COOKIE-1 key` is X11 noise, present on SUCCESSFUL runs
-#     self-test with `--help` before writing COULD_NOT_COMPLETE
+#     self-test with `--help` before writing a could-not-finish report
 #     `**` is not exponentiation -- 4C and FEBio both reject it, use `^`
 #     a bare topology block aborts BEFORE PRINTING ITS OWN BANNER
 #     WRITE THE ANSWER FILE before you refine anything
-#     RUN `audit_results` on your own output before submitting
+#     RUN `audit_results` on your own output before handing in
 #     if the task names an element, THE ELEMENT WINS
 #     an ingredient you define is INERT UNTIL IT IS WIRED IN
 #
@@ -1053,11 +1058,11 @@ the ingredient.
 # test_what_we_write_is_what_agents_see (1, covering four rules x nine
 # backends), test_served_text_is_not_self_referential (4).
 #
-# The cost was paid. C2_27b_MCP_seed1201 spent its budget on a 4C abort whose
+# The cost was paid. One development run spent its budget on a 4C abort whose
 # whole record is an empty stdout plus MPI boilerplate, concluded "the 4C
-# binary requires specific MPI environment configuration", and submitted
+# binary requires specific MPI environment configuration", and delivered
 # nothing; the two sections that speak to precisely that were not in the reply
-# it read. Its two siblings also submitted nothing, against a cut that had
+# it read. Its two sibling runs also delivered nothing, against a cut that had
 # removed WRITE THE ANSWER FILE and RUN `audit_results`. Eighth instance of the
 # shape: the mechanism existed, was maintained, and did not reach the case it
 # was built for -- this time because a guard was written against a proxy for

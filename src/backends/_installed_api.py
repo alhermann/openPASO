@@ -16,7 +16,7 @@ Keyed by the backend registry name.
 
 INSTALLED_API = {
  # ── FEniCSx ────────────────────────────────────────────────────────────
- # There was NO fenics entry, while it is the backend two single-code cells
+ # There was NO fenics entry, while it is a backend that single-code tasks
  # use. Point evaluation in dolfinx is a genuine three-step API and the
  # recipe lived only under physics='contact' and physics='io_catalog' —
  # neither a name an agent solving a Poisson problem would request.
@@ -136,8 +136,8 @@ INSTALLED_API = {
     "# </Output>\n"),
   "gotchas": [
     "NO ARBITRARY-POINT EVALUATION INSIDE FEBio. It exposes NODAL output and no user-facing shape-function interpolation, so the interpolation is YOURS to do afterwards: export node_data, and evaluate at your target points in Python from the nodal values and the element they fall in. On a structured mesh that is bilinear (2-D) or trilinear (3-D) interpolation inside the containing cell — locate the cell from the mesh spacing, then weight its corner values.",
-    "DO NOT MOVE THE MESH TO THE PROBE POINTS. If a task prescribes BOTH a mesh sequence and a probe grid, the mesh is part of the problem and refitting it to make probes land on nodes is solving a different problem — it is graded as not following the prescribed sequence. Probe grids are commonly chosen to be deliberately off-node precisely so that interpolation is exercised.",
-    "A deck with only <plotfile> writes a binary .xplt and nothing readable. Add <logfile> with node_data or you have no numbers to submit.",
+    "DO NOT MOVE THE MESH TO THE PROBE POINTS. If a task prescribes BOTH a mesh sequence and a probe grid, the mesh is part of the problem and refitting it to make probes land on nodes is solving a different problem — it reads as not following the prescribed sequence. Probe grids are commonly chosen to be deliberately off-node precisely so that interpolation is exercised.",
+    "A deck with only <plotfile> writes a binary .xplt and nothing readable. Add <logfile> with node_data or you have no numbers to deliver.",
     "The logfile format string sets precision: use %.15g.",
     "A log accumulates one block per step: parse the LAST block.",
     "This build has no pardiso; leave the solver at its default.",
@@ -156,7 +156,7 @@ INSTALLED_API = {
     "# A compute produces NOTHING by itself: a fix ave/time, dump or print\n"
     "# must reference it as c_<id> for any number to be written at all.\n"),
   "gotchas": [
-    "OUTPUT PRECISION: `dump_modify <id> format float %20.15g` and `stats_modify format float %20.15g`. The defaults are far too coarse to grade against.",
+    "OUTPUT PRECISION: `dump_modify <id> format float %20.15g` and `stats_modify format float %20.15g`. The defaults are far too coarse to compare against a reference.",
     "A `compute` writes nothing on its own; it must be referenced as c_<id> by a fix ave/time, a dump or a print.",
     "DSMC is STOCHASTIC: one run is a sample. Average over enough steps after the flow is established, and say which window you averaged.",
     "THERE IS NO POINT EVALUATION, and that is the physics, not a gap: DSMC "

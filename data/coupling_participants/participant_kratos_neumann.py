@@ -238,6 +238,7 @@ def main():
         mp.CreateNewCondition("FluxCondition2D2N", j + 1,
                               [nid[(i_if, j)], nid[(i_if, j + 1)]], props)
 
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
     # AddDof with a REACTION variable: without the second argument the fixed
     # dofs have nowhere to store their reaction and it is silently discarded.
     # This side does not export the reaction, but the conservation self-check
@@ -250,6 +251,14 @@ def main():
                                               True, False, False, False)
     strategy.Initialize()
     strategy.Solve()
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+    # TWO THINGS YOUR SOLVE ABOVE MUST DO, or the self-check below reads zeros:
+    #   * AddDof(TEMPERATURE, REACTION_FLUX, mp) -- the SECOND argument gives
+    #     every fixed dof a place to store its reaction; without it the
+    #     reaction is silently discarded.
+    #   * run the strategy with CalculateReactionsFlag=True (the 4th positional
+    #     argument of ResidualBasedLinearStrategy); the conservation self-check
+    #     is built from REACTION_FLUX.
 
     T = np.array([mp.Nodes[nid[(i_if, j)]].GetSolutionStepValue(KM.TEMPERATURE)
                   for j in range(NY + 1)])

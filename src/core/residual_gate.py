@@ -1,7 +1,7 @@
 """Make the discrete-residual check reachable from a run.
 
 `core/residual_check.py` can tell a solve from a forgery — it assembles the
-stated operator on the submitted mesh and measures how far the submitted field
+stated operator on the delivered mesh and measures how far the delivered field
 is from satisfying it, which separates the two by many orders of magnitude. It
 was unreachable: no tool took a problem statement, so nothing could ever call
 it, and the verification gate's strongest check sat in the repository doing

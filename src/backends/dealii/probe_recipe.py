@@ -2,9 +2,9 @@
 
 WHY THIS EXISTS. Measured over 464 single-code runs, the
 largest single failure bucket is a solve that SUCCEEDED and was then never read
-back at the required points: 60 runs, 12.9%. Every task in the campaign says
-its probe points are "deliberately not mesh nodes", so getting a value at an
-arbitrary coordinate is a required step, not an optional one.
+back at the required points: 60 runs, 12.9%. A task that prescribes probe
+points commonly places them deliberately off the mesh nodes, so getting a value
+at an arbitrary coordinate is a required step, not an optional one.
 
 Measured across the nine served backends, deal.II was the ONLY one whose
 payload carried no way to do it — FEniCSx serves bb_tree/compute_colliding_cells,
@@ -60,8 +60,8 @@ which is order 1.98 then 2.03.
     reporting. Re-distributing dofs after refinement invalidates an old
     solution vector, and reading it gives values from the previous mesh with no
     warning at all.
-  * `NDOF = <integer>` FOR YOUR RUN LOG is `dof_handler.n_dofs()`. Print it
-    yourself: deal.II's library output carries no mesh count at any verbosity,
-    and the tutorial programs' "Number of active cells" line is the TUTORIAL's
-    print, not the library's.
+  * THE NUMBER OF DEGREES OF FREEDOM for your run log is
+    `dof_handler.n_dofs()`. Print it yourself: deal.II's library output
+    carries no mesh count at any verbosity, and the tutorial programs'
+    "Number of active cells" line is the TUTORIAL's print, not the library's.
 """

@@ -99,7 +99,7 @@ def test_the_wording_has_one_copy():
     # Count only lines that EMIT the heading, not the comment that quotes it
     # while explaining an old bug.
     emitting = [l for l in src.splitlines()
-                if "AUTO-AUDIT of your submission" in l
+                if "AUTO-AUDIT of your result files" in l
                 and not l.lstrip().startswith("#")]
     assert len(emitting) == 1, (
         f"the audit wording is emitted from more than one place: {emitting}"
@@ -110,6 +110,6 @@ def test_the_wording_has_one_copy():
 
 
 def test_the_shared_formatter_never_blesses_nothing():
-    assert "NOT a clean bill" in _format_audit_reply("NOEVIDENCE")
-    assert "clean" in _format_audit_reply("")
-    assert "pointer, not a verdict" in _format_audit_reply("  * something\n")
+    assert "nothing here was verified" in _format_audit_reply("NOEVIDENCE")
+    assert "necessary but not sufficient" in _format_audit_reply("")
+    assert "AUTO-AUDIT" in _format_audit_reply("  * something\n")

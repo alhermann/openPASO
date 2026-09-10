@@ -624,6 +624,13 @@ def check_interface_balance(export_a, export_b, label_a="A", label_b="B",
                 "which is the same number on both sides."
                 if same_sign else "")
         if not hint:
+            # A CLEAN POWER OF TEN (or 60 / 3600) BETWEEN THE TWO MAGNITUDES is
+            # named before the arrival test below: a side whose load never
+            # arrived returns a flux set by roundoff, not one sitting exactly
+            # a decade under its partner, so the ratio is the more specific
+            # signal and wins when both would fire.
+            hint = _unit_ratio_hint(fa, fb)
+        if not hint:
             # ONE SIDE'S FLUX IS ~ZERO AGAINST A NONZERO PARTNER: the
             # imported interface load never entered that side's assembled
             # system (measured signature: a coupling that converges cleanly
@@ -646,8 +653,6 @@ def check_interface_balance(export_a, export_b, label_a="A", label_b="B",
                         f"applying a sampled interface load is in that "
                         f"side's served deciding facts (prepare_simulation "
                         f"for that solver).")
-        if not hint:
-            hint = _unit_ratio_hint(fa, fb)
         w.append(
             f"Interface flux NOT balanced: net({label_a})={fa:.4g}, net({label_b})={fb:.4g}, "
             f"imbalance {rel:.1%} > {rtol:.0%} — coupling may be non-conservative (silent error)."

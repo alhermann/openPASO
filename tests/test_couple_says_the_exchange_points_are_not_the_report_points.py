@@ -48,7 +48,7 @@ def test_couple_returns_the_warning():
 def test_it_names_the_file_that_gets_copied():
     body = _couple_body()
     assert "exports.json" in body.split('result["reporting"]')[1][:1200]
-    assert "interface_level<k>_<side>.csv" in body
+    assert "per-level interface file" in body
 
 
 def test_it_says_to_interpolate_with_each_sides_own_material():

@@ -322,7 +322,7 @@ KNOWLEDGE = {
         # observed orders from a development run. That is the answer to a
         # convergence study, sitting inside the tool the study is meant to
         # evaluate — an agent could read the result instead of computing it,
-        # and convergence order is exactly what the campaign grades. Removed
+        # and convergence order is exactly what such a study measures. Removed
         # 2026-08-06 by the contamination merge gate.
         #
         # What survives is the falsifiable statement: the discretisation is
@@ -354,7 +354,7 @@ KNOWLEDGE = {
             "CONSTANTS while sharing the same theoretical order. Reference "
             "errors quoted for one draw therefore say nothing about the "
             "other: re-derive your own reference for the draw you actually "
-            "run, and never grade a run against a number that came from a "
+            "run, and never compare a run against a number that came from a "
             "different parameter set."),
         "pitfalls": [
             '[Environment] RE-MEASURED 2026-08-18, and the earlier entry is now WRONG — '
@@ -453,7 +453,7 @@ KNOWLEDGE = {
             'agent-built .msh; identical extraction path). Measure convergence by rerunning '
             'with halved mesh_size and fitting the machine-readable "L2_ERROR = ..." lines. '
             'Signal: a run whose stdout contains no "L2_ERROR = " line did not reach the '
-            'error computation — treat it as failed, never grade it.',
+            'error computation — treat it as failed, never fit an order to it.',
         ],
     },
 }

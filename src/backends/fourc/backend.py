@@ -75,7 +75,7 @@ def _fourc_diagnostic(stdout_text: str, stderr_text: str,
     parts = []
     # A SEGFAULT IS NOT A DIAGNOSTIC, SO NAME THE CAUSE THAT PRODUCES IT.
     #
-    # Measured on C2_27b_MCP_seed76, which lost its entire run to this. 4C dies
+    # Measured on one development run that was lost entirely to this. 4C dies
     # with "Signal: Segmentation fault (11) / Address code: Address not mapped"
     # and prints no error, no line number and no mention of conditions. The
     # crash lands during "Read/generate conditions", so it reads as a problem
@@ -582,13 +582,13 @@ class FourcBackend(SolverBackend):
         ]
 
     def get_knowledge(self, physics: str) -> dict:
-        # THE DECK GRAMMAR REACHES THE SINGLE-CODE CELLS TOO.
+        # THE DECK GRAMMAR REACHES THE SINGLE-CODE PROBLEMS TOO.
         #
         # It was served only from the coupling payload, and a single-code 4C
-        # cell (FC1, FC2) never calls knowledge(topic='coupling') -- it has no
-        # coupling. So the agents with the LARGEST target (>70% single-code)
-        # received nothing about how to write a runnable deck, which is the same
-        # defect that killed all three OASiS runs of coupled C2.
+        # problem never calls knowledge(topic='coupling') -- it has no
+        # coupling. So agents on single-code tasks received nothing about how
+        # to write a runnable deck, which is the same defect that killed three
+        # development runs of one coupled problem.
         #
         # One copy, in backends/fourc/deck_grammar.py, served from both paths.
         # The interface-probe text taught why that matters: it existed in four
@@ -1239,11 +1239,11 @@ class FourcBackend(SolverBackend):
                                              / p.get("dt", 0.1)))),
                 timestep=p.get("dt", 0.1)),
             # thermo_transient_mms/temporal_mms_2d: unsteady-heat MMS
-            # family graded on TEMPORAL convergence order. Fixed fine
+            # family measured on TEMPORAL convergence order. Fixed fine
             # mesh keyed off "n" (capped in the inline builder),
             # dt-halving to the same T_end, so the only thing varying
             # is dt. One-Step-Theta is 2nd-order in time at theta=0.5
-            # and 1st-order at theta=1; grade theta=0.5 from Richardson
+            # and 1st-order at theta=1; get the theta=0.5 order from Richardson
             # differences of consecutive-dt solutions rather than from
             # an error-vs-exact table, which saturates at the fixed
             # mesh's spatial floor. The volumetric
@@ -1595,7 +1595,7 @@ class FourcBackend(SolverBackend):
 
             # TIMEOUT MUST KILL THE SOLVER, AND THE WHOLE GROUP. Without this, a
             # timed-out solve kept running forever: wait_for() abandoned the
-            # process but never terminated it, and a campaign sweep found one such
+            # process but never terminated it, and a sweep found one such
             # solver 3.2 CPU-hours later at 100%% of a core, its MPI daemon
             # (orted) beside it. start_new_session puts the solver and every child
             # it spawns into their own process group, so one killpg reaps MPI
@@ -1638,13 +1638,13 @@ class FourcBackend(SolverBackend):
                 # agent was handed "Invalid MIT-MAGIC-COOKIE-1 key ... MPI_ABORT
                 # was invoked on rank 0" and nothing else.
                 #
-                # THE COST, MEASURED: both OASiS-arm runs of coupled cell C2
-                # (seeds 70 and 71) concluded from exactly that string that the
-                # 4C BINARY was broken on this machine, wrote
-                # COULD_NOT_COMPLETE with zero deliverables, and stopped at 30
-                # and 37 tool calls having used 22-27% of their wall budget. The
-                # bare arm, running 4C directly and reading the head of its own
-                # log, produced a complete three-level submission from the same
+                # THE COST, MEASURED: two development runs of one coupled
+                # problem concluded from exactly that string that the 4C BINARY
+                # was broken on this machine, wrote a could-not-finish report
+                # with zero deliverables, and stopped at 30 and 37 tool calls
+                # having used 22-27% of their wall budget. Another run of the
+                # same problem, running 4C directly and reading the head of its
+                # own log, produced a complete three-level study from the same
                 # binary in the same minutes. The binary was never broken: `4C
                 # -p` prints the cookie line too and succeeds.
                 #

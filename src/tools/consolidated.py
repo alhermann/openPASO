@@ -61,8 +61,8 @@ _SETUP_TOPIC_ALIASES = frozenset({
 # claim that OASiS results are critic-reviewed: anything that sets the variable
 # — a stray export, a harness default, a copied shell script — silently
 # converts every verdict into an unreviewed one that still reads as VERIFIED.
-# The evaluation it existed for (a critic-ablation arm) is not run; the design
-# is OASiS or no OASiS.
+# The comparison it existed for (running without the critic) is not run; the
+# design is OASiS or no OASiS.
 
 # The critic requirement was a boolean the AGENT passed: an audit showed a run
 # stamped VERIFIED with critic_approved=True and no critic anywhere in the
@@ -870,10 +870,11 @@ def _coupling_example_pointer(keyword: str, solver: str) -> str:
         f"cannot be one. A partitioned coupled run is TWO participant "
         f"programs plus a driver, so it lives in neither code's test tree.\n\n"
         f"WHERE IT ACTUALLY IS:\n"
-        f"  * `knowledge(topic=\"coupling\", solver=\"{solver}\")` — returns a "
-        f"RUNNABLE participant script for {solver}, with the interface "
-        f"exchange, the sign convention and the exports schema. Call it once "
-        f"per code you need.\n"
+        f"  * `knowledge(topic=\"coupling\", solver=\"{solver}\")` — returns the "
+        f"participant CONTRACT for {solver}: the interface exchange, the sign "
+        f"convention, the consistent flux recovery and the exports schema, "
+        f"with the solve elided for you to write. Call it once per code you "
+        f"need.\n"
         f"  * `knowledge(topic=\"coupling\")` with no solver — the driver "
         f"contract: imports.json / exports.json shapes, roles, relaxation, and "
         f"the failure table.\n"
@@ -905,8 +906,8 @@ def _couple_failure_reason(r, checks_ok: bool) -> str:
         `history` for "the residual per iteration" — an empty list. The one
         field carrying the cause, `error`, was never named, and neither were
         the per-participant `returncodes`. An agent shown an empty history and
-        no cause has nothing to debug, and the coupled arm's dominant failure
-        mode is stopping early: 63% end HONEST_INCOMPLETE at a median 30% of
+        no cause has nothing to debug, and the dominant failure mode of coupled
+        runs is stopping early: 63% end honestly incomplete at a median 30% of
         budget, with zero timeouts in 112 runs.
       * A GENUINE CONVERGENCE FAILURE, where `history` IS the thing to read.
       * A CONVERGED RUN that failed a downstream silent-wrong check. Telling
@@ -1005,20 +1006,20 @@ def _stamp_verification(result: dict, *, evidence_ok: bool, reason: str = "",
         # are different situations and must not carry the same imperative.
         # Measured: 10 coupled runs drove a coupling to convergence, hit a
         # flux-balance finding, read "must NOT be reported as a result" in the
-        # tool's own reply, and declared COULD_NOT_COMPLETE with a median 69%
-        # of their budget unspent — while the served knowledge said the
+        # tool's own reply, and declared they could not finish with a median
+        # 69% of their budget unspent — while the served knowledge said the
         # opposite ("a converged run with a failed conservation check is still
         # a result"). The agent obeys the imperative it is holding.
         # ROUTE ON THE PROPERTY, NOT ON THREE WORDS. The first router
         # recognised a converged-with-caveat run only when the reason contained
-        # balance/conserv/flux. C2_27b_MCP_seed1501's caveat reads "the
+        # balance/conserv/flux. One development run's caveat read "the
         # coupling CONVERGED, and then failed one of OASiS's silent-wrong
         # checks ... report the numbers and the caveat" -- no listed word -- so
         # it fell to the else-branch, and the agent received both "report the
         # numbers and the caveat" AND "must NOT be reported as a result;
         # revise the setup and re-run" IN THE SAME PARAGRAPH. It obeyed the
         # harsher one, exported a residual its own files contradict, and
-        # graded COMPLETED_UNPHYSICAL. A converged run with a failed
+        # ended complete but unphysical. A converged run with a failed
         # downstream check is a result with a finding, whatever the finding is
         # called; the harsh imperative is for claims with no converged run
         # behind them.
@@ -1040,7 +1041,7 @@ def _stamp_verification(result: dict, *, evidence_ok: bool, reason: str = "",
                 "iteration history), `interface_csv` (your interface tables) "
                 "and `captured_solver_logs` (the log paths). SAVE THOSE "
                 "VERBATIM as this level's deliverables, then run the NEXT "
-                "level. A one-row or hand-written residual file is graded as "
+                "level. A one-row or hand-written residual file reads as "
                 "no coupling at all — the real multi-row history is in this "
                 "reply. Report the caveat ALONGSIDE the saved files; it is "
                 "not a reason to withhold them. (This is 'verification', "
@@ -2125,10 +2126,10 @@ def _make_input_snapshot(input_content: str, solver: str = "",
 def _unsaved_work_notice(work_dir, out_files) -> str | None:
     """Warn, at the moment a solve SUCCEEDS, that nothing is written down yet.
 
-    Measured over five development rounds: the runs that fail most often are
+    Measured over the development runs: the runs that fail most often are
     not the ones that fail to solve. They solve, keep working, and end with
     nothing a reader can find — three of the five failing single-code runs in
-    round 5 seed 6 made 85-107 tool calls, produced solver output, and wrote no
+    one batch made 85-107 tool calls, produced solver output, and wrote no
     summary at all.
 
     Two static-text attempts did not change that: the rule filed in one
@@ -2172,11 +2173,12 @@ def _unsaved_work_notice(work_dir, out_files) -> str | None:
 
 # THE UNIVERSAL BLOCK MUST RIDE THE TOOL AGENTS ACTUALLY CALL. It lived only
 # in knowledge.register_knowledge_tools, which src/server.py never registers —
-# so every rule placed there since round 4 (write-the-deliverable, the
-# audit_results instruction, the degree rule) was served to NOBODY, while I
-# "verified 9/9 backends" through get_physics_knowledge, a tool the live
-# server does not expose. Agents call `knowledge` 2909 times in the campaign
-# transcripts and get_physics_knowledge zero times.
+# so every rule placed there over a long stretch of development
+# (write-the-deliverable, the audit_results instruction, the degree rule) was
+# served to NOBODY, while I "verified 9/9 backends" through
+# get_physics_knowledge, a tool the live server does not expose. Agents call
+# `knowledge` 2909 times in the development-run transcripts and
+# get_physics_knowledge zero times.
 import functools as _functools
 from .knowledge import _PER_SIDE_NAMING  # one copy, served on both paths                                  # noqa: E402
 from .knowledge import _physics_tail                            # noqa: E402
@@ -2189,13 +2191,14 @@ from .knowledge import _UNIVERSAL_CORE as _UNIVERSAL_CORE      # noqa: E402
 # Measured over every door an agent can open for a coupled task: 145,321
 # characters served, of which the lines carrying a decisive fact total 571 --
 # 0.4%. One prepare_simulation reply is 44,000 to 83,000 characters, and the
-# coupled runs call it twice. File mtimes then show 5 of 6 submitting at 93-99%
-# of their whole file-activity span; the only run that ever reached a gradeable
-# order with both prescribed codes proven is the one that submitted at 68%.
+# coupled runs call it twice. File mtimes then show 5 of 6 delivering their
+# files at 93-99% of their whole file-activity span; the only run that ever
+# reached a verifiable order with both prescribed codes proven to have run is
+# the one that delivered at 68%.
 #
 # The corpus is not removed -- it is reordered. An agent that reads only the
-# top of the reply now gets the facts that separate CORRECT from
-# CONFIDENTLY_WRONG, each with the measurement behind it.
+# top of the reply now gets the facts that separate a correct result from a
+# confidently wrong one, each with the measurement behind it.
 # One entry per live server: which backends prepare_simulation has seen.
 # Keyed by id(mcp) so parallel servers in one process cannot bleed into
 # each other; a second key (id, 'served') marks the must-read as sent.
@@ -2245,7 +2248,7 @@ _DECIDING_FACTS = {
         "empty stdout is NOT an MPI or environment problem -- it is your deck, "
         "and the reason is one flag away. One run diagnosed it as \"the 4C "
         "binary requires specific MPI environment configuration\" and "
-        "submitted nothing.\n"
+        "delivered nothing.\n"
         "7. `No protocol specified` and `Invalid MIT-MAGIC-COOKIE-1 key` on "
         "stderr are X11 noise from a headless session. They are not the "
         "failure and they appear on successful runs too."
@@ -2253,8 +2256,8 @@ _DECIDING_FACTS = {
         # 89519cfe76): CALCFLUX route, VTU step-0 trap. repr literals.
         '\n8. Boundary flux from a scatra solve: set CALCFLUX_BOUNDARY: "diffusive" in SCALAR TRANSPORT DYNAMIC **and** add a `SCATRA FLUX CALC LINE CONDITIONS:` entry (`- E: <line id>`; SURF in 3D) for every boundary line the flux is wanted on. Without that condition section 4C stops: \'Flux output requested without corresponding boundary condition specification!\'. The flux lands in the runtime VTU as point array `flux_boundary_phi_1` -- the diffusive flux VECTOR q = -k*grad(phi) at boundary nodes, NOT q.n (measured exact: (-1.6,0,0) on both x-faces of a P1-exact linear field; dot it with YOUR outward normal). THAT DESCRIPTION HOLDS ON DIRICHLET LINES. On a NEUMANN-loaded line the same array carries the consistent-residual echo of the APPLIED load (measured: exactly 0 under zero load while the true boundary gradient of the field was O(1e-3)) plus Dirichlet-corner reactions at the ends -- use it as your exported flux only on the side whose interface is Dirichlet. It agrees with one-sided quadratic differentiation of the field to 2.7% rel-RMS at h=1/8 on a smooth field.'
         "\n9. The runtime VTU numbered 00000 is the INITIAL state -- identically zero on a fresh scatra run; the solved field is the LAST step (00001 for stationary). Sampling step 0 yields an all-zero field and all-zero fluxes while the run exits 0 and prints 'finished normally'."
-        # Facts 10-11 measured by execution 2026-09-04 during the C2-family
-        # coupled walk (4C 2026.2.0-dev, 89519cfe76).
+        # Facts 10-11 measured by execution 2026-09-04 during the two-material
+        # conduction coupled walk (4C 2026.2.0-dev, 89519cfe76).
         "\n10. With CALCFLUX_BOUNDARY active, 4C also writes "
         "`<prefix>.boundaryflux_ScaTraFluxCalc_0scatra.txt` -- per flux-calc "
         "condition: area, integral and MEAN of the normal flux. It is a free "
@@ -2281,13 +2284,13 @@ _DECIDING_FACTS = {
     "dune": "1. `ufl.Eq` NO LONGER EXISTS in this ufl (ImportError; five hits in one round). The lowercase `ufl.eq` does, used inside a conditional: ufl.conditional(ufl.eq(a, b), val_true, val_false). Measured working.\n2. `DirichletBC` takes (functionSpace, value, subDomain=None) -- there is NO `marker` keyword (TypeError). Measured signature on this install.\n3. `scheme.solve(target=uh)` returns a DICT with keys converged, iterations, linear_iterations, timing -- read info['converged'], never info.converged (AttributeError on dict; one round hit it three times). Measured: a 4x4 Laplace solve returns converged=True with max|u| = 7.768e-02.\n4. Solver verbosity for a captured log: parameters={'linear.verbose': True} on galerkin(...) -- the old 'newton.linear.verbose' spelling is deprecated and warns.\n5. Create functions with a name -- space.interpolate(0.0, name='uh') -- because a plain UFL expression has no .name and downstream I/O that asks for one dies on AttributeError.",
     # Every line measured by execution on this install (FEBio 4.12,
     # febio4 binary) on 2026-09-04. repr-generated literal.
-    "febio": '1. READING RESULTS BACK IS ONE DECK LINE, and a solve that is never read back scores nothing. Put inside <Output><logfile>:\n       <node_data data="x;y;z;ux;uy;uz" delim="," file="nodal_out.csv"/>\n   FEBio then writes one block PER TIME STEP, each headed *Step/*Time/*Data lines (measured: 51 blocks for 50 steps, header \'*Data  = x;y;z;ux;uy;uz\'); parse the LAST block for the final state and interpolate those nodal values at your probe points (scipy LinearNDInterpolator on the coordinate columns works). Runs that reached NORMAL TERMINATION and still delivered nothing all skipped this line.\n2. THE VISCOELASTIC WRAPPER FAMILY MUST MATCH THE NESTED ELASTIC\'S FAMILY (measured on FEBio 4.12): type="uncoupled viscoelastic" REFUSES a coupled child like isotropic elastic -- the error says \'Component ... needs to have property "elastic" defined\' even though <elastic> is present, because its FAMILY does not fit the slot. The coupled wrapper type="viscoelastic" accepts <elastic type="isotropic elastic"> (E, v) and runs to NORMAL TERMINATION. Uncoupled wrappers take uncoupled children (Mooney-Rivlin with k, etc.).\n3. \'negative jacobians detected\' during a solve is usually NOT the mesh: a hex8 grid whose first element has positive centroid jacobian can still invert under too-large load steps or a too-stiff/soft material pairing. Before rebuilding the mesh, halve the step (<time_steps> up, <step_size> down) and re-check the material family pairing of fact 2.\n4. FEBio prints its banner and \'N O R M A L   T E R M I N A T I O N\' letter-spaced -- grep for \'N O R M A L\', not \'NORMAL\'.',
+    "febio": '1. READING RESULTS BACK IS ONE DECK LINE, and a solve that is never read back counts for nothing. Put inside <Output><logfile>:\n       <node_data data="x;y;z;ux;uy;uz" delim="," file="nodal_out.csv"/>\n   FEBio then writes one block PER TIME STEP, each headed *Step/*Time/*Data lines (measured: 51 blocks for 50 steps, header \'*Data  = x;y;z;ux;uy;uz\'); parse the LAST block for the final state and interpolate those nodal values at your probe points (scipy LinearNDInterpolator on the coordinate columns works). Runs that reached NORMAL TERMINATION and still delivered nothing all skipped this line.\n2. THE VISCOELASTIC WRAPPER FAMILY MUST MATCH THE NESTED ELASTIC\'S FAMILY (measured on FEBio 4.12): type="uncoupled viscoelastic" REFUSES a coupled child like isotropic elastic -- the error says \'Component ... needs to have property "elastic" defined\' even though <elastic> is present, because its FAMILY does not fit the slot. The coupled wrapper type="viscoelastic" accepts <elastic type="isotropic elastic"> (E, v) and runs to NORMAL TERMINATION. Uncoupled wrappers take uncoupled children (Mooney-Rivlin with k, etc.).\n3. \'negative jacobians detected\' during a solve is usually NOT the mesh: a hex8 grid whose first element has positive centroid jacobian can still invert under too-large load steps or a too-stiff/soft material pairing. Before rebuilding the mesh, halve the step (<time_steps> up, <step_size> down) and re-check the material family pairing of fact 2.\n4. FEBio prints its banner and \'N O R M A L   T E R M I N A T I O N\' letter-spaced -- grep for \'N O R M A L\', not \'NORMAL\'.',
     # Every line measured by execution on this install (NGSolve 6.2.2604)
     # on 2026-09-04. repr-generated literal.
     "ngsolve": "1. NEVER EVALUATE A COMPOUND-SPACE GridFunction DIRECTLY. On a product space (H1*H1, mixed), gfu(mesh(x,y)) either raises 'CompoundFESpace does not have an evaluator for VOL!' or -- measured, worse -- silently returns 0.0 while the field is nonzero. Evaluate the component: gfu.components[i](mesh(x,y)) (measured 0.2524 at the same point where the direct call returned 0.0).\n2. FORMS DO NOT SUPPORT -= (TypeError: unsupported operand). Subtract by adding the negated term at definition: a += (-1) * u * v * dx. Same for LinearForm.\n3. grad()/Grad() WORKS ON PROXIES AND GridFunctions, NOT ON ASSEMBLED CoefficientFunctions -- 'Operator grad not overloaded for CF ngfem::VectorialCoefficientFunction' (measured). Take grad(gfu.components[i]) and assemble what you need from those, or differentiate the symbolic expression BEFORE wrapping it in CoefficientFunction.\n4. Verbosity for a captured log: ngsolve.ngsglobals.msg_level = 3, or solvers.CG(..., printrates=True); NGSolve is otherwise quiet on success.",
     # deal.II facts measured by execution on the coupled elasticity
     # walk of 2026-09-07 (deal.II 9.8.0-pre, ~/dealii/build).
-    "dealii": '1. deal.II prints NOTHING by default: a run whose log must carry the code own output needs BOTH deallog.depth_console(2); AND a SolverControl ctl(max_it, tol, true, true); (log_history, log_result) -- depth_console alone prints nothing. Then the console carries DEAL:cg lines per iteration.\n2. Print the DOF count yourself: std::cout << "NDOF = " << dof_handler.n_dofs() << std::endl; -- nothing else emits it.\n3. Evaluate the solution at arbitrary (off-node) points with VectorTools::point_value(dof_handler, solution, Point<2>(x, y)) -- nearest-vertex lookup is the export defect that turns a converged solve into a wrong answer.\n4. Build against the local install with a 6-line CMakeLists (find_package(deal.II) + deal_ii_setup_target) and cmake -DDEAL_II_DIR=$HOME/dealii/build . -- measured: configures and builds first try on this machine; compile ~20 s.',
+    "dealii": '1. deal.II prints NOTHING by default: a run whose log must carry the code own output needs BOTH deallog.depth_console(2); AND a SolverControl ctl(max_it, tol, true, true); (log_history, log_result) -- depth_console alone prints nothing. Then the console carries DEAL:cg lines per iteration.\n2. Print the DOF count yourself, on whatever line your task asks for: std::cout << "DOF count = " << dof_handler.n_dofs() << std::endl; -- nothing else emits it.\n3. Evaluate the solution at arbitrary (off-node) points with VectorTools::point_value(dof_handler, solution, Point<2>(x, y)) -- nearest-vertex lookup is the export defect that turns a converged solve into a wrong answer.\n4. Build against the local install with a 6-line CMakeLists (find_package(deal.II) + deal_ii_setup_target) and cmake -DDEAL_II_DIR=$HOME/dealii/build . -- measured: configures and builds first try on this machine; compile ~20 s.',
     "kratos": (
         "1. `LaplacianElement2D3N` exists; `LaplacianElement2D4N` does NOT "
         "('is not registered'). 2D is P1 TRIANGLES.\n"
@@ -2308,7 +2311,7 @@ _DECIDING_FACTS = {
         "   Measured on one mesh: zero flux -> max|T| 2.307291e-03; flux on "
         "nodes with no condition -> 2.307291e-03, BIT-IDENTICAL; flux with "
         "conditions -> 3.605675e-03. FluxCondition2D2N works too. Two real "
-        "submissions died here, reporting the no-flux answer with their "
+        "runs died here, reporting the no-flux answer with their "
         "interface field matching to 0.000e+00, and a third quoted this very "
         "paragraph back in its give-up note without ever adding the line.\n"
         "4b. THE NAME GOES IN A STRING, THROUGH THE FACTORY. Elements and "
@@ -2338,7 +2341,7 @@ _DECIDING_FACTS["dolfinx"] = _DECIDING_FACTS["fenics"]
 
 _DECIDING_UNIVERSAL = (
     "* READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST "
-    "NODE. Proven against the sealed answer: one solve exported two ways gave "
+    "NODE. Measured against an independent reference: one solve exported two ways gave "
     "order 1.9796 by interpolation and 0.9815 by nearest-node sampling of "
     "nearest node. Free self-check: nearest-node sampling can only return "
     "(N-1)^2+1 distinct values, so 1936 probes collapse to 50/226/962 at "
@@ -2491,7 +2494,7 @@ def register_consolidated_tools(mcp: FastMCP):
             # FUZZY MATCH HERE TOO — the pairing was exactly inverted.
             # prepare_simulation has a seven-stage matcher and this had none,
             # so the tool WITH the matcher lacked the universal block and the
-            # tool WITH the block dead-ended. Measured over 98 MCP runs:
+            # tool WITH the block dead-ended. Measured over 98 development runs:
             # knowledge(topic='physics', solver='fenics', physics='nonlinear')
             # returned 38 characters, 16 times across 13 runs, while
             # 'nonlinear' matches nonlinear_pde — the generator that builds
@@ -2727,9 +2730,10 @@ def register_consolidated_tools(mcp: FastMCP):
                     # against those keys. A backend that aliases — ngsolve maps
                     # "anisotropic diffusion" onto its `poisson` knowledge —
                     # therefore answered the alias with nothing: measured on
-                    # NG1, physics='anisotropic_diffusion' served 5,685 chars
-                    # against 7,047 unfiltered, and the entry that decides that
-                    # cell was unreachable by any phrase in its task text.
+                    # one NGSolve problem, physics='anisotropic_diffusion'
+                    # served 5,685 chars against 7,047 unfiltered, and the entry
+                    # that decides that problem was unreachable by any phrase in
+                    # its task text.
                     #
                     # Identity of the returned dict is the test, so this works
                     # for any backend that aliases, without this file knowing
@@ -2758,9 +2762,9 @@ def register_consolidated_tools(mcp: FastMCP):
                 #
                 # This returned every pitfall verbatim: 394,733 bytes for 4C,
                 # about 99k tokens — 38% of the whole 262k window in ONE tool
-                # result. Measured over 635 ledgers, the OASiS arm carries a
-                # median 82,669 tokens of context per tool call against bare's
-                # 57,193, and gets 46 tool calls per run against bare's 101.
+                # result. Measured over 635 run ledgers, runs with these tools
+                # carry a median 82,669 tokens of context per tool call against
+                # 57,193 without them, and get 46 tool calls per run against 101.
                 # On the same 45-minute clock, that is less than half the
                 # actions, and this call is the single largest contributor.
                 #
@@ -3022,8 +3026,8 @@ def register_consolidated_tools(mcp: FastMCP):
             # QUESTION.
             #
             # The topic list above is exact, so a physically reasonable request
-            # like topic='conjugate_heat_transfer' — measured in this campaign's
-            # trajectories — matched nothing and got the usage message. That is a
+            # like topic='conjugate_heat_transfer' — measured in development-run
+            # transcripts — matched nothing and got the usage message. That is a
             # dead end handed to an agent that had correctly identified its problem
             # as coupled, and the run then had to guess the vocabulary.
             #
@@ -3073,10 +3077,10 @@ def register_consolidated_tools(mcp: FastMCP):
     # EVERY return of _knowledge_body GETS THE CORE RULES — not just the one.
     #
     # `_UNIVERSAL_BLOCK` was appended on 1 of that function's 31 return paths
-    # (topic="physics"). Measured over the campaign's 995 knowledge calls from
-    # 193 OASiS-arm runs: topic="pitfalls" 66.3%, topic="physics" 11.5% — so
-    # 75.6% of OASiS-arm runs received NONE of the universal guidance, and every
-    # rule added during development reached at most a quarter of its audience.
+    # (topic="physics"). Measured over 995 knowledge calls from 193 development
+    # runs: topic="pitfalls" 66.3%, topic="physics" 11.5% — so 75.6% of those
+    # runs received NONE of the universal guidance, and every rule added during
+    # development reached at most a quarter of its audience.
     #
     # Wrapping is deliberate: appending at each return would fix today's 30 paths
     # and leak again at the next one added. functools.wraps carries the docstring
@@ -3113,7 +3117,9 @@ def register_consolidated_tools(mcp: FastMCP):
                 - "recommend" — recommend solver for a physics (set solver= to physics name)
                 - "coupling" — how to couple two codes together: which tool,
                   which backend can take which side, and the exact knowledge
-                  calls that return a complete runnable participant script
+                  calls that return each side's participant contract (handshake,
+                  sign convention, flux recovery, exports schema; the solve is
+                  yours to write)
             solver: Filter by solver name, or physics name for "recommend"
         """
         if query == "list":
@@ -3221,7 +3227,8 @@ def register_consolidated_tools(mcp: FastMCP):
                 "shapes, relaxation and the flux sign convention:",
                 "    knowledge(topic='coupling')",
                 "",
-                "Then the complete runnable participant script for each side:",
+                "Then each side's participant CONTRACT (handshake, sign convention, "
+                "flux recovery, exports schema; the solve is yours to write):",
                 "    knowledge(topic='coupling', solver='<backend>')",
                 "    knowledge(topic='precice',  solver='<backend>')   # preCICE path",
                 "    knowledge(topic='tsi')                            # 4C-native TSI",
@@ -3419,10 +3426,10 @@ def register_consolidated_tools(mcp: FastMCP):
                 # elsewhere. The docstring meanwhile tells the agent to ALWAYS
                 # call this before writing input files.
                 #
-                # That is the worst place to be silent: the coupled cells are
-                # where the OASiS arm most needs a worked example, and the
-                # OASiS arm's measured failure is running out of tool calls
-                # (median 39 against bare's 95). A dead end costs a call and
+                # That is the worst place to be silent: coupled problems are
+                # where an agent most needs a worked example, and the measured
+                # failure of runs with these tools is running out of tool calls
+                # (median 39 against 95 without them). A dead end costs a call and
                 # returns nothing.
                 if _is_coupling_request(keyword):
                     return _coupling_example_pointer(keyword, solver)
@@ -3519,8 +3526,8 @@ def register_consolidated_tools(mcp: FastMCP):
         run_with_generator / verify_mesh_independence; `coupling_args` is a
         JSON object for `couple` / `couple_precice` / `coupled_solve`. Passing
         neither — or both — is refused, and the refusal comes AFTER you have
-        written the review, so the review is wasted. Measured over one
-        development round, half of all submissions were rejected this way.
+        written the review, so the review is wasted. Measured over the
+        development runs, half of all reviews handed in were rejected this way.
 
         OASiS's critic requirement is enforced, not requested. The run and
         coupling tools do not take your word for it: they look up whether THIS
@@ -4040,8 +4047,8 @@ def register_consolidated_tools(mcp: FastMCP):
                                equation: str = "") -> str:
         """Does your field actually satisfy the equation the task stated?
 
-        A refinement study CANNOT answer this. Measured over 464 runs,
-        submissions with a complete level set self-converge at a median order
+        A refinement study CANNOT answer this. Measured over 464 runs, result
+        sets with a complete set of levels self-converge at a median order
         of 1.96 to 1.99 — the discretisation is fine — while a field that
         converges cleanly to the WRONG function looks identical in that study.
         Your own MESH_INDEPENDENCE verdict does not separate them either: it
@@ -4081,46 +4088,48 @@ def register_consolidated_tools(mcp: FastMCP):
 
         # IT MUST REFUSE OUTSIDE ITS OWN OPERATOR, AND IT DID NOT.
         #
-        # Measured by handing real submissions to the unguarded version:
+        # Measured by handing real result sets to the unguarded version:
         #
-        #   FC2 (linear elasticity, Lame lambda/mu)
+        #   a linear-elasticity problem (Lame lambda/mu)
         #       -> "INCONSISTENT ... your field is converging to something that
         #          is not the solution of the stated problem"
-        #   SK2 (the biharmonic equation, lap(lap(u)) = f)
+        #   a biharmonic problem (lap(lap(u)) = f)
         #       -> "CONSISTENT ... Your field satisfies the equation you were
         #          given" — at rate 2.09, for an operator this check does not
         #          model at all
         #
         # The first tells an agent to throw away work that may be right. The
         # second BLESSES a field on evidence that does not exist, which is
-        # worse. Of the 16 single-code cells, 13 are outside the implemented
-        # form — elasticity, Stokes, Navier-Stokes, biharmonic, transient heat,
-        # a nonlinear a(u), a variable a(x,y) — and FE1 (nonlinear) was
-        # observed calling this tool during round 9.
+        # worse. Of the 16 single-code development problems, 13 are outside the
+        # implemented form — elasticity, Stokes, Navier-Stokes, biharmonic,
+        # transient heat, a nonlinear a(u), a variable a(x,y) — and the run on
+        # the nonlinear one was observed calling this tool.
         #
         # The universal core advertises it on 100% of knowledge calls, so an
-        # unguarded verdict reaches every OASiS run that asks. A check that
+        # unguarded verdict reaches every run that asks. A check that
         # answers about an operator it does not implement is not a weak check;
-        # it is a source of wrong answers pointed at the arm under test.
+        # it is a source of wrong answers pointed at every run that asks.
         # Task and spec equation lines carry a trailing gloss in parentheses —
-        # KR2's is "-lap(u) = f  (steady diffusion, unit conductivity)" — and
-        # that is one of the three cells this check IS valid for. Strip a
+        # one steady-diffusion problem's is "-lap(u) = f  (steady diffusion,
+        # unit conductivity)" — and that is one of the three problems this
+        # check IS valid for. Strip a
         # trailing parenthetical before matching, or the guard refuses the
         # cases it exists to serve.
         import re as _re
         _raw = _re.sub(r"\s*\([^()]*\)\s*$", "", str(equation)).strip()
         _eq = "".join(_raw.split()).lower()
         # MATCH THE OPERATOR'S SHAPE, NOT A LIST OF SPELLINGS. A whitelist of
-        # exact strings refused `-div(K grad T) = f in each subdomain` (C6, C1)
-        # purely because the field is called T — the same operator this check
+        # exact strings refused `-div(K grad T) = f in each subdomain` (two
+        # coupled conduction problems) purely because the field is called T —
+        # the same operator this check
         # implements. The coefficient token must be a bare name or absent: an
         # `a(x,y)` or `a(u)` carries parentheses and is refused, which is right,
         # because a coefficient varying in space or in the solution breaks the
         # constant-K adjoint this check uses.
         _OP = _re.compile(r"^-(?:div\(([a-z]*)grad([a-z]+)\)"
                           r"|lap(?:lacian)?\(([a-z]+)\))=f(.*)$")
-        # A COUPLED DIFFUSION CELL STATES THE SAME OPERATOR AND MUST NOT BE
-        # REFUSED. C2's spec reads "-div(k grad u) = f in each subdomain", which
+        # A COUPLED DIFFUSION PROBLEM STATES THE SAME OPERATOR AND MUST NOT BE
+        # REFUSED. One task reads "-div(k grad u) = f in each subdomain", which
         # is the implemented form applied per side — and exact-match alone
         # refused it. Prefix matching with a whitelist of benign qualifiers
         # keeps that case while still refusing "-div(a(u) grad u) = f", whose
@@ -4131,7 +4140,7 @@ def register_consolidated_tools(mcp: FastMCP):
                  "insubdomainb", "inbothsubdomains")
         # `group(1) or ""` — on the `lap(u)` branch the coefficient group does
         # not participate and is None, which is not "" and silently refused
-        # KR2, one of the very cells this check is valid for.
+        # a steady-diffusion problem, one of the very ones this check is valid for.
         _m = _OP.match(_eq)
         _matched = bool(_m and (_m.group(1) or "") in ("", "k", "a")
                         and (_m.group(4) or "") in _QUAL)
@@ -4142,9 +4151,9 @@ def register_consolidated_tools(mcp: FastMCP):
                 "diffusion form -div(K grad u) = f with a CONSTANT symmetric\n"
                 "K. It has no way to tell from your numbers alone whether that\n"
                 "is your problem, and answering anyway is how it blesses a\n"
-                "field it cannot judge: handed a biharmonic submission it\n"
+                "field it cannot judge: handed a biharmonic result set it\n"
                 "reported CONSISTENT at rate 2.09, and handed an elasticity\n"
-                "submission it reported that the field converges to the wrong\n"
+                "result set it reported that the field converges to the wrong\n"
                 "solution. Neither verdict meant anything.\n\n"
                 "If your equation is elasticity, Stokes, Navier-Stokes,\n"
                 "biharmonic, transient, or has a coefficient depending on u or\n"
@@ -4158,8 +4167,8 @@ def register_consolidated_tools(mcp: FastMCP):
                 f"REFUSED: this check implements -div(K grad u) = f with a "
                 f"constant symmetric K, and your equation is {equation!r}.\n\n"
                 f"It is not a weaker check outside that form, it is a wrong "
-                f"one: on a biharmonic submission it reported CONSISTENT at "
-                f"rate 2.09, and on an elasticity submission it reported that "
+                f"one: on a biharmonic result set it reported CONSISTENT at "
+                f"rate 2.09, and on an elasticity result set it reported that "
                 f"the field converges to the wrong solution. Both verdicts "
                 f"were meaningless and both would have changed what the run "
                 f"did next.\n\n"
@@ -4225,15 +4234,15 @@ def register_consolidated_tools(mcp: FastMCP):
         your two sides actually agree there? Runs on YOUR OWN files, with no
         reference solution.
 
-        THIS EXISTED ONLY INSIDE THE GRADER UNTIL NOW, which is why it is
-        here. The check below is the one that decided the most recent coupled
-        round: a submission whose two codes both genuinely ran, whose coupling
-        genuinely iterated over three mesh levels, and whose interface FIELD
-        matched to 0.000e+00 across the seam, was still graded
-        COMPLETED_UNPHYSICAL — because one side reported its flux with the
+        THIS EXISTED ONLY INSIDE AN INDEPENDENT CHECK UNTIL NOW, which is why
+        it is here. The check below is the one that decided one coupled
+        development run: a result set whose two codes both genuinely ran,
+        whose coupling genuinely iterated over three mesh levels, and whose
+        interface FIELD matched to 0.000e+00 across the seam, was still
+        complete but unphysical — because one side reported its flux with the
         INWARD normal. The relative flux jump came out 8.139e-01, 9.066e-01,
         9.530e-01 over the three levels: not shrinking, and growing. The
-        agent had no way to see that before submitting. Now it does.
+        agent had no way to see that before handing in. Now it does.
 
         WHAT IT CHECKS, all of it key-free:
 
@@ -4246,13 +4255,13 @@ def register_consolidated_tools(mcp: FastMCP):
            POSITIVE. A constant NEGATIVE ratio means your normal points the
            wrong way: the task defines q_n = -(K grad u) . n_out with n_out
            pointing OUT of the subdomain. A ratio that is not constant means
-           the profile did not come from the field you submitted.
+           the profile did not come from the field you delivered.
 
            The trap this catches most often: on the NEUMANN side the flux you
            IMPORT and the flux you REPORT have OPPOSITE signs. Kratos's
            FACE_HEAT_FLUX is the INWARD normal flux (measured against a closed
            form: u came out +0.875 where the inward reading predicts +0.875),
-           so the number you write into interface_level<k>_<side>.csv is the
+           so the number you write into each per-level interface file is the
            NEGATIVE of the one you applied.
 
         2. THE TWO-SIDED JUMP, and its refinement trend. The field trace must
@@ -4263,12 +4272,13 @@ def register_consolidated_tools(mcp: FastMCP):
            convergence to a wrong answer is still convergence.
 
         Args:
-            interface_files: comma-separated interface_level<k>_<side>.csv
-                paths, in the shape `x, y, u, qn`. Give BOTH sides and all
-                levels; the trend is the informative part.
-            solution_files: comma-separated solution_level<k>_<side>.csv
-                paths, `x, y, u`. Needed for check 1 — without them the sign
-                cannot be tested, only the jump.
+            interface_files: comma-separated per-level interface files, one
+                per side, in the shape `x, y, u, qn`; each name must carry
+                `level<k>_<side>`, which is how level and side are read. Give
+                BOTH sides and all levels; the trend is the informative part.
+            solution_files: comma-separated per-level field files, one per
+                side, `x, y, u`, named the same way. Needed for check 1 —
+                without them the sign cannot be tested, only the jump.
             interface_axis: 0 if the interface is a line of constant x, 1 if
                 constant y.
 
@@ -4326,8 +4336,9 @@ def register_consolidated_tools(mcp: FastMCP):
         if not iface:
             return json.dumps({
                 "verdict": "REFUSED",
-                "detail": ("no interface file could be read; give "
-                           "interface_level<k>_<side>.csv paths in the shape "
+                "detail": ("no interface file could be read; give the "
+                           "per-level interface file paths, one per side, "
+                           "named with level<k>_<side>, in the shape "
                            "`x, y, u, qn`"),
                 "files_refused": refused}, indent=2) + _UNIVERSAL_CORE
 
@@ -4346,7 +4357,7 @@ def register_consolidated_tools(mcp: FastMCP):
                 if fld is None:
                     out["per_side"].append({
                         "level": lvl, "side": side, "verdict": "NOT_ASSESSED",
-                        "detail": ("no solution_level%d_%s.csv was given, so "
+                        "detail": ("no level-%d field file for side %s was given, so "
                                    "the reported flux cannot be compared with "
                                    "your own field and the SIGN IS UNTESTED"
                                    % (lvl, side))})
@@ -4354,7 +4365,7 @@ def register_consolidated_tools(mcp: FastMCP):
                 # GEOMETRY FROM THE FILES, NOT FROM AN ASSUMPTION. The
                 # audit's copy of this check was fixed the same way after it
                 # reported WRONG SIGN on a verified-correct horizontal-
-                # interface submission (obeying it corrupted the data). The
+                # interface result set (obeying it corrupted the data). The
                 # axis is the coordinate constant across the interface
                 # probes; the plane its value; the outward sign follows
                 # from which side of the plane this side's own field lies.
@@ -4418,13 +4429,13 @@ def register_consolidated_tools(mcp: FastMCP):
     async def audit_results(work_dir: str, claimed_order: float = 0.0,
                             ctx: Context = None) -> str:
         """Check your OWN result files for the failures that most often sink a
-        submission — BEFORE you submit. Uses only files you produced; no
+        result set — BEFORE you hand it in. Uses only files you produced; no
         reference solution is involved, so a clean audit means self-consistent,
         not correct.
 
         What it catches, measured on 94 independently-checked correct
-        submissions (no false alarm on any) and 102 complete-but-wrong ones
-        (39 caught, about four in ten — more when the submission states its
+        result sets (no false alarm on any) and 102 complete-but-wrong ones
+        (39 caught, about four in ten — more when the result set states its
         claimed convergence order, which the order check needs):
 
           * NEAR-ZERO FIELD - your finest solution peaks below 1e-8. On a
@@ -4441,13 +4452,13 @@ def register_consolidated_tools(mcp: FastMCP):
           * NON-MONOTONE - a refinement made the answer worse.
 
         Call it on the directory holding your per-level outputs (it reads
-        RESULT.txt-style summaries and solution_level*.csv files), pass the
+        your summary file and your per-level field files), pass the
         convergence order you intend to claim, and treat any finding as a
-        reason to look BEFORE submitting - each one names where to look.
+        reason to look BEFORE handing in - each one names where to look.
 
         Args:
             work_dir: directory containing your results (searched recursively)
-            claimed_order: the convergence order your submission will claim
+            claimed_order: the convergence order your result set will claim
                 (0 = no order claim, order checks are skipped)
         """
         from . import result_audit
@@ -4894,12 +4905,12 @@ def register_consolidated_tools(mcp: FastMCP):
               here and needs no external benchmark.
                         history_path: optional ABSOLUTE CSV path. When set, OASiS writes its
                             measured finite residuals there as
-                            ``iteration,interface_residual``. Use the task's required
-                            ``residual_level<k>.csv`` path; never retype the returned history.
+                            ``iteration,interface_residual``. Use the path of the per-level
+                            residual-history file your task names; never retype the returned history.
 
         iface_level: optional level number stamped into the suggested_filename of the interface_csv blocks the reply carries on convergence (each participant's own final interface data, ready to save verbatim).
 
-        pde_sources: OPTIONAL, public-only. JSON {"A": {"source": "<the forcing/coefficient you actually implemented>", "task_source": "<the task's stated source, verbatim>"}, "B": {...}}. When supplied, OASiS compares the two PUBLIC strings and flags a mismatch — a silent wrong forcing (right shape, wrong function) converges cleanly to a different answer and no self-consistency check can see it. Never required; OASiS reads nothing sealed and never supplies the equation for you.
+        pde_sources: OPTIONAL, public-only. JSON {"A": {"source": "<the forcing/coefficient you actually implemented>", "task_source": "<the task's stated source, verbatim>"}, "B": {...}}. When supplied, OASiS compares the two PUBLIC strings and flags a mismatch — a silent wrong forcing (right shape, wrong function) converges cleanly to a different answer and no self-consistency check can see it. Never required; OASiS reads no reference solution and never supplies the equation for you.
 
         Returns: JSON with converged, iterations, residual, per-block residuals,
             exports, the coupling graph, per-participant responsiveness and exit
@@ -4908,9 +4919,9 @@ def register_consolidated_tools(mcp: FastMCP):
             trustworthy result — and one that could not be fully checked says so.
             With the stochastic branch on it also returns `noise_floor`,
             `tol_effective` and `stopped_at_noise_floor`. READ `noise_floor`
-            BEFORE GRADING: any tolerance applied to a result that carries one —
-            including a grading or acceptance tolerance — must be at least that
-            floor, or it is measuring the sampler rather than the coupling.
+            BEFORE JUDGING CONVERGENCE: any tolerance applied to a result that
+            carries one — including an acceptance tolerance — must be at least
+            that floor, or it is measuring the sampler rather than the coupling.
         """
         from core.coupling_driver import Participant, run_coupling
         from core.quality_checks import (
@@ -4945,7 +4956,7 @@ def register_consolidated_tools(mcp: FastMCP):
                 if cell_root is not None and not wd.is_relative_to(cell_root):
                     return json.dumps({"error":
                         f"participant {s.get('name','?')}: work_dir {wd} is "
-                        f"outside this cell's working directory {cell_root}. "
+                        f"outside this task's working directory {cell_root}. "
                         f"Put every participant under the current task tree; "
                         f"private /tmp is disposable and sibling paths are "
                         f"isolated."})
@@ -5045,7 +5056,7 @@ def register_consolidated_tools(mcp: FastMCP):
                   and not destination.resolve().is_relative_to(cell_root)):
                 history_file = {
                     "path": str(destination),
-                    "error": (f"history_path is outside this cell's working "
+                    "error": (f"history_path is outside this task's working "
                               f"directory {cell_root}")}
             else:
                 try:
@@ -5077,10 +5088,11 @@ def register_consolidated_tools(mcp: FastMCP):
 
         # YOUR OWN VALIDATED INTERFACE DATA, RETURNED READY TO SAVE.
         # Twelve development iterations measured the same terminal failure:
-        # the coupling converges (PROVEN at every level) and the agent then
-        # RE-DERIVES its interface files by hand -- first-order recoveries,
-        # self-chosen probe coordinates, negated echoes -- and the
-        # re-derivation, not the coupling, decides the grade. The serving
+        # the coupling converges (proven to have run at every level) and the
+        # agent then RE-DERIVES its interface files by hand -- first-order
+        # recoveries, self-chosen probe coordinates, negated echoes -- and the
+        # re-derivation, not the coupling, decides whether the result is right.
+        # The serving
         # ladder (rule as text, function as text, function in the primary
         # door) converted 0 of 9 scripts. So the reply now carries each
         # participant's OWN final exports.json data -- the numbers its own
@@ -5147,8 +5159,8 @@ def register_consolidated_tools(mcp: FastMCP):
         not_run: list[str] = [_DIGEST_SCOPE_LIMIT]
         # THE CRITERION THE RUN WAS HELD TO goes in the COVERAGE channel, never
         # in the findings one. "Judged at the measured noise floor instead of at
-        # your tol" must be printed — an agent that grades tighter than the
-        # floor is grading the sampler — but it is not a fault, and `val` is the
+        # your tol" must be printed — an agent that judges tighter than the
+        # floor is judging the sampler — but it is not a fault, and `val` is the
         # list where anything at all means the coupling cannot be trusted. Left
         # in `val` it stamps NOT VERIFIED on every correct stochastic coupling,
         # measured: a converged run at a floor of 1.0e-02 came back "NOT
@@ -5315,11 +5327,11 @@ def register_consolidated_tools(mcp: FastMCP):
         # in. Every one of those arrays is already in the participant's own
         # work_dir/exports.json, which the agent wrote and can read.
         #
-        # Why it matters more than it looks: the OASiS arm gets a median 39
-        # tool calls per coupled run against the bare arm's 95, at 91k input
-        # tokens per call against 60k, and stops at 39% of the wall clock with
-        # 5.8% timeouts against bare's 19.5%. It runs out of ACTIONS, not
-        # time — 60% write no output file at all against bare's 31%. Text we
+        # Why it matters more than it looks: a run with these tools gets a
+        # median 39 tool calls per coupled run against 95 without them, at 91k
+        # input tokens per call against 60k, and stops at 39% of the wall clock
+        # with 5.8% timeouts against 19.5%. It runs out of ACTIONS, not
+        # time — 60% write no output file at all against 31%. Text we
         # added to help (the deliverables-first imperative, the NaN rule) is
         # worth nothing while it arrives at 98.9% of a 290 kB payload.
         #
@@ -5389,12 +5401,12 @@ def register_consolidated_tools(mcp: FastMCP):
                     "a placeholder history: a single-row or constant "
                     "residual file reads as no coupling at all.")}
         # THE CAPTURED SOLVER LOGS ALREADY EXIST — POINT AT THEM. Measured
-        # on a six-seed read: the top kill (3 of 6) was couplings with
-        # PROVEN evidence submitting levels without their captured solver
+        # on a six-run read: the top kill (3 of 6) was couplings with
+        # proven runs delivering levels without their captured solver
         # logs — reconstructing what the driver had already persisted. Each
         # participant's latest native output (command, returncode, stdout,
         # stderr) is on disk in its work_dir; a per-level log is a COPY of
-        # that file plus the NDOF line, never a reconstruction.
+        # that file plus the DOF-count line, never a reconstruction.
         _logs = {}
         for _p in parts:
             _lp = Path(_p.work_dir) / "participant_output.log"
@@ -5407,10 +5419,10 @@ def register_consolidated_tools(mcp: FastMCP):
                     "Each path holds that side's solver output as the driver "
                     "captured it (command, returncode, stdout, stderr). If "
                     "your task requires a per-level run log with the named "
-                    "code's own output, COPY this file (plus the required "
-                    "NDOF line) -- do not retype or reconstruct it. A level "
-                    "submitted without its captured log counts as not run, "
-                    "however real the numbers beside it are.")}
+                    "code's own output, COPY this file (plus the DOF-count "
+                    "line your task asks for) -- do not retype or reconstruct "
+                    "it. A level delivered without its captured log counts as "
+                    "not run, however real the numbers beside it are.")}
         if r.noise_floor is not None:
             result["noise_floor"] = r.noise_floor
             result["tol_effective"] = r.tol_effective
@@ -5428,8 +5440,8 @@ def register_consolidated_tools(mcp: FastMCP):
         # false, including when `converged` is True in the very same payload.
         # An agent that has just driven a real coupling to tolerance, at ~30%
         # of its budget, was told its coupling may not have converged. It is
-        # the cheapest possible reason to stop, and the measured coupled arm
-        # stops: 63% end HONEST_INCOMPLETE, at a median 30% of budget, with
+        # the cheapest possible reason to stop, and measured coupled runs do
+        # stop: 63% end honestly incomplete, at a median 30% of budget, with
         # zero timeouts in 112 runs.
         #
         # Section 3b of the served coupling text already says a converged run
@@ -5452,20 +5464,20 @@ def register_consolidated_tools(mcp: FastMCP):
         # THE EXCHANGE POINTS ARE NOT THE REPORT POINTS, SAID WHERE THE AGENT
         # IS HOLDING THEM.
         #
-        # MEASURED across every coupled run in the tree: 11 submissions wrote an
+        # MEASURED across every coupled development run: 11 result sets held an
         # interface file containing a point the task explicitly excludes, and 10
-        # of the 11 are OASiS-arm runs — 13.7% of OASiS coupled runs against
-        # 1.2% of bare ones. Nine of them wrote exactly 9 rows, the level-1 mesh
-        # nodes at h = 1/8.
+        # of the 11 were runs with these tools — 13.7% of coupled runs with the
+        # tools against 1.2% of runs without them. Nine of them wrote exactly 9
+        # rows, the level-1 mesh nodes at h = 1/8.
         #
         # The cause is this tool's own contract. Each participant writes
         # exports.json with `coordinates`, `values` and `normal_fluxes` at its
         # interface NODES, because that is what the exchange needs. Then the
         # deliverable asks for a fixed list of points that are deliberately NOT
-        # nodes — and copying the file across is one line. C4_27b_MCP_seed5's
-        # submission is exports.json verbatim, down to the float noise
-        # -2.6927850894701087e-18 where the node sits at y = 0. The bare arm
-        # cannot make this mistake because it has no such file.
+        # nodes — and copying the file across is one line. One development
+        # run's interface file is exports.json verbatim, down to the float noise
+        # -2.6927850894701087e-18 where the node sits at y = 0. A run without
+        # these tools cannot make this mistake because it has no such file.
         #
         # The corpus does say "the points you exchange are not the points you
         # report", ~700 lines away in a different payload. Saying it here, in
@@ -5478,18 +5490,19 @@ def register_consolidated_tools(mcp: FastMCP):
             "interface output at a fixed list of coordinates, those are "
             "deliberately not nodes: interpolate each side's converged "
             "solution onto the listed points, with that side's own material "
-            "and its own outward normal. Copying exports.json into "
-            "interface_level<k>_<side>.csv is the single most common way an "
-            "otherwise working coupled run is made ungradeable — measured at "
-            "13.7% of OASiS-arm coupled runs against 1.2% of bare ones, "
-            "because only this arm has the file. A task that lists interior "
+            "and its own outward normal. Copying exports.json into a "
+            "per-level interface file is the single most common way an "
+            "otherwise working coupled run is made unverifiable — measured at "
+            "13.7% of coupled runs with these tools against 1.2% of runs "
+            "without them, because only a run with these tools has the file. "
+            "A task that lists interior "
             "points only has excluded the interface ENDS on purpose; do not "
             "complete the list with them.")
 
         # ── ALWAYS-RUN CORRECTIVE FUNNEL: lead the reply with the next fix ────
         # The driver verdict above says whether the ITERATION was sound; it does
         # not say whether the two PHYSICS match at the seam or whether the files
-        # the agent will submit are self-consistent. Those are computed here —
+        # the agent will deliver are self-consistent. Those are computed here —
         # LIVE from this run's own exports (flux cancellation, field continuity)
         # and from any per-level files already on disk (identical levels, probe
         # sampling, fabricated/short residual history, missing deliverables) —
@@ -5497,7 +5510,7 @@ def register_consolidated_tools(mcp: FastMCP):
         # agent that merely "acts" will read it. Advisory only: nothing here
         # touches `validation`, `verification` or `trustworthy_result`, and
         # every input is the agent's OWN output or a PUBLIC string it supplied —
-        # never the sealed key. Wrapped so a fault in the funnel can never take
+        # never a reference solution. Wrapped so a fault in the funnel can never take
         # down a real coupling reply.
         _lead = None
         _compact: list = []
@@ -5521,14 +5534,14 @@ def register_consolidated_tools(mcp: FastMCP):
                     _root = None
             if _root:
                 # couple() runs MID-coupling, often once per level, so the
-                # whole-submission completeness checks ("only 1 level yet",
-                # "RESULT.txt missing") would nag about work not done yet.
-                # Those belong to the on-submit audit; here keep the physics,
+                # whole-result-set completeness checks ("only 1 level yet",
+                # "summary file missing") would nag about work not done yet.
+                # Those belong to the audit at hand-in time; here keep the physics,
                 # fabrication, identity and sampling findings that are true the
                 # moment a file exists.
                 _submit_only = ("level count", "level sequence",
                                 "levels claimed", "deliverable completeness",
-                                "RESULT.txt")
+                                "summary file")
                 for _f in _ra.audit(_root).get("findings", []):
                     if any(s in str(_f.get("sequence", "")) for s in _submit_only):
                         continue
@@ -5955,11 +5968,11 @@ def register_consolidated_tools(mcp: FastMCP):
             # keyword="../../../benchmarks/*/*/run_pair.py" walked straight out
             # of the backend directory and enumerated the repo. That mattered
             # for one directory in particular: benchmarks/coupling_pairs/ holds
-            # the INDEPENDENT REFERENCE SOLUTIONS the coupling fixtures grade
+            # the INDEPENDENT REFERENCE SOLUTIONS the coupling fixtures check
             # against, and the property those references rest on is that no tool
             # can reach them. A listing is not the file's contents, but "which
             # reference files exist and how big they are" is still a channel out
-            # of the eval harness, and the fix is one line rather than an
+            # of the sandbox, and the fix is one line rather than an
             # argument about how much leaks.
             #
             # Absolute patterns are refused for the same reason: rglob("/etc/*")
@@ -6038,8 +6051,8 @@ def register_consolidated_tools(mcp: FastMCP):
 
         # A SECOND prepare_simulation WITH A DIFFERENT SOLVER IS A COUPLING.
         #
-        # Measured, round 18 of the coupled development cell: two of the three
-        # OASiS runs called prepare_simulation twice -- once per prescribed
+        # Measured over three coupled development runs: two of the three
+        # called prepare_simulation twice -- once per prescribed
         # code -- and NEVER opened a knowledge door, so the coupled must-read
         # (the couple() recipe, the fields-vs-evidence hierarchy, the
         # measured-not-modelled history rule, the captured-log contract)
@@ -6080,7 +6093,13 @@ def register_consolidated_tools(mcp: FastMCP):
                     "convention, the consistent flux recovery applied to your "
                     "own assembled system, the exports.json schema, one field "
                     "file per mesh level) is the part that is hard to get "
-                    "right: keep it, and write the solve around it.")
+                    "right: keep it, and write the solve around it. The block "
+                    "states its interface ROLE; if your task gives this code "
+                    "the OTHER role, knowledge(topic='coupling', "
+                    f"solver='{_c}') carries the other-role contract (a "
+                    "separate NEUMANN-SIDE block where one ships, else the "
+                    "SIDE switch inside this one) -- read it before you "
+                    "change the interface application.")
                 _scripts.append(_label + "\n" + _s)
             _tmpl_block = ""
             if _scripts:
@@ -6311,8 +6330,8 @@ def register_consolidated_tools(mcp: FastMCP):
         #
         # server.py tells the agent "Always do this first" about
         # prepare_simulation, and the block was attached only to
-        # knowledge(topic='physics'). Measured over 98 MCP runs of this
-        # development campaign: 108 prepare_simulation calls, 95 resolving
+        # knowledge(topic='physics'). Measured over 98 development runs with
+        # these tools: 108 prepare_simulation calls, 95 resolving
         # knowledge(topic='physics') calls, and 43 runs (44%) that received
         # the block NEVER. It is the only text that carries the wiring table
         # for all nine backends, the write-the-answer-first rule, and the
@@ -6964,6 +6983,13 @@ def _get_coupling_knowledge(solver: str = "", signal: str = ""):
     be dropped on the floor, so every backend got the same bytes.
     """
     payload = _capture_knowledge_fn("get_coupling_knowledge", solver, signal)
+    # THE PARTS DOOR IS SERVED AS IS. `signal='participant[:role]:partN'`
+    # exists for clients that truncate long replies, so its bounded chunk of
+    # the elided contract must reach the agent whole: no must-read prepended,
+    # no head cap, no continuation. (The chunks are cut from the ELIDED text
+    # in coupling_knowledge.coupling_participant; nothing here changes that.)
+    if isinstance(payload, str) and (signal or "").strip().lower().startswith("participant"):
+        return payload
     # THE ESCAPE HATCH HAD TO BE MADE REAL.
     #
     # The truncation notice tells the agent, verbatim, that "the rest is
@@ -6994,16 +7020,17 @@ def _get_coupling_knowledge(solver: str = "", signal: str = ""):
 
 
 def _coupling_participant_script(solver: str) -> str:
-    """The execution-verified, copy-paste participant for `solver` — its one-line
-    description plus the first fenced code block — pulled from that solver's own
-    coupling payload. '' if the solver ships no served participant.
+    """The participant CONTRACT for `solver` (solve elided) — the lead-in
+    paragraph plus the first fenced contract block — pulled from that solver's
+    own coupling payload. '' if the solver ships no served participant.
 
     PUSHED into prepare_simulation's coupled hand-off so a weak model receives
-    the working script through a call it already makes, instead of the opt-in
-    knowledge(topic='coupling', solver=...) call it was measured never to issue
-    (0 of 6 coupled runs made it). Hand-writing this file from scratch is the
-    dominant coupled failure — crash, unresponsive participant, wrong API — so
-    the script is handed over rather than pointed at.
+    the handshake, sign convention, flux recovery and exports schema through a
+    call it already makes, instead of the opt-in knowledge(topic='coupling',
+    solver=...) call it was measured never to issue (0 of 6 coupled runs made
+    it). Hand-rolling that handshake is the dominant coupled failure — crash,
+    unresponsive participant, wrong API — so the contract is handed over rather
+    than pointed at. The solve stays the agent's own work.
     """
     try:
         payload = _capture_knowledge_fn("get_coupling_knowledge", solver, "")
@@ -7037,7 +7064,7 @@ def _coupling_participant_script(solver: str) -> str:
 
 # A COUPLED SIDE RUN BY A BINARY STILL NEEDS ITS DECK GRAMMAR.
 #
-# Measured on the C2 cell, whose side A is 4C: of the four deck-death
+# Measured on a two-material conduction problem whose side A is 4C: of the four deck-death
 # diagnostics this project measured against the built binary, a coupling
 # request for fourc served ZERO. They are not in the coupling corpus at all —
 # they live in the backend's deck grammar, which reaches the agent only if it
@@ -7147,18 +7174,18 @@ def _re_words(text: str) -> list:
 # Measured: the generic coupling payload is 65,601 chars, and a coupled run
 # typically reads it plus two solver payloads (dune 76,831, kratos 72,115,
 # fenics 72,993) -- about 214,547 chars of prose before a solver runs. 220 of
-# 224 OASiS coupled runs read all three.
+# 224 coupled development runs read all three.
 #
 # The consequence is not that the text is unread; it is that the agent runs out
-# of ACTIONS. Median tool calls: OASiS 39, bare 95. Median input tokens per
-# call: 91k against 60k. OASiS stops at 39% of the wall clock with 5.8%
-# timeouts where bare hits 19.5% -- and writes NO output file in 60% of runs
-# against bare's 31%. Given the identical task and no help at all, the
-# unassisted arm produces a median 10 CSV files where the assisted arm produces
-# zero.
+# of ACTIONS. Median tool calls: 39 with these tools, 95 without. Median input
+# tokens per call: 91k against 60k. With the tools a run stops at 39% of the
+# wall clock with 5.8% timeouts where runs without them hit 19.5% -- and writes
+# NO output file in 60% of runs against 31%. Given the identical task and no
+# help at all, the unassisted run produces a median 10 CSV files where the
+# assisted one produces zero.
 #
 # So the fix is not more text and not better text. Sections the agent needs
-# FIRST -- the submission contract, the deliverable half, the NaN rule, the
+# FIRST -- the hand-in contract, the deliverable half, the NaN rule, the
 # pointer to audit_results -- are moved to the front, and the rest is offered
 # rather than pushed. Nothing is deleted: every section is still reachable by
 # asking for it, which is what the `signal` argument is for.
@@ -7186,7 +7213,7 @@ _COUPLING_HEAD_LIMIT = 28000
 #   default      12     37    78    381    DIVERGES from rho = 10 up
 #
 # so the default max_iter = 50 is ALREADY SHORT at rho = 2, and the default
-# accelerator diverges on exactly the severe-contrast cells this campaign uses.
+# accelerator diverges on exactly the severe-contrast problems seen in development.
 _COUPLING_MUST_READ = """
 START HERE -- THE WHOLE COUPLING IS ONE TOOL CALL. Write one script per
 side that reads ./imports.json, runs its own solver once, writes
@@ -7199,6 +7226,10 @@ side that reads ./imports.json, runs its own solver once, writes
        "work_dir": "<ABSOLUTE dir of side B>", "imports_from": ["A"]}]',
       max_iter=<from the rho guidance below; when unsure use 150>,
       tol=<the tolerance your task prescribes>)
+
+Pass history_path="<absolute path of the per-level residual-history file your
+task names>" in that call as well, so the tool writes the measured iteration
+history straight to that file; never retype it.
 
 The tool runs the whole iteration -- relaxation, convergence, validation --
 and on success returns your interface tables READY TO SAVE plus the paths of
@@ -7232,8 +7263,40 @@ the participant spent their whole budget on level 1. Build the config
 route FIRST -- it costs one extra minute at level 1 and buys the other
 two levels.
 
-THE SUBMISSION IS GRADED ON THE FIELDS; THE HISTORY IS THE EVIDENCE. Export interface rows AT THE EXACT PROBE POINTS THE TASK PRINTS -- generate them from the task's own formula, verbatim. A uniform sampling of the whole interface is NOT equivalent: prescribed probe sets deliberately exclude regions (interface ends are Dirichlet-Neumann corners whose recovered flux does not converge), and rows at unprescribed points are refused wholesale -- measured: a coupling with converged evidence at every level scored nothing because all 44 of its interface rows sat at self-chosen coordinates. What scores is the solution and interface CSVs at the prescribed probe points, for every level and both sides -- a run that converges its coupling and writes no field files scores NOTHING (measured: one run drove level 1 to 6.37e-07 and submitted only residual_level1.csv; graded FAILED, NO_SOLUTION_FILES). Alongside them the task asks for `residual_level<k>.csv` -- one row per partitioned-iteration step, per mesh level. That file IS the evidence that two
-codes iterated against each other; nothing else in the submission can show it.
+THE FIELDS ARE THE RESULT; THE HISTORY IS THE EVIDENCE. Export interface rows AT THE EXACT PROBE POINTS THE TASK PRINTS -- generate them from the task's own formula, verbatim. A uniform sampling of the whole interface is NOT equivalent: prescribed probe sets deliberately exclude regions (interface ends are Dirichlet-Neumann corners whose recovered flux does not converge), and rows at unprescribed points are refused wholesale -- measured: a coupling with converged evidence at every level counted for nothing because all 44 of its interface rows sat at self-chosen coordinates. What counts is the field and interface files at the prescribed probe points, for every level and both sides -- a run that converges its coupling and writes no field files counts for NOTHING (measured: one run drove level 1 to 6.37e-07 and delivered only its level-1 residual history; read as failed, no field files). Alongside them, a task that names a per-level residual-history file wants one row per partitioned-iteration step, per mesh level. That file IS the evidence that two
+codes iterated against each other; nothing else you deliver can show it.
+
+THE NEUMANN SIDE'S IMPORTED FLUX IS SILENTLY IGNORED WITHOUT A CONDITION.
+
+This is the single defect that has sunk the most nearly-correct coupled
+runs, and it leaves no trace: the solver runs, converges, exits 0, and
+returns exactly the answer it would have returned with no flux at all.
+
+In Kratos, setting FACE_HEAT_FLUX on the interface NODES does nothing unless
+`ThermalFace2D2N` conditions exist on the interface EDGES -- the nodal value is
+only ever integrated BY a condition. Measured on one mesh, three runs differing
+only in this:
+
+    zero flux, conditions present     max|T| = 2.307291e-03
+    flux on nodes, NO conditions      max|T| = 2.307291e-03   BIT-IDENTICAL
+    flux on nodes AND conditions      max|T| = 3.605675e-03
+
+Two real runs died exactly here: side A correct to three digits, side B
+reporting 2.367e-03 and 2.342e-03 against a true 3.670e-03 -- the no-flux
+answer -- with the interface FIELD matching across the seam to 0.000e+00, so
+only the flux jump betrayed it, growing 8.139e-01, 9.066e-01, 9.530e-01 under
+refinement instead of shrinking.
+
+THE SHAPE IS GENERAL, not Kratos-specific: a boundary value attached to nodes
+but never integrated over a facet contributes nothing. 4C has the same trap
+twice -- the `DESIGN ... THERMO ...` condition sections are never evaluated in a
+standalone Thermo problem, and a body source must sit on the condition whose
+geometry type matches the ELEMENT DIMENSION (LINE 1D / SURF 2D / VOL 3D).
+
+HOW TO CATCH IT IN ONE STEP, before any coupling iteration: solve the Neumann
+side ONCE with the imported flux set to zero, then ONCE with your real flux,
+and compare. If the two fields are identical, the flux never reached the
+operator. That costs one extra solve and is the only check that sees this.
 
 THE DIRICHLET SIDE RETURNS A MEASURED FLUX, NEVER A PLACEHOLDER. Recover it from your OWN system, in this order: (1) the CONSISTENT residual recovery q = -(A u - b_vol)/w on the interface rows -- second order, valid on BOTH sides; (2) the code's native boundary-flux output ONLY on a side whose interface is Dirichlet (on a Neumann-loaded line it echoes the applied load); (3) one-sided quadratic extrapolation of -k*du/dn from three field points along the normal as a CROSS-CHECK, not the exported value on a high-diffusivity side (measured: routes 1 and 3 agree to 2.7% rel-RMS at h=1/8 on the low-k side; route 3 alone missed by 6.5% on a k=200 side). A constant or invented exchanged quantity turns the partitioned update into a no-op -- measured: a driver that sent a hard-coded 0.0 flux fell 9x in 50 iterations and never approached tolerance; a real recovered flux on the same arrangement converged in 4 iterations to 3.2e-08. If the residual is not contracting, check FIRST that the data you SEND changes between iterations.
 
@@ -7264,11 +7327,11 @@ def consistent_interface_flux(nodes, tris, k, u, f_vol, iface_ids, h_trib):
                           {"name": "B", "command": "<run side B>",
                            "work_dir": "<ABSOLUTE path>", "imports_from": ["A"]}]',
            max_iter=100, tol=1e-6,
-           history_path="<ABSOLUTE task workdir>/residual_level1.csv")
+           history_path="<ABSOLUTE path of the per-level residual-history file your task names>")
 
 returns `history` and writes its finite measured values directly to the requested
 CSV. Do not retype or synthesize that sequence. Report `iterations` (also copied
-to `history_file.driver_iterations`) as COUPLING_ITERATIONS; `rows_written` is
+to `history_file.driver_iterations`) as your coupling-iteration count; `rows_written` is
 normally one smaller because iteration 1 has no previous iterate and therefore
 no residual. Get ONE participant writing exports.json standalone first, then the
 second, then call couple: that order costs the fewest attempts.
@@ -7306,20 +7369,20 @@ shared interface probes, computed from the two profiles you exported:
 An update norm, one side's own solver residual, or the driver's iterate
 difference all fall to 1e-7 while the two codes still disagree completely.
 Reporting one of those is the most common way a coupled answer is lost: of the
-coupled submissions on record that exported both sides, 17 of 31 report a
+coupled result sets on record that exported both sides, 17 of 31 report a
 residual below 1e-5 that their OWN two files contradict -- one with a 189% flux
 mismatch behind a reported 1.12e-07 -- and it happens whether or not the run
 uses these tools. Recompute the number from the files you just wrote. If it is
 not small, the coupling has not converged, whatever the iteration history says.
 
 IF YOU DRIVE THE LOOP YOURSELF, IT MUST ACTUALLY ITERATE. A closed-form
-sequence written into that file — 1.0, 0.5, 0.25, 0.125, … or any r*q^k — is
-DETECTED and read as invented, not as a result. Two checks, both stated
-here because the gate grades against them: the per-step ratio of a real
+sequence written into the residual-history file — 1.0, 0.5, 0.25, 0.125, … or
+any r*q^k — is DETECTED and read as invented, not as a result. Two checks, both
+stated here because an independent check applies them: the per-step ratio of a real
 Dirichlet-Neumann iteration varies as the error's modal composition changes, so
 a constant ratio is a formula; and the history depends on the discretisation, so
 the SAME numbers at two mesh levels cannot both be measurements. A run that
-honestly reports a diverging or stalling iteration scores better than one that
+honestly reports a diverging or stalling iteration is worth more than one that
 reports a clean invented one.
 
 BEFORE ANYTHING ELSE — HOW MANY ITERATIONS TO BUDGET, AND WHEN THIS DIVERGES.
@@ -7366,9 +7429,9 @@ interface refinement.
 THE INTERFACE FILE IS WRITTEN AT THE POINTS THE TASK LISTS, NOT AT YOUR NODES.
 
 Its rows are the coordinates the task names, in that order, IDENTICAL at every
-mesh level. Runs with both solvers and the iteration independently PROVEN, and
-the residual down to 1e-7, were still scored unusable for writing their own
-interface MESH NODES instead:
+mesh level. Runs with both solvers and the iteration independently proven to
+have run, and the residual down to 1e-7, were still counted as unusable for
+writing their own interface MESH NODES instead:
 
     what was written   level 1: 7 rows   level 2: 15 rows   level 3: 23 rows
     what was asked     the same fixed list of points at EVERY level
@@ -7385,9 +7448,9 @@ the list with them.
 CHECK EACH SUBDOMAIN AGAINST ITS OWN EQUATION FIRST. A converged interface
 residual says the two sides AGREE, not that either is right, and the two
 failures are independent: one run converged to 8e-07 in 16 steps with a field
-TEN TIMES too small, graded order -0.02. Run verify_pde_consistency(...) on
-each side, with that side's own source and coefficient, before spending budget
-on the iteration.
+TEN TIMES too small, at order -0.02 against an independent reference. Run
+verify_pde_consistency(...) on each side, with that side's own source and
+coefficient, before spending budget on the iteration.
 
 EXPECT REFUSALS, AND DO NOT READ A REFUSAL AS A FAILURE -- often it answers
 for one side and refuses the other, and on a multi-field or thermo-mechanical
@@ -7397,7 +7460,7 @@ A refusal is a statement of scope, never evidence against the run. Its identity 
 boundary of the side it is given. The interface carries your partner's data, so
 on the side where that data is comparable to the side's own field the identity
 does not hold and the tool replies NOT_APPLICABLE. Measured on a two-material
-conduction cell with a 200:1 contrast: the low-conductivity side answers
+conduction problem with a 200:1 contrast: the low-conductivity side answers
 normally, because its interface values are a few percent of its own scale,
 while on the high-conductivity side the interface trace IS the scale and the
 tool refuses. A refusal there tells you nothing about that side; an
@@ -7419,17 +7482,18 @@ steps is that, not convergence.
 
 THE COUPLING HISTORY IS MEASURED, NOT MODELLED.
 
-residual_level<k>.csv is the mismatch your iteration ACTUALLY measured at each
-step, written from inside the loop -- you already compute that number every
-iteration to decide when to stop, so appending it to the file is one line and
-costs nothing. Do not write a plausible-looking decay instead: a modelled
-history has a step-to-step ratio that is constant to machine precision, and
-that is checked -- three real submissions wrote 0.1*0.7^k, 8.5e-5*0.85^k
-scaled by 1/level, and one geometric sequence repeated bit-identically at all
-three levels, and every one reads as invented, which is worth LESS than an
-honest report that the iteration did not converge. A real iteration's rate
-wanders; if your loop never computed a mismatch, it never coupled, and the
-honest entry is COULD_NOT_COMPLETE plus your best single-domain fields.
+The per-level residual-history file your task names holds the mismatch your
+iteration ACTUALLY measured at each step, written from inside the loop -- you
+already compute that number every iteration to decide when to stop, so
+appending it to the file is one line and costs nothing. Do not write a
+plausible-looking decay instead: a modelled history has a step-to-step ratio
+that is constant to machine precision, and that is checked -- three real runs
+wrote 0.1*0.7^k, 8.5e-5*0.85^k scaled by 1/level, and one geometric sequence
+repeated bit-identically at all three levels, and every one reads as invented,
+which is worth LESS than an honest report that the iteration did not converge.
+A real iteration's rate wanders; if your loop never computed a mismatch, it
+never coupled, and the honest entry is a could-not-finish report plus your
+best single-domain fields.
 
 AND WRITE WHAT THE SOLVER SAID, NOT WHAT YOU KNOW IT DID.
 
@@ -7439,15 +7503,17 @@ which code ran on which side. If you invoke the solver through subprocess you
 already hold those bytes; the whole fix is not to drop them:
 
     r = subprocess.run(cmd, capture_output=True, text=True)
-    Path(log).write_text(f"NDOF = {ndof}\\n" + r.stdout + r.stderr)
+    Path(log).write_text(dof_line + "\\n" + r.stdout + r.stderr)
 
-or skip the capture and redirect, `cmd > run_level<k>_<side>.log 2>&1`.
-Measured, on the same cell and the same two codes: a real capture is 2947 and
+(dof_line being the DOF-count line your task asks for) or skip the capture and
+redirect, `cmd > <the per-level run log for that code> 2>&1`.
+Measured, on the same problem and the same two codes: a real capture is 2947 and
 1476 bytes and carries the solver's banner; a hand-written summary is 56 and 68
 bytes. One run invoked the binary correctly under `stdbuf -oL -eL`, captured
 its output into a variable, drove the interface iteration to 4.4e-07 and
-reached a graded order of 1.94 -- then wrote three lines of its own prose into
-the log and could not be credited with any of it. Some codes need one line to
+reached an order of 1.94 against an independent reference -- then wrote three
+lines of its own prose into the log and could not be credited with any of it.
+Some codes need one line to
 say anything at all: FEniCSx `dolfinx.log.set_log_level(LogLevel.INFO)`,
 deal.II `deallog.depth_console(2)` AND a SolverControl with log_history/
 log_result, NGSolve `ngsglobals.msg_level = 3`, DUNE-fem
@@ -7455,42 +7521,10 @@ log_result, NGSolve `ngsglobals.msg_level = 3`, DUNE-fem
 level=logging.INFO)` whose output goes to STDERR. Kratos, 4C, FEBio and SPARTA
 print by default.
 
-THE NEUMANN SIDE'S IMPORTED FLUX IS SILENTLY IGNORED WITHOUT A CONDITION.
+CHECK THE INTERFACE SIGN BEFORE YOU HAND IN: verify_interface_flux(...).
 
-This is the single defect that has sunk the most nearly-correct coupled
-submissions, and it leaves no trace: the solver runs, converges, exits 0, and
-returns exactly the answer it would have returned with no flux at all.
-
-In Kratos, setting FACE_HEAT_FLUX on the interface NODES does nothing unless
-`ThermalFace2D2N` conditions exist on the interface EDGES -- the nodal value is
-only ever integrated BY a condition. Measured on one mesh, three runs differing
-only in this:
-
-    zero flux, conditions present     max|T| = 2.307291e-03
-    flux on nodes, NO conditions      max|T| = 2.307291e-03   BIT-IDENTICAL
-    flux on nodes AND conditions      max|T| = 3.605675e-03
-
-Two real submissions died exactly here: side A correct to three digits, side B
-reporting 2.367e-03 and 2.342e-03 against a true 3.670e-03 -- the no-flux
-answer -- with the interface FIELD matching across the seam to 0.000e+00, so
-only the flux jump betrayed it, growing 8.139e-01, 9.066e-01, 9.530e-01 under
-refinement instead of shrinking.
-
-THE SHAPE IS GENERAL, not Kratos-specific: a boundary value attached to nodes
-but never integrated over a facet contributes nothing. 4C has the same trap
-twice -- the `DESIGN ... THERMO ...` condition sections are never evaluated in a
-standalone Thermo problem, and a body source must sit on the condition whose
-geometry type matches the ELEMENT DIMENSION (LINE 1D / SURF 2D / VOL 3D).
-
-HOW TO CATCH IT IN ONE STEP, before any coupling iteration: solve the Neumann
-side ONCE with the imported flux set to zero, then ONCE with your real flux,
-and compare. If the two fields are identical, the flux never reached the
-operator. That costs one extra solve and is the only check that sees this.
-
-CHECK THE INTERFACE SIGN BEFORE YOU SUBMIT: verify_interface_flux(...).
-
-    verify_interface_flux(interface_files="<all interface_level*_[AB].csv>",
-                          solution_files="<all solution_level*_[AB].csv>",
+    verify_interface_flux(interface_files="<all per-level interface files, both sides>",
+                          solution_files="<all per-level field files, both sides>",
                           interface_axis=0)
 
 It needs no reference solution. For a flux you really computed from your own
@@ -7501,28 +7535,28 @@ NEGATIVE ratio means your normal points inward.
 THE TRAP IT CATCHES: on the NEUMANN side the flux you IMPORT and the flux you
 REPORT have OPPOSITE signs. Kratos's FACE_HEAT_FLUX is the INWARD normal flux,
 while the task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the
-subdomain -- so the number you write into interface_level<k>_<side>.csv is the
+subdomain -- so the number you write into each per-level interface file is the
 NEGATIVE of the one you applied.
 
-Measured on the last coupled round: a run whose two prescribed codes BOTH
+Measured on one coupled development run: a run whose two prescribed codes BOTH
 genuinely ran, whose coupling genuinely iterated over three mesh levels, and
 whose interface FIELD matched to 0.000e+00 across the seam was still WRONG,
 because at the finest level one side's implied
 coefficient came out -250.8 instead of +200. Its relative flux jump went
 8.139e-01, 9.066e-01, 9.530e-01 -- growing, not shrinking. The same tool on a
-correct submission returns +0.98 to +1.30 on the k=1 side and +200.4 to +206.7
-on the k=200 side, with the answers sealed. One call would have told the run
-which of the two it was.
+correct result set returns +0.98 to +1.30 on the k=1 side and +200.4 to +206.7
+on the k=200 side, without any reference solution. One call would have told the
+run which of the two it was.
 
-EACH SIDE'S run_level<k>_<side>.log MUST CARRY THAT SOLVER'S OWN OUTPUT.
+EACH SIDE'S PER-LEVEL RUN LOG MUST CARRY THAT SOLVER'S OWN OUTPUT.
 
-`NDOF = <n>` alone is code-agnostic: it cannot show WHICH code produced the
+A DOF-count line alone is code-agnostic: it cannot show WHICH code produced the
 side, so a coupled claim built on it is unproven no matter how good the numbers
-are. Capture the solver's console output into the log next to your NDOF line --
-4C's banner and git SHA, Kratos's strategy telemetry, whatever your code
+are. Capture the solver's console output into the log next to your DOF-count
+line -- 4C's banner and git SHA, Kratos's strategy telemetry, whatever your code
 prints. This was measured: a run whose numbers were genuinely second order was
 credited to two prescribed codes it had invoked NEITHER of, on the strength of
-fourteen ten-byte files reading `NDOF = <n>`.
+fourteen ten-byte files carrying nothing but a DOF count.
 
 Two ways that capture silently fails, both measured:
   * redirecting Python's stdout around an in-process solve captures ZERO bytes

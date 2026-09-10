@@ -8,15 +8,15 @@ location:
 That is a single directory shared by every caller, inside the install. Two
 failures follow, both silent:
 
-  1. A caller working in its own directory — an evaluation cell, a CI job, a
+  1. A caller working in its own directory — an evaluation harness, a CI job, a
      user with two projects open — has its results written somewhere else
      entirely. Anything that later reads the working directory sees nothing
      and concludes the run produced nothing.
   2. The namespace is shared, so two callers using the same job name
      overwrite each other, and either can read the other's results.
 
-Both were observed: 8 of 14 coupled runs of one evaluation round wrote
-through this path and were scored as having produced nothing, and 168
+Both were observed: 8 of 14 coupled runs in one batch of development runs
+wrote through this path and were read as having produced nothing, and 168
 simulation directories plus 58 coupling directories had accumulated inside
 the repository.
 

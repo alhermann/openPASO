@@ -572,10 +572,10 @@ class DealiiBackend(SolverBackend):
         # places. Measured across the nine served backends, deal.II was the
         # only one whose payload told an agent no way to read its solution at a
         # point that is not a mesh node — and "the solve worked and was never
-        # read back" is the largest single failure bucket in the campaign, 60
-        # runs at 12.9%. Adding the recipe to one branch would have left the
-        # other three silent, which is the defect class this file has already
-        # been repaired for twice.
+        # read back" is the largest single failure bucket across the
+        # development runs, 60 runs at 12.9%. Adding the recipe to one branch
+        # would have left the other three silent, which is the defect class
+        # this file has already been repaired for twice.
         k = self._get_knowledge_inner(physics)
         if isinstance(k, dict):
             from backends.dealii.probe_recipe import DEALII_PROBE_RECIPE
@@ -735,7 +735,7 @@ class DealiiBackend(SolverBackend):
 
             # TIMEOUT MUST KILL THE SOLVER, AND THE WHOLE GROUP. Without this, a
             # timed-out solve kept running forever: wait_for() abandoned the
-            # process but never terminated it, and a campaign sweep found one such
+            # process but never terminated it, and a sweep found one such
             # solver 3.2 CPU-hours later at 100%% of a core, its MPI daemon
             # (orted) beside it. start_new_session puts the solver and every child
             # it spawns into their own process group, so one killpg reaps MPI

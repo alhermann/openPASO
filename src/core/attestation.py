@@ -7,8 +7,8 @@ produced output files, and that those files are finite (``_stamp_verification``
 in ``tools/consolidated.py``). What it did not do is bind a REPORTED NUMBER to
 that run. The agent read the artefacts itself and wrote its own answer, so a
 plausible invented value passed every gate. Detection was only possible outside
-the tool, which means a general user of OASiS — one with no grader — had no
-protection at all.
+the tool, which means a general user of OASiS — one with nobody checking the
+result independently — had no protection at all.
 
 WHY THE OBVIOUS FIX DOES NOT WORK
 ---------------------------------

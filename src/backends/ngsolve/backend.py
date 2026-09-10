@@ -216,8 +216,8 @@ class NgsolveBackend(SolverBackend):
 
     # THE TASK'S WORDS MUST RESOLVE TO THE BUCKET THAT HOLDS THE FACT.
     #
-    # NG1's task says "anisotropic diffusion" and "constant symmetric
-    # positive-definite tensor K". The knowledge that decides that cell — a
+    # One task said "anisotropic diffusion" and "constant symmetric
+    # positive-definite tensor K". The knowledge that decides that problem — a
     # constant matrix coefficient must be written
     # CoefficientFunction(..., dims=(2,2)), because the nested-list spelling
     # silently becomes a scalar — lives under `poisson`. Measured before this
@@ -311,7 +311,7 @@ class NgsolveBackend(SolverBackend):
 
             # TIMEOUT MUST KILL THE SOLVER, AND THE WHOLE GROUP. Without this, a
             # timed-out solve kept running forever: wait_for() abandoned the
-            # process but never terminated it, and a campaign sweep found one such
+            # process but never terminated it, and a sweep found one such
             # solver 3.2 CPU-hours later at 100%% of a core, its MPI daemon
             # (orted) beside it. start_new_session puts the solver and every child
             # it spawns into their own process group, so one killpg reaps MPI

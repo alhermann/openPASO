@@ -97,8 +97,8 @@ def test_adding_it_did_not_evict_the_rest_of_the_must_read(coupling_payload):
     Everything the must-read exists to say has to still arrive.
     """
     for mark in ("couple(participants=",              # how to run the iteration
-                 "residual_level<k>.csv",             # the graded artefact
-                 "DETECTED and graded as fabrication",  # the forgery rules
+                 "history_path",                      # where the history goes
+                 "DETECTED and read as invented",  # the forgery rules
                  "iterations   11     37    66",      # the rho budget table
                  "SWAP WHICH SIDE IS DIRICHLET"):     # the high-rho remedy
         assert mark in coupling_payload, (

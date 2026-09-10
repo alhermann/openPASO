@@ -52,7 +52,7 @@ change in the export vector, so it cannot fall below the size of that sampling
 scatter no matter how well the physics has settled — and a `tol` underneath the
 floor therefore ends every run as "did not converge", on a coupling that is
 right. That verdict is honest but useless, and it is the reason a stochastic
-coupling could not be graded on convergence at all.
+coupling could not be assessed on convergence at all.
 
 `noise_replicates` / `noise_floor` fix it without ever softening the guard:
 
@@ -66,8 +66,8 @@ coupling could not be graded on convergence at all.
   * the stopping statistic becomes a BLOCK MEAN of the last `noise_block`
     residuals once a floor is in play, so a single lucky dip into the noise
     does not end the run;
-  * `noise_floor` on the result is what a grader must use: a tolerance tighter
-    than the floor is measuring the sampler, not the coupling;
+  * `noise_floor` on the result is what any check of it must use: a tolerance
+    tighter than the floor is measuring the sampler, not the coupling;
   * a floor measured as exactly zero is REPORTED, because for a Monte-Carlo
     participant that means a fixed seed, and a residual that falls under a
     fixed seed proves only that the same draw was repeated.
@@ -157,7 +157,7 @@ class CouplingResult:
     # THE CRITERION ACTUALLY APPLIED — a third channel, and it exists because
     # the other two are both wrong for it. "This run was judged at the measured
     # noise floor rather than at your tol" is not provenance (an agent MUST see
-    # it, and must not grade tighter than the floor) and it is not a finding
+    # it, and must not apply a tighter tolerance) and it is not a finding
     # either (the coupling is correct). It sat in `warnings` when this branch
     # was written, which was harmless there because the tool then decided
     # trustworthiness with a keyword filter that these words happened to miss.
@@ -220,7 +220,8 @@ def _digest(text: str) -> str:
 
 
 def _bounded_stream(text: str) -> str:
-    """Keep both ends of large solver output below the grader's 8 MB cap."""
+    """Keep both ends of large solver output below the 8 MB cap on captured
+    output."""
     raw = (text or "").encode("utf-8", errors="replace")
     if len(raw) <= _MAX_PARTICIPANT_STREAM_BYTES:
         return raw.decode("utf-8", errors="replace")
@@ -376,10 +377,10 @@ def _measure_noise_floor(participants: list[Participant], replicates: int,
     `against` decides WHICH comparison, and the two are genuinely different:
 
       * `against=<the loop's relaxed_prev>` is the faithful one. Each replicate
-        is scored against the very vector the loop compares to, so the value IS
-        the residual the loop reports, measured several times.
-      * `against=None` (before the loop, where no relaxed_prev exists) scores
-        replicates against EACH OTHER. That is a LOWER BOUND, not the same
+        is evaluated against the very vector the loop compares to, so the value
+        IS the residual the loop reports, measured several times.
+      * `against=None` (before the loop, where no relaxed_prev exists)
+        evaluates replicates against EACH OTHER. That is a LOWER BOUND, not the same
         number. It was first written down here as conservative on the argument
         that the relaxed blend averages noise down — and measuring it showed the
         opposite: the relaxed vector is a lagged average carrying its own
@@ -438,7 +439,7 @@ def _measure_noise_floor(participants: list[Participant], replicates: int,
             f"this floor rests on only {n_ind} replicate samples and is "
             f"itself a noisy estimate — raise noise_replicates to 4 or more "
             f"(6+ pairs) before relying on the number, especially before using "
-            f"it as a grading tolerance")
+            f"it as an acceptance tolerance")
     return floor, None, notes
 
 
@@ -568,7 +569,7 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
         kw.setdefault("criterion_notes", criterion_notes)
         kw.setdefault("noise_floor", floor)
         # Only reported once a floor is in play. Naming an effective tolerance
-        # on a run that had none would invite a grader to use it.
+        # on a run that had none would invite anyone checking it to use it.
         kw.setdefault("tol_effective", None if floor is None else tol_eff)
         kw.setdefault("stopped_at_noise_floor", at_floor)
         return CouplingResult(**kw)
@@ -602,8 +603,8 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
             f"tol={tol:.1e} is below the residual noise floor {floor:.3e}, "
             f"which no amount of iterating can cross. The run is judged against "
             f"{tol_eff:.3e} instead, over a block mean of the last {block} "
-            f"residuals. ANY TOLERANCE APPLIED TO THIS RESULT — including a "
-            f"grading tolerance — MUST BE AT LEAST {floor:.3e} RELATIVE.")
+            f"residuals. ANY TOLERANCE APPLIED TO THIS RESULT — including an "
+            f"acceptance tolerance — MUST BE AT LEAST {floor:.3e} RELATIVE.")
 
     for it in range(1, max_iter + 1):
         new_exports: dict[str, InterfaceData] = {}

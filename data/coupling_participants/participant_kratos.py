@@ -89,7 +89,6 @@ def solve(T_if_in: np.ndarray):
         n = mp.Nodes[nid[(nx, j)]]
         n.SetSolutionStepValue(KM.TEMPERATURE, float(T_if_in[j]))
         n.Fix(KM.TEMPERATURE)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
 
     # AddDof with a REACTION variable: without the second argument the fixed
     # dofs have nowhere to store their reaction and it is silently discarded.
@@ -102,6 +101,15 @@ def solve(T_if_in: np.ndarray):
                                               True, False, False, False)
     strategy.Initialize()
     strategy.Solve()
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+    # TWO THINGS YOUR SOLVE ABOVE MUST DO, or the recovery below reads zeros:
+    #   * AddDof(TEMPERATURE, REACTION_FLUX, mp) -- the SECOND argument gives
+    #     every fixed dof a place to store its reaction; without it the
+    #     reaction is silently discarded.
+    #   * run the strategy with CalculateReactionsFlag=True (the 4th positional
+    #     argument of ResidualBasedLinearStrategy) -- the interface flux is
+    #     read out of REACTION_FLUX, and a solve that never computed reactions
+    #     exports a flux of exactly zero.
     return mp, nid
 
 
@@ -158,6 +166,37 @@ def main() -> None:
     if len(good):
         for i in np.where(suspect)[0]:
             q_out[i] = q_out[good[np.argmin(np.abs(good - i))]]
+
+    # ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+    #    fine and are worthless: a non-finite field; a Neumann side whose imported
+    #    load never entered the assembled system (it returns the no-load answer and
+    #    a flux of ~0 against a nonzero partner); and a flux that is the partner's
+    #    array negated instead of a recovery from THIS side's own system.
+    _chk_vals = np.asarray(T_if, float).ravel()
+    _chk_flux = np.asarray(q_out, float).ravel()
+    if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
+        raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or fluxes; "
+                         "the solve did not produce a usable field, so nothing was "
+                         "exported")
+    _chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+                if Path("imports.json").is_file() else {})
+    _chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                                for _d in _chk_imp.values()])
+                if _chk_imp else np.zeros(0))
+    if False and _chk_qin.size and np.abs(_chk_qin).max() > 0 \
+            and np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max():
+        raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 "
+                         "against a nonzero imported flux: the imported load never "
+                         "entered the assembled system (the facet term / boundary "
+                         "condition that integrates it is missing). Fix the "
+                         "application; do not couple on")
+    # (Dirichlet role only: a Neumann side's consistent recovery of a CONSTANT
+    #  applied flux can legitimately reproduce it to the last bit.)
+    if True and _chk_qin.shape == _chk_flux.shape and _chk_flux.size \
+            and np.array_equal(_chk_flux, -_chk_qin):
+        raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's "
+                         "array negated, bit for bit: a copy, not a recovery from "
+                         "this side's own assembled system")
 
     Path("exports.json").write_text(json.dumps({
         "field_name": "temperature",

@@ -4,7 +4,7 @@ Why this module exists: the `heat` and `poisson` templates in this backend used
 to emit a numpy/scipy assembly with no `import KratosMultiphysics` anywhere in
 them — heat.py's own first line read "Heat conduction — Kratos (manual
 assembly)". An agent asked to solve a problem WITH KRATOS was handed a script
-that cannot run Kratos, and the resulting submission cannot be attributed to
+that cannot run Kratos, and the resulting output cannot be attributed to
 the code the task named. That is not a documentation defect, it is the wrong
 artefact.
 
@@ -198,7 +198,7 @@ CROSS_CHECK_NOTE = (
     "the one-point centroid rule Kratos uses -- and compare. That comparison "
     "is what established the rule: it matched to 4.3e-16, while the exact P1 "
     "mass matrix was 50% off. An independent assembly is a CHECK on the "
-    "solver's answer, never a replacement for running it: a submission "
+    "solver's answer, never a replacement for running it: a result "
     "produced by the assembly alone cannot be attributed to Kratos, and a "
     "coupled task that names two codes is failed by it."
 )
@@ -369,7 +369,7 @@ only in this:
     flux on nodes, NO conditions      max|T| = 2.307291e-03   IDENTICAL
     flux on nodes AND conditions      max|T| = 3.605675e-03
 
-numpy.allclose on the first two is True. Real submissions have died here: two
+numpy.allclose on the first two is True. Real runs have died here: two
 independent runs whose side A was correct to three digits reported a side-B
 peak of 2.367e-03 and 2.342e-03 against a true 3.670e-03 -- the no-flux
 answer -- with their interface FIELD matching across the seam to 0.000e+00 and
@@ -463,8 +463,8 @@ on_iface = np.abs(nodes[:, 0] - edge) < tol
 on_bot = np.abs(nodes[:, 1]) < tol
 on_top = np.abs(nodes[:, 1] - 1.0) < tol
 # THE INTERFACE CORNERS BELONG TO THE OUTER BOUNDARY. A Dirichlet-Neumann
-# corner has no convergent recovered flux, which is why the graded probes
-# exclude the ends.
+# corner has no convergent recovered flux, which is why interface probes
+# should exclude the ends.
 iface = [i for i in np.where(on_iface)[0] if not (on_bot[i] or on_top[i])]
 iface.sort(key=lambda i: nodes[i, 1])
 
@@ -523,7 +523,7 @@ if np.abs(qin).max() > 0 and max(len(iface) - 1, 0) == 0:
 # worked it equals the negated, P1-mass-smoothed applied flux (the FE
 # identity), and when the ThermalFace conditions never entered the system
 # it reads ~0, which the arrival check turns into a hard stop instead of a
-# silent no-flux submission.
+# silent no-flux result.
 
 
 def consistent_outward_flux():
@@ -577,10 +577,10 @@ def real_interface_neumann_script(title: str, nx: int, ny: int, k: float,
                                   f_expr: str, x0: float, x1: float) -> str:
     """The Neumann side of a partitioned coupling, driven by Kratos.
 
-    Served because the coupled gate grades the interface sign convention and
+    Served because the coupled gate checks the interface sign convention and
     the consistent flux recovery, and because the single silent failure in
     this route -- a nodal FACE_HEAT_FLUX with no ThermalFace condition to
-    integrate it -- has demonstrably sunk otherwise-correct submissions.
+    integrate it -- has demonstrably sunk otherwise-correct runs.
     """
     return _IFACE_NEUMANN.format(title=title, nx=nx, ny=ny, k=k,
                                  f_expr=f_expr, x0=x0, x1=x1)

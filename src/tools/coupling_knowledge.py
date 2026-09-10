@@ -43,7 +43,7 @@ _SOLVE_ELIDED = """\
 # ordinary finite-element work and OASiS has no business dictating it.
 #
 # What OASiS does document — because you cannot guess it and it is what the
-# verification gate grades against — is everything AROUND the solve: the
+# interface check compares against — is everything AROUND the solve: the
 # imports/exports handshake above, the interface sign convention, and the flux
 # recovery below. Those are this tool's own interface, not your method.
 #
@@ -56,18 +56,18 @@ _SOLVE_ELIDED = """\
 
 
 def _script(name: str) -> str:
-    """Return the complete tested participant script shipped with OASiS.
+    """Return the participant CONTRACT shipped with OASiS: the file with its marked SOLVE regions elided.
 
     The script is a file rather than a string literal on purpose: the file is
     the artefact that gets executed in the test suite, so the text an agent is
     served and the text that was proven to run cannot drift apart.
 
     The old serving path cut out every mesh/form/solve region while calling the
-    result a "complete participant". Measured consequence: 73% of coupled MCP
-    runs that gave up never exchanged data once, and C2 seed 603 spent 74 tool
-    calls rebuilding syntax already present in these executed files before
-    submitting a false two-step convergence. Generic, parameterised solver
-    templates are an OASiS capability just like the complete single-code
+    result a "complete participant". Measured consequence: 73% of the coupled
+    runs that gave up never exchanged data once, and one development run spent
+    74 tool calls rebuilding syntax already present in these executed files
+    before delivering a false two-step convergence. Generic, parameterised
+    solver templates are an OASiS capability just like the complete single-code
     templates returned by prepare_simulation; they contain no task answer or
     measured result. Serving the exact file the tests execute removes drift and
     lets the model spend its budget on the problem-specific edit block.
@@ -130,7 +130,8 @@ def _serve_participant(p: Path) -> str:
             f"which region is the solve and will not serve the file. What "
             f"OASiS documents is its own interface -- the imports/exports "
             f"handshake, the interface sign convention, the consistent flux "
-            f"recovery the gate grades against, and the iteration-1 fallback. "
+            f"recovery the interface check compares against, and the "
+            f"iteration-1 fallback. "
             f"The mesh, the form and the solve are yours to write.\n\n"
             f"The contract, from this participant's own header:\n\n"
             + (doc if doc else "(this file has no docstring either)")
@@ -275,22 +276,23 @@ def _append_reconstruction_contract(served: str, original: str) -> str:
 # sequence, a nearest-node sampler. Every one of those has cost real runs. It
 # belongs at the FRONT, not unmentioned.
 _SELF_CHECK_FIRST = """
-BEFORE YOU SUBMIT, CALL audit_results(work_dir=...)
+BEFORE YOU DELIVER, CALL audit_results(work_dir=...)
 ──────────────────────────────────────────────────
 It reads only your own files -- no reference solution -- and names the defects
-that most often sink a coupled submission:
+that most often sink a coupled result set:
 
-    a level with solution files but no run_level<k>.log carrying `NDOF = <n>`
+    a level with field files but no per-level run log carrying the DOF-count
+        line your task asks for
     a residual history that is too short, or starts with the NaN `couple`
         returns as history[0]
     a field that peaks below 1e-8 (the load never reached the solver)
-    the same deliverable submitted twice with different contents
+    the same deliverable present in two places with different contents
     a hole in the level sequence, or fewer than three levels
     a sampler that reads the nearest NODE instead of interpolating, which caps
         your measured convergence order at 1 however good the solve was
 
 It costs one call. Measured, 3% of coupled runs used it,
-and the defects above account for most of the submissions that were graded
+and the defects above account for most of the result sets that were read as
 malformed or fabricated rather than wrong.
 
 """
@@ -446,12 +448,12 @@ things about it:
 
 A run that did not converge is reported as FAILURE — never report its numbers
 as a result. A run that DID converge is a result even if a downstream check
-complains about it — see section 3b, which is the difference between a scored
-run and a wasted one.
+complains about it — see section 3b, which is the difference between a run
+that counts and a wasted one.
 
 ## 3a. THE ONE BUG THAT CONVERGES TO THE WRONG ANSWER
 
-Measured over one development campaign: agents wrote 260 participant scripts
+Measured over the development runs: agents wrote 260 participant scripts
 and the same defect kept coming back — exporting the raw traction instead of
 the NEGATED outward normal flux. That flips the sign the partner applies, and
 the coupling then converges, smoothly, with a clean residual history, to the
@@ -465,16 +467,16 @@ look right, you have built a coupling that drives the quantity the wrong way
 across the interface and still converges.
 
 You write the participant. The sections below give the handshake, this sign
-convention, and the flux recovery the verification gate grades against; the
+convention, and the flux recovery the interface check compares against; the
 solve itself is yours.
 
-## 3b. FROM A CONVERGED COUPLING TO A SUBMITTED ANSWER
+## 3b. FROM A CONVERGED COUPLING TO A DELIVERED ANSWER
 
 Getting the iteration to converge is the hard part and it is not the last
-part. In one evaluation round, six runs produced converged two-code couplings
+part. Among the development runs, six produced converged two-code couplings
 — residuals to 1e-7 and better, both participants responsive — and every one
-of them scored zero. None of them lost on physics. They lost on the four
-points below, none of which was written down anywhere.
+of them counted for nothing. None of them lost on physics. They lost on the
+four points below, none of which was written down anywhere.
 
 ONE `couple` CALL IS ONE MESH. A REFINEMENT STUDY IS N CALLS.
 A participant takes no arguments, no environment and no stdin, so the mesh
@@ -781,7 +783,7 @@ the residual the loop actually reports, measured — and the verdict is re-judge
 The re-measurement is paid only on failure.
 
 THREE THINGS THAT FOLLOW, and they are the whole discipline:
-  * READ `noise_floor` BEFORE APPLYING ANY TOLERANCE TO THE RESULT. A grading,
+  * READ `noise_floor` BEFORE APPLYING ANY TOLERANCE TO THE RESULT. An
     acceptance or agreement tolerance tighter than the floor is measuring the
     sampler, not the coupling;
   * a floor of EXACTLY ZERO from a Monte-Carlo participant means its SEED IS
@@ -1149,11 +1151,11 @@ method does.
 _PROBES = """
 EVALUATING YOUR SOLUTION AT THE PROBE POINTS
 ────────────────────────────────────────────
-Every cell is graded at a FIXED grid of points that does not move with your
-mesh, so the points sit INSIDE elements, not on nodes.
+A task that prescribes probe points evaluates you at a FIXED grid that does
+not move with your mesh, so the points sit INSIDE elements, not on nodes.
 
 READING THE NEAREST NODE'S VALUE CAPS YOUR MEASURED ORDER AT 1, WHATEVER YOUR
-SOLVER DID. This is the single most common scoring defect measured:
+SOLVER DID. This is the single most common post-processing defect measured:
 144 runs did it, and their observed orders cluster at 0 and 1. Nearest-node
 lookup is a piecewise-CONSTANT reconstruction with O(h) error, so it dominates
 the O(h^2) or O(h^3) error of the solve and you measure the reconstruction
@@ -1164,7 +1166,7 @@ fixed cloud on N = 8, 16, 32, 64:
     shape functions     second order, as the discretisation allows
 
 The values look plausible either way. Only the ORDER exposes it, and by then
-the run is scored. The same trap catches scipy.griddata(method="nearest"),
+the run is over. The same trap catches scipy.griddata(method="nearest"),
 pyvista's kernel `interpolate(..., n_points=1)`, and any scattered-data
 interpolation of nodal values -- all are O(h) reconstructions. Note also that
 pyvista's `mesh.sample(cloud)` is BACKWARDS; you want
@@ -1176,7 +1178,7 @@ extract at the probe points, and fit the order against the analytic values. If
 that path does not itself converge at the rate you are about to claim, the
 extraction is your defect and not the solver. Reading nodal values
 will not do it, and this step is needed once per side per level -- it is the
-last thing between a converged coupling and a scored submission, and it is
+last thing between a converged coupling and a result that counts, and it is
 where runs that had already solved the problem have run out of time.
 
 The call, per backend, verified 2026-08-30 on the installed versions against a
@@ -1207,9 +1209,9 @@ GridFunction is then called on -- it is not `gfu(px, py)`.
 
 A point that no cell covers does not raise: dolfinx returns an empty link
 list, and an interpolant asked outside its mesh will happily extrapolate. If
-your subdomain does not contain the whole probe grid -- and in a coupled cell
-it does not, each side owns part of it -- select the points inside YOUR extent
-before evaluating, and write only those rows.
+your subdomain does not contain the whole probe grid -- and in a coupled
+problem it does not, each side owns part of it -- select the points inside
+YOUR extent before evaluating, and write only those rows.
 """
 
 
@@ -1219,7 +1221,7 @@ BUILDING A deal.II PARTICIPANT
 deal.II has no Python API, so its participant is a compiled executable, and
 21% of the coupled runs that gave up named compiling as the blocker. This is
 the whole recipe; it was verified end to end on this install (cmake, make,
-run, NDOF = 289).
+run, 289 DOFs).
 
 CMakeLists.txt, six lines, next to your participant.cc:
 
@@ -1266,29 +1268,30 @@ a failure.
 Pass the task's absolute output path in the call:
 
   couple(...,
-       history_path="<absolute workdir>/residual_level1.csv")
+       history_path="<absolute path of the per-level residual-history file your task names>")
 
 OASiS writes `iteration,interface_residual` atomically from the values the
 driver measured and omits the non-finite first sentinel. The response reports
 `history_file.path`, `rows_written`, `nonfinite_omitted`, and
 `driver_iterations`; inspect those instead of copying an array out of chat
-text. Use `driver_iterations` for the task's COUPLING_ITERATIONS field. The CSV
-normally has one fewer row because iteration 1 has no previous iterate and no
-defined residual.
+text. Use `driver_iterations` wherever your task asks for the iteration count.
+The CSV normally has one fewer row because iteration 1 has no previous iterate
+and no defined residual.
 
 If you omit `history_path`, filter to finite measured entries yourself. A
-leading NaN is now treated by the grader as OASiS bookkeeping rather than as
-fabrication, and an iteration-count mismatch is recorded as a discrepancy, not
-an accusation. Neither repair makes a hand-written history acceptable.
+leading NaN reads to an independent check as OASiS bookkeeping rather than as
+fabrication, and an iteration-count mismatch reads as a discrepancy, not an
+accusation. Neither allowance makes a hand-written history acceptable.
 """
 
 
 _RESIDUAL_IS_A_RECORD = """
 THE RESIDUAL HISTORY IS A RECORDING, NOT A REPORT YOU COMPOSE
 ─────────────────────────────────────────────────────────────
-`residual_level<k>.csv` must contain the interface residual your iteration
-actually produced. Give that path to `couple`, which writes its own telemetry;
-do not compose a replacement at the end of a run that did not converge.
+The per-level residual-history file your task names must contain the interface
+residual your iteration actually produced. Give that path to `couple`, which
+writes its own telemetry; do not compose a replacement at the end of a run
+that did not converge.
 
 IT IS CHECKED CONSERVATIVELY. A linear partitioned iteration may legitimately
 settle to an almost constant asymptotic ratio, so smooth decay is not evidence
@@ -1309,7 +1312,7 @@ order. The history it composed is what made it a fabrication rather than an
 honest near-miss.
 
 IF YOU DID NOT CONVERGE, SAY SO. A history that stalls, or stops above the
-prescribed tolerance, is a result: it is graded as an incomplete or unphysical
+prescribed tolerance, is a result: it is read as an incomplete or unphysical
 run, not as a forgery, and an honest short history costs you far less than a
 tidy invented one. Write the rows you have.
 """
@@ -1670,10 +1673,10 @@ _FAILURE_ROWS: list[dict] = [
                  "participant that many times on the SAME imports, measures the "
                  "residual between independent replicates, and judges "
                  "convergence against max(tol, that floor) over a block mean. "
-                 "It returns `noise_floor`, and ANY tolerance you or a grader "
-                 "then apply must be at least that floor. A floor measured as "
-                 "exactly zero on a Monte-Carlo code means the SEED IS FIXED: "
-                 "the run is repeatable, not converged.",
+                 "It returns `noise_floor`, and ANY tolerance you or whoever "
+                 "judges the run then apply must be at least that floor. A "
+                 "floor measured as exactly zero on a Monte-Carlo code means "
+                 "the SEED IS FIXED: the run is repeatable, not converged.",
         "observations": ["the residual stops falling and stays there",
                          "the residual plateaus",
                          "it never converges no matter how many iterations",
@@ -2025,7 +2028,7 @@ def _index(names: list[str]) -> str:
     return f'''\
 ## 8. PER-BACKEND PARTICIPANT SCRIPTS — one call each, complete and runnable
 
-Each of these returns a COMPLETE participant script for that backend plus the
+Each of these returns the participant CONTRACT for that backend (solve elided) plus the
 traps specific to it. Copy it into the participant's `work_dir`, edit the
 marked block, run it once by hand, then call `couple`.
 
@@ -2112,7 +2115,7 @@ def _transient_block(script_name: str) -> str:
     """The time-dependent participant, when one ships for this backend.
 
     Every participant in the corpus used to be STEADY, and the word
-    "transient" appeared nowhere in the core coupling text. A coupled cell
+    "transient" appeared nowhere in the core coupling text. A coupled problem
     with time-dependent physics therefore had no starting point at all.
     """
     p = _PARTICIPANT_DIR / f"participant_{script_name}_transient.py"
@@ -2149,14 +2152,14 @@ def _role_block(script_name: str) -> str:
     A backend's payload used to carry exactly one script. Where that script
     implements only one side — Kratos shipped the Dirichlet side and nothing
     else — an agent handed the opposite role got prose and had to write the
-    participant itself. Two coupled cells of round 1 needed Kratos on the
-    Neumann side; both failed.
+    participant itself. Two coupled problems in the development runs needed
+    Kratos on the Neumann side; both failed.
     """
     p = _PARTICIPANT_DIR / f"participant_{script_name}_neumann.py"
     if not p.is_file():
         return ""
     return (
-        "\n## THE NEUMANN-SIDE PARTICIPANT — a separate, complete script\n\n"
+        "\n## THE NEUMANN-SIDE PARTICIPANT — a separate contract for the other role (solve elided)\n\n"
         "The script above is the DIRICHLET side: it imports the partner's "
         "`values`, fixes them, and exports the consistent reaction flux. This "
         "one is the other half: it imports the partner's `normal_fluxes`, "
@@ -2174,8 +2177,8 @@ def _vector_block(script_name: str) -> str:
     payload only ever carried the scalar heat script, so an agent asked to
     couple ELASTICITY was handed a temperature participant and one line of
     prose ("replace temperature with displacement, flux with traction"). Four
-    coupled cells of round 1 are vector problems; the agents rewrote from
-    scratch and ran out of budget.
+    coupled problems in the development runs were vector problems; the agents
+    rewrote from scratch and ran out of budget.
 
     Appended automatically wherever the file exists, so adding a backend's
     vector participant to the directory is enough to serve it.
@@ -2200,18 +2203,21 @@ def _vector_block(script_name: str) -> str:
 
 def _payload(title: str, sides: str, script_name: str, launch: str,
              traps: str, extra: str = "") -> str:
-    return ("## Retrieve the complete tested script without truncation\n\n"
+    return ("## If your client truncates long replies: fetch this contract in parts\n\n"
       f"Call `knowledge(topic='coupling', solver='{script_name}', "
       "signal='participant:part1')`, then request each next part named "
       "in that response and concatenate only the fenced code contents "
       "in order. For another role insert it before the part, for example "
-      "`signal='participant:neumann:part1'`. The final response gives "
-      "the SHA-256 of the exact tested file.\n\n"
+      "`signal='participant:neumann:part1'`. The parts are the same "
+      "contract as below, solve elided; there is no complete program to "
+      "reconstruct.\n\n"
       f"# Coupling participant: {title}\n\n"
             f"## Sides this backend can take\n\n{sides}\n\n"
             f"{_RECAP}\n"
-            f"## COMPLETE PARTICIPANT SCRIPT — copy verbatim, edit the marked "
-            f"block only\n\n```python\n{_script(script_name)}```\n\n"
+            f"## PARTICIPANT CONTRACT — the handshake, the interface sign "
+            f"convention, the flux recovery and the exports schema. The solve "
+            f"is elided: keep this as given, edit the marked block, and write "
+            f"the solve where the banner sits\n\n```python\n{_script(script_name)}```\n\n"
             f"## Launching it\n\n{launch}\n"
             f"## {title}-specific traps\n\n{traps}\n{extra}"
             f"{_role_block(script_name)}"
@@ -2481,8 +2487,8 @@ def _fenics() -> str:
   ends (0.93), 0.50 in rms, and does not converge at all in the max norm that
   includes the near-end nodes, where it stalls at 2.6 against a true flux of
   size 2 to 5 — order ~1 is simply what a P1 gradient evaluated ON a boundary
-  is worth. The recovery, not the physics and not the partner, sets the graded
-  order on a coupled task.
+  is worth. The recovery, not the physics and not the partner, sets the
+  observed order on a coupled task.
 * DO NOT VERIFY THE RECOVERY BY HANDING THE NEUMANN SIDE A FLUX AND ASKING FOR
   IT BACK. On that side `A u = b_vol + M_Gamma g`, so the free interface rows
   give `r = A u - b_vol = M_Gamma g` IDENTICALLY and the export is just
@@ -2707,10 +2713,11 @@ json.dump({"field_name": "u", "coordinates": co, "values": vals,
           open("exports.json", "w"))
 # PER-LEVEL PERSISTENCE. Each mesh level writes its OWN field file named by the
 # config level, so levels 1->2->3 leave THREE files instead of the finest
-# overwriting the coarse ones. Build solution_level<k>_<side>.csv from THESE
-# (interpolated to the task's probe points), NEVER from one output the next
-# level overwrites -- that overwrite is the top cause of identical-across-levels
-# runs whose three levels were byte-identical.
+# overwriting the coarse ones. Build the per-level field file for each side,
+# named as your task prescribes, from THESE (interpolated to the task's probe
+# points), NEVER from one output the next level overwrites -- that overwrite is
+# the top cause of identical-across-levels runs whose three levels were
+# byte-identical.
 _LVL = CFG.get("level", "X")
 with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\\n")
@@ -2888,9 +2895,9 @@ def _fsi() -> str:
         "interface is a material surface, so that parametrisation is fixed; "
         "sending deformed coordinates makes each side interpolate against "
         "something that moves with the answer.\n\n"
-        "## THE FLUID PARTICIPANT — copy verbatim, edit the marked block only\n\n"
+        "## THE FLUID PARTICIPANT — contract, solve elided; edit the marked block and write the solve\n\n"
         f"```python\n{_script('fsi_fluid_fenics')}```\n\n"
-        "## THE STRUCTURE PARTICIPANT — copy verbatim, edit the marked block only\n\n"
+        "## THE STRUCTURE PARTICIPANT — contract, solve elided; edit the marked block and write the solve\n\n"
         f"```python\n{_script('fsi_solid_skfem')}```\n\n"
         "TWO MORE STRUCTURE PARTICIPANTS ship with the same contract, and both "
         "have been run as real coupled FSI on this install: "
@@ -2997,7 +3004,11 @@ def _participant_chunks(text: str, limit: int = 9000) -> list[str]:
 
 
 def coupling_participant(solver: str, request: str = "") -> str:
-  """Return one bounded chunk of a complete tested participant."""
+  """Return one bounded chunk of a participant CONTRACT (solve elided).
+
+  Every door that hands out a participant passes through `_serve_participant`,
+  this one included: the chunks are cut from the ELIDED text, so no part and
+  no concatenation of parts ever contains a marked SOLVE region."""
   import hashlib
   import re
 
@@ -3030,7 +3041,7 @@ def coupling_participant(solver: str, request: str = "") -> str:
             f"Available variants: {', '.join(available) or 'none'}.")
 
   label = labels.get(suffix.lstrip("_"), "base")
-  source = path.read_text()
+  source = _serve_participant(path)
   chunks = _participant_chunks(source)
   match = re.search(r"(?:^|:)part(\d+)(?:$|:)", requested)
   part = int(match.group(1)) if match else 1
@@ -3046,11 +3057,14 @@ def coupling_participant(solver: str, request: str = "") -> str:
       f"`signal='participant{role}:part{part + 1}'`. ")
   else:
     digest = hashlib.sha256(source.encode()).hexdigest()
-    next_call = f"\nFINAL PART. Reconstructed file SHA-256: `{digest}`. "
+    next_call = (f"\nFINAL PART. SHA-256 of the served contract text: `{digest}`. "
+                 "It is the contract with the solve elided, not a complete "
+                 "program: write the solve where the elision banner sits. ")
   return (
-    f"# Tested {key} {label} participant: part {part} of {len(chunks)}\n\n"
+    f"# {key} {label} participant CONTRACT (solve elided): part {part} of {len(chunks)}\n\n"
     "Concatenate only the fenced code contents in part order; do not add "
-    "the headings. Edit only `EDIT THIS BLOCK` after reconstruction.\n\n"
+    "the headings. Then edit `EDIT THIS BLOCK` and write the solve where the "
+    "elision banner sits.\n\n"
     f"```python\n{chunks[part - 1]}```\n{next_call}\n")
 
 
@@ -3621,7 +3635,7 @@ import precice                       # only now
     window is the honest choice; if you use implicit, set the tolerance above
     the sampling noise and say so. `couple_precice` reports an explicit scheme
     as UNMEASURED rather than converged, which is the right verdict here — so
-    grade a DSMC coupling on its fixed point against standalone runs at the
+    judge a DSMC coupling on its fixed point against standalone runs at the
     same wall temperature, not on anything the orchestrator returns.
   * USE A NEW SEED EACH WINDOW. With a fixed seed the run is bit-reproducible
     and a fixed-point iteration can look converged when only the RNG is
@@ -3810,9 +3824,10 @@ def _kratos() -> str:
         "Kratos is not importable where OASiS runs here, so its participant was "
         "proven in a separate Kratos install: both the Dirichlet and the "
         "Neumann role were run against FEniCSx and both converged with "
-        "non-matching interface meshes. The script below is the DIRICHLET side; "
-        "the Neumann side is the same script with the interface condition "
-        "changed, described under the traps.",
+        "non-matching interface meshes. The contract below is the DIRICHLET side; "
+        "the NEUMANN-side contract follows further down under THE "
+        "NEUMANN-SIDE PARTICIPANT, and the trap that decides that role is "
+        "listed under the traps.",
         "kratos", _launch_py(step2=_STEP2_KRATOS),
         '''\
 * CHECK THE INSTALL FIRST, IT IS THE USUAL FAILURE. `import KratosMultiphysics`
@@ -3834,9 +3849,18 @@ def _kratos() -> str:
 * DIRICHLET SIDE (this script): write the imported temperature into each
   interface node and `node.Fix(TEMPERATURE)`.
   NEUMANN SIDE: do NOT fix the interface nodes; instead set `FACE_HEAT_FLUX` on
-  them from the partner's exported `normal_fluxes` and create the interface
-  `ThermalFace` conditions so that flux is assembled. Everything else, the
-  mesh, the material and the export, is unchanged.
+  them from the partner's exported `normal_fluxes` AND create one interface
+  flux condition per interface edge, corners included (`FluxCondition2D2N`,
+  or `ThermalFace2D2N`, through `mp.CreateNewCondition(name, id, [n1, n2],
+  props)` -- by NAME through the factory, never as a Python attribute). A
+  nodal FACE_HEAT_FLUX is only ever integrated BY a condition: with none,
+  Kratos runs, converges, exits 0 and returns exactly the no-flux field
+  (measured on one mesh: max|T| 2.307291e-03 with the flux on the nodes and
+  no condition, identical to the zero-flux run, against 3.605675e-03 with
+  the conditions). Check it in one step: solve once with the imported flux
+  zeroed and once with it real; if the two fields match, the load never
+  arrived. Everything else, the mesh, the material and the export, is
+  unchanged.
 * Kratos also ships a CoSimulation application. That is Kratos's own internal
   multi-physics coupling, unrelated to `couple`; do not mix the two.
 * If a participant needs a `params.json` or any other file, stage it into
@@ -4003,7 +4027,7 @@ def trace(t):
 #
 # is the consistent outward flux density at interface node i. It is mesh- and
 # material-agnostic -- the same expression the Dirichlet and Neumann sides both
-# use, and exactly what the verification gate grades; keep the P1 consistent load
+# use, and exactly what the interface check compares; keep the P1 consistent load
 # or the recovery loses an order (a projected -k grad(u) on the boundary is only
 # order ~1 there).
 #
@@ -4031,8 +4055,9 @@ json.dump({"field_name": "u", "coordinates": co_out, "values": [],
           open("exports.json", "w"))
 # PER-LEVEL PERSISTENCE. Each level writes its own field file (named by the
 # config level) so the coarse levels are not overwritten by the finest. Assemble
-# solution_level<k>_<side>.csv from THESE per-level files (interpolated to the
-# task's probe points), never from one output the next level overwrites.
+# the per-level field file for each side, named as your task prescribes, from
+# THESE per-level files (interpolated to the task's probe points), never from
+# one output the next level overwrites.
 _LVL = CFG.get("level", "X")
 with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\\n")
@@ -4075,10 +4100,11 @@ def _dealii_sources() -> str:
     THE FAILURE THIS MUST NOT REINTRODUCE. Ten passages once promised the
     sources were "in the same directory the payload came from". A payload comes
     from a tool call; there is no directory, and no tool returned the source.
-    Measured in a round-1 transcript: the agent hunted the filesystem, found a
-    scalar solver, discovered it could not do its anisotropic case, hand-wrote
-    a replacement, segfaulted and spent the session there. So this says plainly
-    that writing the solver is the agent's job, and promises nothing.
+    Measured in one development run's transcript: the agent hunted the
+    filesystem, found a scalar solver, discovered it could not do its
+    anisotropic case, hand-wrote a replacement, segfaulted and spent the
+    session there. So this says plainly that writing the solver is the agent's
+    job, and promises nothing.
     """
     return (
         "\n## THE C++ SOLVER IS YOURS TO WRITE\n\n"
@@ -4095,10 +4121,10 @@ def _dealii_sources() -> str:
         "two lines against a matrix you assembled without constraints "
         "(`free_matrix.vmult(residual, solution); residual -= free_rhs;`), and "
         "it is the same recovery every backend in this corpus uses. It is also "
-        "what the verification gate grades: a boundary-gradient projection is "
+        "what the interface check compares: a boundary-gradient projection is "
         "only order ~1 on the boundary trace and does not converge at all in "
-        "the max norm the gate reads, so a solver that recovers the flux that "
-        "way will be marked wrong however good its field is.\n\n"
+        "the max norm, so a solver that recovers the flux that way will fail "
+        "an independent check however good its field is.\n\n"
         "The solver and the wrapper exchange plain text on argv and files of "
         "your own choosing — that pair is private to you, and nothing in the "
         "coupling contract constrains it.\n")

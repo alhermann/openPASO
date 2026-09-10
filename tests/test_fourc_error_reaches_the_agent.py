@@ -154,7 +154,7 @@ class TestTheServedKnowledgeSaysIt(unittest.TestCase):
     def test_it_tells_the_agent_to_self_test_before_blaming_the_tool(self):
         import tools.knowledge as K
         self.assertIn("--help", K._UNIVERSAL)
-        self.assertIn("COULD_NOT_COMPLETE", K._UNIVERSAL)
+        self.assertIn("could-not-finish", K._UNIVERSAL)
 
 
 @unittest.skipUnless(FOURC.is_file(), "4C binary not present on this machine")

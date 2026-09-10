@@ -135,19 +135,25 @@ def test_an_unsignalled_request_is_unchanged(knowledge_tool):
     ("fourc", "", "participant_fourc.py"),
     ("kratos", ":neumann", "participant_kratos_neumann.py"),
 ])
-def test_participant_escape_hatch_reconstructs_complete_tested_file(
+def test_participant_escape_hatch_reconstructs_the_elided_contract(
         solver, role, filename, knowledge_tool):
-    import hashlib
+    """The parts route exists for clients that truncate long replies. It used
+    to read the file raw and hand over the SHA-256 of the complete tested
+    program in the last part -- a solver hand-over door beside the elided one.
+    The parts must reassemble to exactly what the elided route serves, and to
+    nothing more."""
     import re
+    from tools.coupling_knowledge import _serve_participant, _SOLVE_BEGIN, _SOLVE_END
 
-    source = (ROOT / "data" / "coupling_participants" / filename).read_text()
+    path = ROOT / "data" / "coupling_participants" / filename
+    source = path.read_text()
     chunks = []
     final = ""
     for part in range(1, 10):
         out = knowledge_tool(
             topic="coupling", solver=solver,
             signal=f"participant{role}:part{part}")
-        marker = f"participant: part {part} of"
+        marker = f"participant CONTRACT (solve elided): part {part} of"
         start = out.index(marker)
         match = re.search(r"```python\n(.*?)```", out[start:], re.S)
         assert match, f"{solver} part {part} has no fenced source"
@@ -157,8 +163,20 @@ def test_participant_escape_hatch_reconstructs_complete_tested_file(
             final = out
             break
 
-    assert "".join(chunks) == source
-    assert hashlib.sha256(source.encode()).hexdigest() in final
+    joined = "".join(chunks)
+    assert joined == _serve_participant(path)
+    assert joined != source, "the parts reassemble to the complete tested file"
+    # every marked SOLVE region of the source is absent from the reassembly
+    i = 0
+    while True:
+        a = source.find(_SOLVE_BEGIN, i)
+        if a < 0:
+            break
+        b = source.find(_SOLVE_END, a)
+        body = source[a + len(_SOLVE_BEGIN):b].strip()
+        assert body and body not in joined, f"{filename}: a SOLVE region came back"
+        i = b + len(_SOLVE_END)
+    assert "exact tested file" not in final and "complete tested" not in final
 
 
 def test_unsignalled_backend_reply_names_complete_script_route(knowledge_tool):

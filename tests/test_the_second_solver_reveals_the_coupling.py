@@ -49,7 +49,7 @@ def test_the_second_different_solver_carries_the_must_read():
     r1 = prep("fourc", "heat")
     assert "couple(participants=" not in r1, "served before the signature"
     r2 = prep("kratos", "heat")
-    for s in ("couple(participants=", "GRADED ON THE FIELDS",
+    for s in ("couple(participants=", "THE FIELDS ARE THE RESULT",
               "MEASURED, NOT MODELLED", "If your task couples them"):
         assert s in r2, s
     # the call's own payload is not displaced

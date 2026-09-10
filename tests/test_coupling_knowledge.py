@@ -148,21 +148,50 @@ def test_participant_script_parses_and_is_complete(name):
         assert re.search(r"^SIDE\b", text, re.M), f"{name}: no SIDE constant"
 
 
+def _solve_bodies(text: str) -> list[str]:
+    """The marked SOLVE regions of a participant file, body text only."""
+    from tools.coupling_knowledge import _SOLVE_BEGIN, _SOLVE_END
+    out, i = [], 0
+    while True:
+        a = text.find(_SOLVE_BEGIN, i)
+        if a < 0:
+            return out
+        b = text.find(_SOLVE_END, a)
+        body = text[a + len(_SOLVE_BEGIN):b if b >= 0 else len(text)]
+        if body.strip():
+            out.append(body)
+        if b < 0:
+            return out
+        i = b + len(_SOLVE_END)
+
+
 @pytest.mark.parametrize("name", _script_backends())
-def test_served_payload_is_the_complete_tested_participant(name):
-    """Serving and execution use one generic, parameterised source file."""
-    from tools.coupling_knowledge import _script
+def test_served_payload_is_the_elided_contract_of_the_tested_participant(name):
+    """Serving and execution use ONE source file, and serving elides its SOLVE.
+
+    What the agent receives is the tested file minus every marked SOLVE
+    region -- the handshake, the sign convention, the flux recovery and the
+    exports schema survive; the mesh, form, material, source and solve do not.
+    """
+    from tools.coupling_knowledge import _script, _serve_participant
     served = coupling_knowledge(name)
     path = _PARTICIPANT_DIR / f"participant_{name}.py"
     text = path.read_text()
     assert "```python" in served
 
     excerpt = _script(name)
-    assert excerpt == text
+    assert excerpt == _serve_participant(path)
     assert excerpt in served, (
         f"solver='{name}': the payload does not contain what _script() "
-        f"returns — the served path and the tested file have diverged")
+        f"returns -- the served path and the tested file have diverged")
+    assert excerpt != text, f"solver='{name}': nothing was elided"
+    bodies = _solve_bodies(text)
+    assert bodies, f"{path.name} has no marked SOLVE region"
+    for body in bodies:
+        assert body.strip() not in served, (
+            f"solver='{name}': a marked SOLVE region reached the agent")
     assert "EDIT THIS BLOCK" in excerpt and "PLACEHOLDER" in excerpt
+    assert "imports.json" in excerpt and "exports.json" in excerpt
 
 
 # ── EVERY file a served payload reaches, not a list of nine names ────────
@@ -240,17 +269,55 @@ def test_the_door_sweep_reaches_more_than_the_backend_names():
 
 
 @pytest.mark.parametrize("fname", _REACHED)
-def test_every_reached_participant_is_served_complete_and_verbatim(fname):
-    """The agent receives the same complete participant that tests execute."""
+def test_every_reached_participant_is_served_with_its_solve_elided(fname):
+    """No door hands the agent a marked SOLVE region, and none hands over the
+    file verbatim; the contract around the hole is what gets served."""
     text = (_PARTICIPANT_DIR / fname).read_text()
-    assert text in "\n".join(_SERVED_PAYLOADS), (
-        f"{fname}: the tested participant file is not present verbatim in any "
-        "served payload; serving and execution have drifted")
-    assert "THE SOLVE ITSELF IS YOURS" not in "\n".join(_SERVED_PAYLOADS)
+    served_all = "\n".join(_SERVED_PAYLOADS)
+    assert text not in served_all, (
+        f"{fname}: the tested participant file is served verbatim, solve "
+        "included -- a door has bypassed the elision")
+    bodies = _solve_bodies(text)
+    assert bodies, f"{fname} has no marked SOLVE region"
+    for body in bodies:
+        assert body.strip() not in served_all, (
+            f"{fname}: a marked SOLVE region reached the agent")
+
+
+def test_the_parts_door_serves_the_same_elided_contract():
+    """`signal='participant[:role]:partN'` exists for clients that truncate
+    long replies. It used to read the file raw and hand the SHA-256 of the
+    complete tested program over in the last part -- a solver hand-over door
+    beside the elided one. The parts must reassemble to the ELIDED text."""
+    from tools.coupling_knowledge import _serve_participant
+    for name in _script_backends():
+        for role in ("", ":neumann", ":elastic", ":transient", ":3d"):
+            suffix = role.replace(":", "_")
+            path = _PARTICIPANT_DIR / f"participant_{name}{suffix}.py"
+            if not path.is_file():
+                continue
+            parts, k = [], 1
+            while True:
+                out = coupling_knowledge(name, f"participant{role}:part{k}")
+                m = re.search(r"```python\n(.*?)```", out, re.S)
+                assert m, f"{name}{role} part {k}: no fenced block: {out[:120]}"
+                parts.append(m.group(1))
+                if "FINAL PART" in out:
+                    break
+                k += 1
+                assert k < 40, f"{name}{role}: no FINAL PART after {k} parts"
+            joined = "".join(parts)
+            assert joined == _serve_participant(path), (
+                f"{name}{role}: the parts do not reassemble to the elided "
+                "contract")
+            for body in _solve_bodies(path.read_text()):
+                assert body.strip() not in joined, (
+                    f"{name}{role}: the parts door served a SOLVE region")
+            assert "exact tested file" not in out and "complete tested" not in out
 
 
 def test_every_shipped_participant_keeps_balanced_region_markers():
-    """Markers remain useful for source review even though serving is complete."""
+    """The markers are what the elision cuts on, so every file needs them."""
     from tools.coupling_knowledge import _SOLVE_BEGIN, _SOLVE_END
     missing = []
     for p in sorted(_PARTICIPANT_DIR.glob("participant_*.py")):

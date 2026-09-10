@@ -35,6 +35,7 @@ def test_no_deadline_means_no_note():
     """Nothing is stamped outside a measured run."""
     import agent as A
     A._DEADLINE = None
+    A._ACTIONS_USED = 0        # other tests in the session drive tools; isolate
     assert A._time_left_note() == ""
 
 

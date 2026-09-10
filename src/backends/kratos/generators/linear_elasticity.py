@@ -13,7 +13,7 @@ def _elasticity_2d_kratos(params: dict) -> str:
 
     The previous body emitted a numpy/scipy assembly whose own first line read
     "Linear elasticity: rectangular domain, fixed left - Kratos (manual
-    assembly)" and which never imported KratosMultiphysics. A submission from
+    assembly)" and which never imported KratosMultiphysics. A result from
     it cannot be attributed to Kratos, which fails any task that names the
     code -- and every coupled task does. See _structural_real for the API
     facts, each of which was a corrected first guess.

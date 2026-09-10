@@ -14,7 +14,7 @@ DESIGN RULES LEARNED THE HARD WAY
    an agent pre-empt the genuine result with a decoy, and misread honest
    transient runs by attesting the initial condition.
 3. NEVER SUBSTITUTE SILENTLY. Falling back to "some other field" when the
-   requested one is absent let a helper array be graded as the solution.
+   requested one is absent let a helper array be read as the solution.
 4. A BOUNDING BOX IS NOT COVERAGE. Two slivers at opposite corners span the box
    while meshing 0.5% of it; one dangling node reopens the hole entirely.
 5. SATISFYING THE EQUATIONS IS THE ONLY REAL DISCRIMINATOR. A field can be more
@@ -87,7 +87,7 @@ def check_mesh_sanity(points, cells, *, dim: int,
            if (dim == 2 and n.startswith("triangle"))
            or (dim == 3 and n.startswith("tetra"))]
     if not top:
-        return v.refuse(f"no {dim}D cells: the submission is not a mesh of the domain")
+        return v.refuse(f"no {dim}D cells: what was delivered is not a mesh of the domain")
 
     conn = np.vstack([a for _, a in top])
     if conn.max() >= p.shape[0] or conn.min() < 0:
@@ -164,10 +164,10 @@ def check_field_sanity(values, *, n_points: int) -> GateVerdict:
 
 
 def select_field(fields: dict, requested: str) -> tuple[str | None, str]:
-    """Never substitute silently, never grade a metadata array.
+    """Never substitute silently, never read a metadata array as the solution.
 
     Forgeries this blocks: asking for 'error' and being given a helper array;
-    a file whose first array is vtkGhostType being graded as the solution.
+    a file whose first array is vtkGhostType being read as the solution.
     """
     usable = {k: v for k, v in fields.items() if not k.lower().startswith("vtk")}
     if requested:
@@ -186,7 +186,7 @@ def select_artefact(candidates: list[Path], explicit: Path | None) -> tuple[Path
 
     Forgeries this blocks: a decoy named to sort first pre-empting the genuine
     solution. Also fixes an honest-run bug: a numbered time series sorts with
-    the initial condition first, so the gate graded t=0 instead of the result.
+    the initial condition first, so the gate checked t=0 instead of the result.
     """
     if explicit is not None:
         return (explicit, "ok") if explicit.is_file() else (None, f"{explicit} not found")
@@ -222,7 +222,7 @@ def check_probe_coverage(points, cells, probe_points, *, dim: int) -> GateVerdic
             outside.append(q.tolist())
     if outside:
         return v.refuse(
-            f"{len(outside)} probe point(s) lie in no cell of the submitted mesh "
+            f"{len(outside)} probe point(s) lie in no cell of the delivered mesh "
             f"(e.g. {outside[0]}): the mesh does not cover where the result is "
             f"claimed")
     return v
@@ -244,9 +244,9 @@ def _in_any_cell(q, verts, dim, tol=1e-9):
 # ── general-purpose entry point for the verification gate ─────────────────
 # Deliberately CONSERVATIVE. The strict checks above (domain measure, interior
 # nodes, unreferenced points, probe coverage) require knowing the problem, so
-# they belong to a grader that has the problem statement. What is wired into
-# the run tools must never refuse an honest run from an unknown solver, so only
-# unambiguous defects are reported here:
+# they belong to an independent check that has the problem statement. What is
+# wired into the run tools must never refuse an honest run from an unknown
+# solver, so only unambiguous defects are reported here:
 #   * a field containing non-finite values, at ANY node (the existing gate
 #     scanned only summary headline numbers and the mesh file, so a field that
 #     was mostly NaN could still be stamped verified);
@@ -306,7 +306,7 @@ def degenerate_cell_fraction(points, cells, *, dim: int) -> float | None:
     """Fraction of top-dimensional cells with (near) zero measure.
 
     Independent of check_mesh_sanity's early-return chain, so a degenerate mesh
-    is detected even when the submission has other defects too.
+    is detected even when the mesh has other defects too.
     """
     p = np.asarray(points, float)
     arrs = [a for n, a in _cell_arrays(cells)

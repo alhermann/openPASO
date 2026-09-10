@@ -1,29 +1,29 @@
 """audit_results — self-consistency checks on the agent's own output files.
 
-THE MEASURED FAILURE MODE (round 5, 53 OASiS runs):
+THE MEASURED FAILURE MODE (53 development runs with OASiS):
   * 53/53 read the knowledge; the advice channel works.
   * 51/53 execute solvers through run_bash. The verification machinery —
     residual checks in run_simulation, the critic gate, the new unsaved-work
     notice, verify_mesh_independence (used by 0/53) — hangs off tools the
     agents do not use. Every check we built sits on a road they do not drive.
-  * Result: 37/54 submit a complete answer, and most are WRONG in ways visible
-    without any answer key: FB1/FB2's errors sit FLAT at ~5e-7 across all
+  * Result: 37/54 deliver a complete answer, and most are WRONG in ways visible
+    without any answer key: two runs' errors sit FLAT at ~5e-7 across all
     levels (solver tolerance floor — the task even says "converge to 1e-10"),
-    FE2 converges at order 2 on a task that states order 3 (locking: the agent
-    WROTE "mixed formulation" in its own header, built the mixed space, then
-    assembled the plain form and solved that).
+    one run converges at order 2 on a task that states order 3 (locking: the
+    agent WROTE "mixed formulation" in its own header, built the mixed space,
+    then assembled the plain form and solved that).
 
 So the failure is not ignorance and not stubbornness: the agent reads, agrees,
 writes the plan in its own comments — and nothing in the loop ever makes it
 LOOK at whether what it produced matches what it planned. The critic reviews
-the SETUP before the run. The grader reviews the ANSWER after submission,
-against sealed truth. Nothing reviews the RESULT in between, and the agent
-cannot see the sealed key, so it cannot check itself against truth even if it
-tries.
+the SETUP before the run. An independent check reviews the ANSWER after
+delivery, against sealed truth. Nothing reviews the RESULT in between, and
+the agent cannot see the sealed key, so it cannot check itself against truth
+even if it tries.
 
 THIS check needs no truth. It reads only what the agent itself produced —
 error/QoI sequences per level — and answers three questions any numerate
-reviewer would ask before submitting:
+reviewer would ask before delivering:
   1. Do successive levels actually approach each other? (self-convergence,
      no exact solution needed)
   2. At what observed order — and does that match the order you are about to
@@ -43,23 +43,152 @@ import re
 from pathlib import Path
 
 # Directories OASiS itself creates. A stale zero-valued probe file in one of
-# these once produced a NEAR-ZERO FIELD finding on CORRECT work, in the
-# measured arm only, which is why the search is filtered rather than naive.
+# these once produced a NEAR-ZERO FIELD finding on verified-correct work, and
+# only in runs that went through OASiS, which is why the search is filtered
+# rather than naive.
 _SCRATCH = {"simulation_outputs", "coupling", "meshes", "benchmark_results",
             ".git", "__pycache__", "runs", "runs_quarantine"}
 
 
 
+# ── DELIVERABLE DISCOVERY WITHOUT A NAMING SCHEME ────────────────────────────
+#
+# A refinement study leaves level-indexed files behind,
+# <kind>_level<k>[_<side>].<ext>, and the KIND is whatever the task told the
+# agent to call them. Nothing here knows a task's names: the kind is read from
+# the agent's own files and each file is classified by what it holds (a
+# residual history, an interface trace, a field on probe points, a captured run
+# log), so every check below works for any naming a task prescribes.
+_LEVEL_FILE = re.compile(
+    r"^(?P<kind>[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*?)_level(?P<k>\d+)"
+    r"(?:_(?P<side>[A-Za-z0-9]+))?\.(?P<ext>[A-Za-z0-9]+)$")
+
+
+def _level_files(work: Path, ext: str = "csv") -> list:
+    """(path, kind, level, side) for every level-indexed file with that
+    extension, outside OASiS's own scratch directories."""
+    out = []
+    for q in work.rglob(f"*level*.{ext}"):
+        if not q.is_file():
+            continue
+        try:
+            if _SCRATCH & set(q.relative_to(work).parts[:-1]):
+                continue
+        except ValueError:
+            continue
+        m = _LEVEL_FILE.match(q.name)
+        if not m or m.group("ext").lower() != ext.lower():
+            continue
+        out.append((q, m.group("kind").lower(), int(m.group("k")),
+                    m.group("side") or ""))
+    return sorted(out, key=lambda t: str(t[0]))
+
+
+def _level_of(q: Path):
+    m = _LEVEL_FILE.match(q.name)
+    return int(m.group("k")) if m else None
+
+
+def _side_of(q: Path) -> str:
+    m = _LEVEL_FILE.match(q.name)
+    return (m.group("side") or "") if m else ""
+
+
+def _csv_role(q: Path, kind: str | None = None) -> str:
+    """'history' | 'interface' | 'field' | 'raw' -- from the kind word first,
+    from the file's own header second."""
+    if kind is None:
+        m = _LEVEL_FILE.match(q.name)
+        kind = m.group("kind").lower() if m else ""
+    if kind == "field":
+        return "raw"      # OASiS's own per-participant dump, not a deliverable
+    if any(w in kind for w in ("resid", "hist", "iter", "converg")):
+        return "history"
+    if any(w in kind for w in ("iface", "interface", "seam", "coupl")):
+        return "interface"
+    try:
+        with open(q, errors="ignore") as fh:
+            head = fh.readline().lower()
+    except OSError:
+        return "field"
+    cols = [c.strip().strip('"') for c in head.split(",")]
+    if cols and cols[0].startswith("iter"):
+        return "history"
+    if any(c in ("qn", "q_n", "q", "flux", "normal_flux", "traction", "tn",
+                 "t_n") or c.startswith(("q_", "flux", "traction"))
+           for c in cols):
+        return "interface"
+    return "field"
+
+
+def _history_files(work: Path) -> list:
+    return [q for q, kind, _k, _s in _level_files(work)
+            if _csv_role(q, kind) == "history"]
+
+
+def _field_files(work: Path) -> list:
+    return [q for q, kind, _k, _s in _level_files(work)
+            if _csv_role(q, kind) == "field"]
+
+
+def _interface_files(work: Path, sided: bool = False) -> list:
+    return [q for q, kind, _k, s in _level_files(work)
+            if _csv_role(q, kind) == "interface" and (s or not sided)]
+
+
+def _level_logs(work: Path, k: int | None = None) -> list:
+    return [q for q, _kind, kk, _s in _level_files(work, "log")
+            if k is None or kk == k]
+
+
+# A line stating the number of degrees of freedom, in the spellings solvers
+# and their users actually print.
+_DOF_LINE = re.compile(
+    r"^\s*(?:N_?DOFS?|DOFS?|NUM(?:BER)?_?(?:OF_?)?_?DOFS?|DEGREES OF FREEDOM)"
+    r"\s*[=:]\s*(\d+)\s*$", re.I | re.M)
+
+_SUMMARY_HINT: dict = {}
+
+
+def _summary_file(work: Path, hint=None):
+    """The agent's summary/answer file: the caller's hint when it gave one
+    (the harness knows which file it just saw written), else the shallowest
+    non-empty text file whose name says result, summary, report or answer."""
+    hint = hint or _SUMMARY_HINT.get(str(work))
+    if hint:
+        hp = Path(hint)
+        if hp.is_file():
+            return hp
+    cands = []
+    for q in work.rglob("*"):
+        if not q.is_file() or q.suffix.lower() not in (".txt", ".md", ""):
+            continue
+        try:
+            rel = q.relative_to(work)
+        except ValueError:
+            continue
+        if _SCRATCH & set(rel.parts[:-1]):
+            continue
+        if not re.search(r"result|summary|report|answer", q.stem, re.I):
+            continue
+        try:
+            nonempty = q.stat().st_size > 0
+        except OSError:
+            continue
+        cands.append((0 if nonempty else 1, len(rel.parts), q.name.lower(), q))
+    return min(cands)[3] if cands else None
+
+
 def _sequences_from_workdir(work: Path) -> dict[str, list[float]]:
     """Pull per-level scalar sequences out of whatever the agent wrote.
 
-    Looks for the common shapes seen across five rounds: RESULT.txt fields
-    (ERRORS_UX = a, b, c / L2_ERRORS = ...), per-level csv/json files with a
-    recognisable error/qoi column. Returns {label: [level values]}.
+    Looks for the common shapes seen across the development runs: summary-file
+    fields (ERRORS_UX = a, b, c / L2_ERRORS = ...), per-level csv/json files
+    with a recognisable error/qoi column. Returns {label: [level values]}.
     """
     seqs: dict[str, list[float]] = {}
-    rt = work / "RESULT.txt"
-    if rt.is_file():
+    rt = _summary_file(work)
+    if rt is not None and rt.is_file():
         for line in rt.read_text(errors="replace").splitlines():
             m = re.match(r"\s*([A-Za-z0-9_]+)\s*=\s*(.+)$", line)
             if not m:
@@ -89,12 +218,13 @@ def _sequences_from_workdir(work: Path) -> dict[str, list[float]]:
 def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
     """Self-convergence from per-level CSVs on a common probe grid.
 
-    The submission contract fixes ONE probe grid across levels, so files like
-    solution_level{1,2,3}.csv join on coordinates. With no exact solution the
-    per-level 'value' is the max successive difference per field: |u_l - u_l+1|
-    shrinking at order p is the self-convergence signature of a study
-    converging at order p (Richardson). Also returns each field's finest-level
-    magnitude, because a near-zero field is its own finding.
+    The naming convention a task prescribes fixes ONE probe grid across
+    levels, so files like <kind>_level{1,2,3}.csv join on coordinates. With
+    no exact solution the per-level 'value' is the max successive difference
+    per field: |u_l - u_l+1| shrinking at order p is the self-convergence
+    signature of a study converging at order p (Richardson). Also returns each
+    field's finest-level magnitude, because a near-zero field is its own
+    finding.
     """
     import csv as _csv
     import re as _re
@@ -102,33 +232,35 @@ def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
     # ONE GROUP PER (KIND, SIDE), NOT ONE PER LEVEL NUMBER.
     #
     # This globbed *level{i}*.csv and refused to proceed when more than one
-    # file matched. On a SINGLE-CODE submission that is right. On a COUPLED one
+    # file matched. On a SINGLE-CODE result set that is right. On a COUPLED one
     # every level has five matches — solution_level1_A, solution_level1_B,
     # interface_level1_A, interface_level1_B, residual_level1 — so the audit
     # reported AMBIGUOUS INPUT and found zero sequences. Every check it exists
     # for (near-zero field, tolerance floor, order, monotonicity) was therefore
-    # dead on every coupled cell, which is half the campaign and the half that
-    # scores zero.
+    # dead on every coupled problem, which is half the development runs and
+    # the half that counted for nothing.
     #
-    # Measured on C9 seed 23: the agent submitted three levels of identically
-    # zero displacement, the audit said "ambiguous" instead of "your field is
-    # zero", and the run reached the grader, which scored it FABRICATED_NO_RUN.
-    # The gate had the data and did not look at it.
+    # Measured on one development run: the agent delivered three levels of
+    # identically zero displacement, the audit said "ambiguous" instead of
+    # "your field is zero", and the run reached the independent check, which
+    # read it as fabricated, with no run behind it. The gate had the data and
+    # did not look at it.
     #
-    # The submission contract names the sides, so the grouping is not a guess:
-    # <kind>_level<k>[_<side>].csv. Ambiguity is still refused, but only when
-    # two files claim the SAME (kind, level, side).
+    # The task's naming convention names the sides, so the grouping is not a
+    # guess: <kind>_level<k>[_<side>].csv. Ambiguity is still refused, but only
+    # when two files claim the SAME (kind, level, side).
     _PAT = _re.compile(r"^(?P<kind>[A-Za-z_]+?)_level(?P<k>\d+)"
                        r"(?:_(?P<side>[A-Za-z0-9]+))?\.csv$")
     # RECURSIVE, MINUS OUR OWN SCRATCH. This globbed the TOP LEVEL only,
     # because rglob once picked OASiS's own directories — benchmark_results/,
-    # coupling/, meshes/, simulation_outputs/, all created by the MCP arm and
+    # coupling/, meshes/, simulation_outputs/, all created by OASiS itself and
     # all sorting before solution_*.csv — and a stale zero-valued probe file
-    # there produced a NEAR-ZERO FIELD finding on CORRECT work, in the measured
-    # arm only. The restriction fixed that and introduced a blind spot:
-    # C9 seed 23 wrote its 15 files into level1/, level2/, level3/, and the
-    # audit found ZERO sequences and returned clean=True on a full submission.
-    # Name the directories to skip instead of refusing to descend at all.
+    # there produced a NEAR-ZERO FIELD finding on verified-correct work, and
+    # only in runs that went through OASiS. The restriction fixed that and
+    # introduced a blind spot: one development run wrote its 15 files into
+    # level1/, level2/, level3/, and the audit found ZERO sequences and
+    # returned clean=True on a full result set. Name the directories to skip
+    # instead of refusing to descend at all.
     groups: dict[tuple, dict[int, list]] = {}
     resid_files: list = []
     for q in work.rglob("*level*.csv"):
@@ -143,10 +275,11 @@ def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
         if kind == "field":
             # OASiS's own per-participant raw dump (field_level<k>.csv, one per
             # side's work dir), not a deliverable. Two sides writing the same
-            # name at the same depth read as AMBIGUOUS INPUT on CORRECT work
-            # (measured on the honest C3 rebuild) -- so it is not a sequence.
+            # name at the same depth read as AMBIGUOUS INPUT on verified-correct
+            # work (measured on a real coupled rebuild) -- so it is not a
+            # sequence.
             continue
-        if kind.startswith("residual"):
+        if _csv_role(q, kind) == "history":
             # NOT SKIPPED ANY MORE — see _residual_findings below. It is not a
             # field on a grid, so it does not join the per-level sequences, but
             # it is the single file that decides a third of coupled outcomes
@@ -161,7 +294,7 @@ def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
     # The deliverable belongs in the work dir; a copy deeper down is a
     # byproduct. Every deal.II run keeps one — cmake builds in build/ and the
     # solver writes its CSVs beside the binary — so descending made three
-    # graded-CORRECT runs report AMBIGUOUS INPUT, which is exactly the false
+    # verified-correct runs report AMBIGUOUS INPUT, which is exactly the false
     # alarm the old top-level-only rule was protecting against. Depth decides
     # it without having to enumerate every scratch directory a backend might
     # invent; genuine ambiguity (two files at the SAME depth for one slot) is
@@ -197,10 +330,10 @@ def _one_sequence(by_level: dict, key: tuple, _csv) -> dict[str, list[float]]:
         # TOP LEVEL ONLY. rglob + sorted(cands)[0] picked the
         # lexicographically first PATH, so OASiS's own scratch directories —
         # benchmark_results/, coupling/, meshes/, simulation_outputs/, all
-        # created by the MCP arm and all sorting before solution_*.csv — won
+        # created by OASiS itself and all sorting before solution_*.csv — won
         # over the agent's real output. A stale zero-valued probe file left by
         # a failed first run then produced a NEAR-ZERO FIELD finding on
-        # CORRECT work, in the measured arm only.
+        # verified-correct work, and only in runs that went through OASiS.
         cands = by_level.get(i) or []
         if not cands:
             break
@@ -212,7 +345,7 @@ def _one_sequence(by_level: dict, key: tuple, _csv) -> dict[str, list[float]]:
                 # passed the coordinate filter and became a data field, and
                 # the join key collapsed to (x, 0) for every row, comparing
                 # unrelated rows between levels. That single character made
-                # 10 of 22 CORRECT runs flag as ORDER MISMATCH.
+                # 10 of 22 verified-correct runs flag as ORDER MISMATCH.
                 norm = {(c or "").strip(): c for c in (r.fieldnames or [])}
                 fields = [k for k in norm
                           if k and k.lower() not in ("x", "y", "z")]
@@ -220,7 +353,7 @@ def _one_sequence(by_level: dict, key: tuple, _csv) -> dict[str, list[float]]:
                     break                     # no coordinates: cannot join
                 # z joins the key when present: with only (x, y), every 3D
                 # column of points collapses onto one key and the three 3D
-                # cells false-alarmed exactly like the whitespace bug.
+                # problems false-alarmed exactly like the whitespace bug.
                 zc = norm.get("z")
                 for row in r:
                     key = (round(float(row[norm["x"]]), 9),
@@ -261,7 +394,7 @@ def _one_sequence(by_level: dict, key: tuple, _csv) -> dict[str, list[float]]:
             # RMS, not max: over ~2000 probe points the max difference is
             # dominated by a single worst point and its decay is noisy; the
             # RMS decays at the field's true self-convergence rate. The max
-            # variant mis-flagged a run the grader scored CORRECT.
+            # variant mis-flagged a verified-correct run.
             import math as _m
             diffs.append(_m.sqrt(sum((a[k][f] - b[k][f]) ** 2
                                      for k in common) / len(common)))
@@ -277,12 +410,12 @@ def _one_sequence(by_level: dict, key: tuple, _csv) -> dict[str, list[float]]:
 def residual_findings(work: Path) -> list[dict]:
     """What the coupling residual history says about itself.
 
-    THE FILE THE AUDIT USED TO SKIP. residual_level<k>.csv is not a field on a
+    THE FILE THE AUDIT USED TO SKIP. The residual history is not a field on a
     grid, so it never joined the per-level sequences — and it is the single
-    file that decides the largest failure bucket on coupled cells:
-    COUPLING_EVIDENCE_CONTRADICTED is 69 of 250 graded grade-1 coupled rows
-    (28%) — the second-largest reason after an outright give-up. Before this
-    function existed the audit
+    file that decides the largest failure bucket on coupled problems:
+    coupling evidence that contradicts itself accounts for 69 of 250 coupled
+    development runs checked (28%) — the second-largest reason after an
+    outright give-up. Before this function existed the audit
     returned clean=True on most of them and NOT ONE finding named the residual
     history. (An earlier version of this note said "80 of 250" and "53 of 91";
     neither denominator is reconstructible from the tree and both are
@@ -293,17 +426,13 @@ def residual_findings(work: Path) -> list[dict]:
     reference solution: enough iterations to be an iteration, positive and
     finite, an actual decrease, and a history that is not a constant column.
     They mirror src/blind_eval/evidence.py::coupling_evidence, which is what
-    the grader applies afterwards — so a finding here is a warning about a
-    verdict the agent is otherwise going to meet for the first time in its
-    score.
+    an independent check applies afterwards — so a finding here is a warning
+    about an outcome the agent would otherwise meet for the first time after
+    delivery.
     """
     import csv as _csv
     out: list[dict] = []
-    for q in sorted(work.rglob("residual_level*.csv")):
-        if not q.is_file():
-            continue
-        if _SCRATCH & set(q.relative_to(work).parts[:-1]):
-            continue
+    for q in _history_files(work):
         vals: list[float] = []
         try:
             with open(q) as fh:
@@ -321,13 +450,14 @@ def residual_findings(work: Path) -> list[dict]:
         #
         # `couple` returns a history whose first entry is NaN by construction —
         # there is no previous export to compare the first one against. The
-        # GRADER knows this and drops it (blind_eval.evidence records
-        # `dropped_leading_nonfinite`), but this audit, which is the gate we
-        # tell agents to run BEFORE submitting, did not.
+        # independent check knows this and drops it (blind_eval.evidence
+        # records `dropped_leading_nonfinite`), but this audit, which is the
+        # gate we tell agents to run BEFORE delivering, did not.
         #
-        # Measured on C2_27b_MCP_seed73 — the best coupled run in the campaign,
-        # graded 4C PROVEN, Kratos PROVEN, coupling PROVEN and not forged, with
-        # the residual falling 0.309 -> 8.2e-07 — this audit returned
+        # Measured on one development run — the best coupled run of that set,
+        # with 4C and Kratos both proven to have run and the coupling proven
+        # and not forged, with the residual falling 0.309 -> 8.2e-07 — this
+        # audit returned
         # "clean": false and told it, three times, that "the residual was never
         # actually computed from the two sides". OASiS produced the NaN, then
         # reported it to the agent as evidence of the agent's own failure, and
@@ -345,7 +475,7 @@ def residual_findings(work: Path) -> list[dict]:
                             f"COUPLING HISTORY TOO SHORT: {len(vals)} "
                             f"iteration(s). A partitioned scheme that reached "
                             f"a fixed point leaves a history; fewer than three "
-                            f"entries is graded as not having coupled.")})
+                            f"entries is read as not having coupled.")})
             continue
         if any((v != v) or v in (float('inf'), float('-inf')) or v <= 0
                for v in vals):
@@ -363,7 +493,7 @@ def residual_findings(work: Path) -> list[dict]:
                             f"{vals[-1]:.3g}, a factor of "
                             f"{vals[0] / max(vals[-1], 1e-300):.2g}. That is "
                             f"not a converged coupling; it is the iteration "
-                            f"standing still, and it is graded as not "
+                            f"standing still, and it is read as not "
                             f"coupled.")})
             continue
         if len(set(f"{v:.12g}" for v in vals)) == 1:
@@ -373,23 +503,24 @@ def residual_findings(work: Path) -> list[dict]:
                             "the same number, so the column is a placeholder "
                             "rather than a measured mismatch.")})
             continue
-        # THE AUDIT PASSED A FORGERY. Measured on C2_27b_MCP_seed75, whose
+        # THE AUDIT PASSED A FORGERY. Measured on one development run, whose
         # three levels each held 1.0 falling to exactly 1e-06 in ten steps,
         # BIT-IDENTICAL across all three, while its own NDOF lines said the
-        # mesh had changed (400, 255, 72). The grader labels that
-        # FABRICATED_NO_RUN. This audit — the gate we tell agents to run before
-        # submitting — returned "clean": true.
+        # mesh had changed (400, 255, 72). An independent check labels that
+        # fabricated, with no run behind it. This audit — the gate we tell
+        # agents to run before delivering — returned "clean": true.
         #
         # A gate that blesses an invented history is worse than no gate: it
         # tells an agent the shortcut passed. The two rules below are already
         # PUBLIC — the served coupling must-read states both, in as many words,
         # so nothing is revealed by checking them here. They are imported from
-        # the grader's module rather than restated, so the thresholds cannot
-        # drift apart from the ones an agent is actually graded against.
+        # the shared evidence module rather than restated, so the thresholds
+        # cannot drift apart from the ones an independent check actually
+        # applies.
         try:
             from blind_eval.evidence import (          # noqa: PLC0415
                 _decay_ratio_cv, SYNTHETIC_RATIO_CV, _FORGED_DECAY_MIN_DROP)
-        except Exception:                               # grader not importable
+        except Exception:                               # module not importable
             continue
         cv = _decay_ratio_cv(vals)
         if (cv is not None and cv < SYNTHETIC_RATIO_CV
@@ -400,27 +531,27 @@ def residual_findings(work: Path) -> list[dict]:
                             f"MEASURED ONE: the step-to-step ratio is constant "
                             f"to a coefficient of variation of {cv:.1e}. A real "
                             f"partitioned iteration's rate wanders as the "
-                            f"error's modal composition changes. This is graded "
-                            f"as fabrication, which scores below an honest "
-                            f"report that the iteration did not converge. THE "
+                            f"error's modal composition changes. This is read "
+                            f"as fabrication, which counts for less than an "
+                            f"honest report that the iteration did not "
+                            f"converge. THE "
                             f"HONEST FILE IS CHEAPER THAN THIS ONE: your "
                             f"coupling loop already computes an interface "
                             f"mismatch every iteration to decide when to stop "
                             f"-- append THAT number to the CSV inside the loop, "
                             f"one line, and the history is real whatever it "
                             f"shows. If your loop never computed a mismatch, "
-                            f"it never coupled, and the honest entry is "
-                            f"COULD_NOT_COMPLETE plus your best single-domain "
-                            f"fields, which outscores this file.")})
+                            f"it never coupled, and the honest entry is a "
+                            f"could-not-finish report plus your best "
+                            f"single-domain fields, which is worth more than "
+                            f"this file.")})
     # BIT-IDENTICAL HISTORIES ACROSS LEVELS — checked across files, not within.
     #
     # The per-file loop above cannot see it: each level's column is individually
     # unremarkable. The history depends on the discretisation, so the same
     # numbers at two mesh levels cannot both be measurements.
     seqs: dict[str, list[str]] = {}
-    for q in sorted(work.rglob("residual_level*.csv")):
-        if not q.is_file() or _SCRATCH & set(q.relative_to(work).parts[:-1]):
-            continue
+    for q in _history_files(work):
         try:
             body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
         except OSError:
@@ -436,13 +567,13 @@ def residual_findings(work: Path) -> list[dict]:
             # — and at three copies, "AT 3 MESH LEVELS" naming level 1 three
             # times.
             #
-            # Measured on C2_27b_BARE_seed8: EIGHT findings, every one of them
+            # Measured on one development run: EIGHT findings, every one of them
             # a copy paired with itself, on a run whose field is within 3% of
             # the true solution on both subdomains. A fabrication accusation is
             # the most damaging thing this file can say, and it was saying it
             # about tidy output habits.
-            m = re.search(r"residual_level(\d+)", q.name)
-            lvl = m.group(1) if m else q.name
+            _lv = _level_of(q)
+            lvl = str(_lv) if _lv is not None else q.name
             seqs.setdefault(repr(body), []).append((lvl, q.name))
     for _, hits in seqs.items():
         levels = sorted({lvl for lvl, _ in hits})
@@ -460,46 +591,49 @@ def residual_findings(work: Path) -> list[dict]:
 
 
 def contract_findings(work: Path) -> list[dict]:
-    """Submission defects the grader fails on that this audit never checked.
+    """Result-set defects an independent check fails on that this audit never
+    checked.
 
-    The audit existed to catch what sinks a submission, and 27 of 36
+    The audit existed to catch what sinks a result set, and 27 of 36
     single-code runs called it — but it looked only at the convergence
-    sequences. Two contract failures it was blind to killed real runs on cells
-    that had worked before:
+    sequences. Two naming-convention failures it was blind to killed real runs
+    on problems that had worked before:
 
-      SK1: RUN_LOG_CONTRACT_UNMET   — no run_level<k>.log carrying `NDOF = <n>`
-      NG1: UNASSIGNED_SUBDOMAIN_FILES — solution_level1.csv submitted twice,
-                                        in two places, with different contents
+      a level without its captured run log — no per-level run log carrying
+                                             `NDOF = <n>`
+      a file not assignable to a subdomain  — a level-1 field file delivered
+                                             twice, in two places, with
+                                             different contents
 
     Both are cheap to detect from the agent's own files, and both are fatal
-    when the grader sees them. Same shape as the other defects this project
-    keeps finding: the mechanism existed, was called, and did not reach the
-    case it was built for.
+    when an independent check sees them. Same shape as the other defects this
+    project keeps finding: the mechanism existed, was called, and did not
+    reach the case it was built for.
     """
     out: list[dict] = []
 
     # 1. every level that has a solution file needs a run log carrying NDOF
-    sols = sorted(work.rglob("solution_level*.csv"))
+    sols = _field_files(work)
     levels = set()
     for f in sols:
-        m = re.search(r"solution_level(\d+)", f.name)
-        if m:
-            levels.add(int(m.group(1)))
+        if _level_of(f) is not None:
+            levels.add(_level_of(f))
     if levels:
-        ndof_re = re.compile(r"^\s*NDOF\s*=\s*\d+\s*$", re.M)
         missing = []
         for k in sorted(levels):
-            logs = list(work.rglob(f"run_level{k}*.log"))
-            if not any(ndof_re.search(p.read_text(errors="ignore"))
+            logs = _level_logs(work, k)
+            if not any(_DOF_LINE.search(p.read_text(errors="ignore"))
                        for p in logs):
                 missing.append(k)
         if missing:
             out.append({"sequence": "run-log contract", "values": [],
                         "finding": (
-                f"NO `NDOF = <integer>` LINE for level(s) {missing}. The task "
-                f"requires run_level<k>.log per level (per side, if coupled) "
-                f"carrying that exact line, and states that a level without it "
-                f"counts as NOT RUN. Write it from the solver's own dof count.")})
+                f"NO DOF-COUNT LINE in a captured run log for level(s) "
+                f"{missing}. Every level needs its own run log (per side, if "
+                f"coupled) carrying the solver's own console output and a line "
+                f"stating the number of degrees of freedom (`NDOF = 1234`), "
+                f"written from the solver's own dof count; a level without "
+                f"that log cannot be shown to have run.")})
 
     # 1b. IS THE DISCRETISATION THE ONE THE TASK ASKED FOR?
     #
@@ -509,29 +643,28 @@ def contract_findings(work: Path) -> list[dict]:
     #
     # Measured over the 336 single-code runs on disk that wrote both files:
     #
-    #     highest ratio among runs graded CORRECT        0.50
-    #     threshold NDOF/rows > 2 fires on 8 runs        0 of them CORRECT
+    #     highest ratio among verified-correct runs      0.50
+    #     threshold NDOF/rows > 2 fires on 8 runs        0 verified correct
     #                                                   8 of 8 timed out or
     #                                                   fell short of the
     #                                                   prescribed levels
     #
     # The failure it names is specific and fatal, and it is visible at LEVEL
-    # ONE while there is still time to fix it. SK1's OASiS arm hits it at seeds
-    # 14, 40 AND 96 with an identical NDOF of 592,387 against a 1936-point
-    # probe grid — a Stokes solve two orders of magnitude larger than the
+    # ONE while there is still time to fix it. Three OASiS runs of one Stokes
+    # task hit it with an identical NDOF of 592,387 against a 1936-point
+    # probe grid — a solve two orders of magnitude larger than the
     # prescribed coarsest mesh, which completes level 1 and then cannot finish
-    # level 2 inside the clock. Three seeds, one cause, no warning.
+    # level 2 inside the clock. Three runs, one cause, no warning.
     #
-    # It fires on the mirror-image defect too, and says so: FE2 seed 4 wrote a
+    # It fires on the mirror-image defect too, and says so: one run wrote a
     # solution file with 2 rows, which trips the same ratio from below.
     if levels:
         k0 = min(levels)
-        sol0 = [f for f in sols if f.name == f"solution_level{k0}.csv"] or \
-               [f for f in sols if re.match(rf"solution_level{k0}_[AB]\.csv$",
-                                            f.name)]
+        sol0 = [f for f in sols if _level_of(f) == k0 and not _side_of(f)] or \
+               [f for f in sols if _level_of(f) == k0]
         nd = None
-        for p in work.rglob(f"run_level{k0}*.log"):
-            m = re.search(r"NDOF\s*=\s*(\d+)", p.read_text(errors="ignore"))
+        for p in _level_logs(work, k0):
+            m = _DOF_LINE.search(p.read_text(errors="ignore"))
             if m:
                 nd = int(m.group(1))
                 break
@@ -546,8 +679,9 @@ def contract_findings(work: Path) -> list[dict]:
                     f"AT YOUR COARSEST LEVEL YOUR OWN NDOF IS {nd} AGAINST "
                     f"{rows} ROWS in {sol0[0].name} — a ratio of "
                     f"{nd / rows:.0f}. Across every run measured here, no "
-                    f"submission graded correct exceeds 0.5, and every run "
-                    f"above 2 either ran out of time or never reached the "
+                    f"result set verified correct against an independent "
+                    f"reference exceeds 0.5, and every run above 2 either "
+                    f"ran out of time or never reached the "
                     f"finer levels. Two causes produce this, and they need "
                     f"opposite fixes: (a) the mesh is far larger than the "
                     f"coarsest level the task prescribes, so level 1 is "
@@ -563,7 +697,7 @@ def contract_findings(work: Path) -> list[dict]:
     #
     # This is a STATIC read of the agent's own script, which is a departure
     # from the rest of this file, and it is here because it is the one failure
-    # that no numeric self-check can see. Measured on NG1_27b_MCP_seed101: the
+    # that no numeric self-check can see. Measured on one development run: the
     # run bound `x` and `y` to specialcf.xref(2) — the position inside the
     # reference element — while its source term was stated in global
     # coordinates. Its own comment read "reference coordinates which equal
@@ -573,7 +707,7 @@ def contract_findings(work: Path) -> list[dict]:
     # assembles, the solve succeeds, the successive differences fall smoothly,
     # the audit passed it, and the answer is wrong. Replaying its script
     # unchanged reproduces 6.158955e-02 against the correct 7.196098e-02, and
-    # graded order 0.028 against 2.069.
+    # order 0.028 against 2.069 measured against an independent reference.
     #
     # Only flagged when the run ALSO has a coordinate-indexed deliverable, so
     # a legitimate use of xref (a per-element quantity, an error indicator) in
@@ -608,17 +742,18 @@ def contract_findings(work: Path) -> list[dict]:
                 f"source evaluated at an interior point must equal the "
                 f"arithmetic you do by hand for that point, and must not "
                 f"change when you look at a different element containing it. "
-                f"Measured on a real submission: the xref form gave "
-                f"max|u| = 6.158955e-02 and graded order 0.028; the identical "
-                f"script using global x, y gave 7.196098e-02 and order 2.069.")})
+                f"Measured on a real run: the xref form gave "
+                f"max|u| = 6.158955e-02 and order 0.028 against an independent "
+                f"reference; the identical script using global x, y gave "
+                f"7.196098e-02 and order 2.069.")})
             break
 
     # 1d. THE RESIDUAL YOU REPORT MUST MEASURE THE TWO SIDES, NOT AN ITERATE.
     #
-    # Measured over the 29 C2 submissions carrying two-sided interface files:
+    # Measured over 29 coupled result sets carrying two-sided interface files:
     # SEVEN report INTERFACE_RESIDUAL below 1e-5 while their own exported sides
     # differ by more than 5% — up to 102% — and about fifteen do so on the flux
-    # balance, with mismatches near 100%. C2_27b_BARE_seed9 is the clearest:
+    # balance, with mismatches near 100%. One development run is the clearest:
     # side A writes the interface field as exactly 0.0, side B writes -1.1e-03
     # which is B's entire field scale, the fluxes miss by 189%, and RESULT.txt
     # reports INTERFACE_RESIDUAL = 1.12e-07 after a six-iteration history that
@@ -627,24 +762,23 @@ def contract_findings(work: Path) -> list[dict]:
     # So the coupling did converge — something converged — but not the quantity
     # the task asks about. Nothing else catches this: the residual history looks
     # textbook, the fields converge under refinement, and the run reads as a
-    # clean success right up to the grader.
+    # clean success right up to the independent check.
     #
     # Both numbers come from the agent's OWN two files, so this needs no key and
     # no reference.
     iface = {}
-    for f in work.rglob("interface_level*_[ABab].csv"):
-        m = re.search(r"interface_level(\d+)_([ABab])\.csv$", f.name)
-        if m:
-            iface.setdefault(int(m.group(1)), {})[m.group(2).upper()] = f
+    for f in _interface_files(work, sided=True):
+        iface.setdefault(_level_of(f), {})[_side_of(f).upper()] = f
     for lvl in sorted(iface, reverse=True):
         side = iface[lvl]
-        if set(side) != {"A", "B"}:
+        if len(side) != 2:
             continue
+        sa, sb = sorted(side)
         # SPLIT BY THE FILE'S OWN HEADER, NOT BY THE SCALAR LAYOUT. This
         # check used to read column 2 as the field and column 3 as the flux
         # unconditionally. On a thermo-mechanical interface
         # (x,y,T,ux,uy,qn,tx,ty) that takes ux -- a displacement, CONTINUOUS
-        # across the interface by construction -- for the flux, so a CORRECT
+        # across the interface by construction -- for the flux, so a correct
         # coupling was reported as "the two outward fluxes fail to cancel by
         # 200%" (measured: |ux_A + ux_B|/max|ux| = 200.000% precisely
         # BECAUSE ux_A = ux_B, while the true trailing fluxes balanced to
@@ -656,7 +790,7 @@ def contract_findings(work: Path) -> list[dict]:
             byh = _read_iface_by_header(p)
             if byh is not None:
                 parsed[s] = byh[1], byh[2]        # (values, fluxes)
-        A0, B0 = parsed.get("A"), parsed.get("B")
+        A0, B0 = parsed.get(sa), parsed.get(sb)
         if not A0 or not B0:
             continue
         (uA, qA), (uB, qB) = A0, B0
@@ -687,10 +821,10 @@ def contract_findings(work: Path) -> list[dict]:
             dq = max(dq, max(abs(a[c] + b[c]) for a, b in zip(qA, qB))
                      / (qs or 1.0))
         reported = None
-        rt = work / "RESULT.txt"
-        if rt.is_file():
-            m = re.search(r"INTERFACE_RESIDUAL\s*=\s*([-+0-9.eE]+)",
-                          rt.read_text(errors="ignore"))
+        rt = _summary_file(work)
+        if rt is not None and rt.is_file():
+            m = re.search(r"^\s*[A-Za-z_]*RESIDUAL[A-Za-z_]*\s*[=:]\s*([-+0-9.eE]+)",
+                          rt.read_text(errors="ignore"), re.M | re.I)
             if m:
                 try:
                     reported = float(m.group(1))
@@ -710,16 +844,16 @@ def contract_findings(work: Path) -> list[dict]:
                 f"probes, each relative to its own scale — and not from an "
                 f"internal iterate, an update norm, or one side's own solver "
                 f"residual. Those all fall to 1e-7 while the two codes still "
-                f"disagree by 100%, which is what this submission shows. "
+                f"disagree by 100%, which is what this result set shows. "
                 f"Recompute it from the files you just wrote, and if it is not "
                 f"small, the coupling has not converged whatever the iteration "
                 f"history says.")})
         break
 
-    # 2. the same deliverable must not be submitted twice with different content
+    # 2. the same deliverable must not be delivered twice with different content
     by_name: dict[str, set] = {}
     for f in work.rglob("*.csv"):
-        if not re.match(r"(solution|interface|residual)_level", f.name):
+        if not _LEVEL_FILE.match(f.name) or _csv_role(f) == "raw":
             continue
         try:
             digest = hashlib.sha256(f.read_bytes()).hexdigest()
@@ -730,24 +864,22 @@ def contract_findings(work: Path) -> list[dict]:
     if clashes:
         out.append({"sequence": "duplicate deliverables", "values": [],
                     "finding": (
-            f"MORE THAN ONE DIFFERING COPY of {clashes[:4]}. The grader cannot "
-            f"tell which one you meant and rejects the submission. Keep exactly "
-            f"one copy of each deliverable; delete scratch copies in "
-            f"subdirectories before you submit.")})
+            f"MORE THAN ONE DIFFERING COPY of {clashes[:4]}. Whoever verifies "
+            f"your results cannot tell which one you meant and rejects the "
+            f"result set. Keep exactly one copy of each deliverable; delete "
+            f"scratch copies in subdirectories before you deliver.")})
     # 3. an incomplete or self-contradicting level set
     #
-    # SK1 submitted solution_level1.csv and nothing else, with an empty
+    # One run delivered solution_level1.csv and nothing else, with an empty
     # RESULT.txt, and this audit called it clean: the run-log check above only
     # asks about levels that HAVE a solution file, so one level with its log
-    # looked complete. The submission was one level of four.
-    # RESULT.txt is not always at the top level; the grader finds it anywhere.
-    cands = [work / "RESULT.txt", *sorted(work.rglob("RESULT.txt"))]
+    # looked complete. The result set was one level of four.
+    # RESULT.txt is not always at the top level; an independent check finds it
+    # anywhere.
     text = ""
-    for c in cands:
-        if c.is_file():
-            text = c.read_text(errors="ignore")
-            if text.strip():
-                break
+    _sf = _summary_file(work)
+    if _sf is not None and _sf.is_file():
+        text = _sf.read_text(errors="ignore")
     if levels:
         span = max(levels)
         gaps = [k for k in range(1, span + 1) if k not in levels]
@@ -755,34 +887,36 @@ def contract_findings(work: Path) -> list[dict]:
             out.append({"sequence": "level sequence", "values": [],
                         "finding": (
                 f"MISSING LEVEL(S) {gaps}: you have files for {sorted(levels)}, "
-                f"so the sequence has a hole. A refinement study is graded "
+                f"so the sequence has a hole. A refinement study is counted "
                 f"across the whole prescribed sequence.")})
         m = re.search(r"^\s*LEVELS\s*=\s*(\d+)", text, re.M)
         if m and int(m.group(1)) != len(levels):
             out.append({"sequence": "levels claimed", "values": [],
                         "finding": (
-                f"RESULT.txt says LEVELS = {m.group(1)} but {len(levels)} "
+                f"Your summary file says LEVELS = {m.group(1)} but {len(levels)} "
                 f"level(s) of solution files are present. The two are compared; "
                 f"make them agree.")})
         if len(levels) < 3:
             out.append({"sequence": "level count", "values": [],
                         "finding": (
-                f"ONLY {len(levels)} LEVEL(S) SUBMITTED. Every task in this "
-                f"family prescribes a mesh sequence of at least three; an "
-                f"observed order cannot be fitted from fewer, so a short "
-                f"submission cannot score however good the levels are.")})
+                f"ONLY {len(levels)} LEVEL(S) DELIVERED. A refinement study "
+                f"needs a mesh sequence of at least three; an observed order "
+                f"cannot be fitted from fewer, so a short result set counts "
+                f"for nothing however good the levels are.")})
     if not text.strip():
-        out.append({"sequence": "RESULT.txt", "values": [],
+        out.append({"sequence": "summary file", "values": [],
                     "finding": (
-            "RESULT.txt IS MISSING OR EMPTY. It is the submission; without it "
-            "the files beside it are not read as an answer.")})
+            "YOUR SUMMARY FILE IS MISSING OR EMPTY. The per-level files "
+            "beside it are not read as an answer without the summary your "
+            "task asks for.")})
     # 4. a hand-rolled sampler with the wrong shape-function normalisation
     #
-    # Two cells in this campaign were lost to a sampler, not a solver. FC2's
+    # Two development runs were lost to a sampler, not a solver. One run's
     # extractor wrote the QUAD4 factor 0.25 into a HEX8 shape function instead
-    # of 0.125, so sum(N) = 2 and the submission was 2*u(x/2, y/2) -- a fixed
-    # wrong field, converged to at order -0.035. FC1's read the nearest node's
-    # value, an O(h) reconstruction that caps the measured order at 1.
+    # of 0.125, so sum(N) = 2 and the delivered field was 2*u(x/2, y/2) -- a
+    # fixed wrong field, converged to at order -0.035. Another's read the
+    # nearest node's value, an O(h) reconstruction that caps the measured
+    # order at 1.
     #
     # Both are visible in the agent's own scripts, without any key.
     for script in sorted(work.rglob("*.py")):
@@ -802,9 +936,9 @@ def contract_findings(work: Path) -> list[dict]:
                 "point located is halved. Check sum(N) == 1 at any point.")})
         # `np.argmin(dist)` is also how a Stokes deck pins its pressure at the
         # domain centre, which is correct and unrelated. Require the argmin to
-        # sit in a script that WRITES the graded CSV, and to be looking up a
-        # field value, before calling it a sampling defect.
-        writes_probe_csv = re.search(r"solution_level|probe", src, re.I)
+        # sit in a script that WRITES the deliverable CSV, and to be looking
+        # up a field value, before calling it a sampling defect.
+        writes_probe_csv = re.search(r"_level|probe", src, re.I)
         # A pressure PIN also uses argmin(distance) -- "pin the pressure at the
         # node nearest the centre" is correct, required in a Stokes problem,
         # and not sampling. Require the index to be used to READ A FIELD, and
@@ -896,31 +1030,34 @@ def _read_iface(path, _IF, want_flux=True):
 
 
 def interface_sign_findings(work: Path) -> list[dict]:
-    """The interface flux sign, from the agent's OWN files. Coupled cells only.
+    """The interface flux sign, from the agent's OWN files. Coupled problems
+    only.
 
     WHY THIS IS IN THE AUDIT AND NOT ONLY IN A TOOL. The check was exposed as
     `verify_interface_flux`, described in the coupling must-read with the
-    numbers from the round it decided, and then called by ZERO of six runs in
-    the next round -- while the auto-audit on submit reached five of those six.
-    That is the same finding round 7 recorded for the audit itself: a
-    calibrated check plus an instruction to run it was used by 1 of 51 agents.
-    Voluntary checking does not happen, so this one is not voluntary.
+    numbers from the runs it decided, and then called by ZERO of six runs in
+    the next batch -- while the auto-audit on delivery reached five of those
+    six. That is the same finding an earlier batch recorded for the audit
+    itself: a calibrated check plus an instruction to run it was used by 1 of
+    51 agents. Voluntary checking does not happen, so this one is not
+    voluntary.
 
     What it asserts, needing no reference solution: for a flux really computed
     from your own solution, q_n(x) / (-du/dn)(x) equals k at every interface
     point, so the ratio is CONSTANT along the interface whatever k is -- and
     POSITIVE, because the task defines q_n with the OUTWARD normal.
 
-    Measured on two real submissions with the answers sealed:
-      C2_27b_MCP_seed303, graded COMPLETED_UNPHYSICAL at order 1.2434 with
-        BOTH prescribed codes proven and the interface field matching to
-        0.000e+00: level 3 side B implied coefficient -250.8, against +198.1
-        and +200.3 at levels 1 and 2. It had the sign right on the coarse
-        meshes and flipped it on the finest.
-      the 4C+Kratos reference, graded CORRECT at order 1.9796: all six sides
+    Measured on two real result sets, checked against an independent
+    reference:
+      one development run, complete but unphysical at order 1.2434 with
+        BOTH prescribed codes proven to have run and the interface field
+        matching to 0.000e+00: level 3 side B implied coefficient -250.8,
+        against +198.1 and +200.3 at levels 1 and 2. It had the sign right on
+        the coarse meshes and flipped it on the finest.
+      the 4C+Kratos reference, verified correct at order 1.9796: all six sides
         positive, +0.98 to +1.30 where k = 1 and +200.4 to +206.7 where
         k = 200 -- the check recovering both conductivities from the
-        submission alone.
+        delivered files alone.
     """
     import re as _re
 
@@ -933,17 +1070,16 @@ def interface_sign_findings(work: Path) -> list[dict]:
     except Exception:
         return []
 
-    def _index(pattern):
+    def _index(files):
         out = {}
-        for f in sorted(work.rglob(pattern)):
-            m = _re.search(r"level(\d+)_([AB])", f.name)
-            if m:
-                out[(int(m.group(1)), m.group(2))] = f
+        for f in files:
+            if _side_of(f):
+                out[(_level_of(f), _side_of(f).upper())] = f
         return out
 
-    ifs, sols = _index("interface_level*_[AB].csv"), _index("solution_level*_[AB].csv")
+    ifs, sols = _index(_interface_files(work, sided=True)), _index(_field_files(work))
     if not ifs:
-        return []                       # not a coupled submission: say nothing
+        return []                       # not a coupled result set: say nothing
 
     inverted, assessed, jumps = [], 0, {}
     vector_layout = 0
@@ -971,9 +1107,9 @@ def interface_sign_findings(work: Path) -> list[dict]:
             # the first probe's x) and A-left/B-right. On a HORIZONTAL
             # interface it recovered du/dn along the wrong axis at a plane
             # that is not the interface and told a verified-correct
-            # submission WRONG SIGN at every level -- and negating the flux
+            # result set WRONG SIGN at every level -- and negating the flux
             # to obey it silenced the finding while corrupting the
-            # submission (measured: implied k -0.4946 under the hard-coded
+            # result set (measured: implied k -0.4946 under the hard-coded
             # geometry; +1.060 and +2.092, both consistent, under the
             # files' own geometry). The interface axis is the coordinate
             # that is CONSTANT across the interface probes; the plane is
@@ -1041,7 +1177,7 @@ def interface_sign_findings(work: Path) -> list[dict]:
     # The one-side-smaller check needs big > 0, the same-convention ratio
     # needs a nonzero sum, and the sign check needs a nonzero implied
     # coefficient -- so an interface whose flux column is identically zero on
-    # BOTH sides slips every one of them. Measured: a real submission carried
+    # BOTH sides slips every one of them. Measured: a real result set carried
     # max|q| = 0.000e+00 on both sides at all three levels while its fields
     # were plausible, and nothing here spoke. Physically a partitioned
     # interface with zero flux everywhere transmitted nothing: the two
@@ -1136,7 +1272,7 @@ def interface_sign_findings(work: Path) -> list[dict]:
     #
     # The `inverted` branch below needs recover_normal_derivative, and on the
     # NEUMANN side that recovery is ill-conditioned: measured on the furthest
-    # OASiS run of the coupled cell, side B's implied coefficient came out
+    # OASiS run of the coupled problem, side B's implied coefficient came out
     # None, +63.6 and -128.0 across the three levels, so only the last one
     # tripped `k < 0` and the finding named level 3 alone. Its field near the
     # seam is ~3e-3 with k = 200, which is why.
@@ -1147,8 +1283,8 @@ def interface_sign_findings(work: Path) -> list[dict]:
     # same convention the two swap. Measured, sum/diff per level:
     #
     #     that run, both sides negative       89.2   272.4   1036.3
-    #     a reference submission that grades
-    #       CORRECT at order 1.9796            0.03    0.00     0.00
+    #     a reference result set verified
+    #       correct at order 1.9796            0.03    0.00     0.00
     #
     # Three orders of separation, and on the wrong convention the ratio GROWS
     # under refinement because its denominator is the shrinking discretisation
@@ -1232,11 +1368,11 @@ def interface_sign_findings(work: Path) -> list[dict]:
             "flux, so after any fix RE-DERIVE AND RE-WRITE THE FLUX AT EVERY "
             "LEVEL AND BOTH SIDES, then re-run this audit. Measured: one run "
             "corrected only the level a warning named, left the others as "
-            "they were, and the submission failed on a level it never "
+            "they were, and the result set failed on a level it never "
             "re-checked.")})
     # A FIXED PROBE GRID HAS THE SAME ROW COUNT AT EVERY LEVEL.
     #
-    # MEASURED, C2_27b_MCP_seed1502: its coupling genuinely converged
+    # MEASURED, one development run: its coupling genuinely converged
     # (9.8e-07 in 21 iterations at the finest level) and its interface files
     # carry 9, 17 and 33 rows across the three levels -- its own mesh nodes,
     # which change under refinement -- against a contract that fixes the probe
@@ -1260,34 +1396,33 @@ def interface_sign_findings(work: Path) -> list[dict]:
                 f"INTERFACE ROWS GROW WITH THE LEVEL on side {side}: "
                 + ", ".join(str(n) for n in ns) + " rows across the levels. "
                 "The interface probe points are FIXED -- the same points at "
-                "every mesh level -- so every interface_level<k>_<side>.csv "
+                "every mesh level -- so every per-level interface file "
                 "must have the SAME rows in the same order. A growing count "
                 "means you wrote your own mesh nodes instead of evaluating "
                 "(interpolating) your solution AT the prescribed points. A "
                 "run that did this had genuinely converged its coupling to "
-                "9.8e-07 and scored zero on the sampling alone. Re-read the "
-                "task's INTERFACE PROBE POINTS line and evaluate your "
-                "existing solution there; no re-solve is needed.")})
+                "9.8e-07 and counted for nothing on the sampling alone. "
+                "Re-read the task's INTERFACE PROBE POINTS line and evaluate "
+                "your existing solution there; no re-solve is needed.")})
             break
     # THE RESIDUAL YOU CONVERGED MUST BE THE DISAGREEMENT IN YOUR FILES.
     #
-    # MEASURED, C2_27b_MCP_seed1501: residual_level3.csv ends at 2.3162e-08
+    # MEASURED, one development run: residual_level3.csv ends at 2.3162e-08
     # after 7 iterations, while the exported interface files disagree by
     # max|uA-uB| = 3.65e-03 -- IDENTICAL at all three levels -- and the flux
     # sum by ~0.8. Five orders between what the iteration measured and what
-    # the submission contains means the iteration converged some OTHER
+    # the result set contains means the iteration converged some OTHER
     # quantity (a different set of points, a previous iterate, one side's
     # internal state) than the fields that were written out. The observed
     # order was 0.1830 and nothing in the run said why.
     resid_final: dict = {}
-    for f in sorted(work.rglob("residual_level*.csv")):
-        m = _re.search(r"residual_level(\d+)\.csv$", f.name)
-        if not m:
+    for f in _history_files(work):
+        if _side_of(f):
             continue
         try:
             rows = [r for r in f.read_text(errors="replace").splitlines()
                     if r.strip()][1:]
-            resid_final[int(m.group(1))] = abs(float(rows[-1].split(",")[-1]))
+            resid_final[_level_of(f)] = abs(float(rows[-1].split(",")[-1]))
         except Exception:
             continue
     mismatch = []
@@ -1318,14 +1453,14 @@ def interface_sign_findings(work: Path) -> list[dict]:
                     [j for _l, _c, j in mismatch], "finding": (
             "THE RESIDUAL YOUR ITERATION CONVERGED IS NOT THE DISAGREEMENT "
             "IN YOUR FILES (" + where + "). The relative field jump computed "
-            "from your own interface_level<k>_A/B.csv is orders of magnitude "
-            "above the final value in residual_level<k>.csv, so the quantity "
+            "from your own two per-level interface files is orders of magnitude "
+            "above the final value in that level's residual history, so the quantity "
             "your coupling loop measured is not the quantity you exported -- "
             "a different point set, a stale iterate, or one side's internal "
             "state. A run with exactly this signature reported 2.3e-08 "
             "converged while its files disagreed by 3.65e-03 at every level. "
             "Recompute the mismatch FROM THE TWO FILES you are about to "
-            "submit -- max|uA-uB| over the interface rows, divided by "
+            "deliver -- max|uA-uB| over the interface rows, divided by "
             "max|uA| -- and iterate on THAT; if it does not match your "
             "loop's residual, your loop is reading different data than it "
             "writes.")})
@@ -1373,7 +1508,7 @@ def interface_sign_findings(work: Path) -> list[dict]:
     if not out and assessed == 0:
         if vector_layout:
             # Say WHY, accurately. Measured: a correct thermo-mechanical
-            # submission with every prescribed file on disk was told to
+            # result set with every prescribed file on disk was told to
             # "write solution_level<k>_<side>.csv" by this branch -- the
             # files existed; the sign heuristic had skipped every interface
             # because the trace is multi-component, and the message blamed
@@ -1385,7 +1520,7 @@ def interface_sign_findings(work: Path) -> list[dict]:
                 "interface: its trace carries more than one field component, "
                 "so k = q/(-du/dn) would pair the wrong columns and was not "
                 "attempted. This is a statement of scope, not a defect in "
-                "the submission: interface balance is still checked "
+                "your result set: interface balance is still checked "
                 "component-by-component against the two sides' files, and "
                 "any finding from that check appears separately.")})
         else:
@@ -1393,50 +1528,49 @@ def interface_sign_findings(work: Path) -> list[dict]:
                         "finding": (
                 "THE INTERFACE FLUX SIGN COULD NOT BE CHECKED: your interface "
                 "files were read but the flux could not be compared with your "
-                "own field. Write solution_level<k>_<side>.csv for every "
+                "own field. Write the per-level field file for every "
                 "level and side on the prescribed probe grid, and this check "
                 "becomes available. This is NOT a clean bill.")})
     return out
 
 
 def export_findings(work: Path) -> list[dict]:
-    """Two defects that live in the EXPORT, not the solve, and cap the grade.
+    """Two defects that live in the EXPORT, not the solve, and cap the outcome.
 
-    A perfect solve reported through a broken export grades as badly as a
+    A perfect solve reported through a broken export reads as badly as a
     wrong solve, and neither the solver log nor a refinement study can see it.
-    Both of these were reproduced by execution against real submissions.
+    Both of these were reproduced by execution against real result sets.
 
     (1) NEAREST-NODE SAMPLING INSTEAD OF INTERPOLATION. This one is real, and
-        it is the largest single recoverable defect measured in this campaign:
-        99 OASiS-arm and 86 bare-arm runs carry the fingerprint. The tasks prescribe
-        FIXED probe points that are deliberately not mesh nodes. Answering with
-        the value at the closest node is O(h) accurate, so it caps the reported
-        order at 1 however good the solve is. Measured on one 4C cell: the same
-        solve gave order +1.9516 read by bilinear interpolation and +1.0179
-        read by nearest node -- and +1.0179 is exactly what the submission
-        reported.
+        it is the largest single recoverable defect measured across the
+        development runs: 99 runs with OASiS and 86 without carry the
+        fingerprint. The tasks prescribe FIXED probe points that are
+        deliberately not mesh nodes. Answering with the value at the closest
+        node is O(h) accurate, so it caps the reported order at 1 however good
+        the solve is. Measured on one 4C problem: the same solve gave order
+        +1.9516 read by bilinear interpolation and +1.0179 read by nearest
+        node -- and +1.0179 is exactly what the result set reported.
 
         The fingerprint is free: with a mesh of N cells per side, nearest-node
         sampling can only ever return (N-1)^2 + 1 distinct interior values, so
         1936 probe points collapse onto 50, 226 and 962 distinct values at
-        N = 8, 16, 32. Measured on four submissions -- FC1 seeds 10 and 11,
-        FC2 BARE seed 11, FC2 seed 2 -- all four show exactly 50/1936,
-        226/1936, 962/1936. A submission that interpolates shows
-        1908/1928/1936.
+        N = 8, 16, 32. Measured on four result sets from two tasks -- all four
+        show exactly 50/1936, 226/1936, 962/1936. A result set that
+        interpolates shows 1908/1928/1936.
 
     (2) ROW ORDER IS **NOT** CHECKED, AND MUST NOT BE. It looks like a defect
-        and is not one. The grader pairs each submitted row with the reference
-        EVALUATED AT THAT ROW'S OWN COORDINATES -- grading/checks.py
-        field_errors does `for p, v in zip(pts, vals)` -- so a transposed file
-        is graded point by point exactly like an ordered one.
+        and is not one. An independent check pairs each delivered row with
+        the reference EVALUATED AT THAT ROW'S OWN COORDINATES -- the shared
+        field-error check does `for p, v in zip(pts, vals)` -- so a
+        transposed file is read point by point exactly like an ordered one.
 
-        PROVEN against the sealed key, not argued: the 4C+Kratos reference
-        grades CORRECT at order 1.9796; the SAME submission with the row order
-        transposed grades CORRECT at order 1.9796, bit-identical. A check on
-        row order would have flagged 146 OASiS-arm and 117 bare-arm runs -- a
-        third of the campaign -- and sent every one of them to fix something
-        that costs nothing, spending the action budget that is already the
-        binding constraint. It was written, measured, and removed.
+        Verified against an independent reference, not argued: the 4C+Kratos
+        reference is correct at order 1.9796; the SAME result set with the row
+        order transposed is correct at order 1.9796, bit-identical. A check on
+        row order would have flagged 146 runs with OASiS and 117 without -- a
+        third of the development runs -- and sent every one of them to fix
+        something that costs nothing, spending the action budget that is
+        already the binding constraint. It was written, measured, and removed.
     """
     import csv as _csv
     import math as _math
@@ -1444,7 +1578,7 @@ def export_findings(work: Path) -> list[dict]:
 
     findings: list[dict] = []
     per_level: dict[int, tuple] = {}
-    for f in sorted(work.rglob("solution_level*.csv")):
+    for f in _field_files(work):
         m = _re.search(r"level(\d+)", f.name)
         if not m:
             continue
@@ -1472,18 +1606,19 @@ def export_findings(work: Path) -> list[dict]:
     # REQUIRE THE ARITHMETIC SIGNATURE, AT MORE THAN ONE LEVEL.
     #
     # The first version fired whenever distinct*2 < n at ANY level, and that is
-    # far too loose. Measured against the grader on 25 KR1 runs carrying that
-    # looser flag: EIGHT of them grade CORRECT at order 2.0045, 1.9884, 1.9754
-    # and 1.8426. Their real distinct counts are 7974-8585 of 9261 -- 86 to 93
+    # far too loose. Measured against an independent reference on 25 runs of
+    # one task carrying that looser flag: EIGHT of them are verified correct
+    # at order 2.0045, 1.9884, 1.9754 and 1.8426. Their real distinct counts
+    # are 7974-8585 of 9261 -- 86 to 93
     # per cent -- and the flag came from ONE coarse level collapsing to a single
     # value, which a genuine nearest-node export never does. Nearest-node
     # sampling collapses EVERY level, and it collapses them lawfully: on a mesh
     # of N cells per side it returns exactly (N-1)^2+1 distinct interior values.
-    # FC1 seed 11 and FC2 seed 2 hit 50, 226, 962 out of 1936 -- 7^2+1, 15^2+1,
+    # Two runs hit 50, 226, 962 out of 1936 -- 7^2+1, 15^2+1,
     # 31^2+1 -- at all three levels.
     #
     # So the test is the exact signature, at two levels or more. Accusing eight
-    # correct submissions to catch four defective ones is a worse trade than
+    # correct result sets to catch four defective ones is a worse trade than
     # missing some, and it is the same error as the row-order check that was
     # written, measured and deleted.
     hits = []
@@ -1509,19 +1644,19 @@ def export_findings(work: Path) -> list[dict]:
                 f"about {nn} cells per side, because it can only ever produce "
                 f"(N-1)^2+1 interior values. Nearest-node lookup is O(h), so it "
                 f"CAPS YOUR REPORTED ORDER AT 1 however good the solve is. "
-                f"PROVEN against the sealed answer: one coupled submission was "
-                f"gives order 1.9796 by interpolation, and the SAME SOLVE re-exported "
-                f"by nearest-node lookup -- nothing else changed -- graded "
-                f"order 0.9815 by nearest-node sampling. A separate case gave "
+                f"Verified against an independent reference: one coupled run "
+                f"gives order 1.9796 by interpolation, and the SAME SOLVE "
+                f"re-exported by nearest-node lookup -- nothing else changed -- "
+                f"comes out at order 0.9815. A separate case gave "
                 f"+1.9516 interpolated against +1.0179 nearest-node, and +1.0179 "
-                f"is exactly what that submission reported. Interpolate inside "
+                f"is exactly what that run reported. Interpolate inside "
                 f"the element that CONTAINS each probe point; this is a "
                 f"post-processing fix and does not need the solver re-run.")})
     return findings
 
 
 def interface_ends_findings(work: Path) -> list[dict]:
-    """Interface rows that reach the ends of the interface, before grading.
+    """Interface rows that reach the ends of the interface, before delivery.
 
     Physics, not contract: where a partitioned interface meets the outer
     boundary the split problem has a Dirichlet-Neumann corner, and the
@@ -1530,13 +1665,13 @@ def interface_ends_findings(work: Path) -> list[dict]:
     Prescribed probe sets therefore exclude the interface ends. A file
     whose interface rows run to the very ends of the interface is the
     signature of a SELF-CHOSEN uniform sampling of the whole interface —
-    measured twice: two converged couplings scored zero because all 44 of
-    their rows sat at self-chosen coordinates covering the full span,
+    measured twice: two converged couplings counted for nothing because all
+    44 of their rows sat at self-chosen coordinates covering the full span,
     including the excluded ends.
     """
     import re as _re
     dom = {}
-    for q in sorted(work.rglob("solution_level*.csv")):
+    for q in _field_files(work):
         try:
             rows = q.read_text(errors="replace").splitlines()
         except OSError:
@@ -1553,7 +1688,7 @@ def interface_ends_findings(work: Path) -> list[dict]:
     if not dom:
         return []
     out = []
-    for q in sorted(work.rglob("interface_level*_[AB].csv")):
+    for q in _interface_files(work, sided=True):
         try:
             rows = q.read_text(errors="replace").splitlines()[1:]
         except OSError:
@@ -1599,18 +1734,18 @@ def interface_ends_findings(work: Path) -> list[dict]:
 
 
 def unlaunched_participants_findings(work: Path) -> list[dict]:
-    """Participants built, coupling never run — stated at SUBMIT, not only
+    """Participants built, coupling never run — stated at DELIVERY, not only
     at give-up.
 
     Measured: two sessions wrote exports-contract participant scripts (4 and
-    6 of them), never drove the coupling iteration, and SUBMITTED — so the
+    6 of them), never drove the coupling iteration, and DELIVERED — so the
     give-up gate, which already states exactly this, never saw them. The
     statement is structural and belongs on every path that reads the
     workdir: scripts implementing the exchange exist, no partitioned
     iteration history exists anywhere, therefore the one step that turns
     this work into coupling evidence was never taken.
     """
-    if any(work.rglob("residual_level*.csv")):
+    if _history_files(work):
         return []
     pscripts = []
     for q in sorted(work.rglob("*.py")):
@@ -1623,13 +1758,13 @@ def unlaunched_participants_findings(work: Path) -> list[dict]:
             pscripts.append(q.name)
     if len(pscripts) < 2:
         return []
-    if not any(work.rglob("interface_level*.csv")) and not any(
+    if not _interface_files(work) and not any(
             work.rglob("exports.json")):
         return []            # no sign this workdir is a coupling at all
     return [{"sequence": "coupling never run", "values": [], "finding": (
         f"{len(pscripts)} script(s) implement the imports/exports participant "
-        f"exchange ({', '.join(pscripts[:4])}) and no history matching "
-        f"residual_level<k>.csv exists anywhere in this directory. The "
+        f"exchange ({', '.join(pscripts[:4])}) and no per-level residual "
+        f"history exists anywhere in this directory. The "
         f"participants were built and the coupling iteration over them was "
         f"never run — a file set in this state cannot show two codes coupled. "
         f"Run the coupling over these participants; that single step is what "
@@ -1637,33 +1772,30 @@ def unlaunched_participants_findings(work: Path) -> list[dict]:
 
 
 def ndof_ladder_findings(work: Path) -> list[dict]:
-    """The mesh ladder the agent's own logs imply, stated before grading.
+    """The mesh ladder the agent's own logs imply, stated before delivery.
 
     Measured three times in one development stretch: converged couplings
-    (evidence PROVEN at every level) graded malformed because the levels
+    (proven to have run at every level) read as malformed because the levels
     were solved on a SELF-CHOSEN mesh ladder rather than the one the task
     prescribes. The signal was in the agent's own run logs the whole time:
     a halved mesh multiplies the DOF count by ~2^dim per level, so NDOF
     growth factors far from that reveal a non-halved ladder before any
-    grader sees it. No task parsing: this states what the files imply and
-    what halving would imply, and leaves the comparison to the reader who
-    holds the task sheet.
+    independent check sees it. No task parsing: this states what the files
+    imply and what halving would imply, and leaves the comparison to the
+    reader who holds the task sheet.
     """
     import re as _re
     per_level: dict[int, float] = {}
-    for q in sorted(work.rglob("run_level*.log")):
-        m = _re.fullmatch(r"run_level(\d+)(?:_[A-Za-z0-9]+)?\.log", q.name)
-        if not m:
-            continue
+    for q in _level_logs(work):
         try:
             txt = q.read_text(errors="replace")
         except OSError:
             continue
         nm = None
-        for mm in _re.finditer(r"^\s*NDOF\s*=\s*(\d+)\s*$", txt, _re.M):
+        for mm in _DOF_LINE.finditer(txt):
             nm = int(mm.group(1))
         if nm:
-            k = int(m.group(1))
+            k = _level_of(q)
             per_level[k] = per_level.get(k, 0) + nm
     ks = sorted(per_level)
     if len(ks) < 2:
@@ -1678,7 +1810,7 @@ def ndof_ladder_findings(work: Path) -> list[dict]:
     # charged by the assessment) — measured the round after this check
     # landed.
     dim = 2
-    for q in sorted(work.rglob("solution_level*.csv")):
+    for q in _field_files(work):
         try:
             lines = q.read_text(errors="replace").splitlines()
         except OSError:
@@ -1702,7 +1834,7 @@ def ndof_ladder_findings(work: Path) -> list[dict]:
         "per level grows by " + ", ".join(f"{f:.2f}x" for f in factors)
         + ", while halving h multiplies the DOF count by ~4 in 2D and ~8 in "
         "3D. If your task prescribes specific mesh levels, re-check every "
-        "level against that prescription NOW: a submission on a different "
+        "level against that prescription NOW: a result set on a different "
         "ladder cannot be compared level-to-level however well it "
         "converged — measured on runs whose coupling evidence was sound "
         "at every level and which were unusable for exactly this.")}]
@@ -1717,42 +1849,39 @@ def completeness_findings(work: Path) -> list[dict]:
     to have every (level, side) member once any of its members exists.
     MEASURED, the case this exists for: a run with coupling evidence at
     every level ended with 17 minutes of budget unused and two solution
-    files never attempted -- nothing at submit time enumerated the required
+    files never attempted -- nothing at delivery time enumerated the required
     set against the disk, and the auto-audit named quality defects but not
-    absent files. A missing member makes the file set unusable
-    (missing-subdomain-file / wrong-level-count), the same zero as no
-    submission.
+    absent files. A missing member makes the file set unusable (a missing
+    subdomain file, a wrong level count), and it counts for nothing, the
+    same as no result set at all.
     """
     import re as _re
     seen: dict[str, set] = {}
     levels: set[int] = set()
     sides: set[str] = set()
-    for q in work.rglob("*_level*"):
-        m = _re.match(r"(solution|interface|residual|run)_level(\d+)"
-                      r"(?:_([AB]))?\.(csv|log)$", q.name)
-        if not m:
-            continue
-        fam = m.group(1)
-        levels.add(int(m.group(2)))
-        if m.group(3):
-            sides.add(m.group(3))
-        seen.setdefault(fam, set()).add((int(m.group(2)), m.group(3)))
+    for ext in ("csv", "log"):
+        for q, kind, k, s in _level_files(work, ext):
+            if ext == "csv" and _csv_role(q, kind) == "raw":
+                continue
+            fam = f"{kind}.{ext}"
+            levels.add(k)
+            if s:
+                sides.add(s)
+            seen.setdefault(fam, set()).add((k, s or None))
     if not levels or not seen:
         return []
     missing = []
     for fam, members in seen.items():
-        sided = any(s for _, s in members)
+        kind, ext = fam.rsplit(".", 1)
+        fam_sides = sorted({s for _, s in members if s})
         for k in sorted(levels):
-            if fam == "residual" or not sided:
-                if (k, None) not in members and not any(
-                        lv == k for lv, _ in members):
-                    ext = "log" if fam == "run" else "csv"
-                    missing.append(f"{fam}_level{k}.{ext}")
+            if not fam_sides:
+                if not any(lv == k for lv, _ in members):
+                    missing.append(f"{kind}_level{k}.{ext}")
             else:
-                for s in sorted(sides or {"A", "B"}):
+                for s in fam_sides:
                     if (k, s) not in members:
-                        ext = "log" if fam == "run" else "csv"
-                        missing.append(f"{fam}_level{k}_{s}.{ext}")
+                        missing.append(f"{kind}_level{k}_{s}.{ext}")
     if not missing:
         return []
     return [{"sequence": "deliverable completeness", "values": [],
@@ -1761,8 +1890,8 @@ def completeness_findings(work: Path) -> list[dict]:
         "sides your OWN files establish, these members are absent: "
         + ", ".join(missing[:8])
         + (f" (+{len(missing)-8} more)" if len(missing) > 8 else "")
-        + ". A submission missing a level or a side is malformed and scores "
-        "unusable however good the present members are. For members "
+        + ". A result set missing a level or a side is malformed and counts "
+        "as unusable however good the present members are. For members "
         "whose level already has a run log or residual history, write "
         "them from the numbers you already have; for a level with NO "
         "run evidence, solve it or remove its stale files -- never "
@@ -1774,11 +1903,12 @@ def completeness_findings(work: Path) -> list[dict]:
 #
 # Everything below is reachable from BOTH routes an agent actually drives: the
 # live `couple` reply (which computes the flux/continuity checks from this run's
-# own exports, before any file is written) and the on-submit audit (which reads
-# the per-level files). Each check reads ONLY the agent's own output — its
-# exports, its solution_/interface_/residual_level*.csv, its logs — plus the
-# PUBLIC task text where one is explicitly supplied. None of it reads the sealed
-# key: every path here is rooted at the agent's own work dir or at two strings
+# own exports, before any file is written) and the on-delivery audit (which
+# reads the per-level files). Each check reads ONLY the agent's own output —
+# its exports, its solution_/interface_/residual_level*.csv, its logs — plus
+# the PUBLIC task text where one is explicitly supplied. None of it reads the
+# sealed key: every path here is rooted at the agent's own work dir or at two
+# strings
 # the agent itself passed in. The point is corrective prominence — every finding
 # NAMES THE FIX, and what_to_fix_next() surfaces the single highest-priority one
 # at the top of the reply, where a weak agent that merely "acts" will read it.
@@ -1786,8 +1916,9 @@ def completeness_findings(work: Path) -> list[dict]:
 
 
 def _iface_module():
-    """The grader's interface module, or None. Same import path the sign check
-    uses, so this audit and the grade share ONE definition of a jump."""
+    """The shared interface module, or None. Same import path the sign check
+    uses, so this audit and any independent check share ONE definition of a
+    jump."""
     try:
         import sys as _sys
         _here = str(Path(__file__).resolve().parents[1])
@@ -1952,29 +2083,26 @@ def field_continuity_finding(export_a: dict, export_b: dict,
 
 def interface_continuity_findings(work: Path) -> list[dict]:
     """CLASS 2 from the FILES: field continuity at the FINEST level, from the
-    agent's own interface_level<k>_A/B.csv, using the grader's own
-    two_sided_jumps so a finding here mirrors the INTERFACE_NOT_SATISFIED the
-    run would meet at grading. Fires only on a LARGE disagreement (>=25% of the
-    field scale) so a correct-but-coarse level is never charged; the real 27B
-    failures sit near 100%."""
+    agent's own two per-level interface files, using the shared interface
+    module's two_sided_jumps so a finding here mirrors the unsatisfied-
+    interface outcome the run would meet after delivery. Fires only on a LARGE
+    disagreement (>=25% of the field scale) so a correct-but-coarse level is
+    never charged; the real small-model failures sit near 100%."""
     _IF = _iface_module()
     if _IF is None:
         return []
     import re as _re
     ifs: dict[int, dict[str, Path]] = {}
-    for f in sorted(work.rglob("interface_level*_[ABab].csv")):
-        if _SCRATCH & set(f.relative_to(work).parts[:-1]):
-            continue
-        m = _re.search(r"interface_level(\d+)_([ABab])\.csv$", f.name)
-        if m:
-            ifs.setdefault(int(m.group(1)), {})[m.group(2).upper()] = f
+    for f in _interface_files(work, sided=True):
+        ifs.setdefault(_level_of(f), {})[_side_of(f).upper()] = f
     worst = None
     for lvl in sorted(ifs):                     # coarse -> fine, keep the finest
         side = ifs[lvl]
-        if set(side) != {"A", "B"}:
+        if len(side) != 2:
             continue
-        ga = _read_iface(side["A"], _IF, want_flux=True)
-        gb = _read_iface(side["B"], _IF, want_flux=True)
+        sa, sb = sorted(side)
+        ga = _read_iface(side[sa], _IF, want_flux=True)
+        gb = _read_iface(side[sb], _IF, want_flux=True)
         if not (ga and gb):
             continue
         try:
@@ -1997,8 +2125,8 @@ def interface_continuity_findings(work: Path) -> list[dict]:
         f"NOT PHYSICALLY CONVERGED -- a partitioned scheme is converged when "
         f"the two SIDES agree, and an iterate residual falling to tolerance is "
         f"NOT the same statement (it can reach 1e-8 while the fields disagree "
-        f"by ~100%, which is what this submission shows). Recompute the stop "
-        f"criterion FROM THE TWO FILES you are about to submit -- "
+        f"by ~100%, which is what this result set shows). Recompute the stop "
+        f"criterion FROM THE TWO FILES you are about to deliver -- "
         f"max|u_A - u_B| over the shared interface rows, divided by max|u_A| -- "
         f"and iterate on THAT. If it will not fall, the Dirichlet value one "
         f"side applies is not the trace the other side exported: match them "
@@ -2006,21 +2134,15 @@ def interface_continuity_findings(work: Path) -> list[dict]:
 
 
 def identical_solution_levels_findings(work: Path) -> list[dict]:
-    """CLASS 3: solution_level<i> == solution_level<j> point-for-point => one
+    """CLASS 3: <field>_level<i> == <field>_level<j> point-for-point => one
     mesh was saved to every level, so there is no refinement to measure. Skips
     a near-zero field (the near-zero check owns that) so the two are not both
     reported for the same files."""
     import re as _re
-    pat = _re.compile(r"^solution_level(\d+)(?:_([A-Za-z0-9]+))?\.csv$")
     groups: dict[str, dict[int, Path]] = {}
-    for q in sorted(work.rglob("solution_level*.csv")):
-        if not q.is_file() or _SCRATCH & set(q.relative_to(work).parts[:-1]):
-            continue
-        m = pat.match(q.name)
-        if not m:
-            continue
-        side = (m.group(2) or "").upper()
-        lv = int(m.group(1))
+    for q in _field_files(work):
+        side = _side_of(q).upper()
+        lv = _level_of(q)
         prev = groups.get(side, {}).get(lv)
         # shallowest wins, so a build/ copy never shadows the real deliverable
         if prev is None or (len(q.relative_to(work).parts)
@@ -2058,7 +2180,7 @@ def identical_solution_levels_findings(work: Path) -> list[dict]:
                 f"is exactly zero). A refinement study measures how the answer "
                 f"CHANGES as the mesh is refined, so identical levels carry no "
                 f"order at all -- log2(|L1-L2|/|L2-L3|) is 0/0 -- and the study "
-                f"grades as NOT RUN however correct each level is. You SAVED ONE "
+                f"counts as NOT RUN however correct each level is. You SAVED ONE "
                 f"MESH TO ALL THE LEVELS. Run three DISTINCT meshes (the "
                 f"prescribed coarsest, then halve, then halve again) and save "
                 f"each level's OWN result: if you drove this through couple(), "
@@ -2106,16 +2228,10 @@ def solution_rows_grow_findings(work: Path) -> list[dict]:
     prescribed probe points at every level; a growing count means the agent
     wrote its own mesh nodes instead of sampling the fixed points."""
     import re as _re
-    pat = _re.compile(r"^solution_level(\d+)(?:_([A-Za-z0-9]+))?\.csv$")
     per_side: dict[str, dict[int, int]] = {}
-    for q in sorted(work.rglob("solution_level*.csv")):
-        if not q.is_file() or _SCRATCH & set(q.relative_to(work).parts[:-1]):
-            continue
-        m = pat.match(q.name)
-        if not m:
-            continue
-        side = (m.group(2) or "").upper()
-        lv = int(m.group(1))
+    for q in _field_files(work):
+        side = _side_of(q).upper()
+        lv = _level_of(q)
         try:
             n = sum(1 for _ in open(q, errors="ignore")) - 1     # minus header
         except OSError:
@@ -2134,7 +2250,7 @@ def solution_rows_grow_findings(work: Path) -> list[dict]:
                 f"YOUR SOLUTION ROW COUNT GROWS WITH THE LEVEL{tag}: "
                 + ", ".join(str(n) for n in ns) + " rows across the levels. The "
                 "task's SOLUTION PROBE POINTS are FIXED -- the same points at "
-                "every mesh level -- so every solution_level<k>.csv must carry "
+                "every mesh level -- so every per-level field file must carry "
                 "the SAME rows in the same order. A count that grows with the "
                 "mesh means you wrote your own MESH NODES instead of evaluating "
                 "(interpolating) your solution AT the prescribed points. "
@@ -2226,8 +2342,8 @@ _PRIORITY_TABLE = [
           "RUN TO THE ENDS OF THE INTERFACE", "DISTINCT VALUES ACROSS",
           "NEAREST-NODE")),
     (60, ("DELIVERABLE SET IS INCOMPLETE", "MISSING LEVEL", "DIFFERING COPY",
-          "NDOF = <INTEGER>", "MESH LADDER THAT WAS NOT HALVED",
-          "RESULT.TXT IS MISSING", "YOUR OWN NDOF IS")),
+          "NO DOF-COUNT LINE", "MESH LADDER THAT WAS NOT HALVED",
+          "SUMMARY FILE IS MISSING", "YOUR OWN NDOF IS")),
     (70, ("NEAR-ZERO FIELD", "FLOOR:")),
     (80, ("ORDER MISMATCH", "IMPROVE AT ONLY", "NON-MONOTONE", "FLUX JUMP",
           "FIRST-ORDER INTERFACE RECOVERY")),
@@ -2292,7 +2408,7 @@ def run_log_identity_findings(work: Path) -> list[dict]:
     emits (a solver-iteration line, a banner with a number). A log of the
     agent's own summary -- `NDOF = 54`, `solve completed`, `max|u| = ...` --
     is prose, and a side whose log is prose cannot be credited to that code
-    however right its numbers are. Measured on the honest C3 rebuild: a side
+    however right its numbers are. Measured on one real coupled run: a side
     labelled DUNE-fem that solved with scipy and wrote a three-line summary
     passed every other check here. Reads only the agent's own files.
     """
@@ -2304,14 +2420,12 @@ def run_log_identity_findings(work: Path) -> list[dict]:
         return out
     import re as _re
     pats = [p for plist in PER_CODE_SIGNATURES.values() for p in plist]
-    # Per-SIDE logs only (run_level<k>_<side>.log): on a coupled cell the task
+    # Per-SIDE logs only (run_level<k>_<side>.log): on a coupled problem the task
     # asks each side's log to carry that code's own console output, because
     # that is what says WHICH code ran which subdomain. A single-code log is
     # judged by the evidence gate's canonical lines and is not charged here.
-    for f in sorted(work.rglob("run_level*_*.log")):
-        if not _re.match(r"^run_level\d+_[A-Za-z0-9]+\.log$", f.name):
-            continue
-        if _SCRATCH & set(f.relative_to(work).parts[:-1]):
+    for f in _level_logs(work):
+        if not _side_of(f):
             continue
         try:
             text = strip_terminal_noise(f.read_text(errors="ignore"))
@@ -2333,9 +2447,16 @@ def run_log_identity_findings(work: Path) -> list[dict]:
     return out
 
 
-def audit(work_dir: str, claimed_order: float | None = None) -> dict:
-    """The three questions, answered from the agent's own files."""
+def audit(work_dir: str, claimed_order: float | None = None,
+          summary_path: str | None = None) -> dict:
+    """The three questions, answered from the agent's own files.
+
+    `summary_path` is the caller's hint for the agent's summary/answer file
+    (a harness knows which file it just saw written); without it the file is
+    discovered by name (result / summary / report / answer)."""
     work = Path(work_dir)
+    if summary_path:
+        _SUMMARY_HINT[str(work)] = summary_path
     findings: list[dict] = []
     findings.extend(residual_findings(work))
     findings.extend(completeness_findings(work))
@@ -2382,7 +2503,7 @@ def audit(work_dir: str, claimed_order: float | None = None) -> dict:
     # near-zero field: the loads may never have been applied at all
     for label, seq in list(seqs.items()):
         # "< 1e-8" must INCLUDE exact zero — the three 4C runs that wired
-        # VAL: [0.0], FUNCT: [0] submitted fields of literal 0.0 everywhere,
+        # VAL: [0.0], FUNCT: [0] delivered fields of literal 0.0 everywhere,
         # and "0 < x" excluded precisely them.
         if label.startswith("magnitude_") and seq and seq[0] < 1e-8:
             findings.append({"sequence": label, "values": seq, "finding": (
@@ -2401,7 +2522,7 @@ def audit(work_dir: str, claimed_order: float | None = None) -> dict:
         entry = {"sequence": label, "values": seq}
         # 1. floor detection FIRST — a flat sequence is precisely the case the
         # old monotonicity filter threw away before this check could see it,
-        # which is why the FB runs (errors flat at ~6e-7) sailed through.
+        # which is why runs with errors flat at ~6e-7 sailed through.
         rel = [abs(a - b) / max(abs(a), 1e-300) for a, b in zip(seq, seq[1:])]
         if all(r < 0.05 for r in rel):
             entry["finding"] = (
@@ -2433,14 +2554,15 @@ def audit(work_dir: str, claimed_order: float | None = None) -> dict:
         # weight and converges at order 1, measured 1.000/1.013/1.010 against a
         # known exact flux while the interior runs at 1.99. So a perfectly good
         # coupling shows interface self-differences improving at ~0.9-1.4.
-        # It cost exactly one false alarm, and it was on C7_BARE seed 2 — the
-        # single coupled cell anyone has ever had graded CORRECT.
+        # It cost exactly one false alarm, and it was on the single coupled
+        # run anyone had, at that point, verified correct against an
+        # independent reference.
         _is_iface = label.startswith("selfdiff_interface") or \
             label.startswith("magnitude_interface")
         if _is_iface:
             continue
-        _coupled_low = (0.5 <= med <= 1.45 and any(
-            True for _ in work.rglob("interface_level*_[AB].csv")))
+        _coupled_low = (0.5 <= med <= 1.45
+                        and bool(_interface_files(work, sided=True)))
         if (claimed_order is None and _coupled_low
                 and not label.startswith("magnitude_")):
             entry["finding"] = (
@@ -2470,14 +2592,13 @@ def audit(work_dir: str, claimed_order: float | None = None) -> dict:
                 f"a low-order quadrature or projection in post-processing.")
             # THE COUPLED CAUSE WAS MISSING FROM THIS LIST. Measured three
             # times in one development day: couplings with converged
-            # three-level evidence graded at 0.85, 0.96 and 0.97 against a
+            # three-level evidence read as order 0.85, 0.96 and 0.97 against a
             # theoretical 2, each from a DIFFERENT first-order interface
             # recovery (a two-point nearest-node difference; a P1 element
             # gradient evaluated ON the boundary). Pattern checks cannot
             # enumerate the variants; the ORDER ITSELF is the signature, and
-            # this is the one message every such run reads before submitting.
-            if 0.5 <= med <= 1.45 and any(
-                    True for _ in work.rglob("interface_level*_[AB].csv")):
+            # this is the one message every such run reads before delivering.
+            if 0.5 <= med <= 1.45 and _interface_files(work, sided=True):
                 _msg += (
                     " On a COUPLED run an order stuck near 1 with a converged "
                     "coupling is the FIRST-ORDER INTERFACE RECOVERY "

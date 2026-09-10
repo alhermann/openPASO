@@ -560,7 +560,7 @@ def narrow(all_pitfalls: dict[str, Any], *, physics: str = "",
         sel = [e for e in kept
                if want in e["physics"].lower() or e["physics"].lower() in want]
         # TOKEN OVERLAP, because substring matching punishes the agent for
-        # using the TASK's vocabulary. NG1's task says "anisotropic diffusion";
+        # using the TASK's vocabulary. One task said "anisotropic diffusion";
         # the backend's buckets are `poisson` and `convection_diffusion`.
         # Neither substring test fires, so `physics='anisotropic_diffusion'`
         # selected NOTHING and the reply was 5,685 chars against 7,047 for the
@@ -584,9 +584,10 @@ def narrow(all_pitfalls: dict[str, Any], *, physics: str = "",
         # knowledge unreachable or make a miss look like an empty database",
         # and the code broke that promise: an unrecognised physics name left
         # only the physics-independent buckets, so the agent read a near-empty
-        # reply as "OASiS knows nothing about my problem". Measured on NG1,
-        # where the one fact that decides CORRECT from CONFIDENTLY_WRONG lives
-        # under `poisson` and the task calls the problem anisotropic diffusion.
+        # reply as "OASiS knows nothing about my problem". Measured on one
+        # development run, where the one fact that decides a correct result
+        # from a confidently wrong one lives under `poisson` and the task calls
+        # the problem anisotropic diffusion.
         #
         # The first repair here returned EVERYTHING when nothing matched, which
         # traded a false-empty answer for a 130,283-char flood — the exact

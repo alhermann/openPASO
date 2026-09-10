@@ -1,4 +1,4 @@
-"""Discrete-residual check: does the submitted field actually solve the problem?
+"""Discrete-residual check: does the delivered field actually solve the problem?
 
 WHY THIS EXISTS
 ---------------
@@ -15,10 +15,10 @@ appearance but in whether they SATISFY THE EQUATIONS they claim to solve.
 
 WHAT THIS CHECKS
 ----------------
-Given the submitted mesh and field, OASiS assembles the discrete operator of
+Given the delivered mesh and field, OASiS assembles the discrete operator of
 the stated problem ON THAT MESH and measures
 
-    rho = || A u_submitted - b ||  /  || b ||        (interior degrees of freedom)
+    rho = || A u_delivered - b ||  /  || b ||        (interior degrees of freedom)
 
 For a genuine finite element solution rho is at the linear solver's tolerance,
 because A u = b is precisely the system that was solved. For anything else it
@@ -123,7 +123,7 @@ def check_elasticity_residual(points, cells, values, *, dim: int,
     anyone actually runs. UNSUPPORTED is honest, but it is not protection.
 
     Same discriminator as the scalar case: assemble -div(sigma(u)) = f on the
-    SUBMITTED mesh and measure how far the submitted displacement is from
+    DELIVERED mesh and measure how far the delivered displacement is from
     satisfying it. A genuine solve sits at the round-off floor; an analytic
     field sampled at the nodes misses by the truncation error.
 
@@ -230,7 +230,7 @@ def check_elasticity_residual(points, cells, values, *, dim: int,
 
 
 def _build_mesh(points: np.ndarray, cells, dim: int):
-    """Construct a scikit-fem mesh from submitted points/cells.
+    """Construct a scikit-fem mesh from delivered points/cells.
 
     Cell blocks are normalised through the fabrication gate's helper rather
     than indexed directly. Indexing is what broke here: meshio returns
@@ -342,7 +342,7 @@ def check_residual(points, cells, values, *, dim: int,
     mesh = _build_mesh(pts, cells, dim)
     if mesh is None:
         return ResidualVerdict(False, None, None, 0, None,
-                               f"no simplicial cells of dimension {dim} in the submission")
+                               f"no simplicial cells of dimension {dim} in the delivered mesh")
 
     elem = ElementTriP1() if dim == 2 else ElementTetP1()
     basis = Basis(mesh, elem)
@@ -396,7 +396,7 @@ def check_residual(points, cells, values, *, dim: int,
 
     if vals.shape[0] != A.shape[0]:
         return ResidualVerdict(False, None, None, 0, measure,
-                               "degrees of freedom do not match the submitted field")
+                               "degrees of freedom do not match the delivered field")
 
     boundary = basis.get_dofs().flatten()
     interior = np.setdiff1d(np.arange(A.shape[0]), boundary)

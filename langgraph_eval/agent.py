@@ -107,42 +107,19 @@ BARE_SYSTEM = (
 # It also named the wrong coupling tools. `coupled_solve` and `transfer_field`
 # are marked DEPRECATED in server.py and were called ZERO times in 325 MCP
 # runs, while `couple` — which this prompt never mentioned — was used in 70.
-MCP_SYSTEM = (
-    "When you write your final RESULT.txt, it is automatically audited "
-    "against your own output files and any findings appear in the write "
-    "confirmation - read them, fix what is real, and rewrite the file. "
-    "You can also run that check yourself at any time with "
-    "`audit_results(work_dir)`: it reads ONLY your own files — no reference "
-    "solution — and names the ways a complete-looking submission is wrong (a "
-    "field that is identically zero because a load was never wired in, errors "
-    "on a solver-tolerance floor, a convergence rate your own numbers "
-    "contradict, a coupling residual history that does not actually converge). "
-    "It costs one call and it works whether you ran through OASiS tools or "
-    "through your own shell.\n\n"
-    "You are connected to the OASiS MCP server (prepare_simulation, "
-    "knowledge, discover, examples, developer, generate_mesh, run_simulation, "
-    "run_with_generator, couple, couple_precice, audit_results, visualize, "
-    "session_insights, submit_critic_review, verify_mesh_independence, "
-    "verify_pde_consistency). "
-    "Start with `prepare_simulation(solver, physics)` — it returns knowledge, "
-    "real reference files and a template in one call. Use `knowledge` for "
-    "physics and pitfalls (add `index=True` on the pitfalls topic: the "
-    "unfiltered dump can exceed 90k tokens and will eat your context), "
-    "`developer` for source lookups, and `couple` for cross-code coupling.\n\n"
-    "When calling `prepare_simulation`, preserve every method-defining "
-    "qualifier from the task in `physics`; do not reduce it to a generic "
-    "family. For example, ask for `nearly incompressible Taylor-Hood "
-    "elasticity`, `steady SIPG advection-diffusion`, or `Crank-Nicolson "
-    "transient heat`, not merely `linear_elasticity`, `diffusion`, or `heat`. "
-    "Those qualifiers select different spaces, operators, and templates.\n\n"
-    "For every `couple` call, pass the task's absolute "
-    "`residual_level<k>.csv` path as `history_path`. OASiS writes the measured "
-    "finite residuals there; never retype or synthesize a history from chat "
-    "output.\n\n"
-    "Host-side tools (also available): run_bash, read_file, write_file, "
-    "web_search, spawn_subagent.\n\n"
-    + _CRITIC_BLOCK
-)
+def _mcp_system_prompt() -> str:
+    """The OASiS arm's system text is OASiS's OWN instructions string -- the
+    one server.py hands to FastMCP -- read from the product (core.instructions).
+    MCP clients fold or drop a server's instructions, so the harness puts the
+    same bytes in front of the model; it adds only its own tool wiring (the
+    host-side tools, and how to run the critic OASiS demands with this
+    harness's spawn_subagent). No knowledge, no file names, no coaching lives
+    here: whatever OASiS should say about itself is said in OASiS."""
+    from core.instructions import INSTRUCTIONS    # src/ is put on sys.path below
+    return (INSTRUCTIONS
+            + "\n\nHost-side tools (also available): run_bash, read_file, "
+              "write_file, web_search, spawn_subagent.\n\n"
+            + _CRITIC_BLOCK)
 
 
 # ────────────────────────────────────────────────────────────────────
@@ -269,17 +246,10 @@ def _time_left_note() -> str:
     # much clock remains -- so the urgency trigger is keyed on the clock.
     if _ACTIONS_USED:
         parts.append(f"actions spent: {_ACTIONS_USED}")
-    if _DEADLINE is not None:
-        import time as _t
-        frac = (_DEADLINE[0] - _t.time()) / max(_DEADLINE[1], 1.0)
-        if frac <= 0.25:
-            parts.append(
-                "WRITE THE DELIVERABLE NOW, with whatever levels you have. "
-                "Measured over six coupled runs: five wrote their submission "
-                "at 93-99% of their activity span and had 8 to 115 seconds "
-                "left to fix anything; the one that reached a gradeable order "
-                "with both codes proven wrote it at 68%. A partial submission "
-                "is graded. An unwritten one is not.")
+    # NO PACING OR COACHING TEXT HERE: the harness states the clock and the
+    # actions spent, nothing else. A sentence telling the agent when to write
+    # or what a partial result is worth is coaching, verifies nothing, and
+    # does not belong in either layer.
     return ("\n[" + " | ".join(parts) + "]") if parts else ""
 
 
@@ -291,20 +261,13 @@ def _format_audit_reply(findings) -> str:
     copies of this wording would drift the moment either is edited.
     """
     if findings == "NOEVIDENCE":
-        return ("\n[auto-audit: found NO per-level result files "
-                "to check. This is NOT a clean bill — it means "
-                "there is nothing here to verify. If you have "
-                "results, write them per level; if you do not, "
-                "this submission has no numbers behind it.]")
+        return ("\n[auto-audit: no per-level result files were found "
+                "to check, so nothing here was verified.]")
     if findings:
-        return ("\n\nAUTO-AUDIT of your submission (from your own "
-                "files only — no reference solution):\n" + findings +
-                "\nA finding is a pointer, not a verdict: check the "
-                "named place, fix if real, and REWRITE this file. "
-                "Submitting with a standing finding usually grades "
-                "wrong.")
+        return ("\n\nAUTO-AUDIT of your result files (your own files "
+                "only, no reference solution):\n" + findings)
     if findings == "":
-        return ("\n[auto-audit: clean — self-consistent, which "
+        return ("\n[auto-audit: no findings -- self-consistent, which "
                 "is necessary but not sufficient for correct]")
     return ""
 
@@ -536,8 +499,10 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
     # the shell command that ran it. This is the same lesson this file already
     # records for RESULT.txt -- 57% of submitters wrote it by shell only -- and
     # the fix there was never extended to the artefacts.
-    _ART = ("residual_level*.csv", "interface_level*_[AB].csv",
-            "solution_level*.csv", "*_level*.csv", "*_level*.log")
+    # GENERIC: any level-indexed artefact (<kind>_level<k>[_<side>].csv/.log).
+    # The kinds are taken from the files' own names below, so the hook knows
+    # no task's naming scheme.
+    _ART = ("*_level*.csv", "*_level*.log")
     # A PARTICIPANT SCRIPT WRITTEN BY HEREDOC IS STILL A PARTICIPANT SCRIPT.
     # 18 of 18 runs on the coupled cell set FACE_HEAT_FLUX with no condition;
     # catching that only on write_file would miss every agent that uses a
@@ -611,11 +576,12 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
             # Caught by this hook's own test, which counted a finding twice.
             # Deterministic tie-break, one check per FILE, one copy per BLOCK.
             blocks, chosen = [], set()
-            for pat in _ART:
-                import fnmatch
-                same = [f for f in touched if fnmatch.fnmatch(f.name, pat)]
-                if not same:
-                    continue
+            kinds: dict = {}
+            for f in touched:
+                stem = f.name.lower().split("_level", 1)[0]
+                kinds.setdefault((stem, f.suffix.lower()), []).append(f)
+            for _kind in sorted(kinds):
+                same = kinds[_kind]
                 newest = max(same, key=lambda f: (now[f], f.name))
                 if newest in chosen:
                     continue
@@ -1101,7 +1067,8 @@ def _audit_submission(result_path: Path, content: str):
             claimed = float(mm.group(2))
         except ValueError:
             claimed = None
-    r = _audit(str(result_path.parent), claimed_order=claimed)
+    r = _audit(str(result_path.parent), claimed_order=claimed,
+               summary_path=str(result_path))
     if r.get("sequences_found", 0) == 0 and r.get("clean"):
         return "NOEVIDENCE"
     if r.get("clean"):
@@ -1144,8 +1111,7 @@ def build_bare_agent(*, size: str, seed: int, workdir: Path, depth: int = 0):
 # it: the artefacts appeared between hook points. Twenty-first instance of the
 # theme, on the newest mechanism. The hook below is plumbing only -- every
 # check body stays in OASiS (tools/workspace_advisor).
-_MCP_HOOK_ART = ("residual_level*.csv", "interface_level*_[AB].csv",
-                 "solution_level*.csv", "*_level*.csv", "*_level*.log")
+_MCP_HOOK_ART = ("*_level*.csv", "*_level*.log")
 
 
 def _mcp_artefact_mtimes(workdir: Path) -> dict:
@@ -1224,7 +1190,7 @@ async def build_mcp_agent(*, size: str, seed: int, workdir: Path,
                            audit_on_submit=True)
         llm = _llm(size, temperature=0.2, seed=seed)
         yield create_react_agent(llm, tools=mcp_tools + host,
-                                 prompt=MCP_SYSTEM)
+                                 prompt=_mcp_system_prompt())
 
 
 __all__ = ["build_bare_agent", "build_mcp_agent",

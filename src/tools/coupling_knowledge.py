@@ -2758,6 +2758,9 @@ def why_4c_did_not_finish():
                 _bad = [s for s in dict.fromkeys(_secs) if s not in _valid and not _re.fullmatch(r"FUNCT\\d+", s)]
                 if _bad:
                     _why.append("section name(s) the binary's own grammar (`4C -p`) does not know: " + ", ".join(_bad))
+            if "Scalar_Transport" in _txt and "THERMAL DYNAMIC:" in _txt and "SCALAR TRANSPORT DYNAMIC:" not in _txt:
+                _why.append("PROBLEMTYPE Scalar_Transport needs its dynamics under `SCALAR TRANSPORT DYNAMIC`, "
+                            "not `THERMAL DYNAMIC` (that is the Thermo problem type)")
             if "CALCFLUX_BOUNDARY" in _txt and "FLUX CALC" not in _txt:
                 _why.append("CALCFLUX_BOUNDARY is set but no `SCATRA FLUX CALC LINE CONDITIONS` (SURF in 3-D) entry "
                             "names the interface, and 4C refuses flux output without one")
@@ -2799,9 +2802,14 @@ atexit.register(_diagnose_at_exit)
 #     knowledge(topic='coupling', solver='fourc')     # the 4C traps below
 #
 # For THIS coupling your deck must:
-#   * be PROBLEMTYPE "Scalar_Transport", TIMEINTEGR "Stationary", a MAT_scatra
-#     material with DIFFUSIVITY = KV, and TRANSP QUAD4/TRI3 elements in a
-#     TRANSPORT ELEMENTS section (SOLID elements are rejected against MAT_scatra);
+#   * be PROBLEMTYPE "Scalar_Transport" with its dynamics in a section named
+#     exactly `SCALAR TRANSPORT DYNAMIC` (TIMEINTEGR "Stationary", SOLVERTYPE
+#     "linear_full", CALCFLUX_BOUNDARY "diffusive"), a MAT_scatra material
+#     with DIFFUSIVITY = KV, and TRANSP QUAD4/TRI3 elements in a TRANSPORT
+#     ELEMENTS section (SOLID elements are rejected against MAT_scatra). NOT
+#     `THERMAL DYNAMIC`: that is the Thermo problem type, it has no CALCFLUX
+#     and writes no scatra VTU, and 4C aborts with "Could not match this
+#     input" on the scatra keys (measured in two trial decks tonight);
 #   * on the NEUMANN side (SIDE == "neumann"): apply the imported partner flux
 #     as the interface load -- one DESIGN POINT NEUMANN per INTERIOR interface
 #     node whose VAL is that node's NODAL LOAD: the flux density integrated

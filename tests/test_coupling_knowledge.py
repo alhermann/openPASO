@@ -540,7 +540,7 @@ def test_knowledge_tool_output_matches_the_payload_function(topic):
     # is left must be a PREFIX of the tested function's output. A drifted copy
     # fails that immediately; a truncated faithful copy passes.
     from tools.knowledge import _UNIVERSAL_CORE, _UNIVERSAL
-    from tools.consolidated import _COUPLING_MUST_READ
+    from tools.consolidated import _COUPLING_MUST_READ, _MUST_READ_POINTER
     fn = coupling_knowledge if topic == "coupling" else precice_knowledge
     tool = _knowledge_tool()
     for solver in [""] + _BACKEND_ORDER:
@@ -554,8 +554,12 @@ def test_knowledge_tool_output_matches_the_payload_function(topic):
             # the notice is preceded by a rule of box-drawing characters, so
             # strip those too or the "prefix" carries a line the source has not
             body = body[:body.rfind("\n", 0, cut)].rstrip("\u2500\n ")
-        if body.startswith(_COUPLING_MUST_READ):
-            body = body[len(_COUPLING_MUST_READ):]
+        # the must-read leads the FIRST coupled reply of a session; every
+        # later one leads with the pointer to it -- strip whichever it is
+        for lead in (_COUPLING_MUST_READ, _MUST_READ_POINTER):
+            if body.startswith(lead):
+                body = body[len(lead):]
+                break
         body = body.lstrip("\n")
         assert expected.startswith(body.rstrip()) or body.strip() in expected, (
             f"knowledge(topic={topic!r}, solver={solver!r}) is not a faithful "

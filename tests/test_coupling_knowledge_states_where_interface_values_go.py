@@ -147,17 +147,30 @@ def test_the_measured_counts_are_illustrative_not_prescriptive(coupling_payload)
 
 
 def test_a_coupled_request_by_any_route_gets_it(knowledge_tool):
-    """Agents reach coupling knowledge by more than one call shape."""
+    """Agents reach coupling knowledge by more than one call shape.
+
+    The must-read (which carries the interface rule) is served ONCE per
+    session -- measured, a small model was handed five copies in seven calls
+    and drowned -- so the FIRST coupled reply carries the rule and every later
+    one carries the pointer that names how to get it back."""
+    from tools import consolidated as _C
+    _C._MUST_READ_STATE["served"] = False
+    first = knowledge_tool(topic="coupling")
+    assert "INTERFACE FILE IS WRITTEN AT THE POINTS" in first
     missing = []
-    for kwargs in ({"topic": "coupling"},
-                   {"topic": "coupling", "solver": "fourc"},
+    for kwargs in ({"topic": "coupling", "solver": "fourc"},
                    {"topic": "coupling", "signal": "interface residual will not fall"},
                    {"topic": "conjugate_heat_transfer"}):
         out = knowledge_tool(**kwargs)
         if not isinstance(out, str):
             continue
-        if "INTERFACE FILE IS WRITTEN AT THE POINTS" not in out:
+        if ("INTERFACE FILE IS WRITTEN AT THE POINTS" not in out
+                and "signal='must-read'" not in out):
             missing.append(kwargs)
     assert not missing, (
-        f"these coupling requests come back without the interface rule: {missing}"
+        f"these coupling requests come back with neither the interface rule "
+        f"nor the pointer to it: {missing}"
     )
+    again = knowledge_tool(topic="coupling", signal="must-read")
+    assert "INTERFACE FILE IS WRITTEN AT THE POINTS" in again, (
+        "signal='must-read' must bring the must-read back")

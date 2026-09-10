@@ -2204,6 +2204,23 @@ from .knowledge import _UNIVERSAL_CORE as _UNIVERSAL_CORE      # noqa: E402
 # each other; a second key (id, 'served') marks the must-read as sent.
 _PREPARED_SOLVERS: dict = {}
 
+# THE COUPLED MUST-READ IS SERVED ONCE PER SESSION. Measured on a small model:
+# a seven-call sequence (discover, three knowledge calls, two
+# prepare_simulation calls, one more knowledge call) carried FIVE copies of
+# the ~24k-character must-read -- about 100k tokens of served text in all --
+# and the run gave up citing complexity with 33 minutes of its 45 left. The
+# rules do not change between calls; repeating them only fills the context
+# the agent needs for its own work. One server process is one session, so a
+# module flag is the session; `register_consolidated_tools` resets it.
+_MUST_READ_STATE: dict = {"served": False}
+_MUST_READ_POINTER = (
+    "THE COUPLED MUST-READ (the couple() call recipe, history_path, the "
+    "fields-vs-evidence rule, the measured-not-modelled history rule, the "
+    "sign convention, the rho budget, the silent no-flux trap) was served "
+    "earlier in this session and is not repeated here, to leave you the "
+    "context for your own work. To see it again: "
+    "knowledge(topic='coupling', signal='must-read').\n\n")
+
 
 _DECIDING_FACTS = {
     "fourc": (
@@ -2278,10 +2295,10 @@ _DECIDING_FACTS = {
     # ufl 2025.2.1) on 2026-09-03. repr-generated literal: the measured
     # text contains brace/quote sequences that hand-escaping kept
     # breaking.
-    "fenics": "1. `ufl.FiniteElement` NO LONGER EXISTS (dolfinx 0.10 / ufl 2025.2: AttributeError; the lowercase hint `ufl.finiteelement` is NOT what you want either). Build spaces the modern way -- fem.functionspace(mesh, ('Lagrange', 1)) with lowercase f, or basix.ufl.element('Lagrange', 'triangle', 1). Both measured working on this install.\n2. `LinearProblem` REQUIRES the keyword `petsc_options_prefix` on this install (TypeError without it). Measured working:\n       p = dolfinx.fem.petsc.LinearProblem(a, L, bcs=[bc],\n           petsc_options={'ksp_type': 'preonly', 'pc_type': 'lu'},\n           petsc_options_prefix='run')\n       uh = p.solve()\n   Its solver is the PUBLIC `p.solver`; touching `p._solver` raises AttributeError (one run died on exactly that).\n3. dolfinx is SILENT by default: before creating the mesh, call dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO) -- the DOLFINX_LOGLEVEL environment variable is NOT honoured, and a run whose console output stays empty cannot show which code ran.\n4. Evaluate a Function at arbitrary points with the bb-tree route: bb = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim); cand = dolfinx.geometry.compute_collisions_points(bb, pts); cells = dolfinx.geometry.compute_colliding_cells(mesh, cand, pts); then uh.eval(pts, first_cell_per_point). Nearest-DOF lookup is the export defect that turns a converged solve into a wrong answer.",
+    "fenics": "1. `ufl.FiniteElement` NO LONGER EXISTS (dolfinx 0.10 / ufl 2025.2: AttributeError; the lowercase hint `ufl.finiteelement` is NOT what you want either). Build spaces the modern way -- fem.functionspace(mesh, ('Lagrange', 1)) with lowercase f, or basix.ufl.element('Lagrange', 'triangle', 1). Both measured working on this install.\n2. `LinearProblem` REQUIRES the keyword `petsc_options_prefix` on this install (TypeError without it). Measured working:\n       p = dolfinx.fem.petsc.LinearProblem(a, L, bcs=[bc],\n           petsc_options={'ksp_type': 'preonly', 'pc_type': 'lu'},\n           petsc_options_prefix='run')\n       uh = p.solve()\n   Its solver is the PUBLIC `p.solver`; touching `p._solver` raises AttributeError (one run died on exactly that).\n3. dolfinx is SILENT by default: before creating the mesh, call dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO) -- the DOLFINX_LOGLEVEL environment variable is NOT honoured, and a run whose console output stays empty cannot show which code ran.\n4. Evaluate a Function at arbitrary points with the bb-tree route: bb = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim); cand = dolfinx.geometry.compute_collisions_points(bb, pts); cells = dolfinx.geometry.compute_colliding_cells(mesh, cand, pts); then uh.eval(pts, first_cell_per_point). Nearest-DOF lookup is the export defect that turns a converged solve into a wrong answer.\n5. FIRST USE COMPILES TOO: dolfinx JIT-compiles every new form with ffcx (a minute or more the first time, more under load). A short `timeout` around that first run, or a pipe into `head`, kills it mid-compile and looks like a crash. Run each participant once standalone with a generous timeout before coupling; the cached modules make later runs start in seconds.",
     # Every line measured by execution on this install (dune-fem on
     # dune-py313) on 2026-09-03. repr-generated literal.
-    "dune": "1. `ufl.Eq` NO LONGER EXISTS in this ufl (ImportError; five hits in one round). The lowercase `ufl.eq` does, used inside a conditional: ufl.conditional(ufl.eq(a, b), val_true, val_false). Measured working.\n2. `DirichletBC` takes (functionSpace, value, subDomain=None) -- there is NO `marker` keyword (TypeError). Measured signature on this install.\n3. `scheme.solve(target=uh)` returns a DICT with keys converged, iterations, linear_iterations, timing -- read info['converged'], never info.converged (AttributeError on dict; one round hit it three times). Measured: a 4x4 Laplace solve returns converged=True with max|u| = 7.768e-02.\n4. Solver verbosity for a captured log: parameters={'linear.verbose': True} on galerkin(...) -- the old 'newton.linear.verbose' spelling is deprecated and warns.\n5. Create functions with a name -- space.interpolate(0.0, name='uh') -- because a plain UFL expression has no .name and downstream I/O that asks for one dies on AttributeError.",
+    "dune": "1. `ufl.Eq` NO LONGER EXISTS in this ufl (ImportError; five hits in one round). The lowercase `ufl.eq` does, used inside a conditional: ufl.conditional(ufl.eq(a, b), val_true, val_false). Measured working.\n2. `DirichletBC` takes (functionSpace, value, subDomain=None) -- there is NO `marker` keyword (TypeError). Measured signature on this install.\n3. `scheme.solve(target=uh)` returns a DICT with keys converged, iterations, linear_iterations, timing -- read info['converged'], never info.converged (AttributeError on dict; one round hit it three times). Measured: a 4x4 Laplace solve returns converged=True with max|u| = 7.768e-02.\n4. Solver verbosity for a captured log: parameters={'linear.verbose': True} on galerkin(...) -- the old 'newton.linear.verbose' spelling is deprecated and warns.\n5. Create functions with a name -- space.interpolate(0.0, name='uh') -- because a plain UFL expression has no .name and downstream I/O that asks for one dies on AttributeError.\n6. FIRST USE COMPILES. 'DUNE-INFO: Compiling Integrands (new)' means dune-fem is JIT-compiling your UFL forms -- minutes on a loaded machine, and again for every new form. Do NOT wrap the run in a short `timeout` and do NOT pipe it into `head`: a PETSc 'Caught signal number 15 Terminate' printed after those lines means the process was killed from OUTSIDE (a timeout or a closed pipe), not that the solver crashed (measured: one run wrapped its participant in `timeout 120`, read the signal-15 message as 'DUNE crashes on every attempt' and gave up with a working install). Run each participant once standalone with a generous timeout so the compiled modules are cached; the coupling iterations then start in seconds.",
     # Every line measured by execution on this install (FEBio 4.12,
     # febio4 binary) on 2026-09-04. repr-generated literal.
     "febio": '1. READING RESULTS BACK IS ONE DECK LINE, and a solve that is never read back counts for nothing. Put inside <Output><logfile>:\n       <node_data data="x;y;z;ux;uy;uz" delim="," file="nodal_out.csv"/>\n   FEBio then writes one block PER TIME STEP, each headed *Step/*Time/*Data lines (measured: 51 blocks for 50 steps, header \'*Data  = x;y;z;ux;uy;uz\'); parse the LAST block for the final state and interpolate those nodal values at your probe points (scipy LinearNDInterpolator on the coordinate columns works). Runs that reached NORMAL TERMINATION and still delivered nothing all skipped this line.\n2. THE VISCOELASTIC WRAPPER FAMILY MUST MATCH THE NESTED ELASTIC\'S FAMILY (measured on FEBio 4.12): type="uncoupled viscoelastic" REFUSES a coupled child like isotropic elastic -- the error says \'Component ... needs to have property "elastic" defined\' even though <elastic> is present, because its FAMILY does not fit the slot. The coupled wrapper type="viscoelastic" accepts <elastic type="isotropic elastic"> (E, v) and runs to NORMAL TERMINATION. Uncoupled wrappers take uncoupled children (Mooney-Rivlin with k, etc.).\n3. \'negative jacobians detected\' during a solve is usually NOT the mesh: a hex8 grid whose first element has positive centroid jacobian can still invert under too-large load steps or a too-stiff/soft material pairing. Before rebuilding the mesh, halve the step (<time_steps> up, <step_size> down) and re-check the material family pairing of fact 2.\n4. FEBio prints its banner and \'N O R M A L   T E R M I N A T I O N\' letter-spaced -- grep for \'N O R M A L\', not \'NORMAL\'.',
@@ -2370,6 +2387,7 @@ def _deciding_block(solver: str, physics: str) -> str:
 
 def register_consolidated_tools(mcp: FastMCP):
     """Register all consolidated tools — ~12 tools instead of 48."""
+    _MUST_READ_STATE["served"] = False
 
     # Session journal — records events for knowledge capture
     from core.session_journal import get_journal as _get_journal
@@ -5548,6 +5566,28 @@ def register_consolidated_tools(mcp: FastMCP):
                     presub.append(_f)
             if pde_sources:
                 presub.extend(_ra.pde_source_findings(pde_sources))
+            # A PARTICIPANT THAT DID NOT RUN OUTRANKS EVERYTHING ITS ABSENCE
+            # CAUSED. With one side crashed the history is empty, the files
+            # are missing and every downstream check fires -- but the one fix
+            # is the traceback, so it leads (rank 10 in the priority table).
+            # Measured: the lead said "COUPLING HISTORY TOO SHORT: 0
+            # iteration(s)" while the AttributeError in side B sat three
+            # fields lower, and the agent gave up.
+            _rcs = getattr(r, "returncodes", None) or {}
+            _err = str(getattr(r, "error", "") or "")
+            _bad = sorted(n for n, c in _rcs.items() if c not in (0, None))
+            if _bad or "wrote no exports.json" in _err:
+                _who = ", ".join(_bad) if _bad else "a participant"
+                _tail = (_err.split("stderr tail:", 1)[1].strip()[-400:]
+                         if "stderr tail:" in _err else _err[-400:])
+                presub.insert(0, {"sequence": f"participant {_who}",
+                                  "priority": 10, "finding": (
+                    f"PARTICIPANT {_who} EXITED NON-ZERO AND WAS NEVER RUN TO "
+                    f"AN EXPORT (exit codes {_rcs}): nothing iterated, so every "
+                    f"other finding below is a consequence of this one. Its "
+                    f"own stderr tail: {_tail!r}. Fix that script, run it once "
+                    f"standalone until it writes exports.json, then call "
+                    f"couple() again.")})
             # de-duplicate the same defect found twice (live vs file audit)
             _seen = set()
             for _f in presub:
@@ -6104,27 +6144,36 @@ def register_consolidated_tools(mcp: FastMCP):
             _tmpl_block = ""
             if _scripts:
                 _tmpl_block = (
-                    "# PARTICIPANT CONTRACTS FOR YOUR PRESCRIBED CODES -- start "
-                    "from these, not a blank file.\n"
-                    "# Hand-rolling the handshake and the flux recovery is the "
-                    "single most common coupled failure. Each block below "
-                    "states what it gives you and what you must still write "
-                    "(the solve). Each states its interface ROLE; if your task "
+                    "# YOUR FIRST ACTION: COPY EACH BLOCK BELOW INTO ITS OWN "
+                    "FILE NOW (write_file side_<x>.py, one per code), before "
+                    "you read anything else. Each is the participant CONTRACT "
+                    "for that code -- the imports/exports handshake, the "
+                    "interface sign convention, the consistent flux recovery, "
+                    "the exports schema and the export self-check -- with ONE "
+                    "hole, the solve, marked for you to fill from your task. "
+                    "Measured: every recent coupled run that wrote this file "
+                    "from scratch instead failed on the handshake or the "
+                    "recovery.\n"
+                    "# Each block states its interface ROLE; if your task "
                     "assigns the OPPOSITE role, change the interface "
                     "application yourself (Dirichlet: impose the imported "
                     "values; Neumann: apply the imported flux as a load) -- "
-                    "the coupled must-read above spells out both.\n\n"
+                    "the coupled must-read below spells out both.\n\n"
                     + "\n\n".join(_scripts) + "\n"
                     + "-" * 70 + "\n\n")
+            _mr = (_MUST_READ_POINTER if _MUST_READ_STATE["served"]
+                   else _COUPLING_MUST_READ)
+            _MUST_READ_STATE["served"] = True
             _coupling_head = (
                 "# YOU HAVE NOW PREPARED TWO DIFFERENT CODES IN THIS SESSION.\n"
                 "# If your task couples them -- two subdomains exchanging "
-                "interface data --\n# everything below the line is the "
-                "coupled must-read. If your task uses\n# one code only, "
-                "skip to the physics payload after the rule.\n"
-                "\n\n" + _COUPLING_MUST_READ
-                + "\n" + "-" * 70 + "\n\n"
-                + _tmpl_block)
+                "interface data --\n# the contracts come first, then the "
+                "coupled must-read, then this code's physics payload. If "
+                "your task uses\n# one code only, skip to the physics "
+                "payload after the second rule.\n\n"
+                + _tmpl_block
+                + _mr
+                + "\n" + "-" * 70 + "\n\n")
             _PREPARED_SOLVERS[(id(mcp), "served")] = True
         _prepared.add(backend.name())
 
@@ -7013,10 +7062,14 @@ def _get_coupling_knowledge(solver: str = "", signal: str = ""):
     # the continuation at the very end of a payload the front-loader trims from
     # the front, so the material the agent had just asked for was the first
     # thing dropped -- the request was answered and then silently unanswered.
-    if signal:
+    _want = ("must-read" in (signal or "").lower()
+             or "must read" in (signal or "").lower())
+    _mr = _want or not _MUST_READ_STATE["served"]
+    _MUST_READ_STATE["served"] = True
+    if signal and not _want:
         return _append_coupling_continuation(
-            _front_load_coupling(payload, solver), solver, signal)
-    return _front_load_coupling(payload, solver)
+            _front_load_coupling(payload, solver, must_read=_mr), solver, signal)
+    return _front_load_coupling(payload, solver, must_read=_mr)
 
 
 def _coupling_participant_script(solver: str) -> str:
@@ -7230,6 +7283,15 @@ side that reads ./imports.json, runs its own solver once, writes
 Pass history_path="<absolute path of the per-level residual-history file your
 task names>" in that call as well, so the tool writes the measured iteration
 history straight to that file; never retype it.
+
+A task that splits the DOMAIN into subdomains joined by interface continuity
+conditions is this partitioned domain decomposition however many fields each
+subdomain carries -- temperature and displacement together included. Exchange
+every interface quantity per point: values = [T, ux, uy] and normal_fluxes =
+[q_n, t_x, t_y] on both sides (one row per interface point, the same order
+every iteration); the driver compares them component by component. A FIELD
+coupling in which both codes own the whole body (the `tsi` route) is a
+different setup and does not apply to a split domain.
 
 The tool runs the whole iteration -- relaxation, convergence, validation --
 and on success returns your interface tables READY TO SAVE plus the paths of
@@ -7574,7 +7636,8 @@ Two ways that capture silently fails, both measured:
 _COUPLING_MUST_READ += "\n" + _PER_SIDE_NAMING
 
 
-def _front_load_coupling(payload: str, solver: str = "") -> str:
+def _front_load_coupling(payload: str, solver: str = "",
+                         must_read: bool = True) -> str:
     # THE MUST-READ IS ATTACHED ALWAYS, NOT ONLY WHEN THE PAYLOAD IS TOO LONG.
     #
     # This returned `payload` untouched whenever it fitted inside the limit, so
@@ -7591,11 +7654,11 @@ def _front_load_coupling(payload: str, solver: str = "") -> str:
     # text they were being sent to find.
     if not isinstance(payload, str):
         return _append_deck_grammar(payload, solver)
-    if len(_COUPLING_MUST_READ) + len(payload) <= _COUPLING_HEAD_LIMIT:
-        return _append_deck_grammar(
-            _COUPLING_MUST_READ + payload, solver)
-    budget = _COUPLING_HEAD_LIMIT - len(_COUPLING_MUST_READ)
-    head = _COUPLING_MUST_READ + payload[:budget]
+    _lead = _COUPLING_MUST_READ if must_read else _MUST_READ_POINTER
+    if len(_lead) + len(payload) <= _COUPLING_HEAD_LIMIT:
+        return _append_deck_grammar(_lead + payload, solver)
+    budget = _COUPLING_HEAD_LIMIT - len(_lead)
+    head = _lead + payload[:budget]
     # Cut on a section boundary so no instruction is truncated mid-sentence --
     # but take the LONGEST safe cut, not the first marker type that qualifies.
     #
@@ -7610,7 +7673,7 @@ def _front_load_coupling(payload: str, solver: str = "") -> str:
     cut = max([c for c in cuts if c > _COUPLING_HEAD_LIMIT // 2], default=-1)
     if cut > 0:
         head = head[:cut]
-    rest = len(payload) - (len(head) - len(_COUPLING_MUST_READ))
+    rest = len(payload) - (len(head) - len(_lead))
     hint = (f"\n\n{'─' * 70}\n"
             f"THIS PAYLOAD IS TRUNCATED HERE. {rest:,} further characters "
             f"exist and are NOT lost.\n"

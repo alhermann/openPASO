@@ -179,11 +179,17 @@ def test_served_payload_is_the_elided_contract_of_the_tested_participant(name):
     text = path.read_text()
     assert "```python" in served
 
+    from tools.coupling_knowledge import lean_view
     excerpt = _script(name)
     assert excerpt == _serve_participant(path)
-    assert excerpt in served, (
-        f"solver='{name}': the payload does not contain what _script() "
-        f"returns -- the served path and the tested file have diverged")
+    # the payload carries the LEAN view of the elided contract (comment blocks
+    # thinned, every code line kept) -- the copyable form; the annotated text
+    # is behind the parts door
+    assert lean_view(excerpt) in served, (
+        f"solver='{name}': the payload does not contain the lean view of what "
+        f"_script() returns -- the served path and the tested file have diverged")
+    code = [l for l in excerpt.splitlines() if l.strip() and not l.strip().startswith("#")]
+    assert all(l in served for l in code), f"solver='{name}': a code line was dropped"
     assert excerpt != text, f"solver='{name}': nothing was elided"
     bodies = _solve_bodies(text)
     assert bodies, f"{path.name} has no marked SOLVE region"

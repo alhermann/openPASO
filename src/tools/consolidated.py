@@ -7392,20 +7392,8 @@ _COUPLING_MUST_READ = """
 YOU ARE THE ORCHESTRATOR OF THIS COUPLING, NOT ITS AUTHOR. Participant scripts
 are written by role='worker' sub-agents, one ladder step each, never by you in
 your own turn. Your NEXT action after reading this reply -- before any plan,
-estimate, critic or file of your own -- is:
-    spawn_subagent(role='worker', task="Write side A's participant script in
-    ./side_A: call knowledge(topic='coupling', solver='<side A's code>') and
-    copy the served CONTRACT into ./side_A/participant_A.py unchanged (the
-    imports.json handshake, sign convention, flux recovery, exports schema
-    and export self-check); fill only its marked hole(s) with the mesh, form,
-    material, source and solve for subdomain A from the task; write
-    ./side_A/config.json for level 1 and a synthetic ./side_A/imports.json;
-    run it with that code's own interpreter (generous timeout, first runs
-    compile) until ./side_A/exports.json appears with finite values. CHECK:
-    exports.json exists and the script exited 0. Report DONE or the exact
-    error.")
-Then the same for side B. The critic reviews what a worker produced, not a
-plan. Then audit_results(work_dir) names every further step.
+estimate, critic or file of your own -- is spawn_subagent(role='worker',
+task=<the brief under "YOUR FIRST SUB-AGENT, NOW" below, verbatim>).
 
 START HERE -- THE WHOLE COUPLING IS ONE TOOL CALL. Write one script per
 side that reads ./imports.json, runs its own solver once, writes
@@ -7446,8 +7434,20 @@ the summary. Hand the brief to spawn_subagent(role='worker', task=<brief>)
 as is; the step ends when its check passes on disk. Never judge the whole
 job at once -- every single step is small.
 
-YOUR FIRST SUB-AGENT is the worker brief at the top of this reply; the
-same brief, for side B, is your second.
+YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict:
+    spawn_subagent(role='worker', task="Write side A's participant script in
+    ./side_A: call knowledge(topic='coupling', solver='<side A's code>') and
+    copy the served CONTRACT for the role the task gives side A into
+    ./side_A/participant_A.py unchanged (the imports.json handshake, sign
+    convention, flux recovery, exports schema and export self-check); fill
+    only its marked hole(s) with the mesh, form, material, source and solve
+    for subdomain A from the task; write ./side_A/config.json for level 1 and
+    a synthetic ./side_A/imports.json; run it with that code's own
+    interpreter (generous timeout, first runs compile) until
+    ./side_A/exports.json appears with finite values. CHECK: exports.json
+    exists and the script exited 0. Report DONE or the exact error.")
+Then the same for side B. The critic reviews what a worker produced, not a
+plan. Then audit_results(work_dir) names every further step.
 
 The tool runs the whole iteration -- relaxation, convergence, validation --
 and on success returns your interface tables READY TO SAVE plus the paths of
@@ -7458,7 +7458,14 @@ One couple call per mesh level, on the exact levels your task prescribes.
 
 DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH -- THE CONTRACT EXISTS
 FOR YOUR CODE. For EACH of your two codes call `knowledge(topic='coupling',
-solver='<that code>')`. It returns that code's participant CONTRACT: how to read
+solver='<that code>')`. THE ROLES COME FROM THE TASK: when it says which
+subdomain is the Dirichlet side and which the Neumann side, that is fixed.
+Each served contract states which side it is (some carry both behind a SIDE
+switch, some are one side); take the one for the role your task gives that
+code, and if the code's served text has no contract for that role, say so in
+your first worker brief and keep the served handshake, flux recovery and
+exports schema of the other side as the pattern to follow.
+It returns that code's participant CONTRACT: how to read
 ./config.json for the level and ./imports.json, the interface sign convention,
 the consistent outward-flux recovery you apply to your OWN assembled system, the
 exact ./exports.json schema, and the one-field-file-per-level rule. The mesh,

@@ -2610,7 +2610,9 @@ def _fourc() -> str:
   `scatra-00000-0.vtu`, which is the INITIAL CONDITION — an all-zero field that
   looks like a converged solve of a trivial problem. Parse the FIRST number.
 * The scalar field is named `phi_1`, never `temperature`.
-* THE NEUMANN-SIDE PARTICIPANT SCAFFOLD (config-driven). The handshake, 4C's
+* THE NEUMANN-SIDE PARTICIPANT SCAFFOLD (config-driven; for a task that makes
+  4C the DIRICHLET side use the two-sided contract above with SIDE =
+  "dirichlet"). The handshake, 4C's
   CALCFLUX_BOUNDARY flux-recovery route and the exports schema are served in the
   block below; THE 4C DECK AND THE SOLVE ARE ELIDED -- write them from
   `prepare_simulation(solver='fourc', physics='<your physics>')` and drop them
@@ -2625,6 +2627,14 @@ def _fourc() -> str:
 
 ```python
 """4C as the NEUMANN side of a partitioned coupling (Scalar_Transport).
+
+THIS SCAFFOLD IS THE NEUMANN SIDE ONLY. If your task makes 4C the DIRICHLET
+side, copy the two-sided contract served FIRST in knowledge(topic='coupling',
+solver='fourc') instead, with SIDE = "dirichlet" (it imposes the partner's
+values as DESIGN LINE DIRICH per interface node and exports the same
+CALCFLUX_BOUNDARY flux); give it this file's ./config.json level
+parameterization. Measured: runs that kept this Neumann scaffold for a
+Dirichlet role hand-rolled the import and never applied it.
 
 Reads ./config.json {"level":k,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
 "k":diffusivity,"iface":"left|right|bottom|top","source_expr":"<f(x,y) or 0.0>",

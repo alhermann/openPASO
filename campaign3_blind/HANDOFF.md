@@ -377,6 +377,7 @@ and several fixes **lowered** the apparent uplift:
 | 4 | 86a86615 | C3 5581-83, C1 6231-33, C2 6331-33 | 0/9 (5 HONEST_INCOMPLETE, 3 FAILED, 1 MALFORMED) | refused writes 4/9; C3 5581 copied both contracts and got DUNE working, lost on a 4C MATERIALS key; C1 6233 both codes proven at level 1; C2 6333 ran a real 3-level coupling (9 it -> 1e-8) but wrote no field files and listed 12 nonexistent files in its summary |
 | 5 | a4bebe41 | C3 5591-93, C1 6241-43, C2 6341-43 | 0/9 (6 HONEST_INCOMPLETE, 3 FAILED) | real couplings in 6 runs (one through 3 levels); runs stop at 16-23 min with 25 min left and write no field files; 0/9 copy a contract; C1 6243 wrote all 21 files with the zero solution (no source terms in the 4C deck) and honestly gave up |
 | 6 | 081a1edd | C3 5611-13, C1 6261-63, C2 6361-63 | 0/9 (5 HONEST_INCOMPLETE, 2 MALFORMED, 1 FAILED, 1 COMPLETED_UNPHYSICAL) | first END-TO-END run: C2 6361 delivered all three levels, error 0.047 flat (exact RMS 0.050) from its own post-processing; C3 5611/5613 level 1 with both codes proven; the no-field-files finding fired in 3 runs and all 3 then wrote fields |
+| 7 | d54601d5 | C3 5621-23, C1 6271-73, C2 6371-73 | in flight ~21:45 | first round with the LADDER: every audit/couple reply names the next unmet step as a worker sub-agent brief; instructions say one sub-agent per step |
 
 ### Per-step trials (from 2026-09-10 evening, Alexander's method)
 

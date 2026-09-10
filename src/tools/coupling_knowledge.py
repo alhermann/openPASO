@@ -2804,10 +2804,15 @@ atexit.register(_diagnose_at_exit)
 #     TRANSPORT ELEMENTS section (SOLID elements are rejected against MAT_scatra);
 #   * on the NEUMANN side (SIDE == "neumann"): apply the imported partner flux
 #     as the interface load -- one DESIGN POINT NEUMANN per INTERIOR interface
-#     node, Simpson-weighted, with VAL = partner_flux(that node's coordinate),
-#     imported node-by-node (no polynomial fit). 4C's Neumann VAL is exactly
-#     the flux the partner exported; hand it over unchanged (opposite normals
-#     already give the sign);
+#     node whose VAL is that node's NODAL LOAD: the flux density integrated
+#     over the node's share of the interface line. With h the interface node
+#     spacing and y the node's coordinate along the interface,
+#         VAL = (h/6) * (partner_flux(y-h) + 4*partner_flux(y) + partner_flux(y+h))
+#     (Simpson; imported node-by-node, no polynomial fit). The density itself
+#     is NOT the VAL of a POINT condition: measured, a deck that put
+#     partner_flux(y) in VAL recovered a flux 10x too small at h = 0.1 and one
+#     that divided by h a flux 10x too large. No extra sign anywhere: the
+#     opposite normals already give it;
 #   * on the DIRICHLET side (SIDE == "dirichlet"): impose the imported partner
 #     values as the interface trace -- one DESIGN POINT DIRICH per INTERIOR
 #     interface node with VAL = partner_value(that node's coordinate) (the two

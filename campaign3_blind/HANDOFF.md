@@ -368,6 +368,18 @@ and several fixes **lowered** the apparent uplift:
 
 ## 5. Status, measured
 
+### Honest coupled rounds of 2026-09-10 (Option B build, 27B, development seeds)
+
+| round | commit | seeds | outcome | what the trajectories showed |
+|---|---|---|---|---|
+| 2 | 43a718dc | C3 5561-63, C1 6211-13, C2 6311-13 | 0/9 (8 HONEST_INCOMPLETE, 1 MALFORMED) | must-read served 5x in 7 calls; 0/8 kept a served contract; false "couple exchanges one field"; a DUNE JIT compile killed by the agent's own `timeout 120` read as a crash; couple() led with "history too short" instead of the crashed side |
+| 3 | 6b6ad83f | C3 5571-73, C1 6221-23, C2 6321-23 | 0/9 (5 HONEST_INCOMPLETE, 4 FAILED) | 9/9 had one refused write (project dir under $HOME); 7/9 never called prepare_simulation, so the reveal never fired; 0/9 kept a contract; 0.7-9M input tokens per run |
+| 4 | 86a86615 | C3 5581-83, C1 6231-33, C2 6331-33 | 0/9 (5 HONEST_INCOMPLETE, 3 FAILED, 1 MALFORMED) | refused writes 4/9; C3 5581 copied both contracts and got DUNE working, lost on a 4C MATERIALS key; C1 6233 both codes proven at level 1; C2 6333 ran a real 3-level coupling (9 it -> 1e-8) but wrote no field files and listed 12 nonexistent files in its summary |
+
+Every coupled CORRECT recorded before 2026-09-10 on C3 (2/3, 3/6) was measured
+with complete participants served and is not a paper number.
+
+
 ### The regrade (pre-fix; seeds 2–11, 14, 15; 750 rows; both arms)
 
 | slice | bare | OASiS | uplift |

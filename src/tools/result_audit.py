@@ -2327,6 +2327,7 @@ _PRIORITY_TABLE = [
           "PRODUCED BYTE-IDENTICAL", "NOT A FUNCTION OF ITS IMPORTS",
           "NOT COUPLED TO ITS PARTNER", "EXITED NON-ZERO", "TIMED OUT")),
     (12, ("NO LINE ANY SOLVER EMITS",)),
+    (11, ("NAMES", "FILE(S) THAT DO NOT EXIST")),
     (20, ("COUPLING HISTORY TOO SHORT", "NON-POSITIVE OR NON-FINITE RESIDUAL",
           "RESIDUAL BARELY MOVED", "CONSTANT RESIDUAL COLUMN",
           "WRITTEN-IN SEQUENCE", "IDENTICAL RESIDUAL HISTORY")),
@@ -2401,6 +2402,57 @@ def what_to_fix_next(findings, *, converged: bool = True,
     return head
 
 
+def summary_names_findings(work: Path) -> list[dict]:
+    """Every file the summary names must exist. A summary that lists files it
+    never wrote reads as invented, whatever the numbers beside it say.
+
+    Measured: one coupled run listed 21 deliverables in its summary -- six
+    per-level field files and six interface files among them -- and had
+    written none of the twelve; its three residual histories were real. The
+    audit at hand-in said nothing about the names, so the run handed in a
+    list. No task knowledge is used: the names come from the agent's own
+    summary text, and existence is checked by basename anywhere under the
+    working directory outside OASiS's scratch.
+    """
+    import re as _re
+    out: list[dict] = []
+    sf = _summary_file(work)
+    if sf is None or not sf.is_file():
+        return out
+    try:
+        text = sf.read_text(errors="ignore")
+    except OSError:
+        return out
+    text = _re.sub(r"\b(?:https?|ftp)://\S+", " ", text)      # links are not files
+    names = sorted({m.group(0).strip("`'\"(),;")
+                    for m in _re.finditer(r"[A-Za-z0-9_./-]+\.(?:csv|log|txt|json|vtu|vtk|pvd|yaml|yml|dat|npy|npz)\b", text)})
+    names = [n for n in names if n and n != sf.name and not n.startswith(("http", "www."))]
+    if not names:
+        return out
+    present: set = set()
+    for q in work.rglob("*"):
+        if not q.is_file():
+            continue
+        try:
+            if _SCRATCH & set(q.relative_to(work).parts[:-1]):
+                continue
+        except ValueError:
+            continue
+        present.add(q.name)
+    missing = [n for n in names if Path(n).name not in present]
+    if not missing:
+        return out
+    out.append({"sequence": "summary names", "priority": 10, "values": [],
+                "finding": (
+        f"YOUR SUMMARY FILE NAMES {len(missing)} FILE(S) THAT DO NOT EXIST "
+        f"anywhere under your working directory: {', '.join(missing[:8])}"
+        + (f" (+{len(missing) - 8} more)" if len(missing) > 8 else "")
+        + ". A summary that lists files it never wrote is read as invented "
+        "however real the rest of the work is. Write every file you name "
+        "from the numbers you actually have -- or remove the name.")})
+    return out
+
+
 def run_log_identity_findings(work: Path) -> list[dict]:
     """A per-level run log must carry the named solver's OWN console output.
 
@@ -2464,6 +2516,7 @@ def audit(work_dir: str, claimed_order: float | None = None,
     findings.extend(interface_ends_findings(work))
     findings.extend(unlaunched_participants_findings(work))
     findings.extend(run_log_identity_findings(work))
+    findings.extend(summary_names_findings(work))
     seqs = _sequences_from_workdir(work)
     csvs = _sequences_from_level_csvs(work)
     if "__ambiguous__" in csvs:

@@ -5598,7 +5598,24 @@ def register_consolidated_tools(mcp: FastMCP):
                 _seen.add(_k)
                 _compact.append({"sequence": _f.get("sequence"),
                                  "finding": _f.get("finding")})
-            _lead = _ra.what_to_fix_next(_compact, converged=bool(r.converged))
+            # WHEN THE LEVEL CONVERGED AND THE FUNNEL IS CLEAN, the lead names
+            # the three writes that turn a converged coupling into a result.
+            # Measured: a run coupled three real levels (9 iterations to 1e-8
+            # each) and never wrote a field file, then listed twelve files in
+            # its summary that did not exist. Only files on disk count.
+            _lead = _ra.what_to_fix_next(
+                _compact, converged=bool(r.converged), clean_msg=(
+                    "this level's iteration CONVERGED and your files are "
+                    "self-consistent. Only files on disk count, so before the "
+                    "next level: (1) evaluate EACH side's converged field at "
+                    "the probe points your task prescribes and write that "
+                    "side's per-level field file; (2) write each side's "
+                    "per-level interface file at the prescribed interface "
+                    "points from its own converged trace and flux; (3) make "
+                    "each side's per-level run log the captured participant "
+                    "log whose path this reply returns (the solver's own "
+                    "console output), never a summary you type. A summary "
+                    "that names files not on disk is read as invented."))
         except Exception:                                    # advisory only
             _lead, _compact = None, []
         if _lead:

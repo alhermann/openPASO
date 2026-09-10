@@ -2661,7 +2661,8 @@ SIDE = CFG.get("side", "neumann")   # "neumann" | "dirichlet": the role the task
 
 # Volumetric source f(x,y) in -div(k grad u) = f, as a 4C space-time EXPRESSION
 # STRING (NOT a Python function): '^' is power (never '**'), the coordinates are
-# 'x','y', time is 't', and 'pi' is defined. "0.0" means no source. You wire this
+# 'x','y', time is 't', and 'pi' is defined -- LOWERCASE: 'PI' aborts with
+# "Missing variables PI" (measured). "0.0" means no source. You wire this
 # into YOUR deck as FUNCT1 + a DESIGN SURF NEUMANN VAL*FUNCT block; a Python
 # src() that never reaches the deck is the classic 4C trap and does nothing.
 SRC_EXPR = str(CFG.get("source_expr", CFG.get("source_const", "0.0")))

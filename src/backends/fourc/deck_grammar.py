@@ -125,6 +125,8 @@ FOUR MEASURED WAYS THIS DIES, all of them silently:
       ERROR: could not find ':' colon after key
     BEFORE its own banner appears.
 (b) `**` IS NOT EXPONENTIATION in SYMBOLIC_FUNCTION_OF_SPACE_TIME. Use `^`.
+    And the constant is lowercase `pi`: `PI` aborts the run with "Missing
+    variables PI to evaluate expression" (measured on a trial deck).
     The task states its source term in Python notation; rewrite every term.
 (c) ONOFF / VAL / FUNCT must each have EXACTLY `NUMDOF` entries, or
       [!] Candidate parameter 'VAL' has incorrect size

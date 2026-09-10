@@ -205,6 +205,11 @@ class TestKnowledgePayloadValidJson(unittest.TestCase):
 
         broken = []
         for name, (_n, phys) in sorted(biggest.items()):
+            # one single-code session per backend: preparing a SECOND code in
+            # a session is the coupled hand-off, which replaces the corpus
+            # (and its json fence) with a pointer on purpose
+            self.C._PREPARED_SOLVERS.clear()
+            self.C._MUST_READ_STATE["served"] = False
             try:
                 out = asyncio.get_event_loop().run_until_complete(
                     mcp.call_tool("prepare_simulation",

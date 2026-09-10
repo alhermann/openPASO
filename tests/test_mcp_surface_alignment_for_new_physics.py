@@ -127,7 +127,13 @@ class TestMcpSurfaceAlignmentForNewPhysics(unittest.TestCase):
         must return BOTH knowledge AND a runnable template
         code block. This is the LLM's primary workflow tool."""
         prep_fn = self.tools["prepare_simulation"].fn
+        from tools import consolidated as _C
         for backend, physics in _AUDIT_DRIVEN_PHYSICS:
+            # each call is its own single-code session: preparing a SECOND
+            # code in one session is the coupled hand-off, which replaces
+            # this code's corpus with a pointer on purpose
+            _C._PREPARED_SOLVERS.clear()
+            _C._MUST_READ_STATE["served"] = False
             out = prep_fn(solver=backend, physics=physics)
             self.assertIn(
                 "Knowledge", out,

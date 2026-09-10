@@ -143,13 +143,18 @@ def test_discover_returns_non_empty():
     ("fourc", "", "participant_fourc.py"),
     ("kratos", ":neumann", "participant_kratos_neumann.py"),
 ])
-def test_mcp_reconstructs_complete_tested_coupling_participant(
+def test_mcp_reconstructs_the_elided_coupling_contract(
         solver, role, filename):
-    """The real stdio path must return every source byte in bounded parts."""
-    import hashlib
+    """The real stdio path returns the ELIDED contract in bounded parts --
+    never the complete tested file (that was a solver hand-over door)."""
     import re
+    import sys as _sys
+    _sys.path.insert(0, str(REPO_ROOT / "src"))
+    from tools.coupling_knowledge import _serve_participant
 
-    source = (REPO_ROOT / "data" / "coupling_participants" / filename).read_text()
+    path = REPO_ROOT / "data" / "coupling_participants" / filename
+    source = _serve_participant(path)
+    raw = path.read_text()
     chunks = []
     final = ""
     for part in range(1, 10):
@@ -162,7 +167,7 @@ def test_mcp_reconstructs_complete_tested_coupling_participant(
             pytest.skip(f"mcp client SDK not importable: {exc}")
 
         assert not result["isError"], result["text"][:300]
-        marker = f"participant: part {part} of"
+        marker = f"participant CONTRACT (solve elided): part {part} of"
         start = result["text"].index(marker)
         match = re.search(r"```python\n(.*?)```", result["text"][start:], re.S)
         assert match, f"{solver} part {part} has no fenced source"
@@ -172,8 +177,10 @@ def test_mcp_reconstructs_complete_tested_coupling_participant(
             final = result["text"]
             break
 
-    assert "".join(chunks) == source
-    assert hashlib.sha256(source.encode()).hexdigest() in final
+    joined = "".join(chunks)
+    assert joined == source
+    assert joined != raw, "the stdio parts door served the complete tested file"
+    assert "exact tested file" not in final and "complete tested" not in final
 
 
 def test_prepare_simulation_returns_template_and_knowledge():

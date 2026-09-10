@@ -5577,7 +5577,8 @@ def register_consolidated_tools(mcp: FastMCP):
             _err = str(getattr(r, "error", "") or "")
             _bad = sorted(n for n, c in _rcs.items() if c not in (0, None))
             if _bad or "wrote no exports.json" in _err:
-                _who = ", ".join(_bad) if _bad else "a participant"
+                _m = re.search(r"participant (\S+) wrote no exports\.json", _err)
+                _who = ", ".join(_bad) if _bad else (_m.group(1) if _m else "a participant")
                 _tail = (_err.split("stderr tail:", 1)[1].strip()[-400:]
                          if "stderr tail:" in _err else _err[-400:])
                 presub.insert(0, {"sequence": f"participant {_who}",
@@ -6140,7 +6141,18 @@ def register_consolidated_tools(mcp: FastMCP):
                     "separate NEUMANN-SIDE block where one ships, else the "
                     "SIDE switch inside this one) -- read it before you "
                     "change the interface application.")
-                _scripts.append(_label + "\n" + _s)
+                # A BINARY CODE'S DECK GRAMMAR TRAVELS WITH ITS CONTRACT. The
+                # deck is the part of a 4C/FEBio/SPARTA participant that the
+                # elision leaves to the agent, and it cannot be guessed:
+                # measured, a run that had its DUNE side working from the
+                # copied contract lost the round on a 4C MATERIALS section
+                # that the grammar appendix (served only on the knowledge
+                # door) spells out.
+                try:
+                    _g = _append_deck_grammar("", _c)
+                except Exception:                            # noqa: BLE001
+                    _g = ""
+                _scripts.append(_label + "\n" + _s + (("\n" + _g) if _g.strip() else ""))
             _tmpl_block = ""
             if _scripts:
                 _tmpl_block = (
@@ -6390,10 +6402,29 @@ def register_consolidated_tools(mcp: FastMCP):
         # This is the same defect the comment at the knowledge() call site
         # already records, applied to the door that was missed: a fix landed
         # at one call site when there were two.
+        # UNDER THE COUPLED HAND-OFF, THIS CODE'S PHYSICS CORPUS IS A POINTER.
+        # The reveal (contracts, must-read, deck grammar) already runs to
+        # ~45k characters; with the second code's full corpus behind it the
+        # reply passed 120k, and a small model reads the size of the job
+        # rather than its first step and gives up. Keep what the solve needs
+        # in hand -- the deciding facts and the template -- and point at the
+        # rest, which is one call away.
+        _parts = parts
+        if _coupling_head:
+            _tmpl = [x for x in parts if x.startswith("## Template")]
+            _rest = [x for x in parts if not x.startswith("## Template")]
+            if _tmpl and _rest:
+                _parts = _tmpl + [
+                    f"## The rest of this code's physics corpus ({len(_rest)} "
+                    f"sections: knowledge, pitfalls, API reference, examples) "
+                    f"is not repeated under the coupled hand-off above. Fetch "
+                    f"it with knowledge(topic='physics', solver='{solver}', "
+                    f"physics='{matched_physics}') when a specific step "
+                    f"fails.\n"]
         return (_coupling_head
                 + _deciding_block(solver, matched_physics)
                 + f"# Preparation for {matched_physics} on {solver}\n\n"
-                + "\n---\n".join(parts) + _UNIVERSAL_BLOCK)
+                + "\n---\n".join(_parts) + _UNIVERSAL_BLOCK)
 
     # ═══════════════════════════════════════════════════════════
     # 9. TRANSFER FIELD (keep — needed for coupling)

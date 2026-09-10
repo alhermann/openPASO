@@ -2385,6 +2385,38 @@ def _deciding_block(solver: str, physics: str) -> str:
     return head + body + "\n\n" + "-" * 70 + "\n\n"
 
 
+# EVERY KNOWLEDGE REPLY IS BOUNDED. Measured on coupled development runs
+# with a small model: single knowledge replies of 55-145k characters, ten of
+# them per run, 1-9 million input tokens per run, and the run gave up
+# citing the size of the job. The coupling door already caps its head at
+# _COUPLING_HEAD_LIMIT; this is the same discipline at the one place every
+# knowledge reply leaves the server. The participant parts door is exempt
+# (its chunks are bounded by construction and must arrive whole).
+_KNOWLEDGE_REPLY_LIMIT = 48_000
+
+
+def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
+                         physics: str = "", signal: str = "") -> str:
+    if not isinstance(out, str) or len(out) <= _KNOWLEDGE_REPLY_LIMIT:
+        return out
+    if (signal or "").strip().lower().startswith("participant"):
+        return out
+    head = out[:_KNOWLEDGE_REPLY_LIMIT]
+    cuts = [head.rfind(m) for m in ("\n────", "\n\n#", "\n\n", "\n")]
+    cut = max([c for c in cuts if c > _KNOWLEDGE_REPLY_LIMIT // 2], default=-1)
+    if cut > 0:
+        head = head[:cut]
+    asked = ", ".join(f"{k}={v!r}" for k, v in (("topic", topic), ("solver", solver),
+                                                ("physics", physics), ("signal", signal)) if v)
+    return (head + f"\n\n{'─' * 70}\n"
+            f"THIS REPLY IS CUT AT {len(head):,} OF {len(out):,} CHARACTERS "
+            f"({asked}). Nothing is lost: ask again with a NARROWER request -- "
+            f"a physics= name, a signal= symptom (the error text you saw), or "
+            f"index=True on the pitfalls topic -- and the part you need comes "
+            f"back within the limit. Reading everything costs the actions you "
+            f"need to solve the problem.\n")
+
+
 def register_consolidated_tools(mcp: FastMCP):
     """Register all consolidated tools — ~12 tools instead of 48."""
     _MUST_READ_STATE["served"] = False
@@ -3117,7 +3149,8 @@ def register_consolidated_tools(mcp: FastMCP):
         if not isinstance(out, str):
             return out
         # the physics path already carries the full block; never send both
-        return out if _UNIVERSAL_BLOCK in out else out + _UNIVERSAL_CORE
+        out = out if _UNIVERSAL_BLOCK in out else out + _UNIVERSAL_CORE
+        return _cap_knowledge_reply(out, topic, solver, physics, signal)
 
     # ═══════════════════════════════════════════════════════════
     # 2. DISCOVER (replaces 6 discovery tools)

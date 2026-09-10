@@ -23,9 +23,11 @@ def _finish_check_block() -> str:
     from tools import consolidated as C
     text = C._coupling_participant_script("fourc")
     assert "4C DID NOT FINISH" in text, "the served 4C contract lost its finish check"
-    a = text.index("# ── DID 4C FINISH?")
-    b = text.index("# The VTU name is", a)
-    return text[a:b]
+    # the diagnosis is a function defined ABOVE the hole (so it can also run at
+    # exit); exec its definition and run it the way the post-hole check does
+    a = text.index("import atexit, glob, sys")
+    b = text.index("def _diagnose_at_exit", a)
+    return text[a:b] + "\nraise SystemExit(why_4c_did_not_finish())\n"
 
 
 DECK = """TITLE:
@@ -86,10 +88,22 @@ def test_with_the_binary_an_invented_section_is_named_from_4c_p(tmp_path):
 
 
 def test_it_is_inert_once_a_vtu_exists(tmp_path):
+    from tools import consolidated as C
+    text = C._coupling_participant_script("fourc")
+    a = text.index("# ── DID 4C FINISH? ── the check defined above the hole"); b = text.index("# The VTU name is", a)
     os.chdir(tmp_path)
     (tmp_path / "out-vtk-files").mkdir()
     (tmp_path / "out-vtk-files" / "scatra-00001-0.vtu").write_text("<VTKFile/>")
-    exec(_finish_check_block(), {"glob": glob, "CFG": {}, "__name__": "served"})   # no SystemExit
+    exec(text[a:b], {"glob": glob, "why_4c_did_not_finish": lambda: "SHOULD NOT RUN", "__name__": "served"})   # no SystemExit
+
+
+def test_the_diagnosis_also_runs_at_exit_when_the_worker_stops_early():
+    """A worker that raises its own 'solver failed' before the post-hole check
+    never reached the diagnosis. The served head registers it at exit."""
+    from tools import consolidated as C
+    text = C._coupling_participant_script("fourc")
+    assert "atexit.register(_diagnose_at_exit)" in text
+    assert text.index("atexit.register(_diagnose_at_exit)") < text.index("OASiS DOES NOT SERVE THIS")
 
 
 def test_the_4c_contract_takes_either_role_from_its_config():

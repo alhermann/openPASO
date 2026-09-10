@@ -2702,75 +2702,17 @@ def partner_value(y_or_x):
 # the two interface normals are opposite. Apply the partner's number UNCHANGED
 # as your 4C Neumann VAL; there is no extra minus sign anywhere.
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
-# THE 4C DECK AND THE SOLVE ITSELF ARE YOURS AND ARE NOT SERVED HERE.
-#
-# Build the mesh, the material, the elements and the full 4C input deck for the
-# problem you were given, and run the 4C binary on it. That is ordinary 4C
-# input-deck work and OASiS has no business writing your deck. Get the deck
-# grammar (also `4C -p`), a runnable Scalar_Transport skeleton and the measured
-# gotchas from:
-#
-#     prepare_simulation(solver='fourc', physics='<your physics>')
-#     knowledge(topic='coupling', solver='fourc')     # the 4C traps below
-#
-# For THIS coupling your deck must:
-#   * be PROBLEMTYPE "Scalar_Transport", TIMEINTEGR "Stationary", a MAT_scatra
-#     material with DIFFUSIVITY = KV, and TRANSP QUAD4/TRI3 elements in a
-#     TRANSPORT ELEMENTS section (SOLID elements are rejected against MAT_scatra);
-#   * on the NEUMANN side (SIDE == "neumann"): apply the imported partner flux
-#     as the interface load -- one DESIGN POINT NEUMANN per INTERIOR interface
-#     node, Simpson-weighted, with VAL = partner_flux(that node's coordinate),
-#     imported node-by-node (no polynomial fit). 4C's Neumann VAL is exactly
-#     the flux the partner exported; hand it over unchanged (opposite normals
-#     already give the sign);
-#   * on the DIRICHLET side (SIDE == "dirichlet"): impose the imported partner
-#     values as the interface trace -- one DESIGN POINT DIRICH per INTERIOR
-#     interface node with VAL = partner_value(that node's coordinate) (the two
-#     interface ENDPOINTS keep the OUTER Dirichlet value: they lie on the outer
-#     boundary, and imposing the partner trace there caps the side at order
-#     1), every point set in the ONE DNODE-NODE TOPOLOGY section, E ids
-#     continuous across the Dirichlet and Neumann families;
-#   * keep at least one OUTER Dirichlet edge (u given) or the subdomain is singular;
-#   * if HAS_SRC, wire SRC_EXPR as FUNCT1 SYMBOLIC_FUNCTION_OF_SPACE_TIME plus a
-#     DESIGN SURF NEUMANN VAL*FUNCT block so it enters the assembled RHS -- '^'
-#     for powers, never '**';
-#   * request the consistent boundary flux for the recovery below: set
-#     CALCFLUX_BOUNDARY "diffusive" in SCALAR TRANSPORT DYNAMIC and add a
-#     `SCATRA FLUX CALC LINE CONDITIONS` (SURF in 3-D) entry on the interface
-#     line, so 4C writes flux_boundary_phi_1 into the VTU.
-#
-# THE DNODE-ID TRAP (measured): condition `E:` ids reference GLOBAL DNODE
-# numbers across ALL condition families. A Dirichlet block restarting at `E: 1`
-# silently rebinds the interface DNODEs and zeroes the field -- number the
-# families continuously. And this build writes scatra VTU by default with NO
-# `VTK` section; adding one is rejected as an invalid section.
-#
-# Run 4C with the binary at config `fourc_bin` (env FOURC_BIN; discover(
-# query='list') prints it on THIS install) and its dependency libraries on
-# config `fourc_ld` (FOURC_LD / LD_LIBRARY_PATH), line-buffered with its console
-# captured to a log next to the deck (stdbuf -oL -eL <bin> <deck> out > run.log
-# 2>&1). WHEN THE BINARY EXITS NON-ZERO, DO NOT EXIT OR RAISE YOURSELF: fall
-# through -- the served check right below reads that log and the deck and stops
-# with the cause spelled out (measured: a wrapper that raised "Solver execution
-# failed, check the log" first hid 4C's own "Could not match this input: IO:
-# VERBOSITY ..." from the agent). OASiS does not run the solver for you and ships
-# no host-specific binary path.
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
-
-# ── CONSISTENT OUTWARD FLUX + EXPORTS -- the served recovery route ─────────
-# After YOUR deck has run, read 4C's OWN output. Never hand-parse the VTU XML,
-# and never recompute the flux from phi_1 differences.
-import glob
-import meshio
-# ── DID 4C FINISH? (served: when the run left no output, name the cause) ────
-# An empty out-vtk-files/ means 4C aborted on your deck. Its own message sits in
-# the console log you captured, and the deck defects measured to abort every
-# trial deck are mechanical -- so this block reads the log and lints the deck
-# before anything else is touched, and stops with the cause spelled out. Every
-# part is guarded: a copy that lost an import still reports 4C's own words.
-_vtus = sorted(glob.glob("out-vtk-files/*.vtu"))
-if not _vtus:
+# ── DID 4C FINISH? (served: when the run leaves no output, name the cause) ─
+# An empty out-vtk-files/ means 4C aborted on your deck. Its own message sits
+# in the console log you captured, and the deck defects measured to abort
+# every trial deck are mechanical -- so this reads the log and lints the deck
+# and spells the cause out. It runs in TWO places: below the hole, before
+# anything else is read, and AT EXIT if the script stops early without an
+# exports.json (measured: workers that raised "4C FAILED -- see run.log"
+# inside their own solve never reached the check below). Every part is
+# guarded: a copy that lost an import still reports 4C's own words.
+import atexit, glob, sys
+def why_4c_did_not_finish():
     _why = []
     try:                                   # 1. 4C's own message, builtins only
         for _lg in sorted(glob.glob("*.log")) + sorted(glob.glob("*.txt")):
@@ -2838,7 +2780,77 @@ if not _vtus:
     if not _why:
         _why.append("no VTU under out-vtk-files/ and no 4C error line in any *.log here -- run the binary line-buffered "
                     "(stdbuf -oL -eL) with its console captured to a log next to the deck, then read that log from the top")
-    raise SystemExit("4C DID NOT FINISH -- " + "; ".join(_why))
+    return "4C DID NOT FINISH -- " + "; ".join(_why)
+def _diagnose_at_exit():
+    if not Path("exports.json").is_file() and not glob.glob("out-vtk-files/*.vtu"):
+        print(why_4c_did_not_finish(), file=sys.stderr, flush=True)
+atexit.register(_diagnose_at_exit)
+
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# THE 4C DECK AND THE SOLVE ITSELF ARE YOURS AND ARE NOT SERVED HERE.
+#
+# Build the mesh, the material, the elements and the full 4C input deck for the
+# problem you were given, and run the 4C binary on it. That is ordinary 4C
+# input-deck work and OASiS has no business writing your deck. Get the deck
+# grammar (also `4C -p`), a runnable Scalar_Transport skeleton and the measured
+# gotchas from:
+#
+#     prepare_simulation(solver='fourc', physics='<your physics>')
+#     knowledge(topic='coupling', solver='fourc')     # the 4C traps below
+#
+# For THIS coupling your deck must:
+#   * be PROBLEMTYPE "Scalar_Transport", TIMEINTEGR "Stationary", a MAT_scatra
+#     material with DIFFUSIVITY = KV, and TRANSP QUAD4/TRI3 elements in a
+#     TRANSPORT ELEMENTS section (SOLID elements are rejected against MAT_scatra);
+#   * on the NEUMANN side (SIDE == "neumann"): apply the imported partner flux
+#     as the interface load -- one DESIGN POINT NEUMANN per INTERIOR interface
+#     node, Simpson-weighted, with VAL = partner_flux(that node's coordinate),
+#     imported node-by-node (no polynomial fit). 4C's Neumann VAL is exactly
+#     the flux the partner exported; hand it over unchanged (opposite normals
+#     already give the sign);
+#   * on the DIRICHLET side (SIDE == "dirichlet"): impose the imported partner
+#     values as the interface trace -- one DESIGN POINT DIRICH per INTERIOR
+#     interface node with VAL = partner_value(that node's coordinate) (the two
+#     interface ENDPOINTS keep the OUTER Dirichlet value: they lie on the outer
+#     boundary, and imposing the partner trace there caps the side at order
+#     1), every point set in the ONE DNODE-NODE TOPOLOGY section, E ids
+#     continuous across the Dirichlet and Neumann families;
+#   * keep at least one OUTER Dirichlet edge (u given) or the subdomain is singular;
+#   * if HAS_SRC, wire SRC_EXPR as FUNCT1 SYMBOLIC_FUNCTION_OF_SPACE_TIME plus a
+#     DESIGN SURF NEUMANN VAL*FUNCT block so it enters the assembled RHS -- '^'
+#     for powers, never '**';
+#   * request the consistent boundary flux for the recovery below: set
+#     CALCFLUX_BOUNDARY "diffusive" in SCALAR TRANSPORT DYNAMIC and add a
+#     `SCATRA FLUX CALC LINE CONDITIONS` (SURF in 3-D) entry on the interface
+#     line, so 4C writes flux_boundary_phi_1 into the VTU.
+#
+# THE DNODE-ID TRAP (measured): condition `E:` ids reference GLOBAL DNODE
+# numbers across ALL condition families. A Dirichlet block restarting at `E: 1`
+# silently rebinds the interface DNODEs and zeroes the field -- number the
+# families continuously. And this build writes scatra VTU by default with NO
+# `VTK` section; adding one is rejected as an invalid section.
+#
+# Run 4C with the binary at config `fourc_bin` (env FOURC_BIN; discover(
+# query='list') prints it on THIS install) and its dependency libraries on
+# config `fourc_ld` (FOURC_LD / LD_LIBRARY_PATH), line-buffered with its console
+# captured to a log next to the deck (stdbuf -oL -eL <bin> <deck> out > run.log
+# 2>&1). WHEN THE BINARY EXITS NON-ZERO, DO NOT EXIT OR RAISE YOURSELF: fall
+# through -- the served check right below reads that log and the deck and stops
+# with the cause spelled out (measured: a wrapper that raised "Solver execution
+# failed, check the log" first hid 4C's own "Could not match this input: IO:
+# VERBOSITY ..." from the agent). OASiS does not run the solver for you and ships
+# no host-specific binary path.
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+
+# ── CONSISTENT OUTWARD FLUX + EXPORTS -- the served recovery route ─────────
+# After YOUR deck has run, read 4C's OWN output. Never hand-parse the VTU XML,
+# and never recompute the flux from phi_1 differences.
+import glob
+import meshio
+# ── DID 4C FINISH? ── the check defined above the hole, run first here ─────
+_vtus = sorted(glob.glob("out-vtk-files/*.vtu"))
+if not _vtus:
+    raise SystemExit(why_4c_did_not_finish())
 # The VTU name is out-vtk-files/scatra-<step>-<rank>.vtu -- the TRAILING number
 # is the MPI RANK, not the step. Sorting on it returns scatra-00000-0.vtu, the
 # all-zero INITIAL CONDITION; take the last real step.

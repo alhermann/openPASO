@@ -1,0 +1,29 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_finished=False :: Solver execution failed. Check run_side_B.log\n",
+  "kept_selfcheck": true,
+  "finish": "stop",
+  "secs": 138.1,
+  "lines": 447
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_finished=False :: Traceback (most recent call last):\n  File \"/tmp/tmpc5919ics/participant_B.py\", line 244, in <module>\n    _lines = _P(_lg).read_text(errors=\"ignore\").splitlines()\n             ^^\nNameError: name '_P' is not defined. Did you mean: '_d'?\n",
+  "kept_selfcheck": true,
+  "finish": "stop",
+  "secs": 190.0,
+  "lines": 363
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_finished=False :: 4C DID NOT FINISH -- 4C said (run.log): Section 'DESIGN LINE DIRICH CONDITIONS' is defined more than once.\n",
+  "kept_selfcheck": true,
+  "finish": "stop",
+  "secs": 68.6,
+  "lines": 351
+ }
+]

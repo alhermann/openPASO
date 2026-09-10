@@ -18,15 +18,15 @@ TASK = """You are the worker for ONE step of a partitioned coupled simulation. Y
 SUBDOMAIN B: the rectangle (0.6, 1.4) x (0, 1), scalar diffusion with k = 5:  -div(k grad u) = f
 SOURCE TERM: f(x, y) = 5*pi**2*(1.4 - x)*sin(pi*y)   (as written; convert to 4C's function syntax yourself)
 OUTER BOUNDARY (x = 1.4, y = 0, y = 1): u = 0 (Dirichlet)
-INTERFACE (x = 0.6): this side is the NEUMANN side; it reads the partner's outward normal flux from ./imports.json (partner name "A"), applies it as its own inward flux on the interface, and exports its own interface trace and its own consistent outward flux to ./exports.json.
-MESH LEVEL 1: 8 x 10 QUAD4 elements. ./config.json follows the served contract's schema: {"level": 1, "nx": 8, "ny": 10, "x0": 0.6, "x1": 1.4, "y0": 0.0, "y1": 1.0, "k": 5.0, "iface": "left", "side": "neumann", "source_expr": "<the source in 4C function syntax>"}.
+INTERFACE (x = 0.6): this side is the DIRICHLET side; it reads the partner's interface field values from ./imports.json (partner name "A"), imposes them as its own interface trace, and exports its own consistent outward flux to ./exports.json.
+MESH LEVEL 1: 8 x 10 QUAD4 elements. ./config.json follows the served contract's schema: {"level": 1, "nx": 8, "ny": 10, "x0": 0.6, "x1": 1.4, "y0": 0.0, "y1": 1.0, "k": 5.0, "iface": "left", "side": "dirichlet", "source_expr": "<the source in 4C function syntax>"}.
 The 4C binary is /home/alexander/4C/build/4C and needs LD_LIBRARY_PATH=/opt/4C-dependencies/lib; run it line-buffered (stdbuf -oL -eL) and keep its console output in a log file next to the deck.
-Write the COMPLETE, RUNNABLE script participant_B.py (run as `python participant_B.py` in its own directory with config.json and imports.json present; numpy and meshio are available). Keep the served handshake, sign convention, flux recovery and export self-check as given; generate the deck in a loop, run 4C, then recover and export. Output ONLY the Python inside one ```python fenced block."""
+Write the COMPLETE, RUNNABLE script participant_B.py (run as `python participant_B.py` in its own directory with config.json and imports.json present; numpy and meshio are available). Keep the served handshake, sign convention, flux recovery, finish check and export self-check as given; generate the deck in a loop, run 4C, then recover and export. Output ONLY the Python inside one ```python fenced block."""
 
 def run_participant(code: str) -> tuple[bool, str]:
     with tempfile.TemporaryDirectory() as td:
         d = Path(td); (d / "participant_B.py").write_text(code)
-        (d / "config.json").write_text(json.dumps({"level": 1, "nx": 8, "ny": 10, "x0": 0.6, "x1": 1.4, "y0": 0.0, "y1": 1.0, "k": 5.0, "iface": "left", "side": "neumann", "source_expr": "5*pi^2*(1.4-x)*sin(pi*y)"}))
+        (d / "config.json").write_text(json.dumps({"level": 1, "nx": 8, "ny": 10, "x0": 0.6, "x1": 1.4, "y0": 0.0, "y1": 1.0, "k": 5.0, "iface": "left", "side": "dirichlet", "source_expr": "5*pi^2*(1.4-x)*sin(pi*y)"}))
         ys = [i / 10 for i in range(11)]
         (d / "imports.json").write_text(json.dumps({"A": {"field_name": "u", "n_points": len(ys),
             "coordinates": [[0.6, y] for y in ys], "values": [0.8 * math.sin(math.pi * y) for y in ys], "normal_fluxes": [5.0 * math.sin(math.pi * y) for y in ys]}}))
@@ -43,11 +43,10 @@ def run_participant(code: str) -> tuple[bool, str]:
             return False, f"rc={r.returncode} exports={ex.is_file()} 4C_finished={fourc_ran} :: {tail}"
         try:
             e = json.loads(ex.read_text())
-            co = e.get("coordinates") or []; q = [float(v) for v in (e.get("normal_fluxes") or [])]; vals = [float(v) for v in (e.get("values") or [])]
-            eq = max(abs(qq + 5.0 * math.sin(math.pi * c[1])) for c, qq in zip(co, q)) if q else float("inf")
-            ev = max(abs(vv - 0.8 * math.sin(math.pi * c[1])) for c, vv in zip(co, vals)) if vals else float("inf")
-            ok = len(q) > 0 and eq < 0.25 and ev < 0.05   # manufactured u=(1.4-x)sin(pi y); a validated fill reaches 8.2e-2 / 4.0e-3
-            return ok, f"exports n={len(q)} values={len(vals)} flux_err={eq:.2e} trace_err={ev:.2e} 4C_finished={r.returncode == 0}"
+            co = e.get("coordinates") or []; q = [float(v) for v in (e.get("normal_fluxes") or [])]
+            err = max(abs(qq + 5.0 * math.sin(math.pi * c[1])) for c, qq in zip(co, q)) if q else float("inf")
+            ok = len(q) > 0 and err < 0.15          # manufactured u=(1.4-x)sin(pi y): q_own = -5 sin(pi y); a validated fill reaches 1.9e-2
+            return ok, f"exports n={len(q)} values={len(e.get('values') or [])} err_vs_exact={err:.2e} 4C_finished={r.returncode == 0}"
         except Exception as exc:
             return False, f"bad exports.json: {exc}"
 

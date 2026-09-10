@@ -1,5 +1,3 @@
-
-
 THE 4C DECK GRAMMAR — you cannot guess it, and 4C is a BINARY, so the deck is
 this backend's run interface in exactly the way exports.json is the driver's.
 Every NUMBER below is an ARBITRARY PLACEHOLDER; the sections and their syntax
@@ -106,6 +104,37 @@ FOUR MEASURED WAYS THIS DIES, all of them silently:
 (d) A condition's dimension must not exceed the problem's: a
     `DESIGN VOL ...` block on a 2-D problem gives
       Dimension of condition is larger than the problem dimension.
+(e) NO SECTION OR KEY THE GRAMMAR DOES NOT LIST. 4C matches every block
+    against its specification and aborts on the first unknown key with
+      Could not match this input
+    followed by the offending block. Measured in three of three trial decks
+    written from this grammar: an added `IO:` block with `VERBOSITY:
+    "Standard"` aborts the run. 4C's defaults need no IO section at all;
+    keep exactly the sections above and nothing you did not see documented.
+(f) EVERY `E:` ID A CONDITION NAMES MUST EXIST IN THE MATCHING TOPOLOGY.
+    Ids are 1-based and contiguous. A `DESIGN LINE ... CONDITIONS` entry
+    with `E: 4` while `DLINE-NODE TOPOLOGY` defines only DLINE 1..3 aborts
+    with
+      DLine 4 not in range [0:4[  DLine condition on non existent DLine
+    Count the distinct DLINE (DSURFACE, DNODE) ids in your topology and use
+    only those; give every interface, outer-boundary and surface set its
+    own id and its own topology lines.
+(g) NEVER TYPE NODE COORDS, ELEMENTS OR TOPOLOGY BY HAND. Generate them in
+    a short loop (a Python script that writes the deck for the level in
+    ./config.json, which is what the participant contract does) and let the
+    loop count them. Measured on trial decks typed out in full: a list one
+    node short aborts with
+      Element 79 cannot find node 99
+    and a long typed deck was cut off mid-string and failed to parse with
+      reached end of file looking for closing quote
+    A generator is thirty lines; the deck it writes can be any size.
+(h) EVERY TOPOLOGY SECTION APPEARS ONCE. All point sets share the one
+    `DNODE-NODE TOPOLOGY` block, all line sets the one `DLINE-NODE TOPOLOGY`
+    block, and so on -- one section per kind, holding every E id. A deck that
+    writes the block again for its second condition aborts on read with
+      Section 'DNODE-NODE TOPOLOGY' is defined more than once.
+    (measured on a trial deck that gave its Dirichlet points and its Neumann
+    points separate topology blocks).
 
 AND READ THE LOG FROM THE TOP. 4C buffers stdout and MPI_Abort kills it
 before the flush, so `| tail` shows only MPI boilerplate. Measured on one

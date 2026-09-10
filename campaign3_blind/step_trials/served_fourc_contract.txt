@@ -1,6 +1,6 @@
-ks like a converged solve of a trivial problem. Parse the FIRST number.
-* The scalar field is named `phi_1`, never `temperature`.
-* THE NEUMANN-SIDE PARTICIPANT SCAFFOLD (config-driven). The handshake, 4C's
+FFOLD (config-driven; "side": "dirichlet" |
+  "neumann" in ./config.json is the role the task gives 4C's subdomain; both
+  roles executed on this binary against a manufactured solution). The handshake, 4C's
   CALCFLUX_BOUNDARY flux-recovery route and the exports schema are served in the
   block below; THE 4C DECK AND THE SOLVE ARE ELIDED -- write them from
   `prepare_simulation(solver='fourc', physics='<your physics>')` and drop them
@@ -14,14 +14,23 @@ ks like a converged solve of a trivial problem. Parse the FIRST number.
   scatra VTU with no VTK section.
 
 ```python
-"""4C as the NEUMANN side of a partitioned coupling (Scalar_Transport).
+"""4C as EITHER side of a partitioned coupling (Scalar_Transport).
+
+THE ROLE COMES FROM ./config.json: "side": "neumann" | "dirichlet" -- the role
+the task gives the subdomain 4C owns (the Dirichlet side receives the field
+VALUES and imposes them; the Neumann side receives the outward FLUX and applies
+it as its load). One file, both roles; nothing else changes between them but
+what the deck imposes at the interface and what is exported as values.
 
 Reads ./config.json {"level":k,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
 "k":diffusivity,"iface":"left|right|bottom|top","source_expr":"<f(x,y) or 0.0>",
 "fourc_bin":..,"fourc_ld":..}.
-Contract: reads ./imports.json (partner's outward flux at its points), applies
-it as THIS side's interface Neumann load (opposite normals), runs YOUR 4C deck,
-and exports its interface TRACE as values plus its own consistent outward flux.
+Contract: reads ./imports.json (the partner's interface samples at its points),
+maps them onto THIS side's interface nodes -- as the Neumann load (side
+"neumann", opposite normals) or as the imposed Dirichlet trace (side
+"dirichlet") -- runs YOUR 4C deck, and exports its own consistent outward flux
+plus, on the Neumann side only, its interface TRACE as values (the Dirichlet
+side imposed the trace, it does not own one: values = []).
 
 WHAT IS SERVED HERE is the handshake (config + imports + sign convention), the
 CALCFLUX_BOUNDARY flux-recovery route, and the exports schema. THE 4C DECK AND
@@ -29,12 +38,14 @@ THE SOLVE ARE YOURS to write -- see the banner. Get the deck from
 prepare_simulation(solver='fourc', physics='<your physics>').
 """
 import json
+import numpy as np
 from pathlib import Path
 
 CFG = json.loads(Path("config.json").read_text())
 NX, NY = CFG["nx"], CFG["ny"]
 X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV = CFG["k"]; IF = CFG.get("iface", "left")
+SIDE = CFG.get("side", "neumann")   # "neumann" | "dirichlet": the role the task gives this subdomain
 
 # Volumetric source f(x,y) in -div(k grad u) = f, as a 4C space-time EXPRESSION
 # STRING (NOT a Python function): '^' is power (never '**'), the coordinates are
@@ -46,14 +57,14 @@ HAS_SRC = SRC_EXPR.strip() not in ("", "0", "0.", "0.0")
 imp = {}
 if Path("imports.json").is_file():
     imp = json.loads(Path("imports.json").read_text())
-def partner_flux(y_or_x):
-    """The imported partner flux interpolated onto one of THIS side's interface
-    points. The driver does NOT interpolate between the two meshes -- each
-    participant maps the partner's samples onto its own points, here. Empty on
-    iteration 1, so fall back to 0.0. Call this when you build your Neumann loads
-    in the solve below."""
+def _partner(key, y_or_x):
+    """One imported partner sample (key = "normal_fluxes" on the Neumann side,
+    "values" on the Dirichlet side) interpolated onto one of THIS side's
+    interface points. The driver does NOT interpolate between the two meshes --
+    each participant maps the partner's samples onto its own points, here. Empty
+    on iteration 1, so fall back to 0.0."""
     for _n, d in imp.items():
-        co = d.get("coordinates") or []; q = d.get("normal_fluxes") or []
+        co = d.get("coordinates") or []; q = d.get(key) or []
         if co and q and len(q) == len(co):
             ax = 1 if IF in ("left", "right") else 0
             pts = sorted(zip([c[ax] for c in co], q))
@@ -65,21 +76,150 @@ def partner_flux(y_or_x):
                     return qa + w * (qb - qa)
             return qs[-1]
     return 0.0
+def partner_flux(y_or_x):
+    """NEUMANN side: the partner's outward flux at one of your interface points --
+    your inward load there. Build your Neumann loads from this in the solve."""
+    return _partner("normal_fluxes", y_or_x)
+def partner_value(y_or_x):
+    """DIRICHLET side: the partner's field value at one of your interface points --
+    the trace you impose there. Build your interface Dirichlet data from this."""
+    return _partner("values", y_or_x)
 # SIGN CONVENTION: the inward load on THIS side is the partner's OUTWARD flux --
 # the two interface normals are opposite. Apply the partner's number UNCHANGED
 # ... (explanation continues in the annotated block)
+
+# ── DID 4C FINISH? (served: when the run leaves no output, name the cause) ─
+# An empty out-vtk-files/ means 4C aborted on your deck. Its own message sits
+# ... (explanation continues in the annotated block)
+import atexit, glob, sys
+def why_4c_did_not_finish():
+    _why = []
+    try:                                   # 1. 4C's own message, builtins only
+        for _lg in sorted(glob.glob("*.log")) + sorted(glob.glob("*.txt")):
+            try:
+                with open(_lg, errors="ignore") as _fh:
+                    _lines = _fh.read().splitlines()
+            except OSError:
+                continue
+            for _i, _ln in enumerate(_lines):
+                if "PROC 0 ERROR" in _ln:
+                    _said = []
+                    for l in _lines[_i + 1:_i + 14]:   # the message, then the offending input block
+                        if l.startswith("---") or l.lstrip().startswith(("0#", "1#")) or "MPI_ABORT" in l:
+                            break
+                        if l.strip():
+                            _said.append(l.strip())
+                    _why.append(f"4C said ({_lg}): " + " | ".join(_said))
+                    break
+    except Exception as _e:                # noqa: BLE001
+        _why.append(f"(log scan failed: {_e!r})")
+    try:                                   # 2. the deck, linted against 4C's own grammar
+        import os as _os, re as _re, subprocess as _sp
+        _deck = globals().get("DECK") or next(iter(sorted(glob.glob("*.4C.yaml")) or sorted(glob.glob("*.yaml"))), None)
+        if _deck and _os.path.isfile(_deck):
+            with open(_deck, errors="ignore") as _fh:
+                _txt = _fh.read()
+            _secs = _re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, _re.M)
+            _dup = sorted({s for s in _secs if _secs.count(s) > 1})
+            if _dup:
+                _why.append("section(s) written more than once, 4C reads each once: " + ", ".join(_dup))
+            _bin = globals().get("FOURC_BIN") or CFG.get("fourc_bin") or _os.environ.get("FOURC_BIN")
+            _valid = set()
+            if _bin and _os.path.isfile(str(_bin)):
+                _env = dict(_os.environ)
+                _ld = CFG.get("fourc_ld") or _os.environ.get("FOURC_LD")
+                if _ld:
+                    _env["LD_LIBRARY_PATH"] = f"{_ld}:{_env.get('LD_LIBRARY_PATH', '')}"
+                _dump = _sp.run([str(_bin), "-p"], capture_output=True, text=True, timeout=120, env=_env).stdout
+                _valid = set(_re.findall(r"^    - name: (.+?)\s*$", _dump, _re.M)) | set(
+                    _re.findall(r"^  - ([A-Z][A-Z0-9 _/.:-]*?)\s*$", _dump.split("legacy_string_sections:", 1)[-1], _re.M))
+                _valid |= {"TITLE"}
+            if len(_valid) > 100:
+                _bad = [s for s in dict.fromkeys(_secs) if s not in _valid and not _re.fullmatch(r"FUNCT\d+", s)]
+                if _bad:
+                    _why.append("section name(s) the binary's own grammar (`4C -p`) does not know: " + ", ".join(_bad))
+            if "CALCFLUX_BOUNDARY" in _txt and "FLUX CALC" not in _txt:
+                _why.append("CALCFLUX_BOUNDARY is set but no `SCATRA FLUX CALC LINE CONDITIONS` (SURF in 3-D) entry "
+                            "names the interface, and 4C refuses flux output without one")
+            _blocks = _re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=_re.M)
+            _topo = set(_re.findall(r"D(?:NODE|LINE|SURF|VOL)\s+(\d+)", _txt))
+            for _b in _blocks:
+                _head = _b.split(":", 1)[0].strip()
+                if not (_head.startswith("DESIGN") and _head.endswith("CONDITIONS")):
+                    continue
+                _entries = [e for e in _re.split(r"^\s*-\s", _b, flags=_re.M)[1:] if e.strip()]
+                _noid = [e for e in _entries if not _re.search(r"\bE:\s*\d+|NODE_SET_NAME", e)]
+                if _noid:
+                    _why.append(f"{len(_noid)} entr{'y' if len(_noid) == 1 else 'ies'} in {_head} without `E: <id>` (or NODE_SET_NAME)")
+                _ids = _re.findall(r"\bE:\s*(\d+)", _b)
+                _missing = sorted({i for i in _ids if i not in _topo}, key=int)
+                if _missing:
+                    _why.append(f"{_head} names E id(s) {', '.join(_missing)} that no *-NODE TOPOLOGY section defines")
+    except Exception as _e:                # noqa: BLE001
+        _why.append(f"(deck lint failed: {_e!r})")
+    if not _why:
+        _why.append("no VTU under out-vtk-files/ and no 4C error line in any *.log here -- run the binary line-buffered "
+                    "(stdbuf -oL -eL) with its console captured to a log next to the deck, then read that log from the top")
+    return "4C DID NOT FINISH -- " + "; ".join(_why)
+def _diagnose_at_exit():
+    if not Path("exports.json").is_file() and not glob.glob("out-vtk-files/*.vtu"):
+        print(why_4c_did_not_finish(), file=sys.stderr, flush=True)
+atexit.register(_diagnose_at_exit)
 
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
 # THE 4C DECK AND THE SOLVE ITSELF ARE YOURS AND ARE NOT SERVED HERE.
 #
 # Build the mesh, the material, the elements and the full 4C input deck for the
-# ... (explanation continues in the annotated block)
+# problem you were given, and run the 4C binary on it. That is ordinary 4C
 # input-deck work and OASiS has no business writing your deck. Get the deck
 # grammar (also `4C -p`), a runnable Scalar_Transport skeleton and the measured
 # gotchas from:
-# ... (explanation continues in the annotated block)
-# config `fourc_ld` (FOURC_LD / LD_LIBRARY_PATH). OASiS does not run the solver
-# for you and ships no host-specific binary path.
+#
+#     prepare_simulation(solver='fourc', physics='<your physics>')
+#     knowledge(topic='coupling', solver='fourc')     # the 4C traps below
+#
+# For THIS coupling your deck must:
+#   * be PROBLEMTYPE "Scalar_Transport", TIMEINTEGR "Stationary", a MAT_scatra
+#     material with DIFFUSIVITY = KV, and TRANSP QUAD4/TRI3 elements in a
+#     TRANSPORT ELEMENTS section (SOLID elements are rejected against MAT_scatra);
+#   * on the NEUMANN side (SIDE == "neumann"): apply the imported partner flux
+#     as the interface load -- one DESIGN POINT NEUMANN per INTERIOR interface
+#     node, Simpson-weighted, with VAL = partner_flux(that node's coordinate),
+#     imported node-by-node (no polynomial fit). 4C's Neumann VAL is exactly
+#     the flux the partner exported; hand it over unchanged (opposite normals
+#     already give the sign);
+#   * on the DIRICHLET side (SIDE == "dirichlet"): impose the imported partner
+#     values as the interface trace -- one DESIGN POINT DIRICH per INTERIOR
+#     interface node with VAL = partner_value(that node's coordinate) (the two
+#     interface ENDPOINTS keep the OUTER Dirichlet value: they lie on the outer
+#     boundary, and imposing the partner trace there caps the side at order
+#     1), every point set in the ONE DNODE-NODE TOPOLOGY section, E ids
+#     continuous across the Dirichlet and Neumann families;
+#   * keep at least one OUTER Dirichlet edge (u given) or the subdomain is singular;
+#   * if HAS_SRC, wire SRC_EXPR as FUNCT1 SYMBOLIC_FUNCTION_OF_SPACE_TIME plus a
+#     DESIGN SURF NEUMANN VAL*FUNCT block so it enters the assembled RHS -- '^'
+#     for powers, never '**';
+#   * request the consistent boundary flux for the recovery below: set
+#     CALCFLUX_BOUNDARY "diffusive" in SCALAR TRANSPORT DYNAMIC and add a
+#     `SCATRA FLUX CALC LINE CONDITIONS` (SURF in 3-D) entry on the interface
+#     line, so 4C writes flux_boundary_phi_1 into the VTU.
+#
+# THE DNODE-ID TRAP (measured): condition `E:` ids reference GLOBAL DNODE
+# numbers across ALL condition families. A Dirichlet block restarting at `E: 1`
+# silently rebinds the interface DNODEs and zeroes the field -- number the
+# families continuously. And this build writes scatra VTU by default with NO
+# `VTK` section; adding one is rejected as an invalid section.
+#
+# Run 4C with the binary at config `fourc_bin` (env FOURC_BIN; discover(
+# query='list') prints it on THIS install) and its dependency libraries on
+# config `fourc_ld` (FOURC_LD / LD_LIBRARY_PATH), line-buffered with its console
+# captured to a log next to the deck (stdbuf -oL -eL <bin> <deck> out > run.log
+# 2>&1). WHEN THE BINARY EXITS NON-ZERO, DO NOT EXIT OR RAISE YOURSELF: fall
+# through -- the served check right below reads that log and the deck and stops
+# with the cause spelled out (measured: a wrapper that raised "Solver execution
+# failed, check the log" first hid 4C's own "Could not match this input: IO:
+# VERBOSITY ..." from the agent). OASiS does not run the solver for you and ships
+# no host-specific binary path.
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
 
 # ── CONSISTENT OUTWARD FLUX + EXPORTS -- the served recovery route ─────────
@@ -87,6 +227,10 @@ def partner_flux(y_or_x):
 # ... (explanation continues in the annotated block)
 import glob
 import meshio
+# ── DID 4C FINISH? ── the check defined above the hole, run first here ─────
+_vtus = sorted(glob.glob("out-vtk-files/*.vtu"))
+if not _vtus:
+    raise SystemExit(why_4c_did_not_finish())
 # The VTU name is out-vtk-files/scatra-<step>-<rank>.vtu -- the TRAILING number
 # is the MPI RANK, not the step. Sorting on it returns scatra-00000-0.vtu, the
 # ... (explanation continues in the annotated block)
@@ -122,30 +266,28 @@ vals = [u[n-1] for n in interior]
 #    fine and are worthless: a non-finite field; a Neumann side whose imported
 #    load never entered the assembled system (it returns the no-load answer and
 # ... (explanation continues in the annotated block)
-import numpy as _np, json as _json
-from pathlib import Path as _Path
-_chk_vals = _np.asarray(vals, float).ravel()
-_chk_flux = _np.asarray(q_own, float).ravel()
-if not (_np.isfinite(_chk_vals).all() and _np.isfinite(_chk_flux).all()):
+_chk_vals = np.asarray(vals, float).ravel()
+_chk_flux = np.asarray(q_own, float).ravel()
+if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
     raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or fluxes; "
                      "the solve did not produce a usable field, so nothing was exported")
-_chk_imp = (_json.loads(_Path("imports.json").read_text() or "{}")
-            if _Path("imports.json").is_file() else {})
-_chk_qin = (_np.concatenate([_np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+_chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+            if Path("imports.json").is_file() else {})
+_chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
                              for _d in _chk_imp.values()])
-            if _chk_imp else _np.zeros(0))
-if True and _chk_qin.size and _np.abs(_chk_qin).max() > 0 and (
-        _np.abs(_chk_flux).max() < 1e-9 * _np.abs(_chk_qin).max()):
+            if _chk_imp else np.zeros(0))
+if SIDE == "neumann" and _chk_qin.size and np.abs(_chk_qin).max() > 0 and (
+        np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max()):
     raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 against a "
                      "nonzero imported flux: the imported load never entered the "
                      "assembled system (the condition that integrates it is missing). "
                      "Fix the application; do not couple on")
-if False and _chk_qin.shape == _chk_flux.shape and _chk_flux.size and (
-        _np.array_equal(_chk_flux, -_chk_qin)):
+if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size and (
+        np.array_equal(_chk_flux, -_chk_qin)):
     raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array "
                      "negated, bit for bit: a copy, not a recovery from this side's "
                      "own assembled system")
-json.dump({"field_name": "u", "coordinates": co, "values": vals,
+json.dump({"field_name": "u", "coordinates": co, "values": (vals if SIDE == "neumann" else []),
            "normal_fluxes": q_own, "n_points": len(co)},
           open("exports.json", "w"))
 # PER-LEVEL PERSISTENCE. Each mesh level writes its OWN field file named by the
@@ -162,7 +304,17 @@ print(f"4C Neumann participant: NDOF = {len(nodes)}  "
 # ── WHAT YOUR SOLVE MUST LEAVE BEHIND ──────────────────────────────────────
 # The recovery and export above use these names; the elided deck-and-solve block
 # has to define every one, or the rest will not run:
-# ... (explanation continues in the annotated block)
+#
+#     nodes      every mesh node as (x, y), indexed by 4C node id via
+#                nodes[gid-1]; the recovery maps 4C's VTU points back onto it
+#     interior   the interior interface node ids -- the points you export. DROP
+#                the two endpoints: they also lie on the outer Dirichlet boundary
+#                and are a physically different quantity there
+#     DECK       (optional) the path of the deck you ran, and FOURC_BIN the
+#                binary -- the finish check above reads them to name a deck
+#                defect; without them it globs *.4C.yaml and config fourc_bin
+#
+# and YOUR deck must have produced out-vtk-files/*.vtu carrying phi_1 and
 # flux_boundary_phi_1. OASiS does not serve the solve, but it will not make you
 # guess which variables the hole was filling.
 ```

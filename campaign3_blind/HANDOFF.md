@@ -441,6 +441,21 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   loop gives.
 - Tests added: `test_the_4c_contract_names_why_the_deck_did_not_run.py`,
   `test_the_dune_contract_has_two_holes_and_serves_the_mesh_access.py`.
+- After round 8 (00:00-00:30): the 4C scaffold is now TWO-SIDED ("side" in
+  config.json), both roles executed against a manufactured solution before
+  serving (Dirichlet flux error 1.9e-2, Neumann 8.2e-2 and trace 4e-3 at
+  h = 0.1; the fills are in the session scratch, never served). The audit's
+  mesh-ladder finding names the level that is not a halving and the
+  one-call fix. Trials running: `micro_4c_dirichlet.py` (Dirichlet role,
+  graded against the manufactured outward flux, one repair round) and
+  part4c6 (Neumann role, one repair round: sample 0 PASS).
+- 00:45: the 4C finish diagnosis is now a function defined ABOVE the hole and
+  registered at exit, so a worker that stops on its own "4C FAILED -- see
+  run.log" (measured in part4c7 sample 0) still reads 4C's error block and
+  the deck lint on the way out (commit 3af2c5b7; validated with an aborting
+  fill). Dirichlet-role worker trial dir4c1: 2/3 PASS, both with flux error
+  1.85e-2, identical to the validated fill; the failure wrote a THERMAL
+  DYNAMIC section and was told so by the finish check.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

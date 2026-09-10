@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_finished=False :: 4C DID NOT FINISH -- 4C said: Could not match this input | THERMAL DYNAMIC: | TIMEINTEGR: \"Stationary\" | SOLVERTYPE: \"linear_full\" | NUMSTEP: 1 | TIMESTEP: 1.0 | MAXTIME: 1.0 | LINEAR_SOLVER: 1 | CALCFLUX_BOUNDARY: \"diffusive\" | against the given input specification. This was the best attempt to match the input:\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 249.5,
+  "lines": 379
+ },
+ {
+  "i": 1,
+  "ok": true,
+  "info": "exports n=9 values=0 err_vs_exact=1.85e-02 4C_finished=True",
+  "kept_selfcheck": true,
+  "attempts": 1,
+  "finish": "stop",
+  "secs": 177.4,
+  "lines": 418
+ },
+ {
+  "i": 2,
+  "ok": true,
+  "info": "exports n=9 values=0 err_vs_exact=1.85e-02 4C_finished=True",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 176.5,
+  "lines": 421
+ }
+]

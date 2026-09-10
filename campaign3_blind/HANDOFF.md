@@ -472,7 +472,9 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   60%-wrong trace with no word said. Served now: a Neumann load-consistency
   self-check (recovered flux must match the applied load to 30%; a
   validated deck gives 1.6%, a density-in-VAL deck 9x) -- validated on both
-  roles and on a deliberately wrong load (commit ff3ea506). part4c10 running.
+  roles and on a deliberately wrong load (commit ff3ea506). part4c10 on that
+  text: 2/3 (both passes exact in flux; the failure interleaved topology
+  lines inside a condition block and was told so).
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

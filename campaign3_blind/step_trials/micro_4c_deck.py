@@ -61,6 +61,7 @@ for i in range(N):
     t0 = time.time()
     resp = client.chat.completions.create(
         model=MODEL, temperature=0.7, seed=1000 + i, max_tokens=16000,
+        extra_body={"reasoning": {"max_tokens": 4000}},   # bound the model's thinking so the answer is not starved of output tokens
         messages=[{"role": "system", "content": "You are a finite-element simulation assistant. What follows is the documentation the OASiS server gave you for 4C.\n\n" + served},
                   {"role": "user", "content": TASK}])
     msg = resp.choices[0].message

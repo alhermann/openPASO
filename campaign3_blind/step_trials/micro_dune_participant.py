@@ -17,13 +17,13 @@ SUBDOMAIN A: the rectangle (0, 0.6) x (0, 1), scalar diffusion with k = 1:  -div
 SOURCE TERM: f(x, y) = 2*x*y**2 - x**2   (as written)
 OUTER BOUNDARY (x = 0, y = 0, y = 1): u = 0 (Dirichlet)
 INTERFACE (x = 0.6): this side is the DIRICHLET side; it reads the partner's interface values from ./imports.json (partner name "B") and imposes them; it exports its own interface trace and its own consistent outward flux to ./exports.json.
-MESH LEVEL 1: 6 x 10 uniform quadrilaterals (read the level from ./config.json, key "level"; level 1 = 6 x 10, level k doubles both).
+MESH LEVEL 1: 6 x 10 uniform quadrilaterals. ./config.json follows the served contract's schema: {"level": 1, "nx": 6, "ny": 10, "x0": 0.0, "x1": 0.6, "y0": 0.0, "y1": 1.0, "k": 1.0, "reaction": 0.0}; the polynomial source is NOT in the config -- it is yours to write into the form.
 Write the COMPLETE, RUNNABLE script participant_A.py (it is run as `python participant_A.py` in its own directory with config.json and imports.json present). Keep the served handshake, sign convention, flux recovery and export self-check as given; write the mesh, space, form and solve yourself. Output ONLY the Python inside one ```python fenced block."""
 
 def run_participant(code: str) -> tuple[bool, str]:
     with tempfile.TemporaryDirectory() as td:
         d = Path(td); (d / "participant_A.py").write_text(code)
-        (d / "config.json").write_text(json.dumps({"level": 1}))
+        (d / "config.json").write_text(json.dumps({"level": 1, "nx": 6, "ny": 10, "x0": 0.0, "x1": 0.6, "y0": 0.0, "y1": 1.0, "k": 1.0, "reaction": 0.0}))
         ys = [i / 10 for i in range(11)]
         (d / "imports.json").write_text(json.dumps({"B": {"field_name": "u", "n_points": len(ys),
             "coordinates": [[0.6, y] for y in ys], "values": [0.3 * y * (1 - y) for y in ys],
@@ -50,6 +50,7 @@ results = []
 for i in range(N):
     t0 = time.time()
     resp = client.chat.completions.create(model=MODEL, temperature=0.7, seed=2000 + i, max_tokens=16000,
+        extra_body={"reasoning": {"max_tokens": 4000}},   # bound the model's thinking so the answer is not starved of output tokens
         messages=[{"role": "system", "content": "You are a finite-element simulation assistant. What follows is the documentation the OASiS server gave you for DUNE-fem.\n\n" + served},
                   {"role": "user", "content": TASK}])
     msg = resp.choices[0].message; text = msg.content or ""

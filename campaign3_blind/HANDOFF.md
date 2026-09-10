@@ -376,7 +376,15 @@ and several fixes **lowered** the apparent uplift:
 | 3 | 6b6ad83f | C3 5571-73, C1 6221-23, C2 6321-23 | 0/9 (5 HONEST_INCOMPLETE, 4 FAILED) | 9/9 had one refused write (project dir under $HOME); 7/9 never called prepare_simulation, so the reveal never fired; 0/9 kept a contract; 0.7-9M input tokens per run |
 | 4 | 86a86615 | C3 5581-83, C1 6231-33, C2 6331-33 | 0/9 (5 HONEST_INCOMPLETE, 3 FAILED, 1 MALFORMED) | refused writes 4/9; C3 5581 copied both contracts and got DUNE working, lost on a 4C MATERIALS key; C1 6233 both codes proven at level 1; C2 6333 ran a real 3-level coupling (9 it -> 1e-8) but wrote no field files and listed 12 nonexistent files in its summary |
 | 5 | a4bebe41 | C3 5591-93, C1 6241-43, C2 6341-43 | 0/9 (6 HONEST_INCOMPLETE, 3 FAILED) | real couplings in 6 runs (one through 3 levels); runs stop at 16-23 min with 25 min left and write no field files; 0/9 copy a contract; C1 6243 wrote all 21 files with the zero solution (no source terms in the 4C deck) and honestly gave up |
-| 6 | 081a1edd | C3 5611-13, C1 6261-63, C2 6361-63 | in flight ~19:52 | tests the 48k reply cap and the no-field-files hand-in finding |
+| 6 | 081a1edd | C3 5611-13, C1 6261-63, C2 6361-63 | 0/9 (5 HONEST_INCOMPLETE, 2 MALFORMED, 1 FAILED, 1 COMPLETED_UNPHYSICAL) | first END-TO-END run: C2 6361 delivered all three levels, error 0.047 flat (exact RMS 0.050) from its own post-processing; C3 5611/5613 level 1 with both codes proven; the no-field-files finding fired in 3 runs and all 3 then wrote fields |
+
+### Per-step trials (from 2026-09-10 evening, Alexander's method)
+
+Whole-problem rounds stop until each failing step passes cheap OpenRouter trials with the same 27B:
+`campaign3_blind/step_trials/` (see its scripts' docstrings). Each trial hands the model exactly the
+served material for ONE step and validates by running the code (4C, DUNE). First results: 4C deck
+0/3 -> 1/3 after three measured grammar traps; DUNE participant 0/3 (invented dune.gdt / dune.fem.Grid
+APIs); a parent given an OASiS step ladder produced a bounded, checkable plan in 1 of 2 trials.
 
 Every coupled CORRECT recorded before 2026-09-10 on C3 (2/3, 3/6) was measured
 with complete participants served and is not a paper number.

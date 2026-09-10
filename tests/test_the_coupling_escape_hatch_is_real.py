@@ -124,8 +124,13 @@ def test_an_unsignalled_request_is_unchanged(knowledge_tool):
     # truncation notice. Stated this way the check keeps working when the core
     # is edited, and still fails if the head limit stops being enforced.
     from tools.knowledge import _UNIVERSAL_CORE
+    from tools.consolidated import _deciding_block
     NOTICE = 1500
-    assert len(plain) <= _COUPLING_HEAD_LIMIT + len(_UNIVERSAL_CORE) + NOTICE, (
+    # a named code's deciding facts ride along after the lead (measured: runs
+    # that never called prepare_simulation hand-rolled the code's API from
+    # memory); they are bounded by their own length, not by the head cap
+    facts = len(_deciding_block("kratos", "coupled side"))
+    assert len(plain) <= _COUPLING_HEAD_LIMIT + len(_UNIVERSAL_CORE) + NOTICE + facts, (
         f"the unsignalled coupling reply is {len(plain)} characters against a "
         f"head limit of {_COUPLING_HEAD_LIMIT}; the cap is not being enforced"
     )

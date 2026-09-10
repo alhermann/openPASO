@@ -2363,7 +2363,7 @@ _DECIDING_UNIVERSAL = (
     "nearest node. Free self-check: nearest-node sampling can only return "
     "(N-1)^2+1 distinct values, so 1936 probes collapse to 50/226/962 at "
     "N=8/16/32.\n"
-    "* GATE BEFORE YOU SUBMIT, at EVERY level: the solver REPORTED convergence "
+    "* GATE BEFORE YOU HAND IN, at EVERY level: the solver REPORTED convergence "
     "(not merely that nothing raised), peak|u| > 0, and your load is not "
     "constant. Then compute log2(|L1-L2|/|L2-L3|) yourself.\n"
     "* ON A COUPLED SIDE, the consistent outward flux is "
@@ -7039,6 +7039,26 @@ def _get_coupling_knowledge(solver: str = "", signal: str = ""):
     # in coupling_knowledge.coupling_participant; nothing here changes that.)
     if isinstance(payload, str) and (signal or "").strip().lower().startswith("participant"):
         return payload
+    # A NAMED CODE'S DECIDING FACTS RIDE ALONG. Measured: coupled runs that
+    # never called prepare_simulation (the door that serves them) hand-rolled
+    # the code's API from memory and died on it -- a Kratos side against the
+    # wrong API for 68 calls, a DUNE side on a name ufl no longer exports.
+    # The facts are short and measured by execution; a coupled side needs
+    # them exactly as much as a single-code run does.
+    _facts = (_deciding_block(solver, "coupled side")
+              if isinstance(payload, str) and (solver or "").strip()
+              and _DECIDING_FACTS.get((solver or "").strip().lower()) else "")
+
+    def _with_facts(text: str) -> str:
+        # after the lead (must-read or its pointer), before the payload, so the
+        # head cap and the signalled continuation still measure the payload
+        # alone
+        if not _facts or not isinstance(text, str):
+            return text
+        for lead in (_COUPLING_MUST_READ, _MUST_READ_POINTER):
+            if text.startswith(lead):
+                return lead + _facts + text[len(lead):]
+        return _facts + text
     # THE ESCAPE HATCH HAD TO BE MADE REAL.
     #
     # The truncation notice tells the agent, verbatim, that "the rest is
@@ -7067,9 +7087,9 @@ def _get_coupling_knowledge(solver: str = "", signal: str = ""):
     _mr = _want or not _MUST_READ_STATE["served"]
     _MUST_READ_STATE["served"] = True
     if signal and not _want:
-        return _append_coupling_continuation(
-            _front_load_coupling(payload, solver, must_read=_mr), solver, signal)
-    return _front_load_coupling(payload, solver, must_read=_mr)
+        return _with_facts(_append_coupling_continuation(
+            _front_load_coupling(payload, solver, must_read=_mr), solver, signal))
+    return _with_facts(_front_load_coupling(payload, solver, must_read=_mr))
 
 
 def _coupling_participant_script(solver: str) -> str:

@@ -566,6 +566,11 @@ def test_knowledge_tool_output_matches_the_payload_function(topic):
             if body.startswith(lead):
                 body = body[len(lead):]
                 break
+        # a named code's deciding facts lead its coupling payload; they are
+        # the tool's own addition, cut at the rule that closes them
+        if body.lstrip("\n").startswith("# WHAT DECIDES THIS RUN"):
+            rule = "\n" + "-" * 70 + "\n\n"
+            body = body[body.index(rule) + len(rule):]
         body = body.lstrip("\n")
         assert expected.startswith(body.rstrip()) or body.strip() in expected, (
             f"knowledge(topic={topic!r}, solver={solver!r}) is not a faithful "

@@ -1,0 +1,168 @@
+ks like a converged solve of a trivial problem. Parse the FIRST number.
+* The scalar field is named `phi_1`, never `temperature`.
+* THE NEUMANN-SIDE PARTICIPANT SCAFFOLD (config-driven). The handshake, 4C's
+  CALCFLUX_BOUNDARY flux-recovery route and the exports schema are served in the
+  block below; THE 4C DECK AND THE SOLVE ARE ELIDED -- write them from
+  `prepare_simulation(solver='fourc', physics='<your physics>')` and drop them
+  into the marked region. Measured facts it still encodes: 4C's own
+  CALCFLUX_BOUNDARY is assembly-consistent (a hand re-assembly on a different
+  element is first order -- it cut the coarse interface imbalance 20x,
+  0.54 -> 0.026, and lifted the jump order from ~0.8 to ~2 on the measured
+  interior; delivery proven zero-vs-real, field moved 1.38e-1 vs 0, recovered
+  flux -0.75 against applied +0.75), and two traps live in the elided deck --
+  the GLOBAL DNODE-id rule across condition families, and that this build writes
+  scatra VTU with no VTK section.
+
+```python
+"""4C as the NEUMANN side of a partitioned coupling (Scalar_Transport).
+
+Reads ./config.json {"level":k,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
+"k":diffusivity,"iface":"left|right|bottom|top","source_expr":"<f(x,y) or 0.0>",
+"fourc_bin":..,"fourc_ld":..}.
+Contract: reads ./imports.json (partner's outward flux at its points), applies
+it as THIS side's interface Neumann load (opposite normals), runs YOUR 4C deck,
+and exports its interface TRACE as values plus its own consistent outward flux.
+
+WHAT IS SERVED HERE is the handshake (config + imports + sign convention), the
+CALCFLUX_BOUNDARY flux-recovery route, and the exports schema. THE 4C DECK AND
+THE SOLVE ARE YOURS to write -- see the banner. Get the deck from
+prepare_simulation(solver='fourc', physics='<your physics>').
+"""
+import json
+from pathlib import Path
+
+CFG = json.loads(Path("config.json").read_text())
+NX, NY = CFG["nx"], CFG["ny"]
+X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
+KV = CFG["k"]; IF = CFG.get("iface", "left")
+
+# Volumetric source f(x,y) in -div(k grad u) = f, as a 4C space-time EXPRESSION
+# STRING (NOT a Python function): '^' is power (never '**'), the coordinates are
+# ... (explanation continues in the annotated block)
+SRC_EXPR = str(CFG.get("source_expr", CFG.get("source_const", "0.0")))
+HAS_SRC = SRC_EXPR.strip() not in ("", "0", "0.", "0.0")
+
+# ---- the partner's interface samples, mapped onto THIS side (handshake) ----
+imp = {}
+if Path("imports.json").is_file():
+    imp = json.loads(Path("imports.json").read_text())
+def partner_flux(y_or_x):
+    """The imported partner flux interpolated onto one of THIS side's interface
+    points. The driver does NOT interpolate between the two meshes -- each
+    participant maps the partner's samples onto its own points, here. Empty on
+    iteration 1, so fall back to 0.0. Call this when you build your Neumann loads
+    in the solve below."""
+    for _n, d in imp.items():
+        co = d.get("coordinates") or []; q = d.get("normal_fluxes") or []
+        if co and q and len(q) == len(co):
+            ax = 1 if IF in ("left", "right") else 0
+            pts = sorted(zip([c[ax] for c in co], q))
+            xs = [p[0] for p in pts]; qs = [float(p[1]) for p in pts]
+            t = min(max(y_or_x, xs[0]), xs[-1])
+            for a, b, qa, qb in zip(xs, xs[1:], qs, qs[1:]):
+                if a <= t <= b:
+                    w = 0.0 if b == a else (t - a) / (b - a)
+                    return qa + w * (qb - qa)
+            return qs[-1]
+    return 0.0
+# SIGN CONVENTION: the inward load on THIS side is the partner's OUTWARD flux --
+# the two interface normals are opposite. Apply the partner's number UNCHANGED
+# ... (explanation continues in the annotated block)
+
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# THE 4C DECK AND THE SOLVE ITSELF ARE YOURS AND ARE NOT SERVED HERE.
+#
+# Build the mesh, the material, the elements and the full 4C input deck for the
+# ... (explanation continues in the annotated block)
+# input-deck work and OASiS has no business writing your deck. Get the deck
+# grammar (also `4C -p`), a runnable Scalar_Transport skeleton and the measured
+# gotchas from:
+# ... (explanation continues in the annotated block)
+# config `fourc_ld` (FOURC_LD / LD_LIBRARY_PATH). OASiS does not run the solver
+# for you and ships no host-specific binary path.
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+
+# ── CONSISTENT OUTWARD FLUX + EXPORTS -- the served recovery route ─────────
+# After YOUR deck has run, read 4C's OWN output. Never hand-parse the VTU XML,
+# ... (explanation continues in the annotated block)
+import glob
+import meshio
+# The VTU name is out-vtk-files/scatra-<step>-<rank>.vtu -- the TRAILING number
+# is the MPI RANK, not the step. Sorting on it returns scatra-00000-0.vtu, the
+# ... (explanation continues in the annotated block)
+vtu = sorted(glob.glob("out-vtk-files/*.vtu"))[-1]
+_m = meshio.read(vtu)
+vpts = [(float(p[0]), float(p[1])) for p in _m.points]
+phi = [float(x) for x in _m.point_data["phi_1"].ravel()]   # the scalar is 'phi_1'
+# a 4C QUAD4 VTU repeats each node once per element; collapse by coordinate or
+# n_points comes out four times too large and changes with the mesh.
+val = {}
+for (x, y), _u in zip(vpts, phi):
+    val[(round(x, 12), round(y, 12))] = _u
+u = [val[(round(x, 12), round(y, 12))] for (x, y) in nodes]
+# CONSISTENT flux = 4C's CALCFLUX_BOUNDARY output (assembly-consistent by
+# construction, from 4C's true residual -- the same reaction recovery every
+# ... (explanation continues in the annotated block)
+fbname = next((da for da in _m.point_data if "flux_boundary" in da), None)
+if fbname is None:
+    raise SystemExit("no flux_boundary field in the VTU -- set CALCFLUX_BOUNDARY "
+                     "'diffusive' and add a SCATRA FLUX CALC condition on the interface")
+fb = _m.point_data[fbname]
+nrm = {"left": (-1, 0), "right": (1, 0), "bottom": (0, -1), "top": (0, 1)}[IF]
+fbmap = {}
+for (x, y), vec in zip(vpts, fb):
+    fbmap[(round(x, 10), round(y, 10))] = float(vec[0] * nrm[0] + vec[1] * nrm[1])
+q_own = [fbmap[(round(nodes[n-1][0], 10), round(nodes[n-1][1], 10))] for n in interior]
+co = [list(nodes[n-1]) for n in interior]
+vals = [u[n-1] for n in interior]
+# exports.json LAST, only after the solve succeeded (the driver takes its
+# existence as proof of success): YOUR interface trace as values, YOUR consistent
+# ... (explanation continues in the annotated block)
+# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+#    fine and are worthless: a non-finite field; a Neumann side whose imported
+#    load never entered the assembled system (it returns the no-load answer and
+# ... (explanation continues in the annotated block)
+import numpy as _np, json as _json
+from pathlib import Path as _Path
+_chk_vals = _np.asarray(vals, float).ravel()
+_chk_flux = _np.asarray(q_own, float).ravel()
+if not (_np.isfinite(_chk_vals).all() and _np.isfinite(_chk_flux).all()):
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or fluxes; "
+                     "the solve did not produce a usable field, so nothing was exported")
+_chk_imp = (_json.loads(_Path("imports.json").read_text() or "{}")
+            if _Path("imports.json").is_file() else {})
+_chk_qin = (_np.concatenate([_np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                             for _d in _chk_imp.values()])
+            if _chk_imp else _np.zeros(0))
+if True and _chk_qin.size and _np.abs(_chk_qin).max() > 0 and (
+        _np.abs(_chk_flux).max() < 1e-9 * _np.abs(_chk_qin).max()):
+    raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 against a "
+                     "nonzero imported flux: the imported load never entered the "
+                     "assembled system (the condition that integrates it is missing). "
+                     "Fix the application; do not couple on")
+if False and _chk_qin.shape == _chk_flux.shape and _chk_flux.size and (
+        _np.array_equal(_chk_flux, -_chk_qin)):
+    raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array "
+                     "negated, bit for bit: a copy, not a recovery from this side's "
+                     "own assembled system")
+json.dump({"field_name": "u", "coordinates": co, "values": vals,
+           "normal_fluxes": q_own, "n_points": len(co)},
+          open("exports.json", "w"))
+# PER-LEVEL PERSISTENCE. Each mesh level writes its OWN field file named by the
+# config level, so levels 1->2->3 leave THREE files instead of the finest
+# ... (explanation continues in the annotated block)
+_LVL = CFG.get("level", "X")
+with open(f"field_level{_LVL}.csv", "w") as _f:
+    _f.write("x,y,u\n")
+    for (_px, _py), _u in zip(nodes, u):
+        _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\n")
+print(f"4C Neumann participant: NDOF = {len(nodes)}  "
+      f"max|u| = {max(abs(t) for t in vals) if vals else 0:.6e}")
+
+# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ──────────────────────────────────────
+# The recovery and export above use these names; the elided deck-and-solve block
+# has to define every one, or the rest will not run:
+# ... (explanation continues in the annotated block)
+# flux_boundary_phi_1. OASiS does not serve the solve, but it will not make you
+# guess which variables the hole was filling.
+```

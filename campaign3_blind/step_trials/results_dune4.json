@@ -1,0 +1,26 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 no_exports=True :: etCoordinates\n    return coords_(lowerleft, upperright, elements)\nTypeError: __init__(): incompatible constructor arguments. The following argument types are supported:\n    1. dune.generated.yaspcoordinates_dim2_ctdouble.EquidistantOffsetCoordinates(arg0: dune.generated.yaspcoordinates_dim2_ctdouble.FieldVector_double_2, arg1: dune.generated.yaspcoordinates_dim2_ctdouble.FieldVector_double_2, arg2: Annotated[list[int], FixedSize(2)])\n\nInvoked with: array([ 6., 10.]), array([0., 0.]), (0.6, 1.0)\n",
+  "kept_selfcheck": true,
+  "secs": 78.1,
+  "lines": 194
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 no_exports=True :: Invalid MIT-MAGIC-COOKIE-1 keyTraceback (most recent call last):\n  File \"/tmp/tmpkr_laebw/participant_A.py\", line 63, in <module>\n    from ufl import (TrialFunction, TestFunction, SpatialCoordinate, inner,\n                     grad, dx, conditional, lt, gt, abs, or_, eq)\nImportError: cannot import name 'abs' from 'ufl' (/home/alexander/miniconda3/envs/dune-py313/lib/python3.13/site-packages/ufl/__init__.py)\n",
+  "kept_selfcheck": true,
+  "secs": 236.8,
+  "lines": 359
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 no_exports=True :: Invalid MIT-MAGIC-COOKIE-1 keyDUNE-WARNING: The methods elements, facets, edges, and vertices have been converted to properties.\nDUNE-WARNING: Please remove the trailing parenthesis.\nTraceback (most recent call last):\n  File \"/tmp/tmpueh4qhl1/participant_A.py\", line 88, in <module>\n    nodes.append(e.index)\n                 ^^^^^^^\nAttributeError: 'dune.generated.hierarchicalgrid_966e2a5c8356c5b278ccd3acad180f0a.Entity_2' object has no attribute 'index'\n",
+  "kept_selfcheck": true,
+  "secs": 217.9,
+  "lines": 231
+ }
+]

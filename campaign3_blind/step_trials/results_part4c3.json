@@ -1,0 +1,29 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_finished=False :: nvalid MIT-MAGIC-COOKIE-1 key\n******************************************************\n*                                                    *\n*                         4C                         *\n*                                                    *\n*                version 2026.2.0-dev                *\n*                                                    *\n*                      git SHA1                      *\n*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *\n*                            \n",
+  "kept_selfcheck": true,
+  "finish": "stop",
+  "secs": 216.8,
+  "lines": 395
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_finished=False :: Traceback (most recent call last):\n  File \"/tmp/tmpco5mtze1/participant_B.py\", line 130, in <module>\n    t = min(max(y_coord, samples[0][0]), samples[-1][0])\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: '>' not supported between instances of 'list' and 'float'\n",
+  "kept_selfcheck": true,
+  "finish": "stop",
+  "secs": 262.0,
+  "lines": 314
+ },
+ {
+  "i": 2,
+  "ok": true,
+  "info": "exports n=11 maxflux=4.366e+00 4C_finished=True",
+  "kept_selfcheck": true,
+  "finish": "stop",
+  "secs": 458.9,
+  "lines": 243
+ }
+]

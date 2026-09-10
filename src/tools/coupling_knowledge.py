@@ -2650,6 +2650,7 @@ THE SOLVE ARE YOURS to write -- see the banner. Get the deck from
 prepare_simulation(solver='fourc', physics='<your physics>').
 """
 import json
+import numpy as np
 from pathlib import Path
 
 CFG = json.loads(Path("config.json").read_text())
@@ -2877,26 +2878,25 @@ vals = [u[n-1] for n in interior]
 #    load never entered the assembled system (it returns the no-load answer and
 #    a flux of ~0 against a nonzero partner); and a flux that is the partner's
 #    array negated instead of a recovery from THIS side's own system.
-import numpy as _np, json as _json
-from pathlib import Path as _Path
-_chk_vals = _np.asarray(vals, float).ravel()
-_chk_flux = _np.asarray(q_own, float).ravel()
-if not (_np.isfinite(_chk_vals).all() and _np.isfinite(_chk_flux).all()):
+# (json, numpy and Path are the imports at the top of this file)
+_chk_vals = np.asarray(vals, float).ravel()
+_chk_flux = np.asarray(q_own, float).ravel()
+if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
     raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or fluxes; "
                      "the solve did not produce a usable field, so nothing was exported")
-_chk_imp = (_json.loads(_Path("imports.json").read_text() or "{}")
-            if _Path("imports.json").is_file() else {})
-_chk_qin = (_np.concatenate([_np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+_chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+            if Path("imports.json").is_file() else {})
+_chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
                              for _d in _chk_imp.values()])
-            if _chk_imp else _np.zeros(0))
-if SIDE == "neumann" and _chk_qin.size and _np.abs(_chk_qin).max() > 0 and (
-        _np.abs(_chk_flux).max() < 1e-9 * _np.abs(_chk_qin).max()):
+            if _chk_imp else np.zeros(0))
+if SIDE == "neumann" and _chk_qin.size and np.abs(_chk_qin).max() > 0 and (
+        np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max()):
     raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 against a "
                      "nonzero imported flux: the imported load never entered the "
                      "assembled system (the condition that integrates it is missing). "
                      "Fix the application; do not couple on")
 if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size and (
-        _np.array_equal(_chk_flux, -_chk_qin)):
+        np.array_equal(_chk_flux, -_chk_qin)):
     raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array "
                      "negated, bit for bit: a copy, not a recovery from this side's "
                      "own assembled system")

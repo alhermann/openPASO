@@ -188,8 +188,25 @@ def lean_view(served: str, keep: int = 2) -> str:
             out.append(run[0][:len(run[0]) - len(run[0].lstrip())]
                        + "# ... (explanation continues in the annotated block)")
         run.clear()
+    # THE RECONSTRUCTION CONTRACT IS NOT EXPLANATION. The comment run inside a
+    # hole (what the hole must leave behind, how to impose the served trace)
+    # and the closing "LEAVE BEHIND" block are the only place the copyable form
+    # names the variables the elided code has to define. Measured 2026-09-10:
+    # this thinning cut both to "explanation continues in the annotated block",
+    # so a worker holding only the copyable contract had to guess the names
+    # from their later use. Both stay whole; only prose elsewhere is thinned.
+    in_hole = in_contract = False
     for line in served.splitlines():
         st = line.strip()
+        if "OASiS DOES NOT SERVE THIS" in st:
+            flush(); out.append(line); in_hole = not in_hole
+            continue
+        if st.startswith("#") and "LEAVE BEHIND" in st:
+            flush(); out.append(line); in_contract = True
+            continue
+        if in_hole or in_contract:
+            flush(); out.append(line)
+            continue
         if st.startswith("#") and "SOLVE" not in st and "OASiS" not in st \
                 and "EDIT THIS BLOCK" not in st and "SELF-CHECK" not in st \
                 and "MUST" not in st:
@@ -2702,8 +2719,14 @@ def partner_flux(y_or_x):
 #
 # Run 4C with the binary at config `fourc_bin` (env FOURC_BIN; discover(
 # query='list') prints it on THIS install) and its dependency libraries on
-# config `fourc_ld` (FOURC_LD / LD_LIBRARY_PATH). OASiS does not run the solver
-# for you and ships no host-specific binary path.
+# config `fourc_ld` (FOURC_LD / LD_LIBRARY_PATH), line-buffered with its console
+# captured to a log next to the deck (stdbuf -oL -eL <bin> <deck> out > run.log
+# 2>&1). WHEN THE BINARY EXITS NON-ZERO, DO NOT EXIT OR RAISE YOURSELF: fall
+# through -- the served check right below reads that log and the deck and stops
+# with the cause spelled out (measured: a wrapper that raised "Solver execution
+# failed, check the log" first hid 4C's own "Could not match this input: IO:
+# VERBOSITY ..." from the agent). OASiS does not run the solver for you and ships
+# no host-specific binary path.
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
 
 # ── CONSISTENT OUTWARD FLUX + EXPORTS -- the served recovery route ─────────
@@ -2711,6 +2734,82 @@ def partner_flux(y_or_x):
 # and never recompute the flux from phi_1 differences.
 import glob
 import meshio
+# ── DID 4C FINISH? (served: when the run left no output, name the cause) ────
+# An empty out-vtk-files/ means 4C aborted on your deck. Its own message sits in
+# the console log you captured, and the deck defects measured to abort every
+# trial deck are mechanical -- so this block reads the log and lints the deck
+# before anything else is touched, and stops with the cause spelled out. Every
+# part is guarded: a copy that lost an import still reports 4C's own words.
+_vtus = sorted(glob.glob("out-vtk-files/*.vtu"))
+if not _vtus:
+    _why = []
+    try:                                   # 1. 4C's own message, builtins only
+        for _lg in sorted(glob.glob("*.log")) + sorted(glob.glob("*.txt")):
+            try:
+                with open(_lg, errors="ignore") as _fh:
+                    _lines = _fh.read().splitlines()
+            except OSError:
+                continue
+            for _i, _ln in enumerate(_lines):
+                if "PROC 0 ERROR" in _ln:
+                    _said = []
+                    for l in _lines[_i + 1:_i + 14]:   # the message, then the offending input block
+                        if l.startswith("---") or l.lstrip().startswith(("0#", "1#")) or "MPI_ABORT" in l:
+                            break
+                        if l.strip():
+                            _said.append(l.strip())
+                    _why.append(f"4C said ({_lg}): " + " | ".join(_said))
+                    break
+    except Exception as _e:                # noqa: BLE001
+        _why.append(f"(log scan failed: {_e!r})")
+    try:                                   # 2. the deck, linted against 4C's own grammar
+        import os as _os, re as _re, subprocess as _sp
+        _deck = globals().get("DECK") or next(iter(sorted(glob.glob("*.4C.yaml")) or sorted(glob.glob("*.yaml"))), None)
+        if _deck and _os.path.isfile(_deck):
+            with open(_deck, errors="ignore") as _fh:
+                _txt = _fh.read()
+            _secs = _re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\\s*$", _txt, _re.M)
+            _dup = sorted({s for s in _secs if _secs.count(s) > 1})
+            if _dup:
+                _why.append("section(s) written more than once, 4C reads each once: " + ", ".join(_dup))
+            _bin = globals().get("FOURC_BIN") or CFG.get("fourc_bin") or _os.environ.get("FOURC_BIN")
+            _valid = set()
+            if _bin and _os.path.isfile(str(_bin)):
+                _env = dict(_os.environ)
+                _ld = CFG.get("fourc_ld") or _os.environ.get("FOURC_LD")
+                if _ld:
+                    _env["LD_LIBRARY_PATH"] = f"{_ld}:{_env.get('LD_LIBRARY_PATH', '')}"
+                _dump = _sp.run([str(_bin), "-p"], capture_output=True, text=True, timeout=120, env=_env).stdout
+                _valid = set(_re.findall(r"^    - name: (.+?)\\s*$", _dump, _re.M)) | set(
+                    _re.findall(r"^  - ([A-Z][A-Z0-9 _/.:-]*?)\\s*$", _dump.split("legacy_string_sections:", 1)[-1], _re.M))
+                _valid |= {"TITLE"}
+            if len(_valid) > 100:
+                _bad = [s for s in dict.fromkeys(_secs) if s not in _valid and not _re.fullmatch(r"FUNCT\\d+", s)]
+                if _bad:
+                    _why.append("section name(s) the binary's own grammar (`4C -p`) does not know: " + ", ".join(_bad))
+            if "CALCFLUX_BOUNDARY" in _txt and "FLUX CALC" not in _txt:
+                _why.append("CALCFLUX_BOUNDARY is set but no `SCATRA FLUX CALC LINE CONDITIONS` (SURF in 3-D) entry "
+                            "names the interface, and 4C refuses flux output without one")
+            _blocks = _re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\\s*$)", _txt, flags=_re.M)
+            _topo = set(_re.findall(r"D(?:NODE|LINE|SURF|VOL)\\s+(\\d+)", _txt))
+            for _b in _blocks:
+                _head = _b.split(":", 1)[0].strip()
+                if not (_head.startswith("DESIGN") and _head.endswith("CONDITIONS")):
+                    continue
+                _entries = [e for e in _re.split(r"^\\s*-\\s", _b, flags=_re.M)[1:] if e.strip()]
+                _noid = [e for e in _entries if not _re.search(r"\\bE:\\s*\\d+|NODE_SET_NAME", e)]
+                if _noid:
+                    _why.append(f"{len(_noid)} entr{'y' if len(_noid) == 1 else 'ies'} in {_head} without `E: <id>` (or NODE_SET_NAME)")
+                _ids = _re.findall(r"\\bE:\\s*(\\d+)", _b)
+                _missing = sorted({i for i in _ids if i not in _topo}, key=int)
+                if _missing:
+                    _why.append(f"{_head} names E id(s) {', '.join(_missing)} that no *-NODE TOPOLOGY section defines")
+    except Exception as _e:                # noqa: BLE001
+        _why.append(f"(deck lint failed: {_e!r})")
+    if not _why:
+        _why.append("no VTU under out-vtk-files/ and no 4C error line in any *.log here -- run the binary line-buffered "
+                    "(stdbuf -oL -eL) with its console captured to a log next to the deck, then read that log from the top")
+    raise SystemExit("4C DID NOT FINISH -- " + "; ".join(_why))
 # The VTU name is out-vtk-files/scatra-<step>-<rank>.vtu -- the TRAILING number
 # is the MPI RANK, not the step. Sorting on it returns scatra-00000-0.vtu, the
 # all-zero INITIAL CONDITION; take the last real step.
@@ -2800,6 +2899,9 @@ print(f"4C Neumann participant: NDOF = {len(nodes)}  "
 #     interior   the interior interface node ids -- the points you export. DROP
 #                the two endpoints: they also lie on the outer Dirichlet boundary
 #                and are a physically different quantity there
+#     DECK       (optional) the path of the deck you ran, and FOURC_BIN the
+#                binary -- the finish check above reads them to name a deck
+#                defect; without them it globs *.4C.yaml and config fourc_bin
 #
 # and YOUR deck must have produced out-vtk-files/*.vtu carrying phi_1 and
 # flux_boundary_phi_1. OASiS does not serve the solve, but it will not make you
@@ -3976,15 +4078,19 @@ def _dune() -> str:
   `discover(query='list')` reports for it, not OASiS's own.
 
 * THE DUNE-fem DIRICHLET-SIDE PARTICIPANT SCAFFOLD (config-driven). The
-  handshake, the P1 consistent flux-recovery FORMULA and the exports schema are
-  served in the block below; THE SIMPLEX MESH, THE WEAK FORM AND THE CG P1 SOLVE
-  ARE ELIDED -- write them from `prepare_simulation(solver='dune',
-  physics='<your physics>')` and drop them into the marked region. Traps it
-  encodes for the elided solve: DOF order is NOT vertex order (map through
-  interpolated coordinate fields or the imposed trace lands on the wrong nodes),
-  and the two interface ENDPOINTS also lie on the outer Dirichlet boundary
-  (leave them at the outer value; the flux export drops them, interior =
-  ids[1:-1]).
+  handshake mapped onto your dofs, the vertex-ordered mesh access, the P1
+  consistent flux-recovery FORMULA and the exports schema are served in the
+  block below. THE SIMPLEX MESH, THE WEAK FORM AND THE SOLVE ARE ELIDED, as TWO
+  marked holes: (1) the simplex grid and the P1 space, leaving `gridView`,
+  `space`, `x`; (2) the form, material, source, boundary conditions and solve,
+  leaving `uh` and `F_SRC`. Write them from `prepare_simulation(solver='dune',
+  physics='<your physics>')` and the measured facts above, and drop them into
+  the marked regions; everything between and after the holes is served and
+  measured working (a manufactured solution recovers the interface flux to
+  2e-2 at h = 0.1). Traps the served part encodes: the dof->vertex map goes
+  through interpolated coordinate fields (never assume dof order equals vertex
+  order), and the two interface ENDPOINTS keep the outer Dirichlet value (corner
+  rule; the flux export drops them).
 
 ```python
 """DUNE-fem as the DIRICHLET side of a partitioned coupling (CG P1).
@@ -4047,38 +4153,82 @@ def trace(t):
 # outward normal and never write the partner's negated number.
 
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
-# THE MESH, THE WEAK FORM AND THE SOLVE ITSELF ARE YOURS AND ARE NOT SERVED HERE.
-#
-# Build the simplex grid, the P1 space, the weak form -div(k grad u) + c*u = f
-# and the linear solve for the problem you were given, however you judge best.
-# That is ordinary DUNE-fem work and OASiS has no business dictating it. Get the
-# DUNE-fem API, a runnable P1 pattern and the measured gotchas from:
-#
-#     prepare_simulation(solver='dune', physics='<your physics>')
-#     knowledge(topic='coupling', solver='dune')      # the DUNE traps above
-#
-# For THIS coupling the solve must:
-#   * mesh with a SIMPLEX grid (e.g. aluConformGrid) so the P1 consistent flux
-#     recovery below applies exactly;
-#   * impose the imported partner trace as the interface Dirichlet datum --
-#     interpolate a boundary function equal to trace(coordinate) on the
-#     interface edge. A structuredGrid CARRIES NO BOUNDARY IDS, so select the
-#     interface/outer boundaries with a coordinate predicate;
-#   * MAP THROUGH INTERPOLATED COORDINATE FIELDS -- DOF order is NOT vertex order
-#     in DUNE-fem (measured). `space.interpolate(x[0]).as_numpy` gives the x of
-#     every dof in dof order; build a coord->dof key from it and reuse the SAME
-#     key for the source, the Dirichlet function and reading the solution back,
-#     or the trace lands on the wrong nodes;
-#   * CORNER RULE (measured): the two interface ENDPOINTS also lie on the OUTER
-#     Dirichlet boundary, where trace() clamps -- imposing the partner trace
-#     there is an O(h)-wrong value that caps the whole side at order 1. Leave the
-#     endpoints at the outer Dirichlet value; the flux export drops them
-#     (interior = ids[1:-1]);
-#   * keep the FORM TEXT structurally constant across iterations -- DUNE-fem JIT-
-#     compiles each distinct form and the participant is a FRESH PROCESS every
-#     iteration, so put imported data in a dof vector / dune.ufl.Constant, never
-#     in the form text, or you recompile (and appear to hang) every iteration.
+# HOLE 1 OF 2: THE MESH AND THE P1 SPACE ARE YOURS AND ARE NOT SERVED HERE.
+# Build the SIMPLEX grid of this subdomain (X0..X1, Y0..Y1, NX x NY cells -- the
+# P1 recovery below is exact on triangles, and a structuredGrid makes
+# quadrilaterals) and the P1 space, from the DUNE-fem API and the measured
+# gotchas in prepare_simulation(solver='dune', physics='<your physics>') and
+# knowledge(topic='coupling', solver='dune'). Leave behind exactly these names:
+#     gridView   the simplex grid view of this subdomain
+#     space      the P1 Lagrange space on it
+#     x          the SpatialCoordinate of that space
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+
+# ── HANDSHAKE MAPPED ONTO YOUR SPACE (served: the partner's samples on THIS
+#    side's interface dofs -- not the solve) ────────────────────────────────
+# A discrete function carries the imposed interface datum: its dofs are run-time
+# data, so the form text never changes between iterations (no re-JIT). The two
+# interface ENDPOINTS keep the outer value (corner rule: they lie on the outer
+# Dirichlet boundary, where trace() clamps; imposing the partner trace there is
+# O(h)-wrong and caps the whole side at order 1).
+_xd = np.array(space.interpolate(x[0], name="_xc").as_numpy)     # every dof's x, in dof order
+_yd = np.array(space.interpolate(x[1], name="_yc").as_numpy)
+_EPS = 1e-9 * max(X1 - X0, Y1 - Y0)
+IF_COORD, IF_VAL = {"left": (0, X0), "right": (0, X1), "bottom": (1, Y0), "top": (1, Y1)}[IF]
+_along = _yd if IF_COORD == 0 else _xd                              # the coordinate that runs along the interface
+_across = _xd if IF_COORD == 0 else _yd
+_lo, _hi = (Y0, Y1) if IF_COORD == 0 else (X0, X1)
+on_iface = np.abs(_across - IF_VAL) < _EPS                          # dof mask of the interface edge
+_endpoint = (np.abs(_along - _lo) < _EPS) | (np.abs(_along - _hi) < _EPS)
+gtrace = space.interpolate(0, name="gtrace")                        # the imposed interface datum
+_gd = gtrace.as_numpy
+_gd[:] = 0.0
+for _i in np.where(on_iface & ~_endpoint)[0]:
+    _gd[_i] = trace(float(_along[_i]))
+# THE COEFFICIENTS AS UFL CONSTANTS (served: API plumbing, not the form). A bare
+# Python float in a form is folded by UFL: `0.0 * u * v * dx` for a zero reaction
+# becomes a domainless Zero and dies with "This integral is missing an
+# integration domain" (measured in two of six worker trials). Use these in your
+# form, never KV / CV themselves.
+from dune.ufl import Constant as _Constant
+K_UFL = _Constant(KV, name="k")
+C_UFL = _Constant(CV, name="c")
+# In your solve below: impose gtrace on the interface edge and the task's outer
+# condition on the rest of the boundary. The interface edge as a UFL predicate:
+#     conditional(lt(abs(x[IF_COORD] - IF_VAL), _EPS), 1, 0)
+# (conditional, lt from ufl; abs is the Python built-in).
+
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# HOLE 2 OF 2: THE WEAK FORM, THE MATERIAL, THE SOURCE, THE BOUNDARY CONDITIONS
+# AND THE LINEAR SOLVE ARE YOURS AND ARE NOT SERVED HERE. Write them for the
+# problem you were given (-div(k grad u) + c*u = f on this subdomain, with the
+# served UFL constants K_UFL and C_UFL as k and c -- never the bare floats),
+# impose gtrace on the interface edge and the task's outer condition elsewhere,
+# and solve. Leave behind exactly these names:
+#     uh       the solved P1 function (uh = space.interpolate(0, name="uh");
+#              scheme.solve(target=uh))
+#     F_SRC    your source f as a plain Python function of (x, y) -- the same f
+#              your form integrates, sampled at the vertices below for the
+#              consistent load; `lambda px, py: 0.0` when there is none
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+
+# ── VERTEX-ORDERED ARRAYS FROM YOUR MESH (served: mesh access, not the solve) ──
+_idx = gridView.indexSet
+node_coords = np.zeros((gridView.size(2), 2))
+for _v in gridView.vertices:
+    node_coords[_idx.index(_v)] = _v.geometry.center
+elements = [[_idx.subIndex(_e, _i, 2) for _i in range(len(_e.geometry.corners))]
+            for _e in gridView.elements]
+if any(len(_e) != 3 for _e in elements):
+    raise SystemExit("the P1 recovery below needs a SIMPLEX grid (triangles); this grid has "
+                     f"cells with {sorted({len(_e) for _e in elements})} corners")
+_key = {(round(float(_xd[_i]), 9), round(float(_yd[_i]), 9)): _i for _i in range(len(_xd))}
+_d2v = np.array([_key[(round(float(_px), 9), round(float(_py), 9))] for _px, _py in node_coords])
+u_vert = np.array(uh.as_numpy, float)[_d2v]                          # the solution in VERTEX order
+f_vals = np.array([F_SRC(float(_px), float(_py)) for _px, _py in node_coords], float)
+_if_nodes = [_n for _n in range(len(node_coords)) if abs(node_coords[_n][IF_COORD] - IF_VAL) < _EPS]
+_if_nodes.sort(key=lambda _n: node_coords[_n][1 - IF_COORD])
+interior = _if_nodes[1:-1]                                           # endpoints dropped (corner rule)
 
 # ── CONSISTENT OUTWARD FLUX + EXPORTS -- the served recovery FORMULA ────────
 # ONE formula, every backend, both sides. Your solve leaves an assembled operator
@@ -4159,23 +4309,17 @@ with open(f"field_level{_LVL}.csv", "w") as _f:
 print(f"DUNE Dirichlet participant: NDOF = {len(u_vert)}  "
       f"max|u| = {float(np.abs(u_vert).max()) if len(u_vert) else 0:.6e}")
 
-# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ──────────────────────────────────────
-# The recovery and export above use these names; the elided mesh-form-solve
-# block has to define every one, or the rest will not run:
+# ── WHAT YOUR TWO HOLES MUST LEAVE BEHIND ──────────────────────────────────
+# The served code above uses these names; the elided blocks have to define
+# every one, or the rest will not run:
 #
-#     node_coords  every vertex as a numpy (x, y), the array the element loop
-#                  and the export index into
-#     elements     the triangles, each a triple of vertex ids into node_coords
-#     u_vert       the P1 solution in VERTEX order (map dof->vertex once, via the
-#                  interpolated coordinate fields named in the banner)
-#     f_vals       your nodal source values in vertex order (0 if none, or the
-#                  config `source_const` = FV for a constant source); the
-#                  recovery subtracts the CONSISTENT load Me @ f_el
-#     interior     the interior interface node ids (endpoints dropped) -- the
-#                  points you export
+#     hole 1:  gridView (a simplex grid view), space (P1 Lagrange on it),
+#              x (SpatialCoordinate(space))
+#     hole 2:  uh (the solved P1 function), F_SRC (your source as a Python
+#              function of (x, y))
 #
-# OASiS does not serve the solve, but it will not make you guess which variables
-# the hole was filling.
+# OASiS does not serve the solve, but it will not make you guess which names
+# the holes were filling.
 ```''')
 
 

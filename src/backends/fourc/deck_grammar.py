@@ -155,6 +155,13 @@ FOUR MEASURED WAYS THIS DIES, all of them silently:
     and a long typed deck was cut off mid-string and failed to parse with
       reached end of file looking for closing quote
     A generator is thirty lines; the deck it writes can be any size.
+(h) EVERY TOPOLOGY SECTION APPEARS ONCE. All point sets share the one
+    `DNODE-NODE TOPOLOGY` block, all line sets the one `DLINE-NODE TOPOLOGY`
+    block, and so on -- one section per kind, holding every E id. A deck that
+    writes the block again for its second condition aborts on read with
+      Section 'DNODE-NODE TOPOLOGY' is defined more than once.
+    (measured on a trial deck that gave its Dirichlet points and its Neumann
+    points separate topology blocks).
 
 AND READ THE LOG FROM THE TOP. 4C buffers stdout and MPI_Abort kills it
 before the flush, so `| tail` shows only MPI boilerplate. Measured on one

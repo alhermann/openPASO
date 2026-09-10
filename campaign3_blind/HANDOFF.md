@@ -377,9 +377,70 @@ and several fixes **lowered** the apparent uplift:
 | 4 | 86a86615 | C3 5581-83, C1 6231-33, C2 6331-33 | 0/9 (5 HONEST_INCOMPLETE, 3 FAILED, 1 MALFORMED) | refused writes 4/9; C3 5581 copied both contracts and got DUNE working, lost on a 4C MATERIALS key; C1 6233 both codes proven at level 1; C2 6333 ran a real 3-level coupling (9 it -> 1e-8) but wrote no field files and listed 12 nonexistent files in its summary |
 | 5 | a4bebe41 | C3 5591-93, C1 6241-43, C2 6341-43 | 0/9 (6 HONEST_INCOMPLETE, 3 FAILED) | real couplings in 6 runs (one through 3 levels); runs stop at 16-23 min with 25 min left and write no field files; 0/9 copy a contract; C1 6243 wrote all 21 files with the zero solution (no source terms in the 4C deck) and honestly gave up |
 | 6 | 081a1edd | C3 5611-13, C1 6261-63, C2 6361-63 | 0/9 (5 HONEST_INCOMPLETE, 2 MALFORMED, 1 FAILED, 1 COMPLETED_UNPHYSICAL) | first END-TO-END run: C2 6361 delivered all three levels, error 0.047 flat (exact RMS 0.050) from its own post-processing; C3 5611/5613 level 1 with both codes proven; the no-field-files finding fired in 3 runs and all 3 then wrote fields |
-| 7 | d54601d5 | C3 5621-23, C1 6271-73, C2 6371-73 | in flight ~21:45 | first round with the LADDER: every audit/couple reply names the next unmet step as a worker sub-agent brief; instructions say one sub-agent per step |
+| 7 | d54601d5 | C3 5621-23, C1 6271-73, C2 6371-73 | 0/9 (6 HONEST_INCOMPLETE, 2 MALFORMED, 1 FAILED) | first round with the LADDER and the worker brief in the must-read: 0 of 9 parents spawned a worker (5 spawned only a critic), 1 of 9 kept a served contract, 0 audit_results calls; C3 5621/5622 proved both codes at level 1 but the coupling residual never moved (own handshakes, 4C side never applied the flux); give-ups at 7-36 min with 1-11M input tokens |
+| 8 | (pending) | C3 5631-33, C1 6281-83, C2 6381-83 | not launched | launch only after the parent first-move trial (`step_trials/micro_parent_move.py`) shows workers being spawned on the new tree: orchestrator rule first in the instructions and the must-read; DUNE scaffold with two holes; DUNE facts 12-14; 4C trap (h) |
 
 ### Per-step trials (from 2026-09-10 evening, Alexander's method)
+
+**Parent first move (22:20, `micro_parent_move.py`, real harness agent capped at
+12 tool calls, C3 task):** on the round-7 tree the parent's first moves were
+discover -> knowledge doors -> mkdir -> critic -> its own participant_A.py:
+workers 0/3, contract copied 1/3 -- the whole-run behaviour reproduced in four
+minutes per sample. This is the measurement loop for anything meant to change
+what the parent does first.
+
+**DUNE worker step, sixth to eighth trial (dune6-8): 0/3 each.** Every failure
+sat in the hole, not the served part: invented mesh access (`gridView.entity`,
+`entitySet`, `gridView.corner`), `SpatialCoordinate(gridView)`, `eq(a, L)` as
+the equation (misread fact 1), `0.0*u*v*dx` (domainless Zero), `x^2` (XOR).
+Two defects found on the served side: the reveal served a hand-written DUNE
+scaffold whose hole demanded a simplex grid, triangle connectivity and vertex
+ordering the model could not produce, while the parts door served a different
+file (form-based recovery); and that scaffold had never been executed. Fixed:
+the scaffold now has TWO holes (grid+space | form+source+BCs+solve) with the
+handshake-onto-dofs and the vertex-ordered mesh access served between them,
+validated by a manufactured solution (flux error 2.0e-2 at h = 0.1, correct
+sign; the fill used for validation is not served); facts 12-14 (mesh access
+idioms measured, Constant() for coefficients, ** not ^).
+
+**4C worker step, re-read of the failed sample:** `Section 'DNODE-NODE
+TOPOLOGY' is defined more than once` -> deck grammar trap (h).
+
+**Later the same night (22:40-23:40):**
+
+- Parent first move on the orchestrator-rule tree: 2 of 2 samples spawned a
+  worker at call 4 (right after the coupling doors) and the worker copied the
+  contract; on the round-7 tree 0 of 3 did. The rule sits first in the
+  instruction block and at the top of the coupled must-read.
+- The parent trial needs the campaign's DUNE cache baseline
+  (`OASIS_DUNE_CACHE_BASELINE`, now wired into `micro_parent_move.py`): without
+  it the sandbox configures dune-py from scratch, cmake finds the user-local
+  dune-common whose script dir is hidden by the home tmpfs, and every JIT
+  compile dies. Campaign cells (run_blind) always set it; a novel form compiled
+  inside the sandbox with it (`scratchpad/sandbox_dune_test`).
+- DUNE worker step: dune9 2/3 by the old criterion, 1/3 by the reference flux
+  (one "pass" exported garbage after rewriting the served recovery). The trial
+  now grades against `dune_reference_exports.json`, computed by a validated
+  fill of the same scaffold on the same inputs (the fill is never served).
+  Two more served-side defects found and fixed: `lean_view` thinned the hole
+  instructions and the LEAVE BEHIND names out of the copyable contract for
+  every backend (now kept whole); and a zero reaction coefficient written as a
+  float folds the form to a domainless Zero, so the scaffold now serves
+  `K_UFL`/`C_UFL` (dune.ufl.Constant) between the holes. Fact 15 (UFL
+  conditions do not combine with `|`).
+- 4C worker step: 0/3 (part4c4) and 0/3 (part4c5) with six distinct mechanical
+  deck defects (duplicate sections twice, invented section, condition without
+  `E:`, CALCFLUX without a FLUX CALC entry, an `IO:` block, one generator bug).
+  The served contract now carries a guarded finish check below the hole: no VTU
+  -> it quotes 4C's own error block from the captured log, lints the deck
+  against `4C -p` (unknown/duplicate sections, entries without `E:`, orphan E
+  ids, CALCFLUX without FLUX CALC) and stops with the cause spelled out; the
+  hole text says never to exit on a non-zero return so the check can run. Seen
+  working in a real worker's output (part4c5 sample 2). Trials now include one
+  repair round (the run's output fed back), which is what the ladder's worker
+  loop gives.
+- Tests added: `test_the_4c_contract_names_why_the_deck_did_not_run.py`,
+  `test_the_dune_contract_has_two_holes_and_serves_the_mesh_access.py`.
 
 Whole-problem rounds stop until each failing step passes cheap OpenRouter trials with the same 27B:
 `campaign3_blind/step_trials/` (see its scripts' docstrings). Each trial hands the model exactly the

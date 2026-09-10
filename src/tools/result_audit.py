@@ -2472,7 +2472,7 @@ def coupled_ladder(work: Path) -> dict | None:
                     "Write the participant script of ONE code for ONE subdomain in its own directory ./side_<x>: "
                     "call knowledge(topic='coupling', solver=<that code>) and copy the served CONTRACT into "
                     "the file unchanged (imports.json handshake, sign convention, flux recovery, exports "
-                    "schema, export self-check); fill only its marked hole with the mesh, form, material, "
+                    "schema, export self-check); fill only its marked hole(s) with the mesh, form, material, "
                     "source and solve for this subdomain from the task; write ./config.json for level 1 and a "
                     "synthetic ./imports.json; run it with that code's own interpreter until ./exports.json "
                     "appears with finite values. CHECK: ./side_<x>/exports.json exists and the script exited 0.")

@@ -7107,6 +7107,14 @@ def _coupling_participant_script(solver: str) -> str:
     if not cands:
         return ""
     fence, block = next((c for c in cands if "config.json" in c[1]), cands[0])
+    # THE PUSHED COPY IS THE LEAN ONE: comment blocks thinned to a line, code
+    # untouched, so copying it into a file costs half the output tokens. The
+    # fully annotated block stays behind knowledge(topic='coupling', solver=...).
+    try:
+        from .coupling_knowledge import lean_view
+        block = lean_view(block)
+    except Exception:
+        pass
     # lead-in: the paragraph immediately before the fence (states the role and
     # the measured traps); capped so the push stays bounded.
     b2 = payload.rfind("\n\n", 0, fence)
@@ -7274,11 +7282,17 @@ side that reads ./imports.json, runs its own solver once, writes
 
     couple(participants='[
       {"name": "A", "command": ["<python>", "side_a.py"],
-       "work_dir": "<ABSOLUTE dir of side A>", "imports_from": ["B"]},
+       "work_dir": "<ABSOLUTE path of ./side_A>", "imports_from": ["B"]},
       {"name": "B", "command": ["<python>", "side_b.py"],
-       "work_dir": "<ABSOLUTE dir of side B>", "imports_from": ["A"]}]',
+       "work_dir": "<ABSOLUTE path of ./side_B>", "imports_from": ["A"]}]',
       max_iter=<from the rho guidance below; when unsure use 150>,
       tol=<the tolerance your task prescribes>)
+
+Create side_A and side_B INSIDE your working directory (`mkdir -p side_A
+side_B`, then `pwd` for the absolute paths); every script, log and
+deliverable belongs under that directory, never under your home directory or
+a project directory elsewhere -- a write outside it is refused, and refusal
+is not a reason to stop.
 
 Pass history_path="<absolute path of the per-level residual-history file your
 task names>" in that call as well, so the tool writes the measured iteration

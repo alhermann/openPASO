@@ -169,6 +169,38 @@ def _serve_participant(p: Path) -> str:
     return served
 
 
+def lean_view(served: str, keep: int = 2) -> str:
+    """Thin every run of comment lines longer than `keep` down to its first
+    `keep` lines plus an ellipsis line, leaving code, blanks, the elision
+    banner and the reconstruction contract untouched.
+
+    Measured: the served contracts are 41% comment lines (2149 lines, 886 of
+    them comments, across the nine codes), and no small model copied one into
+    a file. The explanations stay in the annotated block that
+    knowledge(topic='coupling', solver=...) serves; this is the copyable form.
+    """
+    out, run = [], []
+    def flush():
+        if len(run) <= keep:
+            out.extend(run)
+        else:
+            out.extend(run[:keep])
+            out.append(run[0][:len(run[0]) - len(run[0].lstrip())]
+                       + "# ... (explanation continues in the annotated block)")
+        run.clear()
+    for line in served.splitlines():
+        st = line.strip()
+        if st.startswith("#") and "SOLVE" not in st and "OASiS" not in st \
+                and "EDIT THIS BLOCK" not in st and "SELF-CHECK" not in st \
+                and "MUST" not in st:
+            run.append(line)
+        else:
+            flush()
+            out.append(line)
+    flush()
+    return "\n".join(out) + ("\n" if served.endswith("\n") else "")
+
+
 def _elide_solve(text: str) -> str:
     """Cut every marked SOLVE region out of a participant's source.
 
@@ -2708,6 +2740,34 @@ vals = [u[n-1] for n in interior]
 # exports.json LAST, only after the solve succeeded (the driver takes its
 # existence as proof of success): YOUR interface trace as values, YOUR consistent
 # outward flux as normal_fluxes.
+# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+#    fine and are worthless: a non-finite field; a Neumann side whose imported
+#    load never entered the assembled system (it returns the no-load answer and
+#    a flux of ~0 against a nonzero partner); and a flux that is the partner's
+#    array negated instead of a recovery from THIS side's own system.
+import numpy as _np, json as _json
+from pathlib import Path as _Path
+_chk_vals = _np.asarray(vals, float).ravel()
+_chk_flux = _np.asarray(q_own, float).ravel()
+if not (_np.isfinite(_chk_vals).all() and _np.isfinite(_chk_flux).all()):
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or fluxes; "
+                     "the solve did not produce a usable field, so nothing was exported")
+_chk_imp = (_json.loads(_Path("imports.json").read_text() or "{}")
+            if _Path("imports.json").is_file() else {})
+_chk_qin = (_np.concatenate([_np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                             for _d in _chk_imp.values()])
+            if _chk_imp else _np.zeros(0))
+if True and _chk_qin.size and _np.abs(_chk_qin).max() > 0 and (
+        _np.abs(_chk_flux).max() < 1e-9 * _np.abs(_chk_qin).max()):
+    raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 against a "
+                     "nonzero imported flux: the imported load never entered the "
+                     "assembled system (the condition that integrates it is missing). "
+                     "Fix the application; do not couple on")
+if False and _chk_qin.shape == _chk_flux.shape and _chk_flux.size and (
+        _np.array_equal(_chk_flux, -_chk_qin)):
+    raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array "
+                     "negated, bit for bit: a copy, not a recovery from this side's "
+                     "own assembled system")
 json.dump({"field_name": "u", "coordinates": co, "values": vals,
            "normal_fluxes": q_own, "n_points": len(co)},
           open("exports.json", "w"))
@@ -4050,6 +4110,34 @@ co_out = [[float(node_coords[n][0]), float(node_coords[n][1])] for n in interior
 # exports.json LAST (the driver takes its existence as proof of success).
 # values: [] -- the DIRICHLET side does not OWN a value, it IMPOSED one; echoing
 # the imposed trace back trips the driver's per-block change checks.
+# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+#    fine and are worthless: a non-finite field; a Neumann side whose imported
+#    load never entered the assembled system (it returns the no-load answer and
+#    a flux of ~0 against a nonzero partner); and a flux that is the partner's
+#    array negated instead of a recovery from THIS side's own system.
+import numpy as _np, json as _json
+from pathlib import Path as _Path
+_chk_vals = _np.asarray([], float).ravel()
+_chk_flux = _np.asarray(q_own, float).ravel()
+if not (_np.isfinite(_chk_vals).all() and _np.isfinite(_chk_flux).all()):
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or fluxes; "
+                     "the solve did not produce a usable field, so nothing was exported")
+_chk_imp = (_json.loads(_Path("imports.json").read_text() or "{}")
+            if _Path("imports.json").is_file() else {})
+_chk_qin = (_np.concatenate([_np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                             for _d in _chk_imp.values()])
+            if _chk_imp else _np.zeros(0))
+if False and _chk_qin.size and _np.abs(_chk_qin).max() > 0 and (
+        _np.abs(_chk_flux).max() < 1e-9 * _np.abs(_chk_qin).max()):
+    raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 against a "
+                     "nonzero imported flux: the imported load never entered the "
+                     "assembled system (the condition that integrates it is missing). "
+                     "Fix the application; do not couple on")
+if True and _chk_qin.shape == _chk_flux.shape and _chk_flux.size and (
+        _np.array_equal(_chk_flux, -_chk_qin)):
+    raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array "
+                     "negated, bit for bit: a copy, not a recovery from this side's "
+                     "own assembled system")
 json.dump({"field_name": "u", "coordinates": co_out, "values": [],
            "normal_fluxes": q_own, "n_points": len(co_out)},
           open("exports.json", "w"))

@@ -7428,6 +7428,21 @@ the summary. Hand the brief to spawn_subagent(role='worker', task=<brief>)
 as is; the step ends when its check passes on disk. Never judge the whole
 job at once -- every single step is small.
 
+YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict:
+    spawn_subagent(role='worker', task="Write side A's participant script in
+    ./side_A: call knowledge(topic='coupling', solver='<side A's code>') and
+    copy the served CONTRACT into ./side_A/participant_A.py unchanged (the
+    imports.json handshake, sign convention, flux recovery, exports schema
+    and export self-check); fill only its marked hole with the mesh, form,
+    material, source and solve for subdomain A from the task; write
+    ./side_A/config.json for level 1 and a synthetic ./side_A/imports.json;
+    run it with that code's own interpreter (generous timeout, first runs
+    compile) until ./side_A/exports.json appears with finite values. CHECK:
+    exports.json exists and the script exited 0. Report DONE or the exact
+    error.")
+Then the same for side B. Then audit_results(work_dir) names every further
+step.
+
 The tool runs the whole iteration -- relaxation, convergence, validation --
 and on success returns your interface tables READY TO SAVE plus the paths of
 the captured solver logs. DO NOT hand-roll this loop yourself: measured

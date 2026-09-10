@@ -30,7 +30,7 @@ def make_dump(d: Path):
         "normal_fluxes": [-(y * (1 - y) + 0.12) for y in ys]}))   # some outward flux profile
 
 TASK = f"""You are the worker for ONE step (ladder step 4) of a partitioned coupled simulation: write level 1's deliverables for side A.
-In the working directory you have side A's converged level-1 field dump ./field_level1.csv (columns x,y,u: nodal values of a P1 field on a uniform 12 x 20 quad mesh of the rectangle (0,0.6) x (0,1)) and its ./exports.json, which is exactly {"field_name", "n_points", "coordinates": [[x, y], ...], "values": [...], "normal_fluxes": [...]} in interface-node order (the interface trace u and this side's own outward normal flux at the interface nodes on x = 0.6).
+In the working directory you have side A's converged level-1 field dump ./field_level1.csv (columns x,y,u: nodal values of a P1 field on a uniform 12 x 20 quad mesh of the rectangle (0,0.6) x (0,1)) and its ./exports.json, which is exactly {{"field_name", "n_points", "coordinates": [[x, y], ...], "values": [...], "normal_fluxes": [...]}} in interface-node order (the interface trace u and this side's own outward normal flux at the interface nodes on x = 0.6).
 Write ./solution_level1_A.csv with columns x,y,u: the field EVALUATED AT THESE PRESCRIBED PROBE POINTS by interpolation inside the element that contains each point (bilinear on the quad, or P1 on its triangles); never nearest node:
 {json.dumps(PROBES)}
 Write ./interface_level1_A.csv with columns x,y,u,qn: the interface trace u and this side's OWN outward normal flux qn at these prescribed interface points, interpolated from exports.json along y:

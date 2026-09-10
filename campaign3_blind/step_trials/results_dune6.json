@@ -1,0 +1,26 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 no_exports=True ::   File \"/tmp/tmp621vri2g/participant_A.py\", line 114\n    nonlocal id_counter\n    ^^^^^^^^^^^^^^^^^^^\nSyntaxError: name 'id_counter' is used prior to nonlocal declaration\n",
+  "kept_selfcheck": true,
+  "secs": 266.6,
+  "lines": 230
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 no_exports=True :: Invalid MIT-MAGIC-COOKIE-1 keyTraceback (most recent call last):\n  File \"/tmp/tmpnu28aoi2/participant_A.py\", line 67, in <module>\n    x_coord = SpatialCoordinate(gridView.ufl_domain())\n                                ^^^^^^^^^^^^^^^^^^^\nAttributeError: 'dune.generated.hierarchicalgrid_966e2a5c8356c5b278ccd3acad180f0a.LeafGrid' object has no attribute 'ufl_domain'\n",
+  "kept_selfcheck": true,
+  "secs": 56.0,
+  "lines": 230
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 no_exports=True :: Invalid MIT-MAGIC-COOKIE-1 keyTraceback (most recent call last):\n  File \"/tmp/tmp_xdmck_2/participant_A.py\", line 27, in <module>\n    from ufl import (TrialFunction, TestFunction, SpatialCoordinate, grad,\n                     inner, dx, Conditional, Eq, lt, le, ge, gt, min, max)\nImportError: cannot import name 'Conditional' from 'ufl' (/home/alexander/miniconda3/envs/dune-py313/lib/python3.13/site-packages/ufl/__init__.py). Did you mean: 'conditional'?\n",
+  "kept_selfcheck": true,
+  "secs": 186.1,
+  "lines": 273
+ }
+]

@@ -2506,7 +2506,9 @@ def coupled_ladder(work: Path) -> dict | None:
                            f"files for {sorted(sides_f) or 'no'} side(s) and interface files for "
                            f"{sorted(sides_i) or 'no'} side(s).",
                         f"For level {k}, for EACH side: read that side's converged field (its per-level dump "
-                        "and exports.json in its directory), evaluate it at the probe points the task "
+                        "field_level<k>.csv, columns x,y,<field> nodal values, and its exports.json, which is "
+                        "exactly {\"field_name\", \"n_points\", \"coordinates\": [[x, y], ...], \"values\": "
+                        "[...], \"normal_fluxes\": [...]} in interface-node order), evaluate it at the probe points the task "
                         "prescribes by interpolating inside the element (never nearest node) and write the "
                         "per-level field file the task names; write the per-level interface file from that "
                         "side's own converged trace and its own outward flux at the prescribed interface "

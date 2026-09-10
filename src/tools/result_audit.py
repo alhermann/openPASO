@@ -1829,15 +1829,30 @@ def ndof_ladder_findings(work: Path) -> list[dict]:
     lo, hi = (2.6, 6.0) if dim == 2 else (5.2, 12.0)
     if all(lo <= f <= hi for f in factors):
         return []
+    # NAME THE LEVEL AND THE FIX. Measured on the honest build: a run with
+    # three coupled levels, coupling proven, interface satisfied and both
+    # codes proven read this finding twice (2.15x from level 2 to 3), and
+    # still handed in -- the text told it to "re-check every level", not
+    # which level was wrong or that one couple call on a doubled mesh would
+    # have mended it.
+    bad = [(a, b, per_level[b] / per_level[a]) for a, b in zip(ks, ks[1:])
+           if per_level[a] > 0 and not (lo <= per_level[b] / per_level[a] <= hi)]
+    named = "; ".join(
+        f"level {b} is NOT the halving of level {a} (NDOF {per_level[a]:.0f} -> "
+        f"{per_level[b]:.0f}, {f:.2f}x; halving gives ~{2 ** dim}x)" for a, b, f in bad)
+    fix = " ".join(
+        f"Re-run level {b} alone with a mesh that halves level {a}'s h (double "
+        f"every cell count in its config.json) -- one couple call -- and rewrite "
+        f"level {b}'s field, interface and history files from that run."
+        for a, b, _f in bad[:1])
     return [{"sequence": "ndof ladder", "values": factors, "finding": (
         "YOUR OWN LOGS IMPLY A MESH LADDER THAT WAS NOT HALVED: total NDOF "
         "per level grows by " + ", ".join(f"{f:.2f}x" for f in factors)
-        + ", while halving h multiplies the DOF count by ~4 in 2D and ~8 in "
-        "3D. If your task prescribes specific mesh levels, re-check every "
-        "level against that prescription NOW: a result set on a different "
-        "ladder cannot be compared level-to-level however well it "
-        "converged — measured on runs whose coupling evidence was sound "
-        "at every level and which were unusable for exactly this.")}]
+        + f", while halving h multiplies the DOF count by ~4 in 2D and ~8 in "
+        f"3D. {named}. {fix} A result set on a different ladder cannot be "
+        "compared level-to-level however well it converged -- measured on "
+        "runs whose coupling evidence was sound at every level and which "
+        "were unusable for exactly this.")}]
 
 
 def completeness_findings(work: Path) -> list[dict]:

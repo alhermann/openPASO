@@ -119,3 +119,4 @@ def test_the_4c_contract_takes_either_role_from_its_config():
     assert 'if SIDE == "neumann" and _chk_qin.size' in t
     assert 'if SIDE == "dirichlet" and _chk_qin.shape' in t
     assert "DESIGN POINT DIRICH per INTERIOR" in t          # the Dirichlet bullet survives the lean view
+    assert "the recovered interface flux does not match the load you" in t   # Neumann load-consistency check

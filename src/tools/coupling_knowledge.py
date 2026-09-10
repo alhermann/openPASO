@@ -2934,6 +2934,24 @@ if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size 
     raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array "
                      "negated, bit for bit: a copy, not a recovery from this side's "
                      "own assembled system")
+# NEUMANN LOAD CONSISTENCY (served). A Neumann side's recovered outward flux at
+# the interface reproduces the load it applied, with the opposite sign: a
+# validated deck gives max|q_own + q_imported| / max|q_imported| = 1.6% at
+# h = 0.1. A load put in VAL as the density, or on the wrong nodes, runs and
+# exports without a word and is 10x off; the coupling then stalls for the rest
+# of the budget. Measured on a trial deck that ran clean and was 60% wrong.
+if SIDE == "neumann" and q_own:
+    _ax = 1 if IF in ("left", "right") else 0
+    _q_applied = [partner_flux(float(nodes[n - 1][_ax])) for n in interior]
+    _scale = max(abs(x) for x in _q_applied) if _q_applied else 0.0
+    if _scale > 0:
+        _mis = max(abs(a + b) for a, b in zip(q_own, _q_applied)) / _scale
+        if _mis > 0.3:
+            raise SystemExit(f"EXPORT SELF-CHECK: the recovered interface flux does not match the load you "
+                             f"applied: max|q_own + q_imported| / max|q_imported| = {_mis:.2f}, while a correct "
+                             f"Neumann side reproduces its load to a few percent. The imported flux entered the "
+                             f"deck wrongly scaled or at the wrong nodes -- check the point-load formula "
+                             f"VAL = (h/6)*(q(y-h) + 4q(y) + q(y+h)) and the node coordinates. Nothing was exported")
 json.dump({"field_name": "u", "coordinates": co, "values": (vals if SIDE == "neumann" else []),
            "normal_fluxes": q_own, "n_points": len(co)},
           open("exports.json", "w"))

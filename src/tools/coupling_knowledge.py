@@ -2833,7 +2833,11 @@ atexit.register(_diagnose_at_exit)
 # numbers across ALL condition families. A Dirichlet block restarting at `E: 1`
 # silently rebinds the interface DNODEs and zeroes the field -- number the
 # families continuously. And this build writes scatra VTU by default with NO
-# `VTK` section; adding one is rejected as an invalid section.
+# `VTK` section; adding one is rejected as an invalid section. WRITE NO `IO:`
+# SECTION AT ALL -- no VERBOSITY, no RUNTIME VTK OUTPUT, no PREFIX: measured
+# in three trial decks tonight, every `IO:` block aborted the read with
+# "Could not match this input"; the VTU files appear under out-vtk-files/
+# without it.
 #
 # Run 4C with the binary at config `fourc_bin` (env FOURC_BIN; discover(
 # query='list') prints it on THIS install) and its dependency libraries on

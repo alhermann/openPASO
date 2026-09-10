@@ -140,6 +140,12 @@ def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
         if not m:
             continue
         kind = m.group("kind").lower()
+        if kind == "field":
+            # OASiS's own per-participant raw dump (field_level<k>.csv, one per
+            # side's work dir), not a deliverable. Two sides writing the same
+            # name at the same depth read as AMBIGUOUS INPUT on CORRECT work
+            # (measured on the honest C3 rebuild) -- so it is not a sequence.
+            continue
         if kind.startswith("residual"):
             # NOT SKIPPED ANY MORE — see _residual_findings below. It is not a
             # field on a grid, so it does not join the per-level sequences, but
@@ -2204,6 +2210,7 @@ _PRIORITY_TABLE = [
           "TRANSMITTED NOTHING", "WAS NEVER RUN", "NEVER RUN",
           "PRODUCED BYTE-IDENTICAL", "NOT A FUNCTION OF ITS IMPORTS",
           "NOT COUPLED TO ITS PARTNER", "EXITED NON-ZERO", "TIMED OUT")),
+    (12, ("NO LINE ANY SOLVER EMITS",)),
     (20, ("COUPLING HISTORY TOO SHORT", "NON-POSITIVE OR NON-FINITE RESIDUAL",
           "RESIDUAL BARELY MOVED", "CONSTANT RESIDUAL COLUMN",
           "WRITTEN-IN SEQUENCE", "IDENTICAL RESIDUAL HISTORY")),
@@ -2278,6 +2285,54 @@ def what_to_fix_next(findings, *, converged: bool = True,
     return head
 
 
+def run_log_identity_findings(work: Path) -> list[dict]:
+    """A per-level run log must carry the named solver's OWN console output.
+
+    A side is credited to a code only when its log holds a line that code
+    emits (a solver-iteration line, a banner with a number). A log of the
+    agent's own summary -- `NDOF = 54`, `solve completed`, `max|u| = ...` --
+    is prose, and a side whose log is prose cannot be credited to that code
+    however right its numbers are. Measured on the honest C3 rebuild: a side
+    labelled DUNE-fem that solved with scipy and wrote a three-line summary
+    passed every other check here. Reads only the agent's own files.
+    """
+    out: list[dict] = []
+    try:
+        from blind_eval.evidence import (            # noqa: PLC0415
+            PER_CODE_SIGNATURES, strip_terminal_noise)
+    except Exception:                                # signatures unavailable
+        return out
+    import re as _re
+    pats = [p for plist in PER_CODE_SIGNATURES.values() for p in plist]
+    # Per-SIDE logs only (run_level<k>_<side>.log): on a coupled cell the task
+    # asks each side's log to carry that code's own console output, because
+    # that is what says WHICH code ran which subdomain. A single-code log is
+    # judged by the evidence gate's canonical lines and is not charged here.
+    for f in sorted(work.rglob("run_level*_*.log")):
+        if not _re.match(r"^run_level\d+_[A-Za-z0-9]+\.log$", f.name):
+            continue
+        if _SCRATCH & set(f.relative_to(work).parts[:-1]):
+            continue
+        try:
+            text = strip_terminal_noise(f.read_text(errors="ignore"))
+        except Exception:
+            continue
+        if any(_re.search(p, text, _re.IGNORECASE | _re.MULTILINE)
+               for p in pats):
+            continue
+        out.append({"sequence": f"run log {f.name}", "finding": (
+            f"{f.name}: THIS LOG CARRIES NO LINE ANY SOLVER EMITS "
+            f"({len(text)} bytes of your own summary). The task wants that "
+            "subdomain's solver console output, captured verbatim (its "
+            "iteration lines, its banner), because that is what establishes "
+            "WHICH code ran on that side; a side whose log is your own words "
+            "cannot be credited to that code however right its numbers are. "
+            "If you ran it through subprocess you already have the bytes: "
+            "write result.stdout (and stderr) into this file, plus the NDOF "
+            "line.")})
+    return out
+
+
 def audit(work_dir: str, claimed_order: float | None = None) -> dict:
     """The three questions, answered from the agent's own files."""
     work = Path(work_dir)
@@ -2287,6 +2342,7 @@ def audit(work_dir: str, claimed_order: float | None = None) -> dict:
     findings.extend(ndof_ladder_findings(work))
     findings.extend(interface_ends_findings(work))
     findings.extend(unlaunched_participants_findings(work))
+    findings.extend(run_log_identity_findings(work))
     seqs = _sequences_from_workdir(work)
     csvs = _sequences_from_level_csvs(work)
     if "__ambiguous__" in csvs:

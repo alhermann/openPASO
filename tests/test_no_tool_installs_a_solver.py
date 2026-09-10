@@ -38,6 +38,21 @@ def _tool_functions(tree: ast.AST):
                 break
 
 
+def _writes_measured_csv(call: ast.Call) -> bool:
+    """couple() writes the driver's MEASURED residual history to the path the
+    agent asked for (`iteration,interface_residual` rows): numbers the run
+    produced, not a script. That is the anti-fabrication route, not a solver
+    hand-over. Exempt exactly that shape -- a write whose leftmost literal is
+    a CSV header. A participant script never starts with one."""
+    if not call.args:
+        return False
+    node = call.args[0]
+    while isinstance(node, ast.BinOp):
+        node = node.left
+    return (isinstance(node, ast.Constant) and isinstance(node.value, str)
+            and node.value.startswith("iteration,"))
+
+
 def test_no_mcp_tool_copies_a_participant_file():
     """A tool may READ a participant to quote it. It may not copy it out."""
     offenders = []
@@ -57,7 +72,7 @@ def test_no_mcp_tool_copies_a_participant_file():
                     name = getattr(f, "attr", None) or getattr(f, "id", None)
                     if name in COPY_CALLS:
                         offenders.append(f"{path.name}::{fn.name} calls {name}()")
-                    if name == "write_text":
+                    if name == "write_text" and not _writes_measured_csv(node):
                         offenders.append(
                             f"{path.name}::{fn.name} calls write_text() while "
                             f"handling participants")

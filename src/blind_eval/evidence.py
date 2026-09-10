@@ -248,7 +248,9 @@ PER_CODE_SIGNATURES = {
     # krylovinverseoperators.hh; spacing is exactly `it: N : residual X`.
     # The DUNE-INFO JIT lines are cold-cache only and deliberately excluded.
     "dune": [
-        r"^Fem::(?:CG|GMRES|BiCGstab|MINRES) it: (\d+) : residual [-\d.eE+]+$",
+        # Real dune-fem output on this install is `Fem::BiCGstab it: 1 : 0.0121327`
+        # (no 'residual' token); the token is optional so the line is recognised.
+        r"^Fem::(?:CG|GMRES|BiCGstab|MINRES) it: (\d+) : (?:residual )?[-\d.eE+]+$",
         r"^Fem::(?:CG|GMRES|BiCGstab|MINRES) preconditioning=\S+$",
     ],
     # FEBio: leading TAB, the abbreviation `Nr of`, a dotted-leader run before

@@ -2557,7 +2557,7 @@ def _fourc() -> str:
   into the marked region. Measured facts it still encodes: 4C's own
   CALCFLUX_BOUNDARY is assembly-consistent (a hand re-assembly on a different
   element is first order -- it cut the coarse interface imbalance 20x,
-  0.54 -> 0.026, and lifted the jump order from ~0.8 to ~2 on the graded
+  0.54 -> 0.026, and lifted the jump order from ~0.8 to ~2 on the measured
   interior; delivery proven zero-vs-real, field moved 1.38e-1 vs 0, recovered
   flux -0.75 against applied +0.75), and two traps live in the elided deck --
   the GLOBAL DNODE-id rule across condition families, and that this build writes
@@ -2686,7 +2686,7 @@ u = [val[(round(x, 12), round(y, 12))] for (x, y) in nodes]
 # other backend in this corpus uses). flux_boundary_phi_1 is the flux VECTOR;
 # dot it with THIS side's outward normal at the interior interface nodes.
 # (CALCFLUX_DOMAIN -- the L2-projected -D grad(phi) -- is only order ~1 on the
-# boundary trace and drags the graded order down; do not use it.)
+# boundary trace and drags the measured order down; do not use it.)
 fbname = next((da for da in _m.point_data if "flux_boundary" in da), None)
 if fbname is None:
     raise SystemExit("no flux_boundary field in the VTU -- set CALCFLUX_BOUNDARY "
@@ -2710,7 +2710,7 @@ json.dump({"field_name": "u", "coordinates": co, "values": vals,
 # overwriting the coarse ones. Build solution_level<k>_<side>.csv from THESE
 # (interpolated to the task's probe points), NEVER from one output the next
 # level overwrites -- that overwrite is the top cause of identical-across-levels
-# submissions graded UNPHYSICAL.
+# runs whose three levels were byte-identical.
 _LVL = CFG.get("level", "X")
 with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\\n")
@@ -2749,7 +2749,7 @@ print(f"4C Neumann participant: NDOF = {len(nodes)}  "
   gradient of a linear solution is only O(h) accurate ON the boundary — the
   superconvergence points are interior — and the boundary trace is exactly
   what the coupling reads. Measured on a manufactured solution: the projected
-  flux converges at order ~1.1 and drags the graded field order to ~1.75
+  flux converges at order ~1.1 and drags the measured field order to ~1.75
   against a band that ends at 1.6, while the consistent flux gives ~2.05. This
   file used to recommend the domain flux; it was setting the answer.
 

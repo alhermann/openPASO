@@ -6055,59 +6055,46 @@ def register_consolidated_tools(mcp: FastMCP):
         _coupling_head = ""
         if _prepared and backend.name() not in _prepared \
                 and not _PREPARED_SOLVERS.get((id(mcp), "served")):
-            # PUSH THE PARTICIPANT SCRIPTS FOR BOTH PRESCRIBED CODES.
+            # PUSH THE PARTICIPANT CONTRACTS FOR BOTH PRESCRIBED CODES.
             #
-            # The dominant coupled failure is hand-writing the participant from
-            # scratch (6 of 6 audited C3 runs) — a crash, an unresponsive side,
-            # or a wrong flux — while the execution-verified script sat behind an
-            # opt-in knowledge(topic='coupling', solver=...) call that 0 of 6
-            # ever issued. Weak models do not make follow-up calls, so the
-            # working file is handed over here, on the call that reveals the
-            # coupling, rather than pointed at.
+            # The dominant coupled failure is hand-rolling the handshake and the
+            # flux recovery from scratch, while the served contract sat behind
+            # an opt-in knowledge(topic='coupling', solver=...) call that weak
+            # models never issue. So the contract is handed over here, on the
+            # call that reveals the coupling. It is a CONTRACT, not a solver:
+            # handshake, sign convention, recovery formula, exports schema and
+            # the per-level rule. The mesh, form, material, source and solve are
+            # elided for every code and the agent writes them (Option B).
             _scripts = []
             for _c in sorted(_prepared | {backend.name()}):
                 _s = _coupling_participant_script(_c)
                 if not _s:
                     continue
-                # Label each script HONESTLY: dune/fourc ship a runnable,
-                # config-driven block; the others ship the handshake + flux
-                # recovery with the mesh/form/solve ELIDED (Option B), which the
-                # agent must write. Over-claiming "copy verbatim, edit only
-                # config.json" would waste the very actions this push saves.
-                _runnable = ("config.json" in _s
-                             and "COMPLETE PARTICIPANT SCRIPT" not in _s)
-                if _runnable:
-                    _label = (
-                        f"## {_c}: RUNNABLE reference participant. It carries "
-                        "the driver handshake, the consistent interface-flux "
-                        "recovery and the solver API -- the parts 6 of 6 "
-                        "audited runs hand-rolled wrong. ADAPT THE PHYSICS TO "
-                        "YOUR TASK before trusting it: the source term, "
-                        "coefficients and boundary setup in it are a generic "
-                        "example. A non-constant (spatial) source needs a CODE "
-                        "edit -- config.json only carries a constant source.")
-                else:
-                    _label = (
-                        f"## {_c}: handshake + flux-recovery CONTRACT. The "
-                        "mesh, weak form and SOLVE are elided on purpose -- YOU "
-                        "write those, in this code, from your task. What is "
-                        "given (the imports/exports schema, the interface sign "
-                        "convention, the consistent flux recovery) is the part "
-                        "that is hard to get right; the solve is yours.")
+                _label = (
+                    f"## {_c}: participant CONTRACT (handshake + flux recovery "
+                    "+ exports schema). The mesh, weak form, material, source "
+                    "and SOLVE are deliberately not here -- YOU write those in "
+                    f"this code, from your task, using prepare_simulation("
+                    f"solver='{_c}', physics=...) for its API and gotchas. What "
+                    "IS here (reading imports.json, the interface sign "
+                    "convention, the consistent flux recovery applied to your "
+                    "own assembled system, the exports.json schema, one field "
+                    "file per mesh level) is the part that is hard to get "
+                    "right: keep it, and write the solve around it.")
                 _scripts.append(_label + "\n" + _s)
             _tmpl_block = ""
             if _scripts:
                 _tmpl_block = (
-                    "# REFERENCE PARTICIPANTS FOR YOUR PRESCRIBED CODES -- start "
+                    "# PARTICIPANT CONTRACTS FOR YOUR PRESCRIBED CODES -- start "
                     "from these, not a blank file.\n"
-                    "# Hand-writing the participant from scratch is the single "
-                    "most common coupled failure. Each block below is labelled "
-                    "with what it gives you and what you must still supply. Each "
-                    "states its interface ROLE; if your task assigns the "
-                    "OPPOSITE role, change the interface application yourself "
-                    "(Dirichlet: impose the imported values; Neumann: apply the "
-                    "imported flux as a load) -- the coupled must-read above "
-                    "spells out both.\n\n"
+                    "# Hand-rolling the handshake and the flux recovery is the "
+                    "single most common coupled failure. Each block below "
+                    "states what it gives you and what you must still write "
+                    "(the solve). Each states its interface ROLE; if your task "
+                    "assigns the OPPOSITE role, change the interface "
+                    "application yourself (Dirichlet: impose the imported "
+                    "values; Neumann: apply the imported flux as a load) -- "
+                    "the coupled must-read above spells out both.\n\n"
                     + "\n\n".join(_scripts) + "\n"
                     + "-" * 70 + "\n\n")
             _coupling_head = (
@@ -7220,17 +7207,20 @@ across the runs that did, the hand-rolled exchange stalls (residuals
 9.92->9.98 over 100 iterations; constant 1.0) and cannot show two codes coupled.
 One couple call per mesh level, on the exact levels your task prescribes.
 
-DO NOT WRITE THE PARTICIPANT FROM SCRATCH -- ONE ALREADY EXISTS FOR YOUR CODE.
-For EACH of your two codes call `knowledge(topic='coupling', solver='<that
-code>')`. It returns a COMPLETE, config-driven, execution-verified participant
-for that code -- it reads ./config.json for the level, reads ./imports.json,
-runs that code ONCE, and writes ./exports.json with the consistent outward flux
-already wired for both the Dirichlet and the Neumann role. Copy it verbatim and
-edit only config.json per level; the recovery below is already inside it. The
-same reply lists that code's measured traps (JIT form caching, dof-vs-vertex
-ordering, boundary-id selection, the code's native boundary-flux call), each of
-which has sunk a coupling that was otherwise correct. A participant hand-written
-without reading it repeats those traps; the served one has them designed out.
+DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH -- THE CONTRACT EXISTS
+FOR YOUR CODE. For EACH of your two codes call `knowledge(topic='coupling',
+solver='<that code>')`. It returns that code's participant CONTRACT: how to read
+./config.json for the level and ./imports.json, the interface sign convention,
+the consistent outward-flux recovery you apply to your OWN assembled system, the
+exact ./exports.json schema, and the one-field-file-per-level rule. The mesh,
+the weak form, the material, the source and the solve itself are deliberately
+NOT in it: you write those, using `prepare_simulation(solver='<that code>',
+physics='<your physics>')` for that code's API, gotchas and a generic worked
+pattern. The same reply lists that code's measured traps (JIT form caching,
+dof-vs-vertex ordering, boundary-id selection, the code's native boundary-flux
+call), each of which has sunk a coupling that was otherwise correct. Write the
+solve, keep the served handshake and recovery as given, and let the checks
+below tell you what to fix.
 
 PARAMETERIZE BY LEVEL, OR THE BUDGET EATS YOU. Have each participant read
 its mesh size from a tiny ./config.json ({"level": 1, "nx": 5, "ny": 8})

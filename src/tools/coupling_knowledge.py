@@ -2758,6 +2758,11 @@ def why_4c_did_not_finish():
                 _bad = [s for s in dict.fromkeys(_secs) if s not in _valid and not _re.fullmatch(r"FUNCT\\d+", s)]
                 if _bad:
                     _why.append("section name(s) the binary's own grammar (`4C -p`) does not know: " + ", ".join(_bad))
+            if _re.search(r'PROBLEMTYPE:\\s*"?Thermo"?\\s*$', _txt, _re.M):
+                _why.append("PROBLEMTYPE Thermo: this contract's recovery reads Scalar_Transport output "
+                            "(phi_1 and flux_boundary_phi_1 in out-vtk-files/), which a Thermo problem never "
+                            "writes, and Thermo does not know SOLVERTYPE/CALCFLUX_BOUNDARY -- use PROBLEMTYPE "
+                            "Scalar_Transport with a SCALAR TRANSPORT DYNAMIC section, MAT_scatra and TRANSP elements")
             if "Scalar_Transport" in _txt and "THERMAL DYNAMIC:" in _txt and "SCALAR TRANSPORT DYNAMIC:" not in _txt:
                 _why.append("PROBLEMTYPE Scalar_Transport needs its dynamics under `SCALAR TRANSPORT DYNAMIC`, "
                             "not `THERMAL DYNAMIC` (that is the Thermo problem type)")

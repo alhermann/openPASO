@@ -199,13 +199,22 @@ It never explains a failure.
     whatever else the deck says.
 
     For a two-dimensional thermoelastic subdomain, do NOT keep repairing the
-    TSI deck. Either solve the two fields as separate 4C problem types —
-    `Structure` with WALL elements and `Thermo` with THERMO elements, exchanging
-    temperature and thermal strain yourself — or build a three-dimensional slab
-    one element thick with SOLIDSCATRA and constrain the out-of-plane
-    displacement on both faces. Runs have lost their whole budget rewriting
-    section names against this, because the message names an element type and
-    not the dimension.
+    TSI deck, and do NOT conclude the problem cannot be solved (one run gave
+    up at this sentence with 26 minutes left). THE MEASURED ROUTE: a
+    three-dimensional slab one element thick -- SOLIDSCATRA HEX8, u_z fixed
+    on every node, plane strain by construction -- and it is served ready to
+    run: `prepare_simulation(solver='fourc', physics='tsi')` hands over the
+    `plane_strain_2d` variant (executed on this binary to 'processor 0
+    finished normally'); put the task's thermal sources and boundary
+    conditions on that slab in place of its volume-wide temperature, keep the
+    thermal expansion from THEXPANS/INITTEMP (alpha = beta/(3*lambda+2*mu)
+    for a task that states beta), and exchange [T, ux, uy] / [q_n, t_x, t_y]
+    per interface point as the coupling contract says. The alternative of two
+    separate problem types (`Structure` with WALL elements and `Thermo` with
+    THERMO elements, exchanging the thermal strain yourself) has no served
+    recipe. Runs have
+    lost their whole budget rewriting section names against this, because
+    the message names an element type and not the dimension.
 
   * DESIGN ENTITY IDS START AT 1, AND A 0 IS A SEGMENTATION FAULT WITH NO
     MESSAGE. `E:` in a condition block and the `DLINE`/`DNODE`/`DSURF` number

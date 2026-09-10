@@ -375,6 +375,8 @@ and several fixes **lowered** the apparent uplift:
 | 2 | 43a718dc | C3 5561-63, C1 6211-13, C2 6311-13 | 0/9 (8 HONEST_INCOMPLETE, 1 MALFORMED) | must-read served 5x in 7 calls; 0/8 kept a served contract; false "couple exchanges one field"; a DUNE JIT compile killed by the agent's own `timeout 120` read as a crash; couple() led with "history too short" instead of the crashed side |
 | 3 | 6b6ad83f | C3 5571-73, C1 6221-23, C2 6321-23 | 0/9 (5 HONEST_INCOMPLETE, 4 FAILED) | 9/9 had one refused write (project dir under $HOME); 7/9 never called prepare_simulation, so the reveal never fired; 0/9 kept a contract; 0.7-9M input tokens per run |
 | 4 | 86a86615 | C3 5581-83, C1 6231-33, C2 6331-33 | 0/9 (5 HONEST_INCOMPLETE, 3 FAILED, 1 MALFORMED) | refused writes 4/9; C3 5581 copied both contracts and got DUNE working, lost on a 4C MATERIALS key; C1 6233 both codes proven at level 1; C2 6333 ran a real 3-level coupling (9 it -> 1e-8) but wrote no field files and listed 12 nonexistent files in its summary |
+| 5 | a4bebe41 | C3 5591-93, C1 6241-43, C2 6341-43 | 0/9 (6 HONEST_INCOMPLETE, 3 FAILED) | real couplings in 6 runs (one through 3 levels); runs stop at 16-23 min with 25 min left and write no field files; 0/9 copy a contract; C1 6243 wrote all 21 files with the zero solution (no source terms in the 4C deck) and honestly gave up |
+| 6 | 081a1edd | C3 5611-13, C1 6261-63, C2 6361-63 | in flight ~19:52 | tests the 48k reply cap and the no-field-files hand-in finding |
 
 Every coupled CORRECT recorded before 2026-09-10 on C3 (2/3, 3/6) was measured
 with complete participants served and is not a paper number.

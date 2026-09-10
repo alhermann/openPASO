@@ -90,3 +90,18 @@ def test_it_is_inert_once_a_vtu_exists(tmp_path):
     (tmp_path / "out-vtk-files").mkdir()
     (tmp_path / "out-vtk-files" / "scatra-00001-0.vtu").write_text("<VTKFile/>")
     exec(_finish_check_block(), {"glob": glob, "CFG": {}, "__name__": "served"})   # no SystemExit
+
+
+def test_the_4c_contract_takes_either_role_from_its_config():
+    """Round 8 (2026-09-10): the tasks that put 4C on the Dirichlet side found a
+    Neumann-only scaffold in the copy-now block and hand-rolled the handshake in
+    all six runs. The scaffold now reads its role from config.json; both roles
+    were executed against a manufactured solution before this test existed."""
+    from tools import consolidated as C
+    t = C._coupling_participant_script("fourc")
+    assert 'SIDE = CFG.get("side", "neumann")' in t
+    assert "def partner_value(" in t and "def partner_flux(" in t
+    assert '"values": (vals if SIDE == "neumann" else [])' in t
+    assert 'if SIDE == "neumann" and _chk_qin.size' in t
+    assert 'if SIDE == "dirichlet" and _chk_qin.shape' in t
+    assert "DESIGN POINT DIRICH per INTERIOR" in t          # the Dirichlet bullet survives the lean view

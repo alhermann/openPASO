@@ -2610,9 +2610,9 @@ def _fourc() -> str:
   `scatra-00000-0.vtu`, which is the INITIAL CONDITION — an all-zero field that
   looks like a converged solve of a trivial problem. Parse the FIRST number.
 * The scalar field is named `phi_1`, never `temperature`.
-* THE NEUMANN-SIDE PARTICIPANT SCAFFOLD (config-driven; for a task that makes
-  4C the DIRICHLET side use the two-sided contract above with SIDE =
-  "dirichlet"). The handshake, 4C's
+* THE TWO-SIDED PARTICIPANT SCAFFOLD (config-driven; "side": "dirichlet" |
+  "neumann" in ./config.json is the role the task gives 4C's subdomain; both
+  roles executed on this binary against a manufactured solution). The handshake, 4C's
   CALCFLUX_BOUNDARY flux-recovery route and the exports schema are served in the
   block below; THE 4C DECK AND THE SOLVE ARE ELIDED -- write them from
   `prepare_simulation(solver='fourc', physics='<your physics>')` and drop them
@@ -2626,22 +2626,23 @@ def _fourc() -> str:
   scatra VTU with no VTK section.
 
 ```python
-"""4C as the NEUMANN side of a partitioned coupling (Scalar_Transport).
+"""4C as EITHER side of a partitioned coupling (Scalar_Transport).
 
-THIS SCAFFOLD IS THE NEUMANN SIDE ONLY. If your task makes 4C the DIRICHLET
-side, copy the two-sided contract served FIRST in knowledge(topic='coupling',
-solver='fourc') instead, with SIDE = "dirichlet" (it imposes the partner's
-values as DESIGN LINE DIRICH per interface node and exports the same
-CALCFLUX_BOUNDARY flux); give it this file's ./config.json level
-parameterization. Measured: runs that kept this Neumann scaffold for a
-Dirichlet role hand-rolled the import and never applied it.
+THE ROLE COMES FROM ./config.json: "side": "neumann" | "dirichlet" -- the role
+the task gives the subdomain 4C owns (the Dirichlet side receives the field
+VALUES and imposes them; the Neumann side receives the outward FLUX and applies
+it as its load). One file, both roles; nothing else changes between them but
+what the deck imposes at the interface and what is exported as values.
 
 Reads ./config.json {"level":k,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
 "k":diffusivity,"iface":"left|right|bottom|top","source_expr":"<f(x,y) or 0.0>",
 "fourc_bin":..,"fourc_ld":..}.
-Contract: reads ./imports.json (partner's outward flux at its points), applies
-it as THIS side's interface Neumann load (opposite normals), runs YOUR 4C deck,
-and exports its interface TRACE as values plus its own consistent outward flux.
+Contract: reads ./imports.json (the partner's interface samples at its points),
+maps them onto THIS side's interface nodes -- as the Neumann load (side
+"neumann", opposite normals) or as the imposed Dirichlet trace (side
+"dirichlet") -- runs YOUR 4C deck, and exports its own consistent outward flux
+plus, on the Neumann side only, its interface TRACE as values (the Dirichlet
+side imposed the trace, it does not own one: values = []).
 
 WHAT IS SERVED HERE is the handshake (config + imports + sign convention), the
 CALCFLUX_BOUNDARY flux-recovery route, and the exports schema. THE 4C DECK AND
@@ -2655,6 +2656,7 @@ CFG = json.loads(Path("config.json").read_text())
 NX, NY = CFG["nx"], CFG["ny"]
 X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV = CFG["k"]; IF = CFG.get("iface", "left")
+SIDE = CFG.get("side", "neumann")   # "neumann" | "dirichlet": the role the task gives this subdomain
 
 # Volumetric source f(x,y) in -div(k grad u) = f, as a 4C space-time EXPRESSION
 # STRING (NOT a Python function): '^' is power (never '**'), the coordinates are
@@ -2668,14 +2670,14 @@ HAS_SRC = SRC_EXPR.strip() not in ("", "0", "0.", "0.0")
 imp = {}
 if Path("imports.json").is_file():
     imp = json.loads(Path("imports.json").read_text())
-def partner_flux(y_or_x):
-    """The imported partner flux interpolated onto one of THIS side's interface
-    points. The driver does NOT interpolate between the two meshes -- each
-    participant maps the partner's samples onto its own points, here. Empty on
-    iteration 1, so fall back to 0.0. Call this when you build your Neumann loads
-    in the solve below."""
+def _partner(key, y_or_x):
+    """One imported partner sample (key = "normal_fluxes" on the Neumann side,
+    "values" on the Dirichlet side) interpolated onto one of THIS side's
+    interface points. The driver does NOT interpolate between the two meshes --
+    each participant maps the partner's samples onto its own points, here. Empty
+    on iteration 1, so fall back to 0.0."""
     for _n, d in imp.items():
-        co = d.get("coordinates") or []; q = d.get("normal_fluxes") or []
+        co = d.get("coordinates") or []; q = d.get(key) or []
         if co and q and len(q) == len(co):
             ax = 1 if IF in ("left", "right") else 0
             pts = sorted(zip([c[ax] for c in co], q))
@@ -2687,6 +2689,14 @@ def partner_flux(y_or_x):
                     return qa + w * (qb - qa)
             return qs[-1]
     return 0.0
+def partner_flux(y_or_x):
+    """NEUMANN side: the partner's outward flux at one of your interface points --
+    your inward load there. Build your Neumann loads from this in the solve."""
+    return _partner("normal_fluxes", y_or_x)
+def partner_value(y_or_x):
+    """DIRICHLET side: the partner's field value at one of your interface points --
+    the trace you impose there. Build your interface Dirichlet data from this."""
+    return _partner("values", y_or_x)
 # SIGN CONVENTION: the inward load on THIS side is the partner's OUTWARD flux --
 # the two interface normals are opposite. Apply the partner's number UNCHANGED
 # as your 4C Neumann VAL; there is no extra minus sign anywhere.
@@ -2707,11 +2717,19 @@ def partner_flux(y_or_x):
 #   * be PROBLEMTYPE "Scalar_Transport", TIMEINTEGR "Stationary", a MAT_scatra
 #     material with DIFFUSIVITY = KV, and TRANSP QUAD4/TRI3 elements in a
 #     TRANSPORT ELEMENTS section (SOLID elements are rejected against MAT_scatra);
-#   * apply the imported partner flux as the interface load -- one
-#     DESIGN POINT NEUMANN per INTERIOR interface node, Simpson-weighted, with
-#     VAL = partner_flux(that node's coordinate), imported node-by-node (no
-#     polynomial fit). 4C's Neumann VAL is exactly the flux the partner exported;
-#     hand it over unchanged (opposite normals already give the sign);
+#   * on the NEUMANN side (SIDE == "neumann"): apply the imported partner flux
+#     as the interface load -- one DESIGN POINT NEUMANN per INTERIOR interface
+#     node, Simpson-weighted, with VAL = partner_flux(that node's coordinate),
+#     imported node-by-node (no polynomial fit). 4C's Neumann VAL is exactly
+#     the flux the partner exported; hand it over unchanged (opposite normals
+#     already give the sign);
+#   * on the DIRICHLET side (SIDE == "dirichlet"): impose the imported partner
+#     values as the interface trace -- one DESIGN POINT DIRICH per INTERIOR
+#     interface node with VAL = partner_value(that node's coordinate) (the two
+#     interface ENDPOINTS keep the OUTER Dirichlet value: they lie on the outer
+#     boundary, and imposing the partner trace there caps the side at order
+#     1), every point set in the ONE DNODE-NODE TOPOLOGY section, E ids
+#     continuous across the Dirichlet and Neumann families;
 #   * keep at least one OUTER Dirichlet edge (u given) or the subdomain is singular;
 #   * if HAS_SRC, wire SRC_EXPR as FUNCT1 SYMBOLIC_FUNCTION_OF_SPACE_TIME plus a
 #     DESIGN SURF NEUMANN VAL*FUNCT block so it enters the assembled RHS -- '^'
@@ -2871,18 +2889,18 @@ _chk_imp = (_json.loads(_Path("imports.json").read_text() or "{}")
 _chk_qin = (_np.concatenate([_np.asarray(_d.get("normal_fluxes") or [], float).ravel()
                              for _d in _chk_imp.values()])
             if _chk_imp else _np.zeros(0))
-if True and _chk_qin.size and _np.abs(_chk_qin).max() > 0 and (
+if SIDE == "neumann" and _chk_qin.size and _np.abs(_chk_qin).max() > 0 and (
         _np.abs(_chk_flux).max() < 1e-9 * _np.abs(_chk_qin).max()):
     raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 against a "
                      "nonzero imported flux: the imported load never entered the "
                      "assembled system (the condition that integrates it is missing). "
                      "Fix the application; do not couple on")
-if False and _chk_qin.shape == _chk_flux.shape and _chk_flux.size and (
+if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size and (
         _np.array_equal(_chk_flux, -_chk_qin)):
     raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array "
                      "negated, bit for bit: a copy, not a recovery from this side's "
                      "own assembled system")
-json.dump({"field_name": "u", "coordinates": co, "values": vals,
+json.dump({"field_name": "u", "coordinates": co, "values": (vals if SIDE == "neumann" else []),
            "normal_fluxes": q_own, "n_points": len(co)},
           open("exports.json", "w"))
 # PER-LEVEL PERSISTENCE. Each mesh level writes its OWN field file named by the

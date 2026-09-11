@@ -11,7 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-PART = 'import json\nimp = json.load(open("imports.json"))\njson.dump({"values": [1.0], "normal_fluxes": [2.0]}, open("exports.json", "w"))\n'
+PART = 'import json\nimp = json.load(open("imports.json"))\n# exports.json LAST: the driver takes its existence as proof of success.\njson.dump({"values": [1.0], "normal_fluxes": [2.0]}, open("exports.json", "w"))\n'
+SCRATCH = 'import json\nimp = json.load(open("imports.json"))\njson.dump({"values": [1.0], "normal_fluxes": [2.0]}, open("exports.json", "w"))\n'
 
 
 def _w(d: Path, name: str, text: str) -> None:
@@ -63,3 +64,20 @@ def test_the_audit_reply_carries_the_ladder(tmp_path):
     r = audit(str(tmp_path))
     assert r.get("next_step") and "LADDER STEP 1" in r["next_step"]
     assert "LADDER STEP 1" in (r.get("what_to_fix_next") or "")
+
+
+def test_a_participant_written_from_scratch_is_sent_back_to_the_served_contract(tmp_path):
+    """Every served contract carries one of four lines; a script with none of them
+    was not copied from the door (measured: zero interface loads, unresponsive
+    sides). Before any level converges, restoring the contract is the step."""
+    from tools.result_audit import coupled_ladder
+    _w(tmp_path / "side_A", "participant_A.py", PART)
+    _w(tmp_path / "side_B", "participant_B.py", SCRATCH)
+    _w(tmp_path / "side_A", "exports.json", json.dumps({"values": [1.0], "normal_fluxes": [2.0]}))
+    r = coupled_ladder(tmp_path)
+    assert r["step"] == 1 and "RESTORE THE SERVED CONTRACT" in r["text"] and "side_B/participant_B.py" in r["text"]
+    assert "physics='thermoelastic'" in r["brief"] and "EXPORT SELF-CHECK" in r["brief"]
+    # once a level has converged the scripts evidently work: the gate steps aside
+    _w(tmp_path, "residual_level1.csv", "iteration,interface_residual\n1,0.5\n2,0.1\n3,0.01\n")
+    _w(tmp_path / "side_B", "exports.json", json.dumps({"values": [1.0], "normal_fluxes": [2.0]}))
+    assert "RESTORE THE SERVED CONTRACT" not in coupled_ladder(tmp_path)["text"]

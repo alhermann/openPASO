@@ -2491,6 +2491,47 @@ def coupled_ladder(work: Path) -> dict | None:
                     "source and solve for this subdomain from the task; write ./config.json for level 1 and a "
                     "synthetic ./imports.json; run it with that code's own interpreter until ./exports.json "
                     "appears with finite values. CHECK: ./side_<x>/exports.json exists and the script exited 0.")
+    # A PARTICIPANT WRITTEN FROM SCRATCH IS THE NEXT STEP, NOT A DETAIL. Every served
+    # contract carries at least one of these lines; a script with none of them was
+    # not copied from the door. Measured on three cells: a Neumann side that put
+    # zeros in every point load and reported the code could not apply the flux, a
+    # Kratos side whose flux condition carried no nodal value and coupled as
+    # unresponsive, a thermo-elastic side with no handshake at all. The served
+    # self-checks would have refused each export. Fires only before the first
+    # converged level: a coupling that already converged a level has working scripts.
+    _served_marks = ("EXPORT SELF-CHECK ─ keep this block", "exports.json LAST",
+                     "CONTRACT (do not change)", "OASiS DOES NOT SERVE THIS")
+    _converged_any = False
+    for q in hist:
+        try:
+            if sum(1 for _ in q.open(errors="ignore")) - 1 >= 3:
+                _converged_any = True
+                break
+        except OSError:
+            continue
+    if not _converged_any:
+        unserved = []
+        for q in scripts:
+            try:
+                t = q.read_text(errors="ignore")
+            except OSError:
+                continue
+            if not any(m in t for m in _served_marks):
+                unserved.append(q)
+        if unserved:
+            who = ", ".join(str(q.relative_to(work)) for q in unserved[:2])
+            return step(1, f"RESTORE THE SERVED CONTRACT IN {who}: the file carries none of the served "
+                           f"contract's lines, so it was written from scratch or rewritten instead of copied "
+                           f"(measured: such scripts put zeros in every interface load, or coupled as "
+                           f"unresponsive, and reported the code could not do it).",
+                        f"For {who}: call knowledge(topic='coupling', solver=<that code>) (add "
+                        "physics='thermoelastic' when the interface carries temperature and displacement "
+                        "together), copy the served CONTRACT for this side's role into the file UNCHANGED, and "
+                        "move only your mesh, deck/form, material, source and solve into its marked hole(s); keep "
+                        "every served line, including the EXPORT SELF-CHECK block. Then write ./config.json for "
+                        "level 1 and a synthetic ./imports.json and run it with that code's own interpreter until "
+                        "./exports.json appears. CHECK: the file contains the served EXPORT SELF-CHECK block "
+                        "and the script exited 0 with ./exports.json beside it.")
     dirs_with_export = {q.parent for q in exports}
     unrun = [q for q in scripts if q.parent not in dirs_with_export]
     if len(dirs_with_export) < 2 and unrun:

@@ -123,3 +123,22 @@ def test_the_served_lint_names_the_closest_real_section(tmp_path):
                        env=dict(os.environ, MPLBACKEND="Agg"))
     assert r.returncode != 0
     assert "is not a valid section name" in r.stderr and "THERMAL DYNAMIC/RUNTIME VTK OUTPUT" in r.stderr, r.stderr[-1200:]
+
+
+def test_the_served_deck_check_refuses_twisted_elements(tmp_path):
+    import json, os, subprocess, sys
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "data" / "coupling_participants" / "participant_fourc_thermoelastic.py").read_text()
+    BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+    a = src.index(BEGIN); b = src.index(END, a) + len(END)
+    fill = ('nodes = [(0.0, 0.0), (0.5, 0.0), (1.0, 0.0), (0.0, 0.5), (0.5, 0.5), (1.0, 0.5)]\ninterior = []\nTZ = 0.5\n'
+            'Path("deck_T.4C.yaml").write_text("NODE COORDS:\\n" + "".join(f\'  - "NODE {i + 1} COORD {x} {y} 0.0"\\n\' for i, (x, y) in enumerate(nodes))\n'
+            '  + "TRANSPORT ELEMENTS:\\n  - \\"1 TRANSP QUAD4 1 2 4 5 MAT 1 TYPE Std\\"\\n  - \\"2 TRANSP QUAD4 2 3 6 5 MAT 1 TYPE Std\\"\\n")\n'
+            'OUT_T, OUT_U, DECK_U = "out_T", "out_U", "deck_U.4C.yaml"\n')
+    (tmp_path / "participant_A.py").write_text(src[:a] + fill + src[b:])
+    (tmp_path / "config.json").write_text(json.dumps({"level": 1, "nx": 2, "ny": 1, "x0": 0.0, "x1": 1.0, "y0": 0.0, "y1": 0.5,
+                                                       "k": 1.0, "lam": 1.0, "mu": 1.0, "beta": 1.0, "iface": "right"}))
+    (tmp_path / "imports.json").write_text("{}")
+    r = subprocess.run([sys.executable, "participant_A.py"], cwd=tmp_path, capture_output=True, text=True, timeout=120,
+                       env=dict(os.environ, MPLBACKEND="Agg"))
+    assert r.returncode != 0 and "DECK CHECK" in r.stderr and "zero or negative area" in r.stderr and "element 1" in r.stderr, r.stderr[-800:]

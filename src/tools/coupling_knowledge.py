@@ -2981,6 +2981,19 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or sorted(glob.glob("*.yaml")):
         raise SystemExit(f"DECK CHECK: {_dk} puts conditions on E ids that no *-NODE TOPOLOGY section defines "
                          f"({'; '.join(_lost[:6])}): 4C dropped them silently, so the run solved a different "
                          f"problem. Add the DNODE/DLINE/DSURF/DVOL-NODE TOPOLOGY entries for those ids.")
+    # twisted or clockwise 2-D elements (zero/negative area from the deck's own coordinates) solve nothing
+    _cxy = {int(n): (float(x), float(y)) for n, x, y in _re.findall(r'"NODE\\s+(\\d+)\\s+COORD\\s+(\\S+)\\s+(\\S+)\\s+\\S+"', _txt)}
+    _twist = []
+    for _e, _k, _ids in _re.findall(r'"\\s*(\\d+)\\s+\\w+\\s+(QUAD4|TRI3)\\s+((?:\\d+\\s+)+)', _txt):
+        _nn = [int(i) for i in _ids.split()][:4 if _k == "QUAD4" else 3]
+        if len(_nn) >= 3 and all(i in _cxy for i in _nn):
+            _p = [_cxy[i] for i in _nn]
+            if 0.5 * sum(_p[q][0] * _p[(q + 1) % len(_p)][1] - _p[(q + 1) % len(_p)][0] * _p[q][1] for q in range(len(_p))) <= 1e-14:
+                _twist.append((_e, _nn))
+    if _twist:
+        raise SystemExit(f"DECK CHECK: {_dk} has {len(_twist)} element(s) with zero or negative area (first: element {_twist[0][0]} "
+                         f"nodes {' '.join(map(str, _twist[0][1]))}). Every element's nodes must run counter-clockwise: for node "
+                         f"id = i + 1 + (NX + 1) * j the quad of cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1).")
 # ── DID 4C FINISH? ── the check defined above the hole, run first here ─────
 _vtus = sorted(glob.glob("out-vtk-files/*.vtu"))
 if not _vtus:

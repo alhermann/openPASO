@@ -5478,12 +5478,21 @@ def register_consolidated_tools(mcp: FastMCP):
             for name, ifd in exports.items():
                 d = ifd if isinstance(ifd, dict) else {}
                 vals = d.get("values") or []
+
+                def _num(v):
+                    # a multi-component exchange (temperature and displacement
+                    # through one interface) carries a LIST per point; float()
+                    # on it crashed every couple() call of the thermo-elastic
+                    # cells (measured 2026-09-11: twelve calls in one cell)
+                    if isinstance(v, (list, tuple)):
+                        return [float(x) for x in v]
+                    return float(v)
                 out[name] = {
                     "field_name": d.get("field_name"),
                     "n_points": d.get("n_points", len(vals)),
                     "has_normal_fluxes": bool(d.get("normal_fluxes")),
-                    "first_values": [float(v) for v in vals[:3]],
-                    "last_values": [float(v) for v in vals[-3:]],
+                    "first_values": [_num(v) for v in vals[:3]],
+                    "last_values": [_num(v) for v in vals[-3:]],
                     "full_arrays_are_on_disk":
                         f"<participant {name}'s work dir>/exports.json",
                 }

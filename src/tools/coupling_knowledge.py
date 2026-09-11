@@ -3346,6 +3346,7 @@ def coupling_participant(solver: str, request: str = "") -> str:
   requested = (request or "").strip().lower().replace("_", "-")
   suffix = ""
   labels = {
+    "thermoelastic": "thermo-elastic",     # before "elastic": it contains that word
     "neumann": "Neumann-side",
     "elastic": "vector elasticity",
     "transient": "transient",

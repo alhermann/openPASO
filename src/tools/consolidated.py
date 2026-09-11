@@ -7227,6 +7227,12 @@ def _get_coupling_knowledge(solver: str = "", signal: str = "", physics: str = "
     participant script, which is the whole point of asking for one. It used to
     be dropped on the floor, so every backend got the same bytes.
     """
+    # THE PARTS DOOR FOLLOWS THE PHYSICS TOO. Measured 2026-09-11: a worker that
+    # had the thermo-elastic contract asked for `participant:dirichlet:part1`
+    # and got the scalar heat contract in parts, five calls long.
+    if (signal or "").strip().lower().startswith("participant") and _is_thermoelastic(physics) \
+            and "thermoelastic" not in (signal or "").lower():
+        signal = signal.strip() + ":thermoelastic"
     payload = _capture_knowledge_fn("get_coupling_knowledge", solver, signal)
     # A THERMO-ELASTIC EXCHANGE GETS THE THERMO-ELASTIC CONTRACT FIRST.
     if _is_thermoelastic(physics) and isinstance(payload, str):

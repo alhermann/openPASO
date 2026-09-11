@@ -53,6 +53,7 @@ def test_a_clean_scalar_transport_deck_gets_no_finding(tmp_path):
         pytest.skip("4C binary not on this host")
     t = _tools()
     clean = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nSCALAR TRANSPORT DYNAMIC:\n  CALCFLUX_BOUNDARY: "diffusive"\n'
+             'IO/RUNTIME VTK OUTPUT:\n  INTERVAL_STEPS: 1\n'
              'MATERIALS:\n  - MAT: 1\n    MAT_scatra:\n      DIFFUSIVITY: 1.0\n'
              'SCATRA FLUX CALC LINE CONDITIONS:\n  - E: 2\nDESIGN LINE DIRICH CONDITIONS:\n  - E: 1\n    NUMDOF: 1\n'
              'DLINE-NODE TOPOLOGY:\n  - "NODE 1 DLINE 1"\n  - "NODE 2 DLINE 2"\n')

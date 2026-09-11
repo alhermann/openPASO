@@ -27,6 +27,7 @@ def test_the_lint_names_the_measured_defect_classes():
     assert "DVOLUME" in why and "VOL THERMO DIRICH" in why and "no *-NODE TOPOLOGY section defines" in why
     assert "DVOLUME-NODE TOPOLOGY' is not a valid section" in fourc_error_lines(LOG)
     assert lint_deck('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nSCALAR TRANSPORT DYNAMIC:\n  CALCFLUX_BOUNDARY: "diffusive"\n'
+                     'IO/RUNTIME VTK OUTPUT:\n  INTERVAL_STEPS: 1\n'
                      'SCATRA FLUX CALC LINE CONDITIONS:\n  - E: 2\nDLINE-NODE TOPOLOGY:\n  - "NODE 1 DLINE 2"\n') == []
     # DSURFACE is the entity word for a SURF condition (measured false positive: a worker deck with
     # "NODE 1 DSURFACE 1" was told its SURF condition E 1 had no topology); ids are per kind

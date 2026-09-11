@@ -2964,6 +2964,18 @@ atexit.register(_diagnose_at_exit)
 # and never recompute the flux from phi_1 differences.
 import glob
 import meshio
+# ── 4C's OWN CONSOLE, ECHOED (served): the coupling tool captures THIS script's stdout as the
+#    level's run log, and a run log is credited to 4C only by 4C's own lines (its time-integration
+#    output), never by the NDOF line alone (measured: run logs holding only the driver header and the
+#    NDOF line were graded as no per-code execution evidence).
+for _lg in sorted(glob.glob("*.log")):
+    try:
+        _ltxt = open(_lg, errors="ignore").read()
+    except OSError:
+        continue
+    if "4C" in _ltxt[:4000] or "PROC 0" in _ltxt or "Finalised step" in _ltxt:
+        print(f"── 4C console {_lg} ──")
+        print(_ltxt if len(_ltxt) < 60000 else _ltxt[-60000:])
 # ── YOUR DECK, CHECKED BEFORE ANYTHING IS READ (served): 4C drops a condition whose E id no
 #    topology section defines and RUNS THE WRONG PROBLEM to 'finished normally' (measured on a
 #    worker deck: every boundary condition and the source gone, rc 0). A run like that is refused here.

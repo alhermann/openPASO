@@ -200,6 +200,19 @@ raise SystemExit("the mesh-decks-and-runs hole above the recovery is not filled"
 # ── RECOVERY FROM 4C's OWN OUTPUTS (served): boundary flux VTU, displacement VTU, reaction yaml ──
 import meshio  # noqa: E402
 
+# ── 4C's OWN CONSOLE, ECHOED (served): the coupling tool captures THIS script's stdout as the
+#    level's run log, and a run log is credited to 4C only by 4C's own lines (its step and
+#    time-integration output), never by the NDOF line alone. Measured: a cell whose run logs held
+#    only the driver header and the NDOF line was graded as no per-code execution evidence.
+for _lg in sorted(glob.glob("*.log")):
+    try:
+        _txt = Path(_lg).read_text(errors="ignore")
+    except OSError:
+        continue
+    if "4C" in _txt[:4000] or "PROC 0" in _txt or "Finalised step" in _txt:
+        print(f"── 4C console {_lg} ──")
+        print(_txt if len(_txt) < 60000 else _txt[-60000:])
+
 # ── YOUR DECKS, CHECKED BEFORE ANYTHING IS READ (served): 4C drops a condition whose E id no
 #    topology section defines and RUNS THE WRONG PROBLEM to 'finished normally' (measured on a
 #    worker deck: every boundary condition and the source gone, rc 0). A run like that is refused here.

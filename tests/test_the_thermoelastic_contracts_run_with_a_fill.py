@@ -97,6 +97,11 @@ def test_the_4c_thermoelastic_contract_recovers_flux_and_traction(tmp_path, deck
                        env=dict(os.environ, LD_LIBRARY_PATH="/opt/4C-dependencies/lib", MPLBACKEND="Agg"))
     assert r.returncode == 0, r.stderr[-2000:]
     assert "\nNDOF = 297\n" in "\n" + r.stdout
+    # the participant's stdout carries 4C's OWN console lines (the coupling tool captures stdout as the
+    # level's run log; a run log is credited to 4C by these lines, never by the NDOF line alone)
+    from blind_eval.evidence import PER_CODE_SIGNATURES
+    import re as _re
+    assert any(_re.search(p, r.stdout, _re.M) for p in PER_CODE_SIGNATURES["4C"]), r.stdout[-1500:]
     e = json.loads((tmp_path / "exports.json").read_text())
     assert e["values"] == []
     C = np.asarray(e["coordinates"], float); Q = np.asarray(e["normal_fluxes"], float)

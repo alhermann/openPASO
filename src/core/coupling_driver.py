@@ -457,6 +457,42 @@ def _measure_noise_floor(participants: list[Participant], replicates: int,
     return floor, None, notes
 
 
+class _Anderson:
+    """Anderson mixing (type II, window m) on the whole interface state -- the interface
+    quasi-Newton family partitioned-coupling libraries use. With x the relaxed state handed
+    to the participants and g = G(x) their new exports, the residual is f = g - x; the next
+    state is g_k - dG gamma with gamma the least-squares solution of dF gamma = f_k over the
+    last m differences. Falls back to constant relaxation until two residuals exist. Measured
+    reason for existing: a three-component thermo-elastic exchange took 28-60 Aitken iterations
+    per level (two 4C runs each); the wall clock, not the physics, ended those runs.
+    """
+
+    def __init__(self, m: int = 5, beta: float = 0.5):
+        self.m, self.beta = int(m), float(beta)
+        self.xs: list = []
+        self.gs: list = []
+
+    def step(self, x: np.ndarray, g: np.ndarray) -> np.ndarray:
+        self.xs.append(np.asarray(x, float).copy())
+        self.gs.append(np.asarray(g, float).copy())
+        if len(self.xs) > self.m + 1:
+            self.xs.pop(0)
+            self.gs.pop(0)
+        f = [gi - xi for xi, gi in zip(self.xs, self.gs)]
+        if len(f) < 2:
+            return (1.0 - self.beta) * x + self.beta * g
+        dF = np.column_stack([f[i + 1] - f[i] for i in range(len(f) - 1)])
+        dG = np.column_stack([self.gs[i + 1] - self.gs[i] for i in range(len(f) - 1)])
+        try:
+            gamma, *_ = np.linalg.lstsq(dF, f[-1], rcond=None)
+        except np.linalg.LinAlgError:
+            return (1.0 - self.beta) * x + self.beta * g
+        x_new = g - dG @ gamma
+        if not np.all(np.isfinite(x_new)):
+            return (1.0 - self.beta) * x + self.beta * g
+        return x_new
+
+
 def run_coupling(participants: list[Participant], max_iter: int = 50,
                  tol: float = 1e-6, accelerator: str = "aitken",
                  theta0: float = 0.5, probe: bool = True,
@@ -476,9 +512,11 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
 
     accelerator: "aitken" (ONE dynamic theta for the whole interface state,
         recomputed each iteration from the previous residual, starting from
-        theta0 — see _aitken) or "constant" (theta fixed at theta0 for the whole
-        run). theta0 is the ONLY relaxation knob; there is no separate per-field
-        or per-participant theta.
+        theta0 — see _aitken), "anderson" (Anderson mixing / interface quasi-Newton
+        on the whole interface state, window 5, theta0 as the mixing weight until
+        two residuals exist — see _Anderson) or "constant" (theta fixed at theta0
+        for the whole run). theta0 is the ONLY relaxation knob; there is no
+        separate per-field or per-participant theta.
 
     STOCHASTIC PARTICIPANTS (see the module docstring):
       * `noise_replicates >= 2` measures the residual noise floor by running
@@ -541,6 +579,7 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
     relaxed_prev: dict[str, np.ndarray] = {}
     prev_blocks: dict[str, dict[str, np.ndarray]] = {}
     theta_global: float = theta0
+    anderson = _Anderson(m=5, beta=theta0)
     history: list[float] = []
     warnings: list[str] = []
     returncodes: dict[str, int] = {}
@@ -765,19 +804,30 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
         total_ref = 0.0
         # ONE theta for the whole interface state (see _aitken): Aitken is applied
         # to the composite fixed-point map, not to each participant separately.
+        relaxed_all = None
         if accelerator == "aitken":
             raw_all = np.concatenate([_stack(new_exports[p.name]) for p in participants])
             prev_all = np.concatenate([relaxed_prev[p.name] for p in participants])
             th, r_k = _aitken(prev_all, raw_all, res_prev.get("*"), theta_global)
             theta_global = th
             res_prev["*"] = r_k
+        elif accelerator == "anderson":
+            raw_all = np.concatenate([_stack(new_exports[p.name]) for p in participants])
+            prev_all = np.concatenate([relaxed_prev[p.name] for p in participants])
+            relaxed_all = anderson.step(prev_all, raw_all)
+            th = theta0
         else:
             th = theta0
+        offset = 0
         for p in participants:
             n = p.name
             raw_new = _stack(new_exports[n])
             prev = relaxed_prev[n]
-            relaxed = _relax(prev, raw_new, th)
+            if relaxed_all is not None:
+                relaxed = relaxed_all[offset:offset + raw_new.size]
+                offset += raw_new.size
+            else:
+                relaxed = _relax(prev, raw_new, th)
             total_res += float(np.sum((raw_new - prev) ** 2))
             total_ref += float(np.sum(raw_new ** 2)) + 1e-30
             # per-block relative change, so a large settled block cannot mask a

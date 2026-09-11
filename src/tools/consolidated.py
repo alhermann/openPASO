@@ -5042,6 +5042,8 @@ def register_consolidated_tools(mcp: FastMCP):
               `imports_from` must be another participant's name.
             max_iter, tol: iteration controls.
             accelerator: "aitken" (theta recomputed each iteration from the residual
+                or "anderson" (Anderson mixing / interface quasi-Newton on the whole interface state, window 5:
+                measured on a three-component thermo-elastic exchange to cut the iteration count several-fold)
               history, starting at `theta`) or "constant" (theta held at `theta` for
               the whole run). There is no per-field or per-participant theta.
             theta: the relaxation factor. Under-relaxation (theta < 1) is what makes
@@ -5146,7 +5148,7 @@ def register_consolidated_tools(mcp: FastMCP):
         # fall through to constant relaxation and run a different algorithm than
         # the one asked for, silently.
         accelerator = str(accelerator).strip().lower()
-        if accelerator not in ("aitken", "constant"):
+        if accelerator not in ("aitken", "anderson", "constant"):
             return json.dumps({"error": f"accelerator must be 'aitken' or "
                                         f"'constant', got {accelerator!r}"})
         # The stochastic branch is opt-in and its arguments are checked here

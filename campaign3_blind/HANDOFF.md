@@ -379,6 +379,7 @@ and several fixes **lowered** the apparent uplift:
 | 6 | 081a1edd | C3 5611-13, C1 6261-63, C2 6361-63 | 0/9 (5 HONEST_INCOMPLETE, 2 MALFORMED, 1 FAILED, 1 COMPLETED_UNPHYSICAL) | first END-TO-END run: C2 6361 delivered all three levels, error 0.047 flat (exact RMS 0.050) from its own post-processing; C3 5611/5613 level 1 with both codes proven; the no-field-files finding fired in 3 runs and all 3 then wrote fields |
 | 7 | d54601d5 | C3 5621-23, C1 6271-73, C2 6371-73 | 0/9 (6 HONEST_INCOMPLETE, 2 MALFORMED, 1 FAILED) | first round with the LADDER and the worker brief in the must-read: 0 of 9 parents spawned a worker (5 spawned only a critic), 1 of 9 kept a served contract, 0 audit_results calls; C3 5621/5622 proved both codes at level 1 but the coupling residual never moved (own handshakes, 4C side never applied the flux); give-ups at 7-36 min with 1-11M input tokens |
 | 8 | ee489854 | C3 5631-33, C1 6281-83, C2 6381-83 | 0/9 (6 HONEST_INCOMPLETE, 2 FAILED, 1 MALFORMED) | orchestrator rule + two-hole DUNE contract + 4C finish check. Workers in 3/9 (5632 spawned five), critics 0/9, audit_results 0/9, couple in 6/9. Served contracts on disk in all three C3 runs and none of the six C1/C2 runs: the tasks make 4C the DIRICHLET side there and the copy-now block was the NEUMANN scaffold only (fixed after the round: the scaffold states its side and points at the two-sided contract). C2 6381 delivered all three levels with coupling PROVEN, interface SATISFIED and both codes PROVEN and lost only on MESH_SEQUENCE_NOT_PRESCRIBED (NDOF x2.14 per level instead of x4). All three C3 cells worked the full 45 min (5632: both contracts, both sides exporting, level 1 coupled through workers); C1 3/3 give-ups at 19-24 min (thermo-elastic 4C side; the grammar note ended at 'not available', now points at the served plane-strain slab). |
+| 9 | c3ee46c6 | C3 5641-43, C1 6291-93, C2 6391-93 | 0/9 (7 HONEST_INCOMPLETE, 1 FAILED, 1 MALFORMED) | two-sided 4C contract, finish diagnosis, load check. Eight of nine cells worked to the 45-min wall (round 7: four give-ups by 22 min); workers in 5/9, served contracts on disk in 5/9 (both C1/C2 now included), exports in 6/9, couple in 4/9; C2 6391 coupling PROVEN at level 1 with both codes PROVEN, lost on the interface and missing NDOF lines for levels 2-3; C3 5643 wrote level files for three levels but handed in LEVELS = 0. Found after the round: the first coupling reply of every session carried NO contract (must-read 27k vs 28k head budget) -- fixed on the tree after this round. |
 
 ### Per-step trials (from 2026-09-10 evening, Alexander's method)
 
@@ -475,6 +476,20 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   roles and on a deliberately wrong load (commit ff3ea506). part4c10 on that
   text: 2/3 (both passes exact in flux; the failure interleaved topology
   lines inside a condition block and was told so).
+- 02:15 (2026-09-11), THE DOOR DEFECT: knowledge(topic='coupling',
+  solver=X) on the first call of a session served the 27k must-read and then
+  ran out of head budget (28k) before the contract: zero python fences in a
+  48k reply, every backend, every round so far. Only later calls (pointer
+  mode) carried the contract -- which is why workers copied contracts and
+  parents never had one. Fixed: the must-read is split at "DO NOT WRITE THE
+  PARTICIPANT'S HANDSHAKE FROM SCRATCH"; part A leads, the code's payload
+  head with the WHOLE contract block follows (4C and DUNE: the config-driven
+  scaffold, the same block the reveal serves), part B closes the reply, facts
+  last; measured: contract at ~5k chars for every backend, part B complete
+  for all but 4C (whose 22k scaffold pushes part B's last 3k past the 48k
+  cap). tests/test_the_served_scaffolds_run_with_a_fill.py executes the
+  served 4C (both roles, plus a refused wrong load) and DUNE scaffolds
+  against manufactured solutions.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

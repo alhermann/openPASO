@@ -547,6 +547,12 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   condition; facts 9 (the exact core-namespace solve stack) and 10
   (Dirichlet values are nodal, via Fix) added (bbce8897, 563d21a4);
   kratosN3 running on facts 8-9.
+- 07:50: the C2 mesh-sequence losses (round 10 6492, round 16 6531/6532:
+  three coupled levels on ONE mesh) came from the ladder's next-level brief
+  and the must-read saying "set level=k+1 / edit one number" while the
+  served scaffolds mesh from nx, ny and treat level as a label. Both now say
+  to DOUBLE nx and ny (commits 9c32a508, 68cc4b59). Round 17 (07:44,
+  ff8afb07) carries Kratos facts 8-10 but not this; round 18 will.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

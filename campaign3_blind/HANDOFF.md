@@ -530,7 +530,7 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   first reply and hand-rolled the load. Measured after: kratos first reply
   carries two contracts; part B's tail is cut only for kratos and 4C (the
   longest contract material), whose run-log rules the ladder repeats.
-- 07:10: C2's remaining blocker is the Kratos NEUMANN side (round 15's
+- 07:00: C2's remaining blocker is the Kratos NEUMANN side (round 15's
   6511 handed in three levels and graded COMPLETED_UNPHYSICAL with a
   hand-rolled Kratos side). The served Kratos Neumann contract
   (participant_kratos_neumann.py, four elided holes, conservation

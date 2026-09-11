@@ -2526,7 +2526,7 @@ def wrong_level_run_log_findings(work: Path) -> list[dict]:
         d, (ndof, cpath) = match[0]
         if vals[0] != ndof:
             other = [j for j, sides in consoles.items() if sides.get(d, (None,))[0] == vals[0]]
-            out.append({"sequence": f"run log level {k} side {side}", "values": [],
+            out.append({"sequence": f"run log level {k} side {side}", "values": [], "priority": 20,
                         "finding": (f"RUN LOG FROM THE WRONG LEVEL: {q.relative_to(work)} carries NDOF {vals[0]} while "
                                     f"side {side}'s captured console for level {k} says NDOF {ndof}"
                                     + (f" -- it is level {other[0]}'s console" if other else "")

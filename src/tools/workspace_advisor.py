@@ -758,6 +758,28 @@ def _FLUX_NOOP_MSG(written: Path) -> str:
             "works too. 18 of the last 18 runs on this problem omitted this and "
             "every one of them delivered the no-flux answer.")
 
+def _wrong_level_run_log_check(workdir: Path, written: Path) -> str:
+    """A per-level run log written from ANOTHER level's console, named the moment it is written.
+
+    MEASURED (rounds 29-33 of the honest coupled campaign): six three-level couplings with refined
+    meshes (consoles 54, 187, 693 dofs) handed in run logs copied from one level at every level, and
+    were graded as an unchanged mesh. The audit names it, but the parents wrote the logs last and
+    called the audit 0-1 times; the write is the moment the finding can still be acted on.
+    """
+    import re as _re
+    if written.suffix.lower() != ".log" or not _re.search(r"level\d+", written.name, _re.I):
+        return ""
+    try:
+        from tools.result_audit import wrong_level_run_log_findings   # noqa: PLC0415
+        hits = [f for f in wrong_level_run_log_findings(Path(workdir))
+                if str(f.get("finding", "")).startswith("RUN LOG FROM THE WRONG LEVEL: " + written.name)]
+    except Exception:                                    # noqa: BLE001
+        return ""
+    if not hits:
+        return ""
+    return "\n[write check] " + hits[0]["finding"]
+
+
 def _level_index_check(workdir: Path, written: Path) -> str:
     """`<k>` in a deliverable name is the LEVEL INDEX, not the mesh count.
 

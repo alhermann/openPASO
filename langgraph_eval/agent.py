@@ -588,6 +588,7 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
                 chosen.add(newest)
                 got = (_level_index_check(workdir, newest)
                        + _identical_levels_check(workdir, newest)
+                       + _wrong_level_run_log_check(workdir, newest)
                        + _discarded_proof_check(
                            newest, newest.read_text(errors="replace"))
                        + _early_artefact_check(workdir, newest))
@@ -722,6 +723,7 @@ def _read_write_tools_for(workdir: Path, *, audit_on_submit: bool = False):
             if audit_on_submit and p.name != "RESULT.txt":
                 reply += _level_index_check(workdir, p)
                 reply += _identical_levels_check(workdir, p)
+                reply += _wrong_level_run_log_check(workdir, p)
                 reply += _discarded_proof_check(p, content)
                 reply += _script_noop_check(p, content)
                 reply += _registry_attribute_check(p, content)
@@ -1049,7 +1051,7 @@ from tools.workspace_advisor import (          # noqa: E402
     _identical_levels_check, _level_index_check, _registry_attribute_check,
     _looks_like_captured_output, _registry_error_check, _script_noop_check,
     _work_on_disk_contradicting_a_give_up,
-)
+    _wrong_level_run_log_check)
 
 
 

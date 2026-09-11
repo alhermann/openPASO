@@ -206,8 +206,86 @@ def _diagnose_at_exit():
 
 atexit.register(_diagnose_at_exit)
 
-# ── YOUR TWO DECKS AND RUNS -- what the hole below must do (the deck grammar,
-#    measured on this binary; the decks and the runs themselves are yours) ──
+# ── HOLE 1 (yours): the 2-D node layout of this subdomain. Build the NX x NY
+#    structured grid on [X0, X1] x [Y0, Y1] and leave behind
+#      nodes   the list of (x, y) tuples; 4C node id = list index + 1
+#      quads   the list of 4-tuples of node ids, each quad counter-clockwise
+#              (i,j), (i+1,j), (i+1,j+1), (i,j+1)
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+hx, hy = (X1 - X0) / NX, (Y1 - Y0) / NY
+nodes = [(X0 + i * hx, Y0 + j * hy) for j in range(NY + 1) for i in range(NX + 1)]
+def _gid(i, j):
+    return 1 + i + (NX + 1) * j
+quads = [(_gid(i, j), _gid(i + 1, j), _gid(i + 1, j + 1), _gid(i, j + 1)) for j in range(NY) for i in range(NX)]
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+
+# ── THE INTERFACE HANDSHAKE ONTO YOUR NODES (served) ──────────────────────
+# Which of YOUR nodes are the interface, its interior, and the outer boundary,
+# by coordinate; the slab numbering; and the per-node point conditions that
+# carry the partner's (T, ux, uy) into BOTH decks. Measured 2026-09-11: a
+# worker script that did this bookkeeping itself imposed the partner's data on
+# ONE node (an endpoint, both layers) and the served cross-check stopped it.
+N2 = len(nodes)
+_TOL = 1e-9 * max(X1 - X0, Y1 - Y0)
+_AX, _VAL = {"left": (0, X0), "right": (0, X1), "bottom": (1, Y0), "top": (1, Y1)}[IF]
+def _on_edge(n):
+    x, y = nodes[n - 1]
+    return abs(x - X0) < _TOL or abs(x - X1) < _TOL or abs(y - Y0) < _TOL or abs(y - Y1) < _TOL
+iface_all = sorted([n for n in range(1, N2 + 1) if abs(nodes[n - 1][_AX] - _VAL) < _TOL],
+                   key=lambda n: nodes[n - 1][1 - _AX])
+if len(iface_all) < 3:
+    raise SystemExit(f"only {len(iface_all)} node(s) lie on the {IF} edge x/y = {_VAL}: `nodes` and config disagree")
+interior = iface_all[1:-1]                      # the two ENDPOINTS keep the outer datum (they are outer nodes)
+outer = [n for n in range(1, N2 + 1) if _on_edge(n) and n not in set(interior)]
+TZ = min((X1 - X0) / NX, (Y1 - Y0) / NY)        # slab thickness: one well-shaped HEX8 layer
+def gid3(n, layer):
+    """4C node id of 2-D node n on slab layer 0 (z = 0) or 1 (z = TZ): the second layer follows the first."""
+    return n + layer * N2
+_g = {n: partner_values(nodes[n - 1][1 - _AX]) for n in interior}     # (T, ux, uy) per interior node
+
+def scatra_point_conditions():
+    """Deck T: `DESIGN POINT DIRICH CONDITIONS` entries imposing the partner's T on the interior interface
+    nodes, and the matching `DNODE-NODE TOPOLOGY` entries (DNODE ids 1..len(interior))."""
+    cond, topo = [], []
+    for d, n in enumerate(interior, 1):
+        cond.append(f"  - E: {d}\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [{_g[n][0]:.17g}]\n    FUNCT: [0]\n")
+        topo.append(f'  - "NODE {n} DNODE {d}"\n')
+    return "".join(cond), "".join(topo)
+
+def slab_point_conditions():
+    """Deck U: the partner's (ux, uy) as `DESIGN POINT DIRICH CONDITIONS` entries (NUMDOF 3, u_z = 0,
+    TAG: monitor_reaction) and its T as `DESIGN POINT THERMO DIRICH CONDITIONS` entries, on BOTH slab
+    layers of every interior interface node, with one DNODE per node-and-layer, ids continuous across
+    the two families; plus the matching `DNODE-NODE TOPOLOGY` entries."""
+    struct, thermo, topo = [], [], []
+    d = 0
+    for n in interior:
+        T, ux, uy = _g[n]
+        for layer in (0, 1):
+            d += 1
+            struct.append(f"  - E: {d}\n    NUMDOF: 3\n    ONOFF: [1, 1, 1]\n    VAL: [{ux:.17g}, {uy:.17g}, 0.0]\n"
+                          f"    FUNCT: [0, 0, 0]\n    TAG: monitor_reaction\n")
+            thermo.append(f"  - E: {d}\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [{T:.17g}]\n    FUNCT: [0]\n")
+            topo.append(f'  - "NODE {gid3(n, layer)} DNODE {d}"\n')
+    return "".join(struct), "".join(thermo), "".join(topo)
+
+def scatra_topology():
+    """Deck T: `DLINE-NODE TOPOLOGY` (DLINE 1 = the outer boundary nodes, DLINE 2 = every interface node)
+    and `DSURF-NODE TOPOLOGY` (every node on DSURFACE 1, the surface the source load acts on)."""
+    dline = "".join(f'  - "NODE {n} DLINE 1"\n' for n in outer) + "".join(f'  - "NODE {n} DLINE 2"\n' for n in iface_all)
+    dsurf = "".join(f'  - "NODE {n} DSURFACE 1"\n' for n in range(1, N2 + 1))
+    return dline, dsurf
+
+def slab_topology():
+    """Deck U: `DSURF-NODE TOPOLOGY` (the outer boundary nodes of BOTH layers on DSURFACE 1) and
+    `DVOL-NODE TOPOLOGY` (every node of both layers on DVOL 1)."""
+    dsurf = "".join(f'  - "NODE {gid3(n, layer)} DSURFACE 1"\n' for layer in (0, 1) for n in outer)
+    dvol = "".join(f'  - "NODE {n} DVOL 1"\n' for n in range(1, 2 * N2 + 1))
+    return dsurf, dvol
+
+# ── HOLE 2 (yours): the two decks and the two runs. What each deck must contain
+#    (the deck grammar, measured on this binary); the point conditions and the
+#    topology tables come from the served functions above, the rest is yours ──
 # THE TWO DECKS AND THE RUNS ARE YOURS. Build the 2-D node layout of this
 # subdomain (NX x NY quads on [X0,X1] x [Y0,Y1]), find the interface nodes,
 # write and run BOTH decks, and leave behind the names listed at the end.
@@ -221,16 +299,14 @@ atexit.register(_diagnose_at_exit)
 #   FUNCT1: SYMBOLIC_FUNCTION_OF_SPACE_TIME "<SRC_T>" and a DESIGN SURF NEUMANN
 #     entry (E 1, NUMDOF 1, ONOFF [1], VAL [1.0], FUNCT [1]) so the source
 #     enters the assembled RHS
-#   DESIGN LINE DIRICH CONDITIONS on the OUTER boundary line (VAL [0.0] or the
-#     task's outer T), DESIGN POINT DIRICH CONDITIONS one per INTERIOR interface
-#     node with VAL [partner_values(y)[0]] (the interface ENDPOINTS keep the
-#     outer datum: they are outer-boundary nodes on both sides)
-#   SCATRA FLUX CALC LINE CONDITIONS: - E: <the interface DLINE id>
-#   NODE COORDS ("NODE i COORD x y 0.0"), TRANSPORT ELEMENTS ("e TRANSP QUAD4
-#     n1 n2 n3 n4 MAT 1 TYPE Std"), DLINE-NODE TOPOLOGY (outer line AND the
-#     interface line), DNODE-NODE TOPOLOGY (one DNODE per interface point
-#     condition, ids continuous across ALL condition families), DSURF-NODE
-#     TOPOLOGY (every node, DSURFACE 1)
+#   DESIGN LINE DIRICH CONDITIONS on the OUTER boundary line (E 1, VAL [0.0] or
+#     the task's outer T); DESIGN POINT DIRICH CONDITIONS = the first string of
+#     scatra_point_conditions() (the partner's T on the interior interface nodes)
+#   SCATRA FLUX CALC LINE CONDITIONS: - E: 2   (the interface line)
+#   NODE COORDS ("NODE i COORD x y 0.0" from `nodes`), TRANSPORT ELEMENTS
+#     ("e TRANSP QUAD4 n1 n2 n3 n4 MAT 1 TYPE Std" from `quads`), DLINE-NODE
+#     TOPOLOGY and DSURF-NODE TOPOLOGY = scatra_topology(), DNODE-NODE TOPOLOGY
+#     = the second string of scatra_point_conditions()
 #
 # RUN U -- the displacement, PROBLEMTYPE "Thermo_Structure_Interaction" on the
 # one-element-thick slab (DIM 3): every 2-D node twice, at z = 0 and z = TZ
@@ -264,15 +340,13 @@ atexit.register(_diagnose_at_exit)
 #     layers, NUMDOF 3, ONOFF [1,1,1], VAL [0,0,0]) and DESIGN SURF THERMO
 #     DIRICH CONDITIONS (E 1, NUMDOF 1, ONOFF [1], VAL [0]) -- or the task's
 #     outer values
-#   DESIGN POINT DIRICH CONDITIONS: one entry per INTERIOR interface node AND
-#     per layer (two entries per 2-D node), NUMDOF 3, ONOFF [1,1,1],
-#     VAL [ux, uy, 0.0] from partner_values(y), FUNCT [0,0,0],
-#     TAG: monitor_reaction
-#   DESIGN POINT THERMO DIRICH CONDITIONS: the same DNODE ids, NUMDOF 1,
-#     ONOFF [1], VAL [T] from partner_values(y), FUNCT [0]
-#   NODE COORDS, STRUCTURE ELEMENTS, DNODE-NODE TOPOLOGY (one DNODE per point
-#     condition), DSURF-NODE TOPOLOGY (the outer nodes, both layers),
-#     DVOL-NODE TOPOLOGY (every node)
+#   DESIGN POINT DIRICH CONDITIONS, DESIGN POINT THERMO DIRICH CONDITIONS and
+#     DNODE-NODE TOPOLOGY = the three strings of slab_point_conditions()
+#   NODE COORDS: every 2-D node twice, "NODE {gid3(n, 0)} COORD x y 0.0" then
+#     "NODE {gid3(n, 1)} COORD x y {TZ}"; STRUCTURE ELEMENTS: one
+#     "e SOLIDSCATRA HEX8 n1 n2 n3 n4 {gid3(n1,1)} {gid3(n2,1)} {gid3(n3,1)}
+#     {gid3(n4,1)} MAT 1 KINEM linear TYPE Undefined" per quad;
+#     DSURF-NODE TOPOLOGY and DVOL-NODE TOPOLOGY = slab_topology()
 #
 # THE TOPOLOGY KEYWORDS, EXACTLY (measured: a script that wrote DVOLUME ran to
 # "finished normally" with its body force, heat source and u_z pin silently
@@ -293,22 +367,19 @@ atexit.register(_diagnose_at_exit)
 # non-zero DO NOT raise: fall through, the served check reads the log and the
 # decks and names the cause. OASiS does not run the solver for you.
 #
-# WHAT YOUR SOLVE MUST LEAVE BEHIND (the recovery below uses these names):
-#     nodes      the 2-D node list [(x, y), ...] indexed by 4C node id - 1
-#                (the same ids in run T; run U's 3-D ids may differ, the
-#                recovery maps its reactions by coordinate)
-#     interior   the INTERIOR interface node ids (1-based, run-T numbering),
-#                ordered along the interface; the two endpoints are dropped
-#     TZ         the slab thickness used in run U
+# WHAT YOUR SOLVE MUST LEAVE BEHIND (the recovery below uses these names;
+# nodes, interior and TZ are already defined above):
 #     OUT_T      run T's output prefix (its VTU is <OUT_T>-vtk-files/scatra-*.vtu)
 #     OUT_U      run U's output prefix (structure-*.vtu, thermo-*.vtu and
 #                <OUT_U>-*_monitor_dbc.yaml)
 #     DECK_U     the path of the run-U deck (its NODE COORDS map node gids to
 #                coordinates for the reaction files)
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
-# Build `nodes`, `interior`, write and run deck T and deck U as described
-# above, and leave behind the names listed there.
-nodes, interior, TZ = [], [], None
+# Assemble deck T (NODE COORDS from `nodes`, TRANSPORT ELEMENTS from `quads`, the
+# point conditions and topology from scatra_point_conditions()/scatra_topology())
+# and deck U (both layers of NODE COORDS via gid3, SOLIDSCATRA HEX8 elements from
+# `quads` with the second layer appended, slab_point_conditions(), slab_topology()),
+# run both, and leave behind OUT_T, OUT_U, DECK_U.
 OUT_T, OUT_U, DECK_U = "out_T", "out_U", "deck_U.4C.yaml"
 raise SystemExit("the deck-and-run hole above the recovery is not filled")
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end

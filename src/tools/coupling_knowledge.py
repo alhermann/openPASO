@@ -4255,7 +4255,9 @@ def _dune() -> str:
 """DUNE-fem as the DIRICHLET side of a partitioned coupling (CG P1).
 
 Reads ./config.json {"level":..,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
-"k":..,"reaction":..,"source_const":..,"iface":"left|right|bottom|top"}.
+"k":..,"reaction":..,"source_expr":"<f(x, y) as a Python expression, e.g.
+'-10*x**3*y**3/3 + 16*x**2*y/5 - 2'; '0.0' when there is none>","iface":"left|right|bottom|top"}
+("source_const": <number> is still accepted for a constant source).
 Contract: reads ./imports.json (partner's interface FIELD values at its points),
 imposes them as the interface Dirichlet trace, solves -div(k grad u) + c*u = f,
 and exports values: [] (the trace is imposed, not owned) plus its OWN consistent
@@ -4278,6 +4280,30 @@ X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV, CV, FV = CFG["k"], CFG.get("reaction", 0.0), CFG.get("source_const", 0.0)
 IF = CFG.get("iface", "right")
 HX, HY = (X1 - X0) / NX, (Y1 - Y0) / NY
+# THE SOURCE COMES FROM config source_expr (the task's f(x, y) as a Python
+# expression in x, y: '**' for powers, sin/cos/exp/sqrt/pi allowed), evaluated
+# here for the consistent load below and, through src_ufl(x), for YOUR form.
+# Measured: a run that carried the task's polynomial source nowhere (config
+# source_const 0.0, the same zero in its form) converged at every level to a
+# smooth field 1.2e-2 off the answer, order 0.00. A constant 'source_const'
+# still works; when both are absent the source is zero.
+SRC_EXPR = str(CFG.get("source_expr", "")).strip().replace("^", "**")
+import math as _math
+_SRC_CODE = compile(SRC_EXPR, "<source_expr>", "eval") if SRC_EXPR and SRC_EXPR not in ("0", "0.0") else None
+def F_SRC(px, py):
+    """The task's source f at a point, from config (a plain Python function)."""
+    if _SRC_CODE is None:
+        return float(FV)
+    return float(eval(_SRC_CODE, {"__builtins__": {}}, {"x": float(px), "y": float(py), "sin": _math.sin, "cos": _math.cos,
+                                                       "exp": _math.exp, "sqrt": _math.sqrt, "pi": _math.pi, "abs": abs}))
+def src_ufl(xc):
+    """The SAME source as a UFL expression of the spatial coordinate xc = SpatialCoordinate(space),
+    for the load of your form (`src_ufl(x) * v * dx`); the recovery below integrates F_SRC."""
+    import ufl as _ufl
+    if _SRC_CODE is None:
+        return float(FV)
+    return eval(_SRC_CODE, {"__builtins__": {}}, {"x": xc[0], "y": xc[1], "sin": _ufl.sin, "cos": _ufl.cos,
+                                                  "exp": _ufl.exp, "sqrt": _ufl.sqrt, "pi": _math.pi, "abs": abs})
 
 # ---- the partner's interface samples, mapped onto THIS side (handshake) ----
 imp = {}
@@ -4366,9 +4392,12 @@ C_UFL = _Constant(CV, name="c")
 # and solve. Leave behind exactly these names:
 #     uh       the solved P1 function (uh = space.interpolate(0, name="uh");
 #              scheme.solve(target=uh))
-#     F_SRC    your source f as a plain Python function of (x, y) -- the same f
-#              your form integrates, sampled at the vertices below for the
-#              consistent load; `lambda px, py: 0.0` when there is none
+#     (F_SRC is ALREADY DEFINED above from config source_expr, and src_ufl(x)
+#      is the same f for your form's load: `src_ufl(x) * v * dx` with
+#      x = SpatialCoordinate(space). Redefine F_SRC only when the task's source
+#      cannot be written as one expression string -- and then keep the form and
+#      F_SRC the same f: the recovery below integrates F_SRC and refuses a
+#      field whose interior residual against it is not small)
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
 
 # ── VERTEX-ORDERED ARRAYS FROM YOUR MESH (served: mesh access, not the solve) ──
@@ -4419,6 +4448,23 @@ for el in elements:                       # el = the 3 vertex ids of one triangl
     ue = u_vert[list(el)]
     resid[list(el)] += Ke @ ue + CV * (Me @ ue) - (Me @ f_vals[list(el)])
 h_if = HY if IF in ("left", "right") else HX
+# THE FORM AND THE SERVED LOAD MUST AGREE (served check). On the free interior
+# vertices r = K u - b_vol is only the quadrature difference between DUNE's
+# integration of the source and the P1-consistent load, a few percent of the
+# interface functional at most; a source or coefficient that is in config but
+# not in your form (or the reverse) leaves an O(1) interior residual.
+_ifset = set(_if_nodes)
+_outer_set = {_n for _n, (_px, _py) in enumerate(node_coords)
+              if (abs(_px - X0) < _EPS or abs(_px - X1) < _EPS or abs(_py - Y0) < _EPS or abs(_py - Y1) < _EPS)
+              and _n not in _ifset}
+_free = [_n for _n in range(len(node_coords)) if _n not in _ifset and _n not in _outer_set]
+_r_if = max((abs(float(resid[_n])) for _n in interior), default=0.0)
+_r_in = max((abs(float(resid[_n])) for _n in _free), default=0.0)
+if _r_if > 0 and _r_in > 0.3 * _r_if:
+    raise SystemExit(f"EXPORT SELF-CHECK: the interior residual of the served consistent load against your "
+                     f"solution is {_r_in:.3e}, {_r_in / _r_if:.2f} of the interface functional: your form and "
+                     f"config disagree on k ({KV}), the reaction ({CV}) or the source (source_expr={SRC_EXPR!r}) "
+                     f"-- the load of your form must be src_ufl(x) * v * dx with the same numbers. Nothing was exported")
 q_own = [float(-resid[n] / h_if) for n in interior]    # interior = interface ids[1:-1]
 co_out = [[float(node_coords[n][0]), float(node_coords[n][1])] for n in interior]
 # exports.json LAST (the driver takes its existence as proof of success).

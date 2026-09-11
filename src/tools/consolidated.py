@@ -7530,8 +7530,11 @@ below tell you what to fix.
 
 PARAMETERIZE BY LEVEL, OR THE BUDGET EATS YOU. Have each participant read
 its mesh size from a tiny ./config.json ({"level": 1, "nx": 5, "ny": 8})
-instead of hard-coding it; advancing a level is then: edit one number in
-each side's config, call couple again, save that level's outputs. Measured
+instead of hard-coding it; advancing a level is then: DOUBLE nx and ny
+(halve h) and set the next level in each side's config, call couple again,
+save that level's outputs. The level key is a label; only nx and ny change
+the mesh (measured: three runs raised the label alone and coupled the same
+mesh three times). Measured
 both ways: participants built this way ran all three levels in under two
 minutes of compute; sessions that regenerated their meshes by hand inside
 the participant spent their whole budget on level 1. Build the config

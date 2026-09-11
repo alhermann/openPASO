@@ -70,7 +70,7 @@ def test_three_levels_in_one_call(tmp_path, tools, monkeypatch):
     levels = [{"level": 1, "A": {"nx": 4}, "B": {"nx": 5}}, {"level": 2, "A": {"nx": 8}, "B": {"nx": 10}},
               {"level": 3, "A": {"nx": 16}, "B": {"nx": 20}}]
     out = _call(tools["couple_levels"], participants=json.dumps(parts), levels=json.dumps(levels),
-                critic_approved=True, max_iter=80, tol=1e-9, probe=False)
+                critic_approved=True, max_iter=80, tol=1e-9, probe=False, history_pattern="residual_level{k}.csv")
     assert out["all_levels_converged"], out
     assert out["levels_run"] == 3 and [x["level"] for x in out["levels"]] == [1, 2, 3]
     for k in (1, 2, 3):
@@ -99,6 +99,7 @@ def test_a_level_that_fails_stops_the_sequence(tmp_path, tools, monkeypatch):
     levels = [{"level": 1, "A": {"nx": 4}, "B": {"nx": 4}}, {"level": 2, "A": {"nx": 8}, "B": {"nx": 8}}]
     out = _call(tools["couple_levels"], participants=json.dumps(parts), levels=json.dumps(levels),
                 critic_approved=True, max_iter=20, tol=1e-9, probe=False)
+    assert (tmp_path / "coupling_history_level1.csv").is_file()      # the neutral default name
     assert not out["all_levels_converged"] and out["levels_run"] == 2
     assert out["levels"][0]["converged"] and not out["levels"][1]["converged"]
     assert "LEVEL 2 DID NOT CONVERGE" in out["next_step"]

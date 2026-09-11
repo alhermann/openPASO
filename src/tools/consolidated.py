@@ -5764,7 +5764,8 @@ def register_consolidated_tools(mcp: FastMCP):
     @mcp.tool()
     async def couple_levels(participants: str, levels: str, critic_approved: bool = False,
                             max_iter: int = 150, tol: float = 1e-6, accelerator: str = "aitken",
-                            theta: float = 0.5, probe: bool = True, history_dir: str = "") -> str:
+                            theta: float = 0.5, probe: bool = True, history_dir: str = "",
+                            history_pattern: str = "coupling_history_level{k}.csv") -> str:
         """EVERY PRESCRIBED MESH LEVEL IN ONE CALL -- the same partitioned coupling as
         `couple`, run once per level of a task's mesh sequence.
 
@@ -5786,10 +5787,12 @@ def register_consolidated_tools(mcp: FastMCP):
           * each level starts from the previous level's converged interface
             state (the driver's warm start), which is why the levels must run in
             the same work directories;
-          * each level writes <history_dir>/residual_level<k>.csv (the measured
-            iteration history, ready as the task's coupling-history file) and
-            keeps each side's solver console as participant_output_level<k>.log
-            next to its exports.json;
+          * each level writes its measured iteration history to
+            <history_dir>/<history_pattern with {k} = the level> -- pass
+            `history_pattern` as the per-level history file name YOUR TASK
+            prescribes (it must contain "{k}"); the default is a neutral name
+            you would have to rename -- and keeps each side's solver console
+            as participant_output_level<k>.log next to its exports.json;
           * the reply carries, per level, the verdict, the iteration count, the
             history path and the interface tables ready to save. It stops at the
             first level that does not converge; fix that level and call again
@@ -5819,6 +5822,9 @@ def register_consolidated_tools(mcp: FastMCP):
         cell_work = os.environ.get("OASIS_CELL_WORKDIR")
         if not history_dir:
             history_dir = cell_work or str(Path(specs[0].get("work_dir", ".")).resolve().parent)
+        if "{k}" not in (history_pattern or ""):
+            return json.dumps({"error": "history_pattern must contain '{k}' (the level number), e.g. the "
+                                        "per-level history file name your task prescribes"})
         # THE REVIEW IS RESOLVED HERE, from the server's own record, against the
         # same canonical text `couple` binds to (the per-level calls below bind
         # to it again): a self-reported flag decides nothing.
@@ -5856,7 +5862,7 @@ def register_consolidated_tools(mcp: FastMCP):
                 cfg_path.write_text(json.dumps(cfg, indent=2))
             reply = await couple(participants, max_iter=max_iter, tol=tol, accelerator=accelerator,
                                  theta=theta, probe=probe, critic_approved=critic_approved,
-                                 history_path=str(Path(history_dir) / f"residual_level{k}.csv"),
+                                 history_path=str(Path(history_dir) / history_pattern.replace("{k}", str(k))),
                                  iface_level=k)
             try:
                 rep = json.loads(reply)
@@ -7751,9 +7757,11 @@ across the runs that did, the hand-rolled exchange stalls (residuals
 9.92->9.98 over 100 iterations; constant 1.0) and cannot show two codes coupled.
 One couple call per mesh level, on the exact levels your task prescribes --
 or ONE couple_levels(participants=..., levels='[{"level": 1, "A": {"nx": ..,
-"ny": ..}, "B": {...}}, ...]') call for the whole sequence: it writes each side's
-config.json per level, warm-starts each level from the previous one, and keeps
-every level's history, console and interface tables (measured: couplings proven
+"ny": ..}, "B": {...}}, ...]', history_pattern='<the per-level history file
+name your task prescribes, with {k} for the level>') call for the whole
+sequence: it writes each side's config.json per level, warm-starts each level
+from the previous one, and keeps every level's history, console and interface
+tables (measured: couplings proven
 at level 1 ran out of wall clock before level 3 when every level cost ten calls).
 
 DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH -- THE CONTRACT EXISTS

@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False ::  <module>\n    main()\n  File \"/tmp/tmp_2y3ml91/participant_B.py\", line 200, in main\n    mp, nid = build_model()\n              ^^^^^^^^^^^^^\n  File \"/tmp/tmp_2y3ml91/participant_B.py\", line 139, in build_model\n    mp = KM.ModelPart(KM.MainModelPart(), \"thermal_subdomain\")\n                      ^^^^^^^^^^^^^^^^\n  File \"/home/alexander/Schreibtisch/open-fem-agent/.venv/lib/python3.12/site-packages/KratosMultiphysics/__init__.py\", line 64, in __getattr__\n    raise AttributeError(f\"Module {__name__} has no attribute {name}.\")\nAttributeError: Module KratosMultiphysics has no attribute MainModelPart.\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 338.6,
+  "lines": 355
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpa6dqf078/participant_B.py\", line 440, in <module>\n    main()\n  File \"/tmp/tmpa6dqf078/participant_B.py\", line 196, in main\n    mp = ModelPart()\n         ^^^^^^^^^^^\nTypeError: Kratos.ModelPart: No constructor defined!\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 614.5,
+  "lines": 456
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpn_r29hwt/participant_B.py\", line 442, in <module>\n    main()\n  File \"/tmp/tmpn_r29hwt/participant_B.py\", line 206, in main\n    mp, nid = build_model()\n              ^^^^^^^^^^^^^\n  File \"/tmp/tmpn_r29hwt/participant_B.py\", line 138, in build_model\n    mp = KM.ModelPart()\n         ^^^^^^^^^^^^^^\nTypeError: Kratos.ModelPart: No constructor defined!\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 270.2,
+  "lines": 458
+ }
+]

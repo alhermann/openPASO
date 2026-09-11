@@ -536,8 +536,11 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   (participant_kratos_neumann.py, four elided holes, conservation
   self-check) was validated unelided on the manufactured problem: flux
   error 8.2e-2, trace 1.8e-2 at 8x10. `micro_kratos_neumann.py` now runs
-  the worker step against that grade (one repair round); first trial
-  running alongside round 16.
+  the worker step against that grade (one repair round). kratosN1: 0/3,
+  all six attempts on ONE class -- an invented model-part constructor
+  (`KM.MainModelPart()`, `KM.ModelPart(...)`) in the elided mesh hole;
+  Kratos fact 8 now states the idiom (`model = KM.Model();
+  mp = model.CreateModelPart(...)`, commit db10f676); kratosN2 running on it.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

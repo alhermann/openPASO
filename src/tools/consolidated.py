@@ -2354,7 +2354,15 @@ _DECIDING_FACTS = {
         "`mp.CreateNewNode(id, x, y, 0.0)` and `mp.CreateNewElement('LaplacianElement2D3N', "
         "id, [n1, n2, n3], mp.GetProperties()[1])`. There is no `KM.MainModelPart` and no "
         "`KM.ModelPart(...)` constructor to call yourself (`Module KratosMultiphysics has no "
-        "attribute MainModelPart` -- a trial script died there twice, before and after a repair)."),
+        "attribute MainModelPart` -- a trial script died there twice, before and after a repair).\n"
+        "9. THE SOLVE STACK LIVES IN THE CORE NAMESPACE, EXACTLY (measured): "
+        "`KM.VariableUtils().AddDof(KM.TEMPERATURE, KM.REACTION_FLUX, mp)` (there is no `KM.AddDof`); "
+        "`scheme = KM.ResidualBasedIncrementalUpdateStaticScheme()`; "
+        "`builder = KM.ResidualBasedBlockBuilderAndSolver(KM.SkylineLUFactorizationSolver())`; "
+        "`strategy = KM.ResidualBasedLinearStrategy(mp, scheme, builder, True, False, False, False)`; "
+        "`strategy.Initialize(); strategy.Solve()`. None of these is in StructuralMechanicsApplication "
+        "(`cannot import name ResidualBasedLinearStrategy from ...StructuralMechanicsApplication` -- a "
+        "trial script died there; its repair died on `KM.AddDof`)."),
 }
 _DECIDING_FACTS["dune-fem"] = _DECIDING_FACTS["dune"]
 _DECIDING_FACTS["dunefem"] = _DECIDING_FACTS["dune"]

@@ -5297,6 +5297,32 @@ def register_consolidated_tools(mcp: FastMCP):
                             _src.read_text(errors="replace"))
                 except OSError:
                     pass
+        # THE MESH MUST CHANGE BETWEEN LEVELS. Measured (round 27, a cell with time for three
+        # levels): the same 693 / 957 dofs on all three, graded as no refinement at all. The
+        # captured consoles carry each side's own NDOF line, so the tool compares this level's
+        # with the previous level's and says so BEFORE the agent moves on. Reads the agent's own
+        # files; changes nothing.
+        _mesh_note = ""
+        if _lvl_for_log and _lvl_for_log >= 2:
+            try:
+                # any "NDOF = n" on a console line (the run-log contract's bare line is the audit's business)
+                _dof_any = re.compile(r"\bN_?DOFS?\s*[=:]\s*(\d+)", re.I)
+                _same = []
+                for _p in parts:
+                    _cur = Path(_p.work_dir) / f"participant_output_level{_lvl_for_log}.log"
+                    _prev = Path(_p.work_dir) / f"participant_output_level{_lvl_for_log - 1}.log"
+                    if _cur.is_file() and _prev.is_file():
+                        _mc = _dof_any.findall(_cur.read_text(errors="replace"))
+                        _mp = _dof_any.findall(_prev.read_text(errors="replace"))
+                        if _mc and _mp and _mc[-1] == _mp[-1]:
+                            _same.append(f"{_p.name} (NDOF {_mc[-1]} at both levels)")
+                if _same:
+                    _mesh_note = ("MESH UNCHANGED FROM LEVEL " + str(_lvl_for_log - 1) + " on " + ", ".join(_same)
+                                  + ": this level is NOT a refinement and counts as not run. Halve h -- double nx "
+                                  "and ny in that side's config (or hand couple_levels the levels, which does it) -- "
+                                  "and couple level " + str(_lvl_for_log) + " again before anything else.")
+            except Exception:                                # noqa: BLE001
+                _mesh_note = ""
         iface_csv = None
         if r.converged and (r.exports or {}):
           try:                       # a malformed export must not destroy
@@ -5827,6 +5853,8 @@ def register_consolidated_tools(mcp: FastMCP):
                          "field and interface dumps stay on disk, so every level's deliverables can be "
                          "written afterwards.")
             _lead = _one_call + ("\n" + _lead if _lead else "")
+        if _mesh_note:
+            _lead = _mesh_note + ("\n" + _lead if _lead else "")
         # THE LADDER RIDES ON EVERY couple() REPLY: the next unmet step, from
         # the files, as a sub-agent brief -- so the agent that just coupled a
         # level is told the one thing to do next instead of judging the job.

@@ -113,3 +113,26 @@ def test_a_three_component_exchange_does_not_crash_the_tool(tmp_path, couple_too
     assert (out.get("relaxation") or {}).get("mode") == "anderson", out.get("relaxation")
     assert out["exports"]["A"]["first_values"][0] == [pytest.approx(v) for v in out["exports"]["A"]["first_values"][0]]
     assert len(out["exports"]["A"]["first_values"][0]) == 3
+
+
+def test_an_unchanged_mesh_between_levels_leads_the_reply(tmp_path, couple_tool, monkeypatch):
+    """Round 27: a cell coupled three levels on the same mesh (NDOF 693 -> 693 -> 693) and was graded as no
+    refinement. The tool compares this level's NDOF line with the previous level's captured console and
+    says so first."""
+    import asyncio, inspect
+    monkeypatch.chdir(tmp_path)
+    for name, expr in (("A", "0.3 * other + 1.0"), ("B", "0.5 * other + 0.2")):
+        d = tmp_path / f"side_{name}"
+        d.mkdir()
+        (d / "part.py").write_text(TOY.replace("{A}", expr))
+    parts = [{"name": "A", "command": [sys.executable, "part.py"], "work_dir": str(tmp_path / "side_A"), "imports_from": ["B"]},
+             {"name": "B", "command": [sys.executable, "part.py"], "work_dir": str(tmp_path / "side_B"), "imports_from": ["A"]}]
+    for lvl in (1, 2):
+        r = couple_tool(participants=json.dumps(parts), max_iter=60, tol=1e-8, critic_approved=True, iface_level=lvl, probe=False)
+        if inspect.iscoroutine(r):
+            r = asyncio.run(r)
+        out = json.loads(str(r))
+        assert out.get("converged"), out.get("error")
+    lead = out.get("what_to_fix_next") or ""
+    assert lead.startswith("MESH UNCHANGED FROM LEVEL 1"), lead[:300]
+    assert "A (NDOF 7 at both levels)" in lead and "B (NDOF 7 at both levels)" in lead

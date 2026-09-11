@@ -70,12 +70,19 @@ FILL_4C_H2 = '# ---- MY FILL, hole 2 (validation only, never served): the two de
 
 
 @pytest.mark.skipif(not (FOURC.is_file() and FENICS_PY.is_file()), reason="4C or the dolfinx python not on this host")
-def test_the_4c_thermoelastic_contract_recovers_flux_and_traction(tmp_path):
+@pytest.mark.parametrize("deck_u_as", ["path", "text"])
+def test_the_4c_thermoelastic_contract_recovers_flux_and_traction(tmp_path, deck_u_as):
+    """deck_u_as='text': the worker leaves the assembled deck TEXT in DECK_U instead of its
+    file name (measured on a trial script that was otherwise exact); the recovery takes both."""
     m = _manufactured()
     src = (PART / "participant_fourc_thermoelastic.py").read_text()
     a1 = src.index(BEGIN); b1 = src.index(END, a1) + len(END)
     a2 = src.index(BEGIN, b1); b2 = src.index(END, a2) + len(END)
-    (tmp_path / "participant_A.py").write_text(src[:a1] + FILL_4C_H1 + src[b1:a2] + FILL_4C_H2 + src[b2:])
+    fill2 = FILL_4C_H2
+    if deck_u_as == "text":
+        fill2 = fill2 + "DECK_U = HEADER_U + deck_U_tables()\n"
+        assert "DECK_U = HEADER_U" in fill2
+    (tmp_path / "participant_A.py").write_text(src[:a1] + FILL_4C_H1 + src[b1:a2] + fill2 + src[b2:])
     f4 = lambda e: str(e).replace("**", "^")
     (tmp_path / "config.json").write_text(json.dumps({
         "level": 1, "nx": 8, "ny": 10, "x0": 0.0, "x1": LX, "y0": 0.0, "y1": LY, "k": KV, "lam": LAM, "mu": MU,

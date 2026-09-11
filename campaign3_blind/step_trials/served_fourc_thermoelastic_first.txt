@@ -376,7 +376,8 @@ def deck_U_tables():
 #    the served tables: HEADER_T + deck_T_tables() and HEADER_U + deck_U_tables().
 #    Run each with the binary at config fourc_bin (libraries on fourc_ld), line-buffered
 #    (stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1); on a non-zero exit FALL
-#    THROUGH, the served check reads the log. LEAVE BEHIND: OUT_T, OUT_U, DECK_U.
+#    THROUGH, the served check reads the log. LEAVE BEHIND: OUT_T and OUT_U (the two
+#    output prefixes) and DECK_U (the FILE NAME you wrote deck U to, e.g. "deck_U.4C.yaml").
 # ─────────────────────────────────────────────────────────────────────────
 # THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
 #
@@ -461,7 +462,23 @@ if _dT > 0.05:
 
 # REACTIONS -> TRACTION: one yaml per monitored condition (node gid ZERO-based, force f)
 _gid_xy = {}
-for _ln in Path(DECK_U).read_text(errors="ignore").splitlines():
+# DECK_U may be the deck's file name or the deck text itself (measured: a worker
+# left the assembled text in it); a third way is any TSI deck file next to us.
+_deck_u_txt = ""
+try:
+    if isinstance(DECK_U, str) and len(DECK_U) < 400 and Path(DECK_U).is_file():
+        _deck_u_txt = Path(DECK_U).read_text(errors="ignore")
+    elif isinstance(DECK_U, str) and "NODE COORDS" in DECK_U:
+        _deck_u_txt = DECK_U
+except OSError:
+    _deck_u_txt = ""
+if not _deck_u_txt:
+    for _cand in sorted(glob.glob("*.yaml")):
+        _t = Path(_cand).read_text(errors="ignore")
+        if "Thermo_Structure_Interaction" in _t and "NODE COORDS" in _t:
+            _deck_u_txt = _t
+            break
+for _ln in _deck_u_txt.splitlines():
     _m = re.match(r'\s*-\s*"?NODE\s+(\d+)\s+COORD\s+(\S+)\s+(\S+)\s+(\S+)"?', _ln)
     if _m:
         _gid_xy[int(_m.group(1))] = (round(float(_m.group(2)), 9), round(float(_m.group(3)), 9))
@@ -667,24 +684,9 @@ returns `history` and writes its finite measured values directly to the requeste
 CSV. Do not retype or synthesize that sequence. Report `iterations` (also copied
 to `history_file.driver_iterations`) as your coupling-iteration count; `rows_written` is
 normally one smaller because iteration 1 has no previous iterate and therefore
-no residual. Get ONE participant writing exports.json standalone first, then the
-second, then call couple: that order costs the fewest attempts.
-
-A RESIDUAL THAT COLLAPSES IN A FEW STEPS IS USUALLY A DEAD PARTICIPANT.
-
-If the driver reports a participant as UNRESPONSIVE, it means its exports were
-BYTE-IDENTICAL across iterations in which its imports changed -- so its output
-is not a function of its input, and the coupling is not coupled. The residual
-then falls to ~1e-18 in three or four steps, because nothing is moving. That
-looks like spectacular convergence and is worth nothing.
-
-    a real coupling, even a very stiff one (200:1), took 12 iterations to
-    1.1e-22 with both sides reported responsive
-    a dead one reached 1.5e-18 in 4 steps and was reported unresponsive
-
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,196 OF 77,520 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,170 OF 78,279 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 ────────────────────────────────────────

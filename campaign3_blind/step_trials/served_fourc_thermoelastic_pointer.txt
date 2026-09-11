@@ -354,7 +354,8 @@ def deck_U_tables():
 #    the served tables: HEADER_T + deck_T_tables() and HEADER_U + deck_U_tables().
 #    Run each with the binary at config fourc_bin (libraries on fourc_ld), line-buffered
 #    (stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1); on a non-zero exit FALL
-#    THROUGH, the served check reads the log. LEAVE BEHIND: OUT_T, OUT_U, DECK_U.
+#    THROUGH, the served check reads the log. LEAVE BEHIND: OUT_T and OUT_U (the two
+#    output prefixes) and DECK_U (the FILE NAME you wrote deck U to, e.g. "deck_U.4C.yaml").
 # ─────────────────────────────────────────────────────────────────────────
 # THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
 #
@@ -439,7 +440,23 @@ if _dT > 0.05:
 
 # REACTIONS -> TRACTION: one yaml per monitored condition (node gid ZERO-based, force f)
 _gid_xy = {}
-for _ln in Path(DECK_U).read_text(errors="ignore").splitlines():
+# DECK_U may be the deck's file name or the deck text itself (measured: a worker
+# left the assembled text in it); a third way is any TSI deck file next to us.
+_deck_u_txt = ""
+try:
+    if isinstance(DECK_U, str) and len(DECK_U) < 400 and Path(DECK_U).is_file():
+        _deck_u_txt = Path(DECK_U).read_text(errors="ignore")
+    elif isinstance(DECK_U, str) and "NODE COORDS" in DECK_U:
+        _deck_u_txt = DECK_U
+except OSError:
+    _deck_u_txt = ""
+if not _deck_u_txt:
+    for _cand in sorted(glob.glob("*.yaml")):
+        _t = Path(_cand).read_text(errors="ignore")
+        if "Thermo_Structure_Interaction" in _t and "NODE COORDS" in _t:
+            _deck_u_txt = _t
+            break
+for _ln in _deck_u_txt.splitlines():
     _m = re.match(r'\s*-\s*"?NODE\s+(\d+)\s+COORD\s+(\S+)\s+(\S+)\s+(\S+)"?', _ln)
     if _m:
         _gid_xy[int(_m.group(1))] = (round(float(_m.group(2)), 9), round(float(_m.group(3)), 9))
@@ -536,7 +553,7 @@ print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
 ──────────────────────────────────────────────────────────────────────
 THIS PAYLOAD IS TRUNCATED HERE. 44,797 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 31,743 of 76,174 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 32,502 of 76,933 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
 
@@ -602,32 +619,9 @@ answer is wrong, which is the worst failure mode available.
 
 PER-NODE DIRICHLET DATA IS EXACT, AND NEEDS NO FITTED FUNCTION.
 A Dirichlet-side participant receives a DISCRETE interface profile, one value per
-interface node. `DESIGN LINE DIRICH CONDITIONS` takes ONE scalar VAL (times an
-optional FUNCT), so it cannot carry that profile -- but one POINT condition PER
-NODE can, and it is exact:
-
-  DESIGN POINT DIRICH CONDITIONS:
-    - E: 1
-      NUMDOF: 1
-      ONOFF: [1]
-      VAL: [0.00016283346722727]        # this node's imported value
-      FUNCT: [0]
-    - E: 2
-      NUMDOF: 1
-      ONOFF: [1]
-      VAL: [0.00030035999458698]
-      FUNCT: [0]
-  DNODE-NODE TOPOLOGY:
-    - "NODE 17 DNODE 1"
-    - "NODE 34 DNODE 2"
-
-One `E` id per interface node, one topology line mapping that node to it. The
-values above are verbatim from a real deck that ran to completion.
-
-DO NOT least-squares-fit the profile into a SYMBOLIC_FUNCTION_OF_SPACE_TIME
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,141 OF 52,984 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,161 OF 53,743 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 ────────────────────────────────────────

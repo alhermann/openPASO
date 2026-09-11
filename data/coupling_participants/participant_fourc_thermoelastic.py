@@ -252,7 +252,8 @@ def deck_U_tables():
 #    the served tables: HEADER_T + deck_T_tables() and HEADER_U + deck_U_tables().
 #    Run each with the binary at config fourc_bin (libraries on fourc_ld), line-buffered
 #    (stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1); on a non-zero exit FALL
-#    THROUGH, the served check reads the log. LEAVE BEHIND: OUT_T, OUT_U, DECK_U.
+#    THROUGH, the served check reads the log. LEAVE BEHIND: OUT_T and OUT_U (the two
+#    output prefixes) and DECK_U (the FILE NAME you wrote deck U to, e.g. "deck_U.4C.yaml").
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
 # Write HEADER_T and HEADER_U (the sections above, as strings), write the decks
 # as HEADER_T + deck_T_tables() and HEADER_U + deck_U_tables(), run both, and
@@ -326,7 +327,23 @@ if _dT > 0.05:
 
 # REACTIONS -> TRACTION: one yaml per monitored condition (node gid ZERO-based, force f)
 _gid_xy = {}
-for _ln in Path(DECK_U).read_text(errors="ignore").splitlines():
+# DECK_U may be the deck's file name or the deck text itself (measured: a worker
+# left the assembled text in it); a third way is any TSI deck file next to us.
+_deck_u_txt = ""
+try:
+    if isinstance(DECK_U, str) and len(DECK_U) < 400 and Path(DECK_U).is_file():
+        _deck_u_txt = Path(DECK_U).read_text(errors="ignore")
+    elif isinstance(DECK_U, str) and "NODE COORDS" in DECK_U:
+        _deck_u_txt = DECK_U
+except OSError:
+    _deck_u_txt = ""
+if not _deck_u_txt:
+    for _cand in sorted(glob.glob("*.yaml")):
+        _t = Path(_cand).read_text(errors="ignore")
+        if "Thermo_Structure_Interaction" in _t and "NODE COORDS" in _t:
+            _deck_u_txt = _t
+            break
+for _ln in _deck_u_txt.splitlines():
     _m = re.match(r'\s*-\s*"?NODE\s+(\d+)\s+COORD\s+(\S+)\s+(\S+)\s+(\S+)"?', _ln)
     if _m:
         _gid_xy[int(_m.group(1))] = (round(float(_m.group(2)), 9), round(float(_m.group(3)), 9))

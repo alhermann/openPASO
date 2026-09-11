@@ -5787,8 +5787,11 @@ def register_consolidated_tools(mcp: FastMCP):
             from it (the earlier levels' files stay).
 
         Everything `couple` checks is checked here too (it IS couple, per level).
-        `history_dir` defaults to the task's working directory. Pass
-        critic_approved=True after the critic reviewed the participants.
+        `history_dir` defaults to the task's working directory. THE CRITIC REVIEW
+        IS THE ONE `couple` TAKES: submit_critic_review(solver='couple',
+        coupling_args=<{"participants": ..., "max_iter": ..., "tol": ...,
+        "accelerator": ..., "theta": ..., "probe": ...} exactly as passed here>),
+        then critic_approved=True; OASiS looks that review up for every level.
         """
         try:
             lv = json.loads(levels)
@@ -5807,6 +5810,13 @@ def register_consolidated_tools(mcp: FastMCP):
         cell_work = os.environ.get("OASIS_CELL_WORKDIR")
         if not history_dir:
             history_dir = cell_work or str(Path(specs[0].get("work_dir", ".")).resolve().parent)
+        # THE REVIEW IS RESOLVED HERE, from the server's own record, against the
+        # same canonical text `couple` binds to (the per-level calls below bind
+        # to it again): a self-reported flag decides nothing.
+        _reviewed, _review_note = _critic_state(
+            "couple", _coupling_setup_text(participants=participants, max_iter=max_iter, tol=tol,
+                                           accelerator=accelerator, theta=theta, monolithic="",
+                                           probe=probe))
         out_levels = []
         for entry in lv:
             try:
@@ -5870,6 +5880,8 @@ def register_consolidated_tools(mcp: FastMCP):
                    f"from {bad} on -- the earlier levels' files and histories stay.")
         return json.dumps({"all_levels_converged": all_ok, "levels_run": len(out_levels),
                            "levels_requested": len(lv), "history_dir": history_dir,
+                           "critic_review": {"reviewed": bool(_reviewed), "note": _review_note,
+                                             "self_reported_flag": bool(critic_approved)},
                            "levels": out_levels, "next_step": nxt}, indent=2)
 
     @mcp.tool()

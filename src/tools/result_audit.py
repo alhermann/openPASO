@@ -2490,7 +2490,8 @@ def wrong_level_run_log_findings(work: Path) -> list[dict]:
     side's captured participant_output_level<k>.log and names the file to copy."""
     import re as _re
     out = []
-    dof_any = _re.compile(r"\bN_?DOFS?\s*[=:]\s*(\d+)", _re.I)
+    # the grader reads the FIRST canonical `NDOF = <n>` line of a run log; so does this check
+    dof_any = _re.compile(r"^\s*NDOF\s*=\s*(\d+)\s*$", _re.M)
     consoles = {}
     for q in work.rglob("participant_output_level*.log"):
         if _SCRATCH & set(q.relative_to(work).parts[:-1]):
@@ -2504,7 +2505,7 @@ def wrong_level_run_log_findings(work: Path) -> list[dict]:
         except OSError:
             continue
         if vals:
-            consoles.setdefault(int(m.group(1)), {})[side_dir] = (vals[-1], q)
+            consoles.setdefault(int(m.group(1)), {})[side_dir] = (vals[0], q)
     if not consoles:
         return out
     for q in _level_logs(work):
@@ -2523,10 +2524,10 @@ def wrong_level_run_log_findings(work: Path) -> list[dict]:
         if len(match) != 1:
             continue
         d, (ndof, cpath) = match[0]
-        if vals[-1] != ndof:
-            other = [j for j, sides in consoles.items() if sides.get(d, (None,))[0] == vals[-1]]
+        if vals[0] != ndof:
+            other = [j for j, sides in consoles.items() if sides.get(d, (None,))[0] == vals[0]]
             out.append({"sequence": f"run log level {k} side {side}", "values": [],
-                        "finding": (f"RUN LOG FROM THE WRONG LEVEL: {q.relative_to(work)} carries NDOF {vals[-1]} while "
+                        "finding": (f"RUN LOG FROM THE WRONG LEVEL: {q.relative_to(work)} carries NDOF {vals[0]} while "
                                     f"side {side}'s captured console for level {k} says NDOF {ndof}"
                                     + (f" -- it is level {other[0]}'s console" if other else "")
                                     + f". Copy {cpath.relative_to(work)} over it verbatim; a run log from another level "

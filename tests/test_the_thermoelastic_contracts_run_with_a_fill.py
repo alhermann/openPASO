@@ -93,6 +93,10 @@ def test_the_4c_thermoelastic_contract_recovers_flux_and_traction(tmp_path, deck
         "source_uy": f4(m["fy"]), "fourc_bin": str(FOURC), "fourc_ld": "/opt/4C-dependencies/lib"}))
     imp = _imports(m, 10)
     (tmp_path / "imports.json").write_text(json.dumps({"B": imp["P"]}))
+    # the coupling tool's own capture of an EARLIER run lies in the same directory; it must never be
+    # re-echoed (measured: six three-level couplings lost when each run's stdout began with the previous
+    # level's capture and the grader read the stale first NDOF line)
+    (tmp_path / "participant_output.log").write_text("iteration: 9\n--- stdout ---\n── 4C console stale.log ──\n4C banner\nNDOF = 999\n")
     r = subprocess.run([str(FENICS_PY), "participant_A.py"], cwd=tmp_path, capture_output=True, text=True, timeout=900,
                        env=dict(os.environ, LD_LIBRARY_PATH="/opt/4C-dependencies/lib", MPLBACKEND="Agg"))
     assert r.returncode == 0, r.stderr[-2000:]
@@ -102,6 +106,8 @@ def test_the_4c_thermoelastic_contract_recovers_flux_and_traction(tmp_path, deck
     from blind_eval.evidence import PER_CODE_SIGNATURES
     import re as _re
     assert any(_re.search(p, r.stdout, _re.M) for p in PER_CODE_SIGNATURES["4C"]), r.stdout[-1500:]
+    assert "NDOF = 999" not in r.stdout and r.stdout.count("── 4C console") == 2, r.stdout.count("── 4C console")
+    assert _re.search(r"^\s*NDOF\s*=\s*(\d+)\s*$", r.stdout, _re.M).group(1) == "297"           # the FIRST canonical line is this run's
     e = json.loads((tmp_path / "exports.json").read_text())
     assert e["values"] == []
     C = np.asarray(e["coordinates"], float); Q = np.asarray(e["normal_fluxes"], float)

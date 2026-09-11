@@ -24,6 +24,7 @@ for d in imp.values():
     other = float(v[0])
 mine = {A}
 print("toy solver console: NDOF = 7")
+print("NDOF = 7")            # the canonical run-log line every served participant prints
 Path("exports.json").write_text(json.dumps({"field_name": "u", "n_points": 1, "coordinates": [[0.5, 0.0]],
     "values": [mine], "normal_fluxes": [0.0]}))
 '''

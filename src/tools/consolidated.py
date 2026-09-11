@@ -5306,7 +5306,7 @@ def register_consolidated_tools(mcp: FastMCP):
         if _lvl_for_log and _lvl_for_log >= 2:
             try:
                 # any "NDOF = n" on a console line (the run-log contract's bare line is the audit's business)
-                _dof_any = re.compile(r"\bN_?DOFS?\s*[=:]\s*(\d+)", re.I)
+                _dof_any = re.compile(r"^\s*NDOF\s*=\s*(\d+)\s*$", re.M)   # the grader's canonical line, FIRST match
                 _same = []
                 for _p in parts:
                     _cur = Path(_p.work_dir) / f"participant_output_level{_lvl_for_log}.log"
@@ -5314,8 +5314,8 @@ def register_consolidated_tools(mcp: FastMCP):
                     if _cur.is_file() and _prev.is_file():
                         _mc = _dof_any.findall(_cur.read_text(errors="replace"))
                         _mp = _dof_any.findall(_prev.read_text(errors="replace"))
-                        if _mc and _mp and _mc[-1] == _mp[-1]:
-                            _same.append(f"{_p.name} (NDOF {_mc[-1]} at both levels)")
+                        if _mc and _mp and _mc[0] == _mp[0]:
+                            _same.append(f"{_p.name} (NDOF {_mc[0]} at both levels)")
                 if _same:
                     _mesh_note = ("MESH UNCHANGED FROM LEVEL " + str(_lvl_for_log - 1) + " on " + ", ".join(_same)
                                   + ": this level is NOT a refinement and counts as not run. Halve h -- double nx "

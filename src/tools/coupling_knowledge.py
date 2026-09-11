@@ -2969,9 +2969,13 @@ import meshio
 #    output), never by the NDOF line alone (measured: run logs holding only the driver header and the
 #    NDOF line were graded as no per-code execution evidence).
 for _lg in sorted(glob.glob("*.log")):
+    if _lg.startswith("participant_output") or "level" in _lg:      # the coupling tool's own captures, never re-echoed
+        continue
     try:
         _ltxt = open(_lg, errors="ignore").read()
     except OSError:
+        continue
+    if "── 4C console" in _ltxt:                                     # an earlier echo, not a deck console
         continue
     if "4C" in _ltxt[:4000] or "PROC 0" in _ltxt or "Finalised step" in _ltxt:
         print(f"── 4C console {_lg} ──")

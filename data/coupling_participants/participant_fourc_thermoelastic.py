@@ -205,9 +205,13 @@ import meshio  # noqa: E402
 #    time-integration output), never by the NDOF line alone. Measured: a cell whose run logs held
 #    only the driver header and the NDOF line was graded as no per-code execution evidence.
 for _lg in sorted(glob.glob("*.log")):
+    if _lg.startswith("participant_output") or "level" in _lg:      # the coupling tool's own captures, never re-echoed
+        continue
     try:
         _txt = Path(_lg).read_text(errors="ignore")
     except OSError:
+        continue
+    if "── 4C console" in _txt:                                      # an earlier echo, not a deck console
         continue
     if "4C" in _txt[:4000] or "PROC 0" in _txt or "Finalised step" in _txt:
         print(f"── 4C console {_lg} ──")

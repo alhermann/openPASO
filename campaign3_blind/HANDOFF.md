@@ -408,6 +408,7 @@ and several fixes **lowered** the apparent uplift:
 | 33 | 26de59c4 | C3 5961-63, C1 6901-03, C2 6911-13 (launched 21:30, graded 22:15) | 2/9 CORRECT: C3 5962 (order 1.98), C3 5963 (order 2.01). C3 5961 three proven levels, level-3 run log without the NDOF line (wall); C2 6911 three proven levels with run logs reading 54/957 at every level; C2 6912 and 6913 CONFIDENTLY_WRONG (three levels, orders 1.10 and 0.04); C1 6901-03 HONEST_INCOMPLETE. TALLY 21. |
 | 34 | a145a00c | C3 5971-73, C1 6921-23, C2 6931-33 (launched 22:16, graded 23:02) | 1/9 CORRECT: C3 5973 (order 1.98). C3 5972 level 1 proven; C3 5971 NO_SOLUTION_FILES; six HONEST_INCOMPLETE (all three C1, all three C2). TALLY 22. |
 | 35 | a34669a4 | C3 5981-83, C1 6941-43, C2 6951-53 (launched 23:03, graded 23:49) | 0/9. Seven HONEST_INCOMPLETE (all C1, C3 5981/5982, C2 6951/6953); C3 5983 two proven levels (wall); C2 6952 COMPLETED_UNPHYSICAL (order 1.31). TALLY stays 22. |
+| 36 | 8b80d447 | C3 5991-93, C1 6961-63, C2 6971-73 (launched 23:50, graded 00:36) | 1/9 CORRECT: C2 6973 (order 1.99). C3 5991 three proven levels but WRONG_LEVEL_COUNT; C3 5993 coupling evidence contradicted (one iteration at level 1); C1 6963 and C2 6972 level 1 proven (wall); C3 5992 NO_SOLUTION_FILES; C1 6961/6962, C2 6971 HONEST_INCOMPLETE. TALLY 23. |
 
 ### Per-step trials (from 2026-09-10 evening, Alexander's method)
 

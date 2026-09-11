@@ -106,6 +106,29 @@ def why_4c_did_not_finish(tag=""):
             _dup = sorted({x for x in _secs if _secs.count(x) > 1})
             if _dup:
                 _why.append(f"{_deck}: section(s) written twice: " + ", ".join(_dup))
+            try:   # the grammar judgement stands on its own: no binary, no judgement, other findings kept
+                # section names judged by the BINARY's own grammar (`4C -p`, read once); the closest known
+                # names ride along (measured: invented names like IO/RUNTIME VTK OUTPUT/THERMO stop 4C first)
+                if not globals().get("_VALID"):
+                    _dump = subprocess.run([str(CFG.get("fourc_bin") or os.environ.get("FOURC_BIN", "4C")), "-p"],
+                                           capture_output=True, text=True, timeout=180,
+                                           env=dict(os.environ, LD_LIBRARY_PATH=f"{CFG.get('fourc_ld') or ''}:{os.environ.get('LD_LIBRARY_PATH', '')}")).stdout
+                    globals()["_VALID"] = set(re.findall(r"^    - name: (.+?)\s*$", _dump, re.M)) | set(
+                        re.findall(r"^  - ([A-Z][A-Z0-9 _/.:-]*?)\s*$", _dump.split("legacy_string_sections:", 1)[-1], re.M)) | {"TITLE"}
+                if len(_VALID) > 100:
+                    import difflib
+                    _tok = lambda nm: [w for w in re.split(r"[ /_-]+", nm.upper()) if w]
+                    _best = lambda a, bs: max((difflib.SequenceMatcher(None, a, b).ratio() for b in bs), default=0.0)
+                    for _s in dict.fromkeys(_secs):
+                        if _s not in _VALID and not re.fullmatch(r"FUNCT\d+", _s):
+                            _u = _tok(_s)   # word-wise similarity both ways: THERMO finds THERMAL, SOLIDSCATRA finds STRUCTURE
+                            _sc = sorted(((sum(_best(a, _tok(c)) for a in _u) + sum(_best(b, _u) for b in _tok(c))) / (len(_u) + len(_tok(c))), c)
+                                         for c in _VALID if _tok(c))
+                            _close = [c for v, c in _sc[::-1][:5] if v >= 0.45]
+                            _why.append(f"{_deck}: section '{_s}' is not in the binary's grammar (`4C -p`)"
+                                        + (f"; closest known: {', '.join(repr(c) for c in _close)}" if _close else ""))
+            except Exception:                # noqa: BLE001
+                pass
             if "Thermo_Structure_Interaction" in _txt:
                 if "CLONING MATERIAL MAP" not in _txt:
                     _why.append(f"{_deck}: TSI needs a CLONING MATERIAL MAP pairing the structure material with the MAT_Fourier thermal material")

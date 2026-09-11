@@ -2845,7 +2845,10 @@ def why_4c_did_not_finish():
             if len(_valid) > 100:
                 _bad = [s for s in dict.fromkeys(_secs) if s not in _valid and not _re.fullmatch(r"FUNCT\\d+", s)]
                 if _bad:
-                    _why.append("section name(s) the binary's own grammar (`4C -p`) does not know: " + ", ".join(_bad))
+                    import difflib as _dl
+                    _why.append("section name(s) the binary's own grammar (`4C -p`) does not know: " + "; ".join(
+                        f"'{s}' (closest known: {', '.join(repr(c) for c in _dl.get_close_matches(s, sorted(_valid), n=5, cutoff=0.5))})"
+                        for s in _bad))
             if _re.search(r'PROBLEMTYPE:\\s*"?Thermo"?\\s*$', _txt, _re.M):
                 _why.append("PROBLEMTYPE Thermo: this contract's recovery reads Scalar_Transport output "
                             "(phi_1 and flux_boundary_phi_1 in out-vtk-files/), which a Thermo problem never "

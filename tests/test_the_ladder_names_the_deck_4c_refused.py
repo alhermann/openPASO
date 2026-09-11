@@ -73,3 +73,37 @@ def test_no_deck_and_no_console_keeps_the_plain_step_2(tmp_path):
     _w(tmp_path / "side_B", "exports.json", json.dumps({"values": [1.0], "normal_fluxes": [2.0]}))
     r = coupled_ladder(tmp_path)
     assert r["step"] == 2 and "RUN EACH PARTICIPANT STANDALONE" in r["text"]
+
+
+def test_unknown_sections_name_the_closest_known_ones():
+    from tools.fourc_deck_lint import unknown_sections
+    valid = {f"SECTION {i}" for i in range(120)} | {"THERMAL DYNAMIC/RUNTIME VTK OUTPUT", "IO/RUNTIME VTK OUTPUT/STRUCTURE",
+                                                     "STRUCTURE ELEMENTS", "TRANSPORT ELEMENTS", "TITLE"}
+    deck = 'TITLE:\n  - "x"\nIO/RUNTIME VTK OUTPUT/THERMO:\n  OUTPUT_THERMO: true\nSOLIDSCATRA ELEMENTS:\n  - "1 SOLIDSCATRA HEX8"\nFUNCT1:\n  - x\n'
+    out = unknown_sections(deck, valid)
+    assert len(out) == 2
+    assert "IO/RUNTIME VTK OUTPUT/THERMO" in out[0] and "THERMAL DYNAMIC/RUNTIME VTK OUTPUT" in out[0]
+    assert "SOLIDSCATRA ELEMENTS" in out[1] and "STRUCTURE ELEMENTS" in out[1]
+    assert unknown_sections(deck, {"a", "b"}) == []           # no binary, no judgement
+
+
+def test_the_real_binary_grammar_judges_a_worker_section(tmp_path):
+    """With the installed binary, the ladder brief names the invented section and the closest real one
+    (measured on te4c9 sample 0: 'IO/RUNTIME VTK OUTPUT/THERMO')."""
+    import os, pytest
+    from tools.fourc_deck_lint import valid_sections
+    binp = Path("/home/alexander/4C/build/4C")
+    if not binp.is_file():
+        pytest.skip("4C binary not on this host")
+    valid = valid_sections(str(binp), "/opt/4C-dependencies/lib")
+    assert len(valid) > 100 and "THERMAL DYNAMIC/RUNTIME VTK OUTPUT" in valid and "STRUCTURE ELEMENTS" in valid
+    from tools.result_audit import coupled_ladder
+    _w(tmp_path / "side_A", "participant_A.py", PART)
+    _w(tmp_path / "side_B", "participant_B.py", PART)
+    _w(tmp_path / "side_B", "exports.json", json.dumps({"values": [1.0], "normal_fluxes": [2.0]}))
+    _w(tmp_path / "side_A", "config.json", json.dumps({"fourc_bin": str(binp), "fourc_ld": "/opt/4C-dependencies/lib"}))
+    _w(tmp_path / "side_A", "run_u.4C.yaml", 'PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\nIO/RUNTIME VTK OUTPUT/THERMO:\n  OUTPUT_THERMO: true\n'
+                                              'CLONING MATERIAL MAP:\n  - SRC_FIELD: "structure"\nTSI DYNAMIC/PARTITIONED:\n  COUPVARIABLE: "Temperature"\n')
+    _w(tmp_path / "side_A", "run_u.log", "PROC 0 ERROR in x.cpp, line 546:\nSection 'IO/RUNTIME VTK OUTPUT/THERMO' is not a valid section name.\n")
+    r = coupled_ladder(tmp_path)
+    assert r["step"] == 2 and "THERMAL DYNAMIC/RUNTIME VTK OUTPUT" in r["brief"] and "is not a valid section name" in r["brief"]

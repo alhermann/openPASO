@@ -8,10 +8,80 @@ starts from the defect and not from the whole job. Every class here was measured
 """
 from __future__ import annotations
 
+import difflib
+import json
+import os
 import re
+import subprocess
 from pathlib import Path
 
 _TOPO_WORDS = ("DNODE", "DLINE", "DSURFACE", "DVOL")
+_VALID_CACHE: dict[str, set] = {}
+
+
+def valid_sections(bin_path, ld: str | None = None) -> set:
+    """Section names the INSTALLED binary accepts, from its own grammar dump (`4C -p`): the
+    `sections:` names and the legacy string sections (elements, coordinates, topology). Cached
+    per binary; empty when the binary is not there (then no section is judged)."""
+    key = str(bin_path or "")
+    if key in _VALID_CACHE:
+        return _VALID_CACHE[key]
+    valid: set = set()
+    try:
+        if key and Path(key).is_file():
+            env = dict(os.environ)
+            if ld:
+                env["LD_LIBRARY_PATH"] = f"{ld}:{env.get('LD_LIBRARY_PATH', '')}"
+            dump = subprocess.run([key, "-p"], capture_output=True, text=True, timeout=180, env=env).stdout
+            valid = set(re.findall(r"^    - name: (.+?)\s*$", dump, re.M)) | set(
+                re.findall(r"^  - ([A-Z][A-Z0-9 _/.:-]*?)\s*$", dump.split("legacy_string_sections:", 1)[-1], re.M))
+            valid |= {"TITLE"}
+    except Exception:                                   # noqa: BLE001
+        valid = set()
+    _VALID_CACHE[key] = valid
+    return valid
+
+
+def unknown_sections(text: str, valid: set) -> list[str]:
+    """Deck sections the binary's grammar does not know, each with the closest names it does know.
+    Measured: the dominant worker failure is a section name invented by analogy
+    ('IO/RUNTIME VTK OUTPUT/THERMO', 'SOLIDSCATRA ELEMENTS'), and 4C stops at the first one."""
+    if len(valid) < 100:
+        return []
+    out = []
+    names = sorted(valid)
+    for s in dict.fromkeys(re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", text, re.M)):
+        if s in valid or re.fullmatch(r"FUNCT\d+", s):
+            continue
+        close = closest_sections(s, names)
+        out.append(f"section '{s}' is not in the binary's grammar (`4C -p`)"
+                   + (f"; closest known: {', '.join(repr(c) for c in close)}" if close else ""))
+    return out
+
+
+def _tokens(name: str) -> list[str]:
+    return [w for w in re.split(r"[ /_-]+", name.upper()) if w]
+
+
+def closest_sections(unknown: str, names: list, n: int = 5) -> list[str]:
+    """Known names ranked by symmetric word similarity: every word of the unknown name against its best
+    match in the candidate and back, so 'IO/RUNTIME VTK OUTPUT/THERMO' lists THERMAL DYNAMIC/RUNTIME VTK
+    OUTPUT and 'SOLIDSCATRA ELEMENTS' lists STRUCTURE ELEMENTS first (character ratios alone ranked them
+    sixth and fourth, measured on the installed grammar)."""
+    u = _tokens(unknown)
+    if not u:
+        return []
+    def best(a, bs):
+        return max((difflib.SequenceMatcher(None, a, b).ratio() for b in bs), default=0.0)
+    scored = []
+    for c in names:
+        ct = _tokens(c)
+        if not ct:
+            continue
+        sc = (sum(best(a, ct) for a in u) + sum(best(b, u) for b in ct)) / (len(u) + len(ct))
+        scored.append((sc, c))
+    scored.sort(key=lambda p: (-p[0], p[1]))
+    return [c for sc, c in scored[:n] if sc >= 0.45]
 
 
 def fourc_error_lines(log_text: str, n: int = 8) -> str:
@@ -110,11 +180,19 @@ def side_dir_report(side: Path) -> dict:
             tracebacks[lg.name] = tb
     defects = {}
     decks = sorted(side.glob("*.4C.yaml")) or [p for p in sorted(side.glob("*.yaml")) if "monitor_dbc" not in p.name]
+    # the binary the agent's own config names (or the environment's): its grammar judges the section names
+    cfg = {}
+    try:
+        cfg = json.loads((side / "config.json").read_text() or "{}") if (side / "config.json").is_file() else {}
+    except Exception:                                   # noqa: BLE001
+        cfg = {}
+    valid = valid_sections(cfg.get("fourc_bin") or os.environ.get("FOURC_BIN"), cfg.get("fourc_ld") or os.environ.get("FOURC_LD"))
     for dk in decks:
         try:
-            why = lint_deck(dk.read_text(errors="ignore"))
+            txt = dk.read_text(errors="ignore")
         except OSError:
             continue
+        why = lint_deck(txt) + unknown_sections(txt, valid)
         if why:
             defects[dk.name] = why
     return {"finished": finished, "monitors": monitors, "errors": errors, "defects": defects,

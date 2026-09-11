@@ -94,3 +94,32 @@ def test_the_served_deck_check_refuses_a_condition_on_an_undefined_e_id(tmp_path
                        env=dict(os.environ, MPLBACKEND="Agg"))
     assert r.returncode != 0
     assert "DECK CHECK" in r.stderr and "DESIGN SURF NEUMANN CONDITIONS E 1" in r.stderr, r.stderr[-800:]
+
+
+def test_the_served_lint_names_the_closest_real_section(tmp_path):
+    """The served finish lint judges section names by the installed binary's own grammar and names the
+    closest known ones (measured worker failure: 'IO/RUNTIME VTK OUTPUT/THERMO')."""
+    import json, os, subprocess, sys
+    from pathlib import Path
+    import pytest
+    binp = Path("/home/alexander/4C/build/4C")
+    if not binp.is_file():
+        pytest.skip("4C binary not on this host")
+    src = (Path(__file__).resolve().parents[1] / "data" / "coupling_participants" / "participant_fourc_thermoelastic.py").read_text()
+    BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+    a = src.index(BEGIN); b = src.index(END, a) + len(END)
+    fill = ('nodes = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)]\ninterior = []\nTZ = 1.0\n'
+            'Path("run_u.4C.yaml").write_text("PROBLEM TYPE:\\n  PROBLEMTYPE: \\"Thermo_Structure_Interaction\\"\\n'
+            'IO/RUNTIME VTK OUTPUT/THERMO:\\n  OUTPUT_THERMO: true\\nCLONING MATERIAL MAP:\\n  - SRC_FIELD: \\"structure\\"\\n'
+            'TSI DYNAMIC/PARTITIONED:\\n  COUPVARIABLE: \\"Temperature\\"\\n")\n'
+            'Path("run_u.log").write_text("PROC 0 ERROR in x.cpp, line 546:\\nSection \'IO/RUNTIME VTK OUTPUT/THERMO\' is not a valid section name.\\n")\n'
+            'OUT_T, OUT_U, DECK_U = "out_T", "out_U", "run_u.4C.yaml"\n')
+    (tmp_path / "participant_A.py").write_text(src[:a] + fill + src[b:])
+    (tmp_path / "config.json").write_text(json.dumps({"level": 1, "nx": 1, "ny": 1, "x0": 0.0, "x1": 1.0, "y0": 0.0, "y1": 1.0,
+                                                       "k": 1.0, "lam": 1.0, "mu": 1.0, "beta": 1.0, "iface": "right",
+                                                       "fourc_bin": str(binp), "fourc_ld": "/opt/4C-dependencies/lib"}))
+    (tmp_path / "imports.json").write_text("{}")
+    r = subprocess.run([sys.executable, "participant_A.py"], cwd=tmp_path, capture_output=True, text=True, timeout=300,
+                       env=dict(os.environ, MPLBACKEND="Agg"))
+    assert r.returncode != 0
+    assert "is not a valid section name" in r.stderr and "THERMAL DYNAMIC/RUNTIME VTK OUTPUT" in r.stderr, r.stderr[-1200:]

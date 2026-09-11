@@ -2530,8 +2530,10 @@ def coupled_ladder(work: Path) -> dict | None:
                         "points. The interpolation is four lines (measured on a served per-level dump): "
                         "a = numpy.loadtxt('field_level<k>.csv', delimiter=',', skiprows=1); "
                         "v = scipy.interpolate.griddata(a[:, :2], a[:, 2], P, method='linear') with P the "
-                        "(n, 2) probe points; a NaN in v is a probe outside this side's subdomain (leave it to "
-                        "the other side); write x, y, v rows. "
+                        "(n, 2) probe points -- one such call per value column (a[:, 2], a[:, 3], ... for a "
+                        "field with several components, T then ux, uy for a thermo-elastic one); a NaN in v "
+                        "is a probe outside this side's subdomain (leave it to the other side); write x, y "
+                        "and the value columns in the task's order. "
                         "CHECK: both sides' field files and interface files for this level exist and "
                         "audit_results(work_dir) reports no missing-fields finding for it.")
         sides_l = set()

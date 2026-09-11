@@ -104,42 +104,27 @@ def sample(imp, key, fallback, y):
 
 imp = read_imports()
 
-# ── HOLE 1 (yours): mesh, spaces, dof sets, interface measure, forms, outer BCs.
-#    The dolfinx 0.10 idioms, described (the code and the forms are yours): the
-#    mesh is dmesh.create_rectangle over the corners [X0, Y0] and [X1, Y1] with
-#    NX by NY triangle cells; ST is a scalar ("Lagrange", 1) fem.functionspace
-#    and SU the vector one with shape (2,); create the facet-to-cell
-#    connectivity (topology dim - 1 to dim). tabulate_dof_coordinates() has
-#    ONE ROW PER NODE, and in SU's array component c of node n sits at index
-#    2*n + c. iface_T and iface_U are the rows with x equal to IFACE_X, SORTED
-#    BY y (constant order every iteration), y_if their y; outer_T and outer_U
-#    the rows on x equal to OUTER_X or y equal to Y0 or Y1. The two interface
-#    rows that also lie on y equal to Y0 or Y1 are CORNERS: leave them out of
-#    iface_bc_T and iface_bc_U (they keep the outer value on both sides;
-#    handed to the interface they cost 4.7% in u and 28% in traction). ds_if
-#    is a ufl.Measure over "ds" restricted through meshtags of the interface
-#    facets (dmesh.locate_entities_boundary with np.isclose on x). vT and vu
-#    are the test functions; aT and au your bilinear forms (conduction with K;
-#    plane-strain elasticity with LAM and MU); L_T_vol the heat source ALONE
-#    (a fem.Function on ST interpolated from F_T, times vT, over dx); fU_h the
-#    body force as a fem.Function on SU interpolated from F_U (np.vstack of
-#    its two arrays); bcs_T and bcs_U lists of fem.dirichletbc carrying the
-#    OUTER values on the outer rows (as int32 arrays).
-#    LEAVE BEHIND: domain, ST, SU, iface_T, iface_U, iface_bc_T, iface_bc_U,
-#    y_if, outer_T, outer_U, ds_if, vT, vu, aT, au, L_T_vol, fU_h, bcs_T, bcs_U.
+# ── HOLE 1 (yours): the mesh and the two spaces. dmesh.create_rectangle over
+#    the corners [X0, Y0] and [X1, Y1] with NX by NY triangle cells (the P1
+#    idiom on this install; halve h per level); ST the scalar ("Lagrange", 1)
+#    fem.functionspace and SU the vector one with shape (2,).
+#    LEAVE BEHIND: domain, ST, SU.
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
                                 [NX, NY], dmesh.CellType.triangle)
 ST = fem.functionspace(domain, ("Lagrange", 1))
 SU = fem.functionspace(domain, ("Lagrange", 1, (2,)))
+# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+
+# ── THE INTERFACE AND OUTER DOF SETS (served: the handshake onto the dofs) ──
+# tabulate_dof_coordinates() has ONE ROW PER NODE; in SU's array component c of
+# node n sits at index 2*n + c. Interface rows are sorted by y so the export
+# order is the same every iteration.
 fdim = domain.topology.dim - 1
 domain.topology.create_connectivity(fdim, domain.topology.dim)
-
-# ONE ROW PER NODE in tabulate_dof_coordinates(); for the vector space the
-# scalar array index of component c at node n is 2*n + c.
 xyT = ST.tabulate_dof_coordinates()
 iface_T = np.where(np.abs(xyT[:, 0] - IFACE_X) < 1e-10)[0]
-iface_T = iface_T[np.argsort(xyT[iface_T, 1])]           # constant order, always
+iface_T = iface_T[np.argsort(xyT[iface_T, 1])]
 y_if = xyT[iface_T, 1]
 outer_T = np.where((np.abs(xyT[:, 0] - OUTER_X) < 1e-10) |
                    (np.abs(xyT[:, 1] - Y0) < 1e-10) |
@@ -158,40 +143,19 @@ if len(iface_T) == 0:
 corner = (np.abs(y_if - Y0) < 1e-10) | (np.abs(y_if - Y1) < 1e-10)
 iface_bc_T = iface_T[~corner]
 iface_bc_U = iface_U[~corner]
-
 facets = dmesh.locate_entities_boundary(domain, fdim, lambda x: np.isclose(x[0], IFACE_X))
 tags = dmesh.meshtags(domain, fdim, np.sort(facets), np.full(len(facets), 7, dtype=np.int32))
 ds_if = ufl.Measure("ds", domain=domain, subdomain_data=tags)(7)
-
 tT, vT = ufl.TrialFunction(ST), ufl.TestFunction(ST)
-aT = K * ufl.inner(ufl.grad(tT), ufl.grad(vT)) * ufl.dx
-fT_h = fem.Function(ST)
-fT_h.interpolate(lambda X: F_T(X[0], X[1]))
-L_T_vol = fT_h * vT * ufl.dx                  # the VOLUME load alone, kept apart
-
 uu, vu = ufl.TrialFunction(SU), ufl.TestFunction(SU)
 
-
-def eps(w):
-    return ufl.sym(ufl.grad(w))
-
-
-au = ufl.inner(2.0 * MU * eps(uu) + LAM * ufl.tr(eps(uu)) * ufl.Identity(2), eps(vu)) * ufl.dx
-fU_h = fem.Function(SU)
-fU_h.interpolate(lambda X: np.vstack(F_U(X[0], X[1])))
-
-gT_out = fem.Function(ST)
-gT_out.x.array[:] = T_OUTER
-gU_out = fem.Function(SU)
-gU_out.x.array[0::2] = UX_OUTER
-gU_out.x.array[1::2] = UY_OUTER
-bcs_T = [fem.dirichletbc(gT_out, outer_T.astype(np.int32))]
-bcs_U = [fem.dirichletbc(gU_out, outer_U.astype(np.int32))]
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
-
 # ── THE INTERFACE ROLE (served) ────────────────────────────────────────────
-L_T_if = 0
-L_U_if = 0
+# Dirichlet role: the partner's [T, ux, uy] become interface Dirichlet
+# conditions (bcs_if_T, bcs_if_U) that YOUR solves below must include.
+# Neumann role: the partner's [qn, qx, qy] become the natural terms L_T_if and
+# L_U_if that YOUR linear forms below must include, UNCHANGED.
+bcs_if_T, bcs_if_U = [], []
+L_T_if, L_U_if = 0, 0
 if SIDE == "dirichlet":
     g = sample(imp, "values", (T_INIT, UX_INIT, UY_INIT), y_if)
     gT = fem.Function(ST)
@@ -201,8 +165,8 @@ if SIDE == "dirichlet":
     gU.x.array[:] = 0.0
     gU.x.array[2 * iface_U] = g[:, 1]
     gU.x.array[2 * iface_U + 1] = g[:, 2]
-    bcs_T = bcs_T + [fem.dirichletbc(gT, iface_bc_T.astype(np.int32))]
-    bcs_U = bcs_U + [fem.dirichletbc(gU, iface_bc_U.astype(np.int32))]
+    bcs_if_T = [fem.dirichletbc(gT, iface_bc_T.astype(np.int32))]
+    bcs_if_U = [fem.dirichletbc(gU, iface_bc_U.astype(np.int32))]
 else:
     q = sample(imp, "normal_fluxes", Q_INIT, y_if)
     gq = fem.Function(ST)
@@ -212,27 +176,61 @@ else:
     gt.x.array[:] = 0.0
     gt.x.array[2 * iface_U] = q[:, 1]
     gt.x.array[2 * iface_U + 1] = q[:, 2]
-    # APPLY the partner's numbers UNCHANGED (natural terms of both weak forms)
     L_T_if = gq * vT * ds_if
     L_U_if = ufl.inner(gt, vu) * ds_if
 
-# ── HOLE 2 (yours): the two solves, in this order. Solve the heat problem
-#    with dolfinx.fem.petsc.LinearProblem (aT against L_T_vol + L_T_if, bcs_T,
-#    the keyword petsc_options_prefix, ksp preonly with an lu pc) into Th.
-#    Then build L_U_vol = the body-force term plus the thermal term
-#    BETA * Th * div(vu) over dx of the DISCRETE temperature, and solve au
-#    against L_U_vol + L_U_if with bcs_U into Uh. Keep L_U_vol apart from the
-#    interface term: the recovery below subtracts the VOLUME load alone.
-#    LEAVE BEHIND: Th, Uh, L_U_vol.
+# ── HOLE 2 (yours): forms, sources, outer BCs, the two solves, in this order.
+#    aT and au: your bilinear forms in tT/vT and uu/vu (conduction with K;
+#    plane-strain elasticity with LAM and MU). L_T_vol: the heat source ALONE
+#    (a fem.Function on ST interpolated from F_T, times vT, over dx). fU_h: the
+#    body force as a fem.Function on SU interpolated from F_U (np.vstack of its
+#    two arrays). bcs_T and bcs_U: the OUTER Dirichlet conditions, lists of
+#    fem.dirichletbc carrying T_OUTER / (UX_OUTER, UY_OUTER) on outer_T /
+#    outer_U (int32). Solve the heat problem with dolfinx.fem.petsc.LinearProblem
+#    (aT against L_T_vol + L_T_if, bcs = bcs_T + bcs_if_T, the keyword
+#    petsc_options_prefix, ksp preonly with an lu pc) into Th. Then
+#    L_U_vol = the body-force term plus the thermal term BETA * Th * div(vu)
+#    over dx of the DISCRETE temperature; solve au against L_U_vol + L_U_if
+#    with bcs = bcs_U + bcs_if_U into Uh. Keep L_T_vol and L_U_vol apart from
+#    the interface terms: the recovery below subtracts the VOLUME loads alone.
+#    LEAVE BEHIND: aT, au, L_T_vol, L_U_vol, Th, Uh.
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
-Th = LinearProblem(aT, L_T_vol + L_T_if, bcs=bcs_T, petsc_options_prefix="teT",
+aT = K * ufl.inner(ufl.grad(tT), ufl.grad(vT)) * ufl.dx
+fT_h = fem.Function(ST)
+fT_h.interpolate(lambda X: F_T(X[0], X[1]))
+L_T_vol = fT_h * vT * ufl.dx
+
+
+def eps(w):
+    return ufl.sym(ufl.grad(w))
+
+
+au = ufl.inner(2.0 * MU * eps(uu) + LAM * ufl.tr(eps(uu)) * ufl.Identity(2), eps(vu)) * ufl.dx
+fU_h = fem.Function(SU)
+fU_h.interpolate(lambda X: np.vstack(F_U(X[0], X[1])))
+gT_out = fem.Function(ST)
+gT_out.x.array[:] = T_OUTER
+gU_out = fem.Function(SU)
+gU_out.x.array[0::2] = UX_OUTER
+gU_out.x.array[1::2] = UY_OUTER
+bcs_T = [fem.dirichletbc(gT_out, outer_T.astype(np.int32))]
+bcs_U = [fem.dirichletbc(gU_out, outer_U.astype(np.int32))]
+Th = LinearProblem(aT, L_T_vol + L_T_if, bcs=bcs_T + bcs_if_T, petsc_options_prefix="teT",
                    petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
-# the elasticity VOLUME load: body force + the thermal term of the DISCRETE
-# temperature (kept apart from the interface term for the recovery below)
 L_U_vol = ufl.inner(fU_h, vu) * ufl.dx + BETA * Th * ufl.div(vu) * ufl.dx
-Uh = LinearProblem(au, L_U_vol + L_U_if, bcs=bcs_U, petsc_options_prefix="teU",
+Uh = LinearProblem(au, L_U_vol + L_U_if, bcs=bcs_U + bcs_if_U, petsc_options_prefix="teU",
                    petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+
+# ── DID THE INTERFACE DATA ENTER THE SOLVE? (served) ──────────────────────
+if SIDE == "dirichlet" and len(iface_bc_T):
+    _gap = float(np.abs(Th.x.array[iface_bc_T] - gT.x.array[iface_bc_T]).max())
+    _gapU = float(np.abs(Uh.x.array[2 * iface_bc_U] - gU.x.array[2 * iface_bc_U]).max())
+    if _gap > 1e-9 * max(1.0, float(np.abs(gT.x.array).max())) or \
+            _gapU > 1e-9 * max(1.0, float(np.abs(gU.x.array).max())):
+        raise SystemExit("the imposed interface trace is not in the solution: pass bcs_T + bcs_if_T "
+                         "and bcs_U + bcs_if_U to the two solves (measured gaps "
+                         f"{_gap:.3e} in T, {_gapU:.3e} in ux)")
 
 # ── CONSISTENT OUTWARD FLUX AND TRACTION (served) ─────────────────────────
 # ONE FORMULA, BOTH SIDES, BOTH FIELDS: r = A u_h - b_vol on the interface rows

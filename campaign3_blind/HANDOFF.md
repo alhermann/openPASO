@@ -512,6 +512,12 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   MALFORMED reason of rounds 9-11 (6391, 6402 level 3, 6433, 5653). Both
   scaffolds now print the canonical line first (commit 251194dc; the
   execution test still passes). Round 12 launched on it.
+- 04:40: with every cell now working to the wall, calls per level are what
+  the 45 minutes cut (a C2 cell needs ~15 min per level after ~20 min of
+  setup). The ladder's deliverables brief now carries the four-line probe
+  interpolation (numpy.loadtxt + scipy griddata, measured on a served
+  per-level dump; commit af7c4f8d). Round 13 launched on it (seeds C3
+  5681-83, C1 6461-63, C2 6471-73).
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

@@ -200,7 +200,11 @@ else:
 #    (a fem.Function on ST interpolated from F_T, times vT, over dx). fU_h: the
 #    body force as a fem.Function on SU interpolated from F_U (np.vstack of its
 #    two arrays, shape (2, n) -- NOT transposed: measured, the transpose fails
-#    with "Interpolation data has the wrong shape/size"); the strain is
+#    with "Interpolation data has the wrong shape/size"). INTERPOLATION IS A
+#    METHOD OF THE FUNCTION: create f = fem.Function(<space>) and call
+#    f.interpolate(lambda X: ...) where X is the (3, n) coordinate array
+#    (X[0], X[1]); there is NO module-level fem.interpolate(callable, V)
+#    (AttributeError, measured) and a two-argument lambda is a TypeError. The strain is
 #    ufl.sym(ufl.grad(w)) and the identity ufl.Identity(2) (UFL arguments have
 #    no geometric_dimension()). bcs_T and bcs_U: the OUTER Dirichlet conditions, lists of
 #    fem.dirichletbc carrying T_OUTER / (UX_OUTER, UY_OUTER) on outer_T /

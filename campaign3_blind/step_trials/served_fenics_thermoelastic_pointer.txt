@@ -15,6 +15,7 @@ THE COUPLED MUST-READ (the couple() call recipe, history_path, the fields-vs-evi
 5. FIRST USE COMPILES TOO: dolfinx JIT-compiles every new form with ffcx (a minute or more the first time, more under load). A short `timeout` around that first run, or a pipe into `head`, kills it mid-compile and looks like a crash. Run each participant once standalone with a generous timeout before coupling; the cached modules make later runs start in seconds.
 5. `fem.VectorFunctionSpace` DOES NOT EXIST on this install (AttributeError, measured dolfinx 0.10): a vector P1 space is fem.functionspace(mesh, ('Lagrange', 1, (2,))), and in its array component c of node n sits at index 2*n + c (tabulate_dof_coordinates() has one row per node). A vector fem.Function is interpolated from a callable returning shape (2, n) -- np.vstack((fx, fy)) -- and its TRANSPOSE fails with 'Interpolation data has the wrong shape/size' (measured).
 6. UFL arguments have no `.geometric_dimension()` (AttributeError, measured ufl 2025.2): write ufl.Identity(2) for plane strain; ufl.sym(ufl.grad(u)) is the strain. fem.dirichletbc takes (Function, dofs) or (Constant, dofs, V) -- a Constant WITHOUT the space as third argument is a TypeError (measured).
+7. INTERPOLATION IS A METHOD OF THE FUNCTION: f = fem.Function(V); f.interpolate(lambda X: <expression of X[0], X[1]>) with X the (3, n) coordinate array. There is NO module-level fem.interpolate(callable, V) (AttributeError, measured), and a lambda with two arguments (x, y) is a TypeError.
 
 * READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST NODE. Measured against an independent reference: one solve exported two ways gave order 1.9796 by interpolation and 0.9815 by nearest-node sampling of nearest node. Free self-check: nearest-node sampling can only return (N-1)^2+1 distinct values, so 1936 probes collapse to 50/226/962 at N=8/16/32.
 * GATE BEFORE YOU HAND IN, at EVERY level: the solver REPORTED convergence (not merely that nothing raised), peak|u| > 0, and your load is not constant. Then compute log2(|L1-L2|/|L2-L3|) yourself.
@@ -270,7 +271,11 @@ else:
 #    (a fem.Function on ST interpolated from F_T, times vT, over dx). fU_h: the
 #    body force as a fem.Function on SU interpolated from F_U (np.vstack of its
 #    two arrays, shape (2, n) -- NOT transposed: measured, the transpose fails
-#    with "Interpolation data has the wrong shape/size"); the strain is
+#    with "Interpolation data has the wrong shape/size"). INTERPOLATION IS A
+#    METHOD OF THE FUNCTION: create f = fem.Function(<space>) and call
+#    f.interpolate(lambda X: ...) where X is the (3, n) coordinate array
+#    (X[0], X[1]); there is NO module-level fem.interpolate(callable, V)
+#    (AttributeError, measured) and a two-argument lambda is a TypeError. The strain is
 #    ufl.sym(ufl.grad(w)) and the identity ufl.Identity(2) (UFL arguments have
 #    no geometric_dimension()). bcs_T and bcs_U: the OUTER Dirichlet conditions, lists of
 #    fem.dirichletbc carrying T_OUTER / (UX_OUTER, UY_OUTER) on outer_T /
@@ -550,22 +555,10 @@ imp = read_imports()
 # ... (explanation continues in the annotated block)
 Amat = _fp.assemble_matrix(fem.form(a))              # no bcs= on purpose
 Amat.assemble()
-bvec = _fp.assemble_vector(fem.form(L_vol))          # no lifting, no set_bc
-bvec.ghostUpdate()
-r = Amat.createVecLeft()
-Amat.mult(uh.x.petsc_vec, r)
-r.axpy(-1.0, bvec)
-
-wvec = _fp.assemble_vector(fem.form(w_ * ds_if))
-wvec.ghostUpdate()
-wi = wvec.array[iface_dofs]
-
-Q = np.zeros(len(iface_dofs))
-ok = np.abs(wi) > 1e-14
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 65,046 further characters exist and are NOT lost.
+THIS PAYLOAD IS TRUNCATED HERE. 65,367 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 27,980 of 92,660 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fenics', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 27,969 of 92,970 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fenics', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.

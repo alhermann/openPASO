@@ -446,7 +446,7 @@ Dirichlet-Neumann coupling, but know that it happens.
       {"name": "right", "command": ["<interpreter>", "participant_right.py"],
        "work_dir": "/abs/path/run/right", "imports_from": ["left"],
        "timeout": 900}]',
-      max_iter=60, tol=1e-8, accelerator="aitken", theta=0.5,
+      max_iter=60, tol=1e-8, accelerator="auto", theta=0.5,
       critic_approved=True)
 
   * `name` — how the partner finds this participant's data inside imports.json.
@@ -465,8 +465,9 @@ Dirichlet-Neumann coupling, but know that it happens.
     file here also binds it into the critic review, so rewriting it after the
     review invalidates the approval. You may still copy files in yourself;
     `data_files` is the supported way and the one that gets both of those.
-  * `theta` must be in (0, 1]; `accelerator` must be exactly "constant" or
-    "aitken". Both are rejected with an error message if not.
+  * `theta` must be in (0, 1]; `accelerator` is "auto" (the default: Aitken for a
+    single-field exchange, Anderson mixing for a multi-field one such as [T, ux, uy]),
+    "aitken", "anderson" or "constant". Anything else is rejected with an error message.
   * `noise_replicates` — ONLY when a participant is a Monte-Carlo / sampled
     estimator (DSMC, a stochastic solver, anything whose answer to the same
     question differs run to run). Set it to 2 or more and the driver runs every
@@ -2425,7 +2426,7 @@ couple(participants='[
    "work_dir":"/abs/run/left","imports_from":["right"],"timeout":900}},
   {{"name":"right","command":["<interpreter>","participant_right.py"],
    "work_dir":"/abs/run/right","imports_from":["left"],"timeout":900}}]',
-  max_iter=60, tol=1e-8, accelerator="aitken", theta=0.5, critic_approved=True)
+  max_iter=60, tol=1e-8, accelerator="auto", theta=0.5, critic_approved=True)
 ```
 '''.replace("{RIGHT}", _RIGHT_BLOCK)
 

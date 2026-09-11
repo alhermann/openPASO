@@ -69,6 +69,7 @@ def test_each_side_keeps_its_console_for_the_named_level(tmp_path, couple_tool, 
     # (round 25: six proven couplings ran couple() per level and the wall cut them; 0 audit_results calls)
     lead = out.get("what_to_fix_next") or ""
     assert "couple_levels(" in lead[:900] and "{k}" in lead, lead[:600]
+    assert (out.get("relaxation") or {}).get("mode") == "aitken", out.get("relaxation")      # a single-field exchange keeps Aitken
     for name in ("A", "B"):
         per_level = tmp_path / f"side_{name}" / "participant_output_level2.log"
         assert per_level.is_file(), f"side {name}: no per-level console copy"
@@ -108,5 +109,7 @@ def test_a_three_component_exchange_does_not_crash_the_tool(tmp_path, couple_too
     out = json.loads(str(r))
     assert "float()" not in str(out.get("error")), out.get("error")
     assert out.get("converged"), {k: out.get(k) for k in ("error", "history")}
+    # a three-component exchange resolves accelerator='auto' to Anderson mixing (measured: 25 vs 55 iterations)
+    assert (out.get("relaxation") or {}).get("mode") == "anderson", out.get("relaxation")
     assert out["exports"]["A"]["first_values"][0] == [pytest.approx(v) for v in out["exports"]["A"]["first_values"][0]]
     assert len(out["exports"]["A"]["first_values"][0]) == 3

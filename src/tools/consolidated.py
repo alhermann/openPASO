@@ -3717,7 +3717,7 @@ def register_consolidated_tools(mcp: FastMCP):
                     "couple_precice or coupled_solve."),
                 "coupling_args_example": (
                     '{"participants": [...], "max_iter": 50, "tol": 1e-8, '
-                    '"accelerator": "aitken", "theta": 0.5, '
+                    '"accelerator": "auto", "theta": 0.5, '
                     '"monolithic": false, "probe": null}'),
                 "findings_were_not_lost": True},
                 indent=2)
@@ -4975,7 +4975,7 @@ def register_consolidated_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def couple(participants: str, max_iter: int = 50, tol: float = 1e-6,
-                     accelerator: str = "aitken", theta: float = 0.5,
+                     accelerator: str = "auto", theta: float = 0.5,
                      monolithic: str = "", probe: bool = True,
                      critic_approved: bool = False, noise_replicates: int = 0,
                      noise_floor: float = 0.0, noise_block: int = 3,
@@ -5041,7 +5041,9 @@ def register_consolidated_tools(mcp: FastMCP):
               "imports_from":[partner names], "timeout": seconds}. Every name in
               `imports_from` must be another participant's name.
             max_iter, tol: iteration controls.
-            accelerator: "aitken" (theta recomputed each iteration from the residual
+            accelerator: "auto" (default: Aitken for a single-field exchange, Anderson for a
+                multi-field one -- resolved from the first exports and reported in `theta.mode`),
+                "aitken" (theta recomputed each iteration from the residual
                 or "anderson" (Anderson mixing / interface quasi-Newton on the whole interface state, window 5:
                 measured on a three-component thermo-elastic exchange to cut the iteration count several-fold)
               history, starting at `theta`) or "constant" (theta held at `theta` for
@@ -5148,8 +5150,8 @@ def register_consolidated_tools(mcp: FastMCP):
         # fall through to constant relaxation and run a different algorithm than
         # the one asked for, silently.
         accelerator = str(accelerator).strip().lower()
-        if accelerator not in ("aitken", "anderson", "constant"):
-            return json.dumps({"error": f"accelerator must be 'aitken' or "
+        if accelerator not in ("auto", "aitken", "anderson", "constant"):
+            return json.dumps({"error": f"accelerator must be 'auto', 'aitken', 'anderson' or "
                                         f"'constant', got {accelerator!r}"})
         # The stochastic branch is opt-in and its arguments are checked here
         # rather than in the driver, so a bad one is a message instead of a run
@@ -5844,7 +5846,7 @@ def register_consolidated_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def couple_levels(participants: str, levels: str, critic_approved: bool = False,
-                            max_iter: int = 150, tol: float = 1e-6, accelerator: str = "aitken",
+                            max_iter: int = 150, tol: float = 1e-6, accelerator: str = "auto",
                             theta: float = 0.5, probe: bool = True, history_dir: str = "",
                             history_pattern: str = "coupling_history_level{k}.csv") -> str:
         """EVERY PRESCRIBED MESH LEVEL IN ONE CALL -- the same partitioned coupling as

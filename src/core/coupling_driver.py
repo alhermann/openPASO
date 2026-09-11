@@ -494,7 +494,7 @@ class _Anderson:
 
 
 def run_coupling(participants: list[Participant], max_iter: int = 50,
-                 tol: float = 1e-6, accelerator: str = "aitken",
+                 tol: float = 1e-6, accelerator: str = "auto",
                  theta0: float = 0.5, probe: bool = True,
                  noise_floor: Optional[float] = None,
                  noise_replicates: int = 0,
@@ -510,7 +510,8 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
         probe_interface_sensitivity). Turn it off only if that solve is
         genuinely unaffordable — the result then says the question was not asked.
 
-    accelerator: "aitken" (ONE dynamic theta for the whole interface state,
+    accelerator: "auto" (default: Aitken for a single-field exchange, Anderson for a
+        multi-field one, resolved from the first exports), "aitken" (ONE dynamic theta for the whole interface state,
         recomputed each iteration from the previous residual, starting from
         theta0 — see _aitken), "anderson" (Anderson mixing / interface quasi-Newton
         on the whole interface state, window 5, theta0 as the mixing weight until
@@ -580,6 +581,10 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
     prev_blocks: dict[str, dict[str, np.ndarray]] = {}
     theta_global: float = theta0
     anderson = _Anderson(m=5, beta=theta0)
+    # "auto": Aitken for a single-field exchange (measured on every scalar heat coupling that
+    # reached CORRECT: 9-50 iterations), Anderson for a multi-field one (measured on the
+    # thermo-elastic pair: 25 iterations against Aitken's 55). Resolved from the first exports.
+    accelerator_requested = accelerator
     history: list[float] = []
     warnings: list[str] = []
     returncodes: dict[str, int] = {}
@@ -804,6 +809,12 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
         total_ref = 0.0
         # ONE theta for the whole interface state (see _aitken): Aitken is applied
         # to the composite fixed-point map, not to each participant separately.
+        if accelerator == "auto":
+            multi = any(getattr(new_exports[p.name].values, "ndim", 1) == 2
+                        and new_exports[p.name].values.shape[1] >= 2 for p in participants)
+            accelerator = "anderson" if multi else "aitken"
+            notes.append(f"accelerator 'auto' resolved to '{accelerator}' "
+                         f"({'a multi-field' if multi else 'a single-field'} interface exchange)")
         relaxed_all = None
         if accelerator == "aitken":
             raw_all = np.concatenate([_stack(new_exports[p.name]) for p in participants])

@@ -1,0 +1,729 @@
+THE COUPLED MUST-READ (the couple() call recipe, history_path, the fields-vs-evidence rule, the measured-not-modelled history rule, the sign convention, the rho budget, the silent no-flux trap) was served earlier in this session and is not repeated here, to leave you the context for your own work. To see it again: knowledge(topic='coupling', signal='must-read').
+
+# WHAT DECIDES THIS RUN — fourc/coupled side
+# (read this before the corpus below; each line was measured by execution)
+
+1. A standalone `Thermo` problem SILENTLY IGNORES every `DESIGN ... THERMO ...` Dirichlet/Neumann section: it parses, prints 'processor 0 finished normally', exits 0, and the field is IDENTICALLY ZERO (measured max|T| = 0.000000000e+00). Use the PLAIN sections -- DESIGN SURF/LINE/POINT DIRICH, DESIGN VOL/SURF/LINE NEUMANN. With those the same deck matches an independent assembly to 1.08e-15.
+2. The body source lives on the condition whose GEOMETRY TYPE MATCHES THE ELEMENT DIMENSION: LINE in 1D, SURF in 2D, VOL in 3D. The wrong one attaches to no element and contributes nothing, silently.
+3. Every load entry is ONOFF[i] * VAL[i] * FUNCT[i](x,t) -- FUNCT SCALES VAL. `VAL: 0` with a function set is an identically zero load that parses and exits 0 (measured: error flat at 1.0000 across all levels, order exactly 0.0000).
+4. STRUCTURE runtime-VTK carries `node_gid`, 0-BASED while NODE COORDS ids are 1-based, and the .vtu holds one point PER ELEMENT CORNER (160 points, 54 distinct gids, for a 40-element mesh). Scatter results by gid: `out[int(gid)] = value`. Zipping instead gives a field with the RIGHT maximum and 67% pointwise error. The SCATRA runtime VTU has NO `node_gid` array at all -- its point_data is only `phi_1` (plus `flux_boundary_phi_1` when requested; measured KeyError on a 240-point scatra VTU) -- so on scatra output collapse the duplicated points BY COORDINATE instead.
+5. A spatially varying interface trace needs one DESIGN POINT DIRICH condition PER NODE -- no fitted FUNCT required.
+6. INVOKE IT AS `stdbuf -oL -eL /path/to/4C deck.4C.yaml out`, OR AS The binary finds its libraries by itself (rpath-linked; measured to run with LD_LIBRARY_PATH unset), so add no prefix -- and if you ever do add one, an assignment must come BEFORE the wrapper: `stdbuf -oL VAR=x prog` makes stdbuf try to execute a file called `VAR=x` and your command never runs. Measured: wrapper-then-assignment recovered 0 diagnostic lines, assignment-first 2, `stdbuf ... env VAR=x prog` 2. OR AS `mpirun -np 1 ...`. 4C's stdout is BLOCK-BUFFERED, and when a deck is rejected MPI_Abort tears the process down before that buffer is flushed, so the line naming the defect is destroyed and all you get back is the MPI boilerplate. Measured on one rejected deck, same deck, three invocations: plain capture 429 bytes with NO reason; `2>&1` merged 429 bytes, still no reason; `stdbuf -oL -eL` 2164 bytes carrying `PROC 0 ERROR in 4C_io_input_file.cpp, line 546: Section 'NOT_A_REAL_SECTION' is not a valid section name.`; `mpirun -np 1` 2164 bytes, the same. A bare `MPI_ABORT ... errorcode 1` with an empty stdout is NOT an MPI or environment problem -- it is your deck, and the reason is one flag away. One run diagnosed it as "the 4C binary requires specific MPI environment configuration" and delivered nothing.
+7. `No protocol specified` and `Invalid MIT-MAGIC-COOKIE-1 key` on stderr are X11 noise from a headless session. They are not the failure and they appear on successful runs too.
+8. Boundary flux from a scatra solve: set CALCFLUX_BOUNDARY: "diffusive" in SCALAR TRANSPORT DYNAMIC **and** add a `SCATRA FLUX CALC LINE CONDITIONS:` entry (`- E: <line id>`; SURF in 3D) for every boundary line the flux is wanted on. Without that condition section 4C stops: 'Flux output requested without corresponding boundary condition specification!'. The flux lands in the runtime VTU as point array `flux_boundary_phi_1` -- the diffusive flux VECTOR q = -k*grad(phi) at boundary nodes, NOT q.n (measured exact: (-1.6,0,0) on both x-faces of a P1-exact linear field; dot it with YOUR outward normal). THAT DESCRIPTION HOLDS ON DIRICHLET LINES. On a NEUMANN-loaded line the same array carries the consistent-residual echo of the APPLIED load (measured: exactly 0 under zero load while the true boundary gradient of the field was O(1e-3)) plus Dirichlet-corner reactions at the ends -- use it as your exported flux only on the side whose interface is Dirichlet. It agrees with one-sided quadratic differentiation of the field to 2.7% rel-RMS at h=1/8 on a smooth field.
+9. The runtime VTU numbered 00000 is the INITIAL state -- identically zero on a fresh scatra run; the solved field is the LAST step (00001 for stationary). Sampling step 0 yields an all-zero field and all-zero fluxes while the run exits 0 and prints 'finished normally'.
+10. With CALCFLUX_BOUNDARY active, 4C also writes `<prefix>.boundaryflux_ScaTraFluxCalc_0scatra.txt` -- per flux-calc condition: area, integral and MEAN of the normal flux. It is a free cross-check on any nodal flux you exported (measured: nodal trapezoid integral matched it to 6 digits, -0.5558378 vs -0.555838).
+11. P1 triangles in scalar transport are spelled `<id> TRANSP TRI3 <n1> <n2> <n3> MAT <m> TYPE Std` in TRANSPORT ELEMENTS -- the corpus templates show only TRANSP QUAD4, and SOLID TRI3 is a structural element that is rejected against MAT_scatra.
+12. STEADY THERMO-MECHANICS IN ONE 4C RUN: PROBLEMTYPE Thermo_Structure_Interaction with COUPALGO tsi_oneway, Statics in both STRUCTURAL DYNAMIC and THERMAL DYNAMIC, material MAT_Struct_ThermoStVenantK (stress C:(eps - alpha*(T-T0)*I), i.e. sigma_el - beta*T*I with beta=(3*lambda+2*mu)*alpha and T0 from INITTEMP) plus a CLONING MATERIAL MAP entry pairing it with a MAT_Fourier thermal material. A 2D plane-strain problem runs as a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab with u_z=0 pinned on BOTH z-layers (per-node POINT DIRICH) -- that is exact plane strain, not an approximation. Thermal body sources go in as DESIGN VOL THERMO NEUMANN conditions. 4C's VTU carries NO mechanical reaction forces, but its DIRICHLET MONITOR does: `TAG: monitor_reaction` on each interface DESIGN POINT DIRICH entry plus an `IO/MONITOR STRUCTURE DBC` section (INTERVAL_STEPS 1, FILE_TYPE yaml, WRITE_CONDITION_INFORMATION true) writes <out>-<id>_monitor_dbc.yaml per condition with the node gid (ZERO-based: gid 17 is the deck's NODE 18) and the reaction f. At an interior interface node of the slab (f_layer0 + f_layer1)/(h*t_z) IS the traction in the flux convention -(sigma.n_out): measured 1.45e-2, 3.6e-3, 9.0e-4 relative at h = 1/10, 1/20, 1/40 against a manufactured thermo-elastic solution (order 2.0). Thermal DIRICH entries write no reaction file, so the consistent heat flux comes from a Scalar_Transport run with CALCFLUX_BOUNDARY on the same 2-D mesh; knowledge(topic='coupling', solver='fourc', physics='thermoelastic') serves the whole two-run contract, measured.
+13. WHERE 4C EVALUATES A FUNCT LOAD DIFFERS BY PROBLEM TYPE, and the difference is O(h^2) in the solution: scatra SURF NEUMANN with a FUNCT source assembles the INTERPOLATED load M*f(nodes) (matches that discrete system to 1.7e-15); TSI VOL THERMO NEUMANN evaluates f at the 2x2 GAUSS POINTS (matches to ~1e-15). The two discrete solutions differ by 1.4e-2 at h=1/8, shrinking O(h^2). Consequence: a CALCFLUX boundary flux is the exact reaction of ITS OWN discrete system; compare it only against a re-assembly using the SAME load rule, or the mismatch (5.3e-2 at h=1/8 here) reads as a recovery bug that is not there.
+14. A SAMPLED Neumann profile needs no polynomial fit: `DESIGN POINT NEUMANN CONDITIONS` works for Scalar_Transport with pre-integrated nodal loads -- per interior interface node F_i = h/6*(g_{i-1} + 4*g_i + g_{i+1}), FUNCT [0]. Delivery proven by the zero-vs-real load check (fields differ by 4.1e-3 at N=8) and the field converges at order ~1.95. The LINE NEUMANN + fitted-FUNCT route also works but silently smooths any profile the fit cannot represent.
+
+* READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST NODE. Measured against an independent reference: one solve exported two ways gave order 1.9796 by interpolation and 0.9815 by nearest-node sampling of nearest node. Free self-check: nearest-node sampling can only return (N-1)^2+1 distinct values, so 1936 probes collapse to 50/226/962 at N=8/16/32.
+* GATE BEFORE YOU HAND IN, at EVERY level: the solver REPORTED convergence (not merely that nothing raised), peak|u| > 0, and your load is not constant. Then compute log2(|L1-L2|/|L2-L3|) yourself.
+* ON A COUPLED SIDE, the consistent outward flux is q = -(K u - b_volume)/h with h the node's tributary length. The FACE load must NOT go into that residual -- include it and the reported flux comes out identically zero.
+
+----------------------------------------------------------------------
+
+## If your client truncates long replies: fetch this contract in parts
+
+Call `knowledge(topic='coupling', solver='fourc', signal='participant:part1')`, then request each next part named in that response and concatenate only the fenced code contents in order. For another role insert it before the part, for example `signal='participant:neumann:part1'`. The parts are the same contract as below, solve elided; there is no complete program to reconstruct.
+
+# Coupling participant: 4C Multiphysics
+
+## Sides this backend can take
+
+**Either side.** Both were run as real cross-code couplings against FEniCSx on this install and both converged with non-matching interface meshes. Note this contradicts the deprecated `coupled_solve` docstring, which lists 4C on the Neumann side only — that limitation belongs to the legacy tool's own generators, not to 4C.
+
+## The contract, in case you landed here first
+
+Your script runs in `work_dir` with no arguments. It reads `imports.json`
+(`{partner_name: InterfaceData}` — ABSENT or empty on iteration 1, so it must
+have a fallback) and writes `exports.json` (ONE InterfaceData:
+`{"field_name","n_points","coordinates","values","normal_fluxes"}`). Export the
+same number of points in the same order every iteration, write `exports.json`
+last, and EXIT 0 — the driver requires the file AND a zero exit code, so a
+solver that writes its last iterate and then aborts ends the run instead of
+being coupled on. The driver does NOT copy your script into `work_dir` and does
+NOT interpolate between the two meshes.
+
+Dirichlet side = imports a VALUE, exports the resulting FLUX.
+Neumann side  = imports a FLUX, exports the resulting VALUE.
+Apply the partner's flux number UNCHANGED; export your own flux with respect to
+YOUR outward normal, so the two sides' fluxes carry opposite signs.
+
+Full contract, relaxation guidance and failure modes: `knowledge(topic='coupling')`.
+
+## THERMO-ELASTIC VARIANT — temperature AND displacement through ONE interface (solve elided)
+
+Use this contract when the task transmits temperature and displacement together across the interface (steady thermoelasticity split into subdomains). `values` = [T, ux, uy] and `normal_fluxes` = [qn, qx, qy] per interface point, the traction in the SAME sign convention as the heat flux -- minus the flux of the conserved quantity through this side's outward normal -- so the two sides' exports cancel componentwise and the Neumann side applies the partner's numbers UNCHANGED. A task that asks for the OUTWARD traction sigma.n_out gets minus the exported (qx, qy). Both are recovered from THIS side's own assembled systems (4C: its own boundary-flux VTU and its Dirichlet reaction monitor), never by differencing a P1 field on the boundary.
+
+```python
+"""4C as the DIRICHLET side of a THERMO-ELASTIC coupling (steady thermoelasticity,
+plane strain): the partner's temperature AND displacement come in together at
+the interface, this side's heat flux AND traction go out together.
+
+WHAT IS EXCHANGED (one interface state with THREE components per point):
+    imports  values        = [T, ux, uy]     the partner's interface field
+    exports  normal_fluxes = [qn, qx, qy]    this side's consistent outward flux:
+             qn = -(k grad T).n_out           (Fourier, outward normal)
+             (qx, qy) = -(sigma_tot . n_out)  the TRACTION IN THE FLUX CONVENTION
+The traction is exported with the SAME sign rule as the heat flux (q = -flux
+of the conserved quantity through n_out), so the two sides' exports cancel
+componentwise and the Neumann partner applies them UNCHANGED as its natural
+datum. The task's "outward traction sigma_tot . n_out" is the NEGATIVE of the
+exported pair: write -qx, -qy into your interface CSV, qn as it is.
+
+THE 4C ROUTE, MEASURED ON THIS BINARY (2026-09-11). 4C has no 2-D thermo-
+elastic element, and the thermal reaction of a Dirichlet node is not written
+by any output. So the Dirichlet side is TWO 4C runs per coupling iteration,
+each a deck YOU write (the hole below), both cheap (well under a second):
+  run T  PROBLEMTYPE Scalar_Transport, 2-D TRANSP QUAD4, the heat equation
+         alone (it does not depend on u): the partner's T imposed per interior
+         interface node, the heat source as a FUNCT, CALCFLUX_BOUNDARY
+         "diffusive" + a SCATRA FLUX CALC LINE condition on the interface so 4C
+         writes its own CONSISTENT boundary flux (flux_boundary_phi_1) into the
+         VTU -- the same reaction recovery every other backend here uses;
+  run U  PROBLEMTYPE Thermo_Structure_Interaction on a ONE-ELEMENT-THICK
+         SOLIDSCATRA HEX8 slab with u_z = 0 pinned on every node: that is EXACT
+         plane strain, not an approximation. COUPALGO tsi_oneway with
+         COUPVARIABLE Temperature (thermal strain loads the structure), Statics
+         in both fields, MAT_Struct_ThermoStVenantK whose stress is
+         C:(eps - alpha (T - T0) I) = sigma_el - beta T I with
+         alpha = beta / (3 lambda + 2 mu) and INITTEMP 0; the heat source as a
+         DESIGN VOL THERMO NEUMANN FUNCT, the body force as a DESIGN VOL NEUMANN
+         FUNCT, the partner's (T, ux, uy) per interior interface node on BOTH
+         z-layers as DESIGN POINT THERMO DIRICH + DESIGN POINT DIRICH, and
+         `TAG: monitor_reaction` on every interface POINT DIRICH entry plus an
+         IO/MONITOR STRUCTURE DBC section (FILE_TYPE yaml,
+         WRITE_CONDITION_INFORMATION true): 4C then writes one
+         <out>-<id>_monitor_dbc.yaml per condition carrying the node gid
+         (ZERO-based: gid 17 is the deck's NODE 18) and the reaction force f. The exported (qx, qy) is
+             (f_layer0 + f_layer1) / (h * t_z)
+         at each interior interface node (h = node spacing along the interface,
+         t_z = slab thickness) -- measured against a manufactured thermo-elastic
+         solution: relative error 1.45e-2, 3.6e-3, 9.0e-4 at h = 1/10, 1/20,
+         1/40 (order 2.0), with that sign. The thermo field of run U solves the
+         same heat problem as run T (its load is evaluated at Gauss points, run
+         T's at nodes, so the two agree to O(h^2), measured 1.4e-2 at h = 1/8);
+         the recovery below cross-checks them and stops on a mismatch.
+
+WHAT IS SERVED HERE is the handshake (config + imports, three components mapped
+per component), the sign convention, the finish diagnosis, the recovery from 4C's
+OWN outputs (boundary flux VTU, displacement VTU, reaction yaml), the self-checks
+and the exports schema. THE TWO DECKS AND THE RUNS ARE YOURS -- see the hole.
+
+Reads ./config.json {"level":k,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
+"k":conductivity,"lam":lambda,"mu":mu,"beta":beta,"iface":"left|right|bottom|top",
+"source_T":"<4C expression or 0.0>","source_ux":"..","source_uy":"..",
+"fourc_bin":..,"fourc_ld":..}. Expressions are 4C FUNCT strings: '^' for powers
+(never '**'), lowercase 'pi', coordinates 'x', 'y'.
+"""
+import atexit
+import glob
+import json
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import numpy as np
+
+CFG = json.loads(Path("config.json").read_text())
+NX, NY = int(CFG["nx"]), int(CFG["ny"])
+X0, X1, Y0, Y1 = (float(CFG["x0"]), float(CFG["x1"]),
+                  float(CFG["y0"]), float(CFG["y1"]))
+KV = float(CFG["k"])
+LAM, MU, BETA = float(CFG["lam"]), float(CFG["mu"]), float(CFG["beta"])
+IF = CFG.get("iface", "right")
+SIDE = CFG.get("side", "dirichlet")
+if SIDE != "dirichlet":
+    raise SystemExit("this contract is the DIRICHLET role of a thermo-elastic "
+                     "exchange (T, ux, uy in; qn, qx, qy out). 4C on the NEUMANN "
+                     "side of a thermo-elastic exchange is not served: give that "
+                     "role to the partner code, or apply the imported [qn, qx, qy] "
+                     "yourself as POINT NEUMANN loads on both slab layers.")
+# 4C's material takes E, nu and the linear expansion coefficient; the task
+# gives Lame parameters and beta. These are the exact conversions.
+E_MOD = MU * (3.0 * LAM + 2.0 * MU) / (LAM + MU)
+NU = LAM / (2.0 * (LAM + MU))
+ALPHA = BETA / (3.0 * LAM + 2.0 * MU)
+# SOURCES AS 4C EXPRESSION STRINGS (not Python functions): '^' for powers,
+# lowercase 'pi', 'x', 'y'. "0.0" means none. They reach the solve only through
+# FUNCT blocks in YOUR decks; a Python src() that never reaches a deck does
+# nothing (the classic 4C trap).
+SRC_T = str(CFG.get("source_T", "0.0")).replace("**", "^")
+SRC_UX = str(CFG.get("source_ux", "0.0")).replace("**", "^")
+SRC_UY = str(CFG.get("source_uy", "0.0")).replace("**", "^")
+
+# ---- the partner's interface samples, mapped onto THIS side (handshake) ----
+imp = {}
+if Path("imports.json").is_file():
+    imp = json.loads(Path("imports.json").read_text() or "{}")
+
+
+def partner_values(y_or_x):
+    """The partner's (T, ux, uy) at one of THIS side's interface points, each
+    component interpolated on its own along the interface (the driver does not
+    interpolate between the two meshes; one np.interp over a flattened (N, 3)
+    array interleaves the components -- right length, every number wrong).
+    Empty on iteration 1: fall back to (0, 0, 0)."""
+    for _n, d in imp.items():
+        co = d.get("coordinates") or []
+        va = d.get("values") or []
+        if not (co and va and len(va) == len(co)):
+            continue
+        va = np.asarray(va, float)
+        if va.ndim == 1:
+            va = va.reshape(-1, 1)
+        if va.shape[1] < 3:
+            continue
+        ax = 1 if IF in ("left", "right") else 0
+        s = np.asarray([c[ax] for c in co], float)
+        o = np.argsort(s)
+        t = min(max(float(y_or_x), s[o][0]), s[o][-1])
+        return tuple(float(np.interp(t, s[o], va[o, c])) for c in range(3))
+    return (0.0, 0.0, 0.0)
+
+
+# ── DID 4C FINISH? (served: when a run leaves no output, name the cause) ─
+def why_4c_did_not_finish(tag=""):
+    _why = []
+    try:                                   # 1. 4C's own message
+        for _lg in sorted(glob.glob("*.log")) + sorted(glob.glob("*.txt")):
+            try:
+                with open(_lg, errors="ignore") as _fh:
+                    _lines = _fh.read().splitlines()
+            except OSError:
+                continue
+            for _i, _ln in enumerate(_lines):
+                if "PROC 0 ERROR" in _ln:
+                    _said = []
+                    for l in _lines[_i + 1:_i + 14]:
+                        if l.startswith("---") or l.lstrip().startswith(("0#", "1#")) or "MPI_ABORT" in l:
+                            break
+                        if l.strip():
+                            _said.append(l.strip())
+                    _why.append(f"4C said ({_lg}): " + " | ".join(_said))
+                    break
+    except Exception as _e:                # noqa: BLE001
+        _why.append(f"(log scan failed: {_e!r})")
+    try:                                   # 2. the decks, linted for the measured defects
+        for _deck in sorted(glob.glob("*.4C.yaml")) or sorted(glob.glob("*.yaml")):
+            with open(_deck, errors="ignore") as _fh:
+                _txt = _fh.read()
+            _secs = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, re.M)
+            _dup = sorted({s for s in _secs if _secs.count(s) > 1})
+            if _dup:
+                _why.append(f"{_deck}: section(s) written more than once, 4C reads each once: " + ", ".join(_dup))
+            if "Thermo_Structure_Interaction" in _txt:
+                if "CLONING MATERIAL MAP" not in _txt:
+                    _why.append(f"{_deck}: TSI needs a CLONING MATERIAL MAP pairing the structure material with the MAT_Fourier thermal material")
+                if "COUPVARIABLE" not in _txt or "Temperature" not in _txt.split("COUPVARIABLE", 1)[-1][:40]:
+                    _why.append(f"{_deck}: TSI DYNAMIC/PARTITIONED needs COUPVARIABLE \"Temperature\" -- the default (Displacement) runs to rc=0 with ZERO thermal strain")
+                if re.search(r"\b(WALL|SOLID) QUAD4\b|\bTRI3\b", _txt):
+                    _why.append(f"{_deck}: 4C has no 2-D thermo-elastic element; use a one-element-thick SOLIDSCATRA HEX8 slab with u_z pinned")
+                if "monitor_reaction" in _txt and "IO/MONITOR STRUCTURE DBC" not in _txt:
+                    _why.append(f"{_deck}: TAG: monitor_reaction writes nothing without an IO/MONITOR STRUCTURE DBC section")
+                if "DESIGN VOL THERMO DIRICH" in _txt:
+                    _why.append(f"{_deck}: DESIGN VOL THERMO DIRICH imposes the temperature on the whole volume -- the heat equation is then not solved; the interface T goes in as POINT THERMO DIRICH, the outer T as SURF THERMO DIRICH")
+            if "Scalar_Transport" in _txt:
+                if "THERMAL DYNAMIC:" in _txt and "SCALAR TRANSPORT DYNAMIC:" not in _txt:
+                    _why.append(f"{_deck}: PROBLEMTYPE Scalar_Transport needs its dynamics under `SCALAR TRANSPORT DYNAMIC`, not `THERMAL DYNAMIC`")
+                if "CALCFLUX_BOUNDARY" in _txt and "FLUX CALC" not in _txt:
+                    _why.append(f"{_deck}: CALCFLUX_BOUNDARY is set but no `SCATRA FLUX CALC LINE CONDITIONS` entry names the interface")
+                if "CALCFLUX_BOUNDARY" not in _txt:
+                    _why.append(f"{_deck}: no CALCFLUX_BOUNDARY \"diffusive\" -- 4C then writes no flux_boundary_phi_1 and the flux recovery has nothing to read")
+            if re.search(r"^IO:\s*$", _txt, re.M) and "Scalar_Transport" in _txt:
+                _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck aborted every trial read (\"Could not match this input\"); the VTU appears without it")
+            _topo = set(re.findall(r"D(?:NODE|LINE|SURF|VOL)\s+(\d+)", _txt))
+            for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
+                _head = _b.split(":", 1)[0].strip()
+                if not (_head.startswith("DESIGN") and _head.endswith("CONDITIONS")):
+                    continue
+                _ids = re.findall(r"\bE:\s*(\d+)", _b)
+                _missing = sorted({i for i in _ids if i not in _topo}, key=int)
+                if _missing:
+                    _why.append(f"{_deck}: {_head} names E id(s) {', '.join(_missing[:6])} that no *-NODE TOPOLOGY section defines")
+    except Exception as _e:                # noqa: BLE001
+        _why.append(f"(deck lint failed: {_e!r})")
+    if not _why:
+        _why.append("no output from the run and no 4C error line in any *.log here -- run the binary "
+                    "line-buffered (stdbuf -oL -eL) with its console captured to a log next to the deck")
+    return f"4C DID NOT FINISH{(' (' + tag + ')') if tag else ''} -- " + "; ".join(_why)
+
+
+def _diagnose_at_exit():
+    if not Path("exports.json").is_file():
+        print(why_4c_did_not_finish(), file=sys.stderr, flush=True)
+
+
+atexit.register(_diagnose_at_exit)
+
+# ── YOUR TWO DECKS AND RUNS -- what the hole below must do (the deck grammar,
+#    measured on this binary; the decks and the runs themselves are yours) ──
+# THE TWO DECKS AND THE RUNS ARE YOURS. Build the 2-D node layout of this
+# subdomain (NX x NY quads on [X0,X1] x [Y0,Y1]), find the interface nodes,
+# write and run BOTH decks, and leave behind the names listed at the end.
+#
+# RUN T -- the heat equation, 2-D, PROBLEMTYPE "Scalar_Transport":
+#   SCALAR TRANSPORT DYNAMIC: TIMEINTEGR "Stationary", SOLVERTYPE "linear_full",
+#     VELOCITYFIELD "zero", TIMESTEP/NUMSTEP/MAXTIME 1, LINEAR_SOLVER 1,
+#     CALCFLUX_BOUNDARY "diffusive"
+#   IO/RUNTIME VTK OUTPUT: INTERVAL_STEPS 1 (no other IO section)
+#   SOLVER 1: SOLVER "UMFPACK";  MATERIALS: MAT 1 MAT_scatra DIFFUSIVITY KV
+#   FUNCT1: SYMBOLIC_FUNCTION_OF_SPACE_TIME "<SRC_T>" and a DESIGN SURF NEUMANN
+#     entry (E 1, NUMDOF 1, ONOFF [1], VAL [1.0], FUNCT [1]) so the source
+#     enters the assembled RHS
+#   DESIGN LINE DIRICH CONDITIONS on the OUTER boundary line (VAL [0.0] or the
+#     task's outer T), DESIGN POINT DIRICH CONDITIONS one per INTERIOR interface
+#     node with VAL [partner_values(y)[0]] (the interface ENDPOINTS keep the
+#     outer datum: they are outer-boundary nodes on both sides)
+#   SCATRA FLUX CALC LINE CONDITIONS: - E: <the interface DLINE id>
+#   NODE COORDS ("NODE i COORD x y 0.0"), TRANSPORT ELEMENTS ("e TRANSP QUAD4
+#     n1 n2 n3 n4 MAT 1 TYPE Std"), DLINE-NODE TOPOLOGY (outer line AND the
+#     interface line), DNODE-NODE TOPOLOGY (one DNODE per interface point
+#     condition, ids continuous across ALL condition families), DSURF-NODE
+#     TOPOLOGY (every node, DSURFACE 1)
+#
+# RUN U -- the displacement, PROBLEMTYPE "Thermo_Structure_Interaction" on the
+# one-element-thick slab (DIM 3): every 2-D node twice, at z = 0 and z = TZ
+# (TZ = min(hx, hy) keeps the hexes well shaped), each quad as ONE
+# "e SOLIDSCATRA HEX8 n1 n2 n3 n4 n5 n6 n7 n8 MAT 1 KINEM linear TYPE Undefined"
+# (bottom four counter-clockwise, then the same four on the top layer):
+#   IO: STRUCT_STRESS "No", STRUCT_STRAIN "No"
+#   IO/MONITOR STRUCTURE DBC: INTERVAL_STEPS 1, FILE_TYPE yaml,
+#     WRITE_CONDITION_INFORMATION true
+#   STRUCTURAL DYNAMIC: DYNAMICTYPE "Statics", TIMESTEP/NUMSTEP/MAXTIME 1,
+#     LINEAR_SOLVER 2;  THERMAL DYNAMIC: DYNAMICTYPE Statics, same steps,
+#     LINEAR_SOLVER 1;  TSI DYNAMIC: COUPALGO "tsi_oneway", NUMSTEP/MAXTIME/
+#     TIMESTEP 1, ITEMAX 1;  TSI DYNAMIC/PARTITIONED: COUPVARIABLE "Temperature"
+#   IO/RUNTIME VTK OUTPUT: INTERVAL_STEPS 1;  IO/RUNTIME VTK OUTPUT/STRUCTURE:
+#     OUTPUT_STRUCTURE true, DISPLACEMENT true;  THERMAL DYNAMIC/RUNTIME VTK
+#     OUTPUT: OUTPUT_THERMO true, TEMPERATURE true
+#   SOLVER 1 and SOLVER 2: SOLVER "UMFPACK"
+#   MATERIALS: MAT 1 MAT_Struct_ThermoStVenantK {YOUNGNUM 1, YOUNG [E_MOD],
+#     NUE NU, DENS 1, THEXPANS ALPHA, INITTEMP 0, THERMOMAT 2};
+#     MAT 2 MAT_Fourier {CAPA 1, CONDUCT: constant: [KV]}
+#   CLONING MATERIAL MAP: - SRC_FIELD "structure", SRC_MAT 1, TAR_FIELD
+#     "thermo", TAR_MAT 2
+#   FUNCT1 "<SRC_UX>", FUNCT2 "<SRC_UY>", FUNCT3 "<SRC_T>"
+#   DESIGN VOL NEUMANN CONDITIONS: E 1, NUMDOF 3, ONOFF [1,1,0], VAL
+#     [1.0,1.0,0.0], FUNCT [1,2,0]           (the body force)
+#   DESIGN VOL THERMO NEUMANN CONDITIONS: E 1, NUMDOF 1, ONOFF [1], VAL [1.0],
+#     FUNCT [3]                              (the heat source)
+#   DESIGN VOL DIRICH CONDITIONS: E 1, NUMDOF 3, ONOFF [0,0,1], VAL [0,0,0],
+#     FUNCT [0,0,0]                          (u_z = 0 everywhere: plane strain)
+#   DESIGN SURF DIRICH CONDITIONS (E 1: all outer-boundary nodes of BOTH
+#     layers, NUMDOF 3, ONOFF [1,1,1], VAL [0,0,0]) and DESIGN SURF THERMO
+#     DIRICH CONDITIONS (E 1, NUMDOF 1, ONOFF [1], VAL [0]) -- or the task's
+#     outer values
+#   DESIGN POINT DIRICH CONDITIONS: one entry per INTERIOR interface node AND
+#     per layer (two entries per 2-D node), NUMDOF 3, ONOFF [1,1,1],
+#     VAL [ux, uy, 0.0] from partner_values(y), FUNCT [0,0,0],
+#     TAG: monitor_reaction
+#   DESIGN POINT THERMO DIRICH CONDITIONS: the same DNODE ids, NUMDOF 1,
+#     ONOFF [1], VAL [T] from partner_values(y), FUNCT [0]
+#   NODE COORDS, STRUCTURE ELEMENTS, DNODE-NODE TOPOLOGY (one DNODE per point
+#     condition), DSURF-NODE TOPOLOGY (the outer nodes, both layers),
+#     DVOL-NODE TOPOLOGY (every node)
+#
+# Run each deck with the binary at config `fourc_bin` and its libraries on
+# `fourc_ld` as LD_LIBRARY_PATH, line-buffered, console captured:
+#     stdbuf -oL -eL <bin> <deck> <out_prefix> > <deck>.log 2>&1
+# with two different output prefixes, e.g. out_T and out_U. When a run exits
+# non-zero DO NOT raise: fall through, the served check reads the log and the
+# decks and names the cause. OASiS does not run the solver for you.
+#
+# WHAT YOUR SOLVE MUST LEAVE BEHIND (the recovery below uses these names):
+#     nodes      the 2-D node list [(x, y), ...] indexed by 4C node id - 1
+#                (the same ids in run T; run U's 3-D ids may differ, the
+#                recovery maps its reactions by coordinate)
+#     interior   the INTERIOR interface node ids (1-based, run-T numbering),
+#                ordered along the interface; the two endpoints are dropped
+#     TZ         the slab thickness used in run U
+#     OUT_T      run T's output prefix (its VTU is <OUT_T>-vtk-files/scatra-*.vtu)
+#     OUT_U      run U's output prefix (structure-*.vtu, thermo-*.vtu and
+#                <OUT_U>-*_monitor_dbc.yaml)
+#     DECK_U     the path of the run-U deck (its NODE COORDS map node gids to
+#                coordinates for the reaction files)
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
+#
+# Build the mesh, the function space, the weak form and the linear solve for
+# the problem you were given, in this backend, however you judge best. That is
+# ordinary finite-element work and OASiS has no business dictating it.
+#
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# recovery below. Those are this tool's own interface, not your method.
+#
+# At this point you are expected to have produced:
+#   * the discrete solution on this subdomain, with the partner's interface
+#     data applied according to SIDE, and
+#   * the assembled operator and the VOLUME load separately, because the flux
+#     recovery below subtracts the volume load alone.
+# ─────────────────────────────────────────────────────────────────────────
+
+# ── RECOVERY FROM 4C's OWN OUTPUTS (served) ────────────────────────────────
+import meshio  # noqa: E402
+
+
+def _latest(pattern):
+    vs = sorted(glob.glob(pattern))
+    if not vs:
+        return None
+    # <field>-<step>-<rank>.vtu: the TRAILING number is the MPI rank; the step
+    # is the middle one, and step 0 is the all-zero initial state
+    def _step(p):
+        m = re.match(r".*-(\d+)-\d+\.vtu$", p)
+        return int(m.group(1)) if m else -1
+    return max(vs, key=_step)
+
+
+def _nodal(m, field, comps, zlayer=None):
+    """Field values on the 2-D node layout. A 4C VTU repeats every node once
+    per element (and the slab has two layers): collapse by coordinate."""
+    pts = np.asarray(m.points)
+    val = np.asarray(m.point_data[field])
+    if val.ndim == 1:
+        val = val.reshape(-1, 1)
+    rows = np.arange(len(pts)) if zlayer is None else np.where(np.abs(pts[:, 2] - zlayer) < 1e-9)[0]
+    key = {}
+    for r in rows:
+        key.setdefault((round(float(pts[r, 0]), 9), round(float(pts[r, 1]), 9)), []).append(r)
+    out = np.zeros((len(nodes), comps))
+    for i, (x, y) in enumerate(nodes):
+        rr = key.get((round(float(x), 9), round(float(y), 9)))
+        if not rr:
+            raise SystemExit(f"4C VTU field {field!r} has no node at {(x, y)}: the deck's nodes and "
+                             f"`nodes` disagree")
+        out[i] = val[rr, :comps].mean(axis=0)
+    return out
+
+
+vtu_T = _latest(f"{OUT_T}-vtk-files/scatra-*.vtu")
+if vtu_T is None:
+    raise SystemExit(why_4c_did_not_finish("run T"))
+mT = meshio.read(vtu_T)
+T2d = _nodal(mT, "phi_1", 1)[:, 0]
+fbname = next((da for da in mT.point_data if "flux_boundary" in da), None)
+if fbname is None:
+    raise SystemExit("run T wrote no flux_boundary field -- set CALCFLUX_BOUNDARY \"diffusive\" and "
+                     "add a SCATRA FLUX CALC LINE CONDITIONS entry on the interface line")
+FB = _nodal(mT, fbname, 2)
+nrm = {"left": (-1.0, 0.0), "right": (1.0, 0.0), "bottom": (0.0, -1.0), "top": (0.0, 1.0)}[IF]
+q_n = [float(FB[n - 1, 0] * nrm[0] + FB[n - 1, 1] * nrm[1]) for n in interior]
+
+vtu_U = _latest(f"{OUT_U}-vtk-files/structure-*.vtu")
+vtu_UT = _latest(f"{OUT_U}-vtk-files/thermo-*.vtu")
+if vtu_U is None or vtu_UT is None:
+    raise SystemExit(why_4c_did_not_finish("run U"))
+U2d = _nodal(meshio.read(vtu_U), "displacement", 2, zlayer=0.0)
+Ttsi = _nodal(meshio.read(vtu_UT), "temperature", 1, zlayer=0.0)[:, 0]
+# The two runs solve the same discrete heat problem up to the load rule
+# (nodal vs Gauss-point evaluation of the source, O(h^2)); a larger gap means
+# one deck is not the problem it claims to be -- checked, not assumed.
+_dT = float(np.max(np.abs(Ttsi - T2d)) / max(float(np.max(np.abs(T2d))), 1e-300))
+if _dT > 0.05:
+    raise SystemExit(f"the TSI deck's temperature differs from the scatra deck's by {_dT:.3f} relative: "
+                     f"the two decks do not solve the same heat problem (check FUNCT3 = the heat source, "
+                     f"the POINT THERMO DIRICH values and the outer SURF THERMO DIRICH of run U)")
+
+# REACTIONS -> TRACTION. One yaml per monitored condition, with the node gid(s);
+# the run-U deck's NODE COORDS map gids to coordinates.
+_gid_xy = {}
+for _ln in Path(DECK_U).read_text(errors="ignore").splitlines():
+    _m = re.match(r'\s*-\s*"?NODE\s+(\d+)\s+COORD\s+(\S+)\s+(\S+)\s+(\S+)"?', _ln)
+    if _m:
+        _gid_xy[int(_m.group(1))] = (round(float(_m.group(2)), 9), round(float(_m.group(3)), 9))
+_F = {}
+for _yf in glob.glob(f"{OUT_U}-*_monitor_dbc.yaml"):
+    _txt = Path(_yf).read_text(errors="ignore")
+    _gids = [int(g) for g in re.findall(r"^\s*-\s*(\d+)\s*$", _txt.split("dbc monitor condition data", 1)[0], re.M)]
+    _fs = re.findall(r"^\s*f:\s*\n\s*-\s*(\S+)\s*\n\s*-\s*(\S+)", _txt, re.M)
+    if not (_gids and _fs):
+        continue
+    fx, fy = float(_fs[-1][0]), float(_fs[-1][1])          # the last step
+    # MEASURED: the yaml's node gids are ZERO-based while the deck's NODE ids
+    # are one-based (gid 17 in the file is "NODE 18" in the deck)
+    _xy = _gid_xy.get(_gids[0] + 1)
+    if _xy is None:
+        continue
+    _acc = _F.setdefault(_xy, [0.0, 0.0])
+    _acc[0] += fx
+    _acc[1] += fy
+if not _F:
+    raise SystemExit("run U wrote no <OUT_U>-*_monitor_dbc.yaml: every interface DESIGN POINT DIRICH "
+                     "entry needs `TAG: monitor_reaction` and the deck an IO/MONITOR STRUCTURE DBC "
+                     "section with FILE_TYPE yaml and WRITE_CONDITION_INFORMATION true")
+_ax = 1 if IF in ("left", "right") else 0
+_coord = [float(nodes[n - 1][_ax]) for n in interior]
+_h = float(np.median(np.diff(sorted(_coord)))) if len(_coord) > 1 else (Y1 - Y0)
+_share = _h * float(TZ)
+q_t = []
+for n in interior:
+    _xy = (round(float(nodes[n - 1][0]), 9), round(float(nodes[n - 1][1]), 9))
+    if _xy not in _F:
+        raise SystemExit(f"no reaction file for the interface node at {_xy}: its POINT DIRICH entries "
+                         f"(both layers) need TAG: monitor_reaction")
+    q_t.append([_F[_xy][0] / _share, _F[_xy][1] / _share])   # MEASURED sign: this IS -(sigma.n_out)
+co = [[float(nodes[n - 1][0]), float(nodes[n - 1][1])] for n in interior]
+Q = [[qn, qt[0], qt[1]] for qn, qt in zip(q_n, q_t)]
+
+# ── EXPORT SELF-CHECK ─ keep this block ───────────────────────────────────
+_chk = np.asarray(Q, float)
+if not np.isfinite(_chk).all():
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface fluxes; nothing was exported")
+_chk_imp = imp if imp else {}
+_chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                            for _d in _chk_imp.values()]) if _chk_imp else np.zeros(0))
+if _chk_qin.size == _chk.size and _chk.size and np.array_equal(_chk.ravel(), -_chk_qin):
+    raise SystemExit("EXPORT SELF-CHECK: the exported fluxes are the partner's array negated, bit for "
+                     "bit: a copy, not a recovery from this side's own runs")
+if np.abs(_chk[:, 1:]).max() == 0.0 and np.abs(U2d).max() > 0:
+    raise SystemExit("EXPORT SELF-CHECK: a zero traction against a nonzero displacement field: the "
+                     "reaction files carried nothing -- check TAG: monitor_reaction on the interface "
+
+──────────────────────────────────────────────────────────────────────
+THIS PAYLOAD IS TRUNCATED HERE. 46,440 further characters exist and are NOT lost.
+──────────────────────────────────────────────────────────────────────
+You are reading the first 27,968 of 74,042 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
+WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
+
+
+THE 4C DECK GRAMMAR — you cannot guess it, and 4C is a BINARY, so the deck is
+this backend's run interface in exactly the way exports.json is the driver's.
+Every NUMBER below is an ARBITRARY PLACEHOLDER; the sections and their syntax
+are what is documented. A deck with these sections runs; one missing any of
+them aborts during input parsing.
+
+  TITLE:
+    - "anything"
+  PROBLEM SIZE:
+    ELEMENTS: 4
+    NODES: 9
+  PROBLEM TYPE:
+    PROBLEMTYPE: "Scalar_Transport"
+  SCALAR TRANSPORT DYNAMIC:
+    TIMEINTEGR: "Stationary"
+    SOLVERTYPE: "linear_full"
+    NUMSTEP: 1
+    TIMESTEP: 1.0
+    MAXTIME: 1.0
+    LINEAR_SOLVER: 1
+  SOLVER 1:
+    SOLVER: "UMFPACK"
+  MATERIALS:
+    - MAT: 1
+      MAT_scatra:
+        DIFFUSIVITY: 1.0          # <- YOUR k
+  FUNCT1:
+    - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "x^2*y"     # <- YOUR source/BC
+  DESIGN LINE DIRICH CONDITIONS:
+    - E: 1
+      NUMDOF: 1
+      ONOFF: [1]
+      VAL: [0.0]
+      FUNCT: [0]
+  NODE COORDS:
+    - "NODE 1 COORD 0.0 0.0 0.0"
+  TRANSPORT ELEMENTS:
+    - "1 TRANSP QUAD4 1 2 5 4 MAT 1 TYPE Std"
+  DLINE-NODE TOPOLOGY:
+    - "NODE 1 DLINE 1"
+
+THE VOLUME SOURCE TERM f IS A "SURF" NEUMANN CONDITION IN 2-D. There is no
+body-force section: 4C calls a 2-D domain a SURFACE, so `-div(k grad u) = f`
+gets its f from
+
+  DESIGN SURF TRANSPORT NEUMANN CONDITIONS:
+    - E: 1
+      NUMDOF: 1
+      ONOFF: [1]
+      VAL: [1.0]        # scale; the shape comes from FUNCT
+      FUNCT: [1]        # -> FUNCT1's SYMBOLIC_FUNCTION_OF_SPACE_TIME
+  DSURF-NODE TOPOLOGY:
+    - "NODE 1 DSURFACE 1"      # every node of the subdomain
+
+In 3-D the same role is played by `DESIGN VOL TRANSPORT NEUMANN CONDITIONS`
+with `DVOL-NODE TOPOLOGY`. Using the VOL form on a 2-D problem is trap (d)
+below. Omit this section and you solve f = 0 -- the run succeeds and the
+answer is wrong, which is the worst failure mode available.
+
+PER-NODE DIRICHLET DATA IS EXACT, AND NEEDS NO FITTED FUNCTION.
+A Dirichlet-side participant receives a DISCRETE interface profile, one value per
+interface node. `DESIGN LINE DIRICH CONDITIONS` takes ONE scalar VAL (times an
+optional FUNCT), so it cannot carry that profile -- but one POINT condition PER
+NODE can, and it is exact:
+
+  DESIGN POINT DIRICH CONDITIONS:
+    - E: 1
+      NUMDOF: 1
+      ONOFF: [1]
+      VAL: [0.00016283346722727]        # this node's imported value
+      FUNCT: [0]
+    - E: 2
+      NUMDOF: 1
+      ONOFF: [1]
+      VAL: [0.00030035999458698]
+      FUNCT: [0]
+  DNODE-NODE TOPOLOGY:
+    - "NODE 17 DNODE 1"
+    - "NODE 34 DNODE 2"
+
+One `E` id per interface node, one topology line mapping that node to it. The
+values above are verbatim from a real deck that ran to completion.
+
+DO NOT least-squares-fit the profile into a SYMBOLIC_FUNCTION_OF_SPACE_TIME
+unless there is no alternative. A fit converges to a slightly DIFFERENT
+boundary-value problem, so the refinement study measures the fit rather than the
+method and the error does not fall at the expected rate. Measured: one agent
+concluded "4C cannot impose per-node Dirichlet values" and wrote a
+could-not-finish report, while another used point conditions and produced a
+complete three-level study from the same binary.
+
+WHICH PROBLEM TYPE YOU PICK DECIDES WHETHER YOU CAN READ YOUR OWN ANSWER.
+Measured on this build:
+FOUR MEASURED WAYS THIS DIES, all of them silently:
+(a) THE LEGACY BLOCKS ARE YAML SEQUENCES. `NODE COORDS`, `TRANSPORT
+    ELEMENTS` and `D*-NODE TOPOLOGY` entries each need `- ` and quotes.
+    Written bare, YAML reads them as mapping keys and 4C dies with
+      ERROR: could not find ':' colon after key
+    BEFORE its own banner appears.
+(b) `**` IS NOT EXPONENTIATION in SYMBOLIC_FUNCTION_OF_SPACE_TIME. Use `^`.
+    And the constant is lowercase `pi`: `PI` aborts the run with "Missing
+    variables PI to evaluate expression" (measured on a trial deck).
+    The task states its source term in Python notation; rewrite every term.
+(c) ONOFF / VAL / FUNCT must each have EXACTLY `NUMDOF` entries, or
+      [!] Candidate parameter 'VAL' has incorrect size
+(d) A condition's dimension must not exceed the problem's: a
+    `DESIGN VOL ...` block on a 2-D problem gives
+      Dimension of condition is larger than the problem dimension.
+(e) NO SECTION OR KEY THE GRAMMAR DOES NOT LIST. 4C matches every block
+    against its specification and aborts on the first unknown key with
+      Could not match this input
+    followed by the offending block. Measured in three of three trial decks
+    written from this grammar: an added `IO:` block with `VERBOSITY:
+    "Standard"` aborts the run. 4C's defaults need no IO section at all;
+    keep exactly the sections above and nothing you did not see documented.
+(f) EVERY `E:` ID A CONDITION NAMES MUST EXIST IN THE MATCHING TOPOLOGY.
+    Ids are 1-based and contiguous. A `DESIGN LINE ... CONDITIONS` entry
+    with `E: 4` while `DLINE-NODE TOPOLOGY` defines only DLINE 1..3 aborts
+    with
+      DLine 4 not in range [0:4[  DLine condition on non existent DLine
+    Count the distinct DLINE (DSURFACE, DNODE) ids in your topology and use
+    only those; give every interface, outer-boundary and surface set its
+    own id and its own topology lines.
+(g) NEVER TYPE NODE COORDS, ELEMENTS OR TOPOLOGY BY HAND. Generate them in
+    a short loop (a Python script that writes the deck for the level in
+    ./config.json, which is what the participant contract does) and let the
+    loop count them. Measured on trial decks typed out in full: a list one
+    node short aborts with
+      Element 79 cannot find node 99
+    and a long typed deck was cut off mid-string and failed to parse with
+      reached end of file looking for closing quote
+    A generator is thirty lines; the deck it writes can be any size.
+(h) EVERY TOPOLOGY SECTION APPEARS ONCE. All point sets share the one
+    `DNODE-NODE TOPOLOGY` block, all line sets the one `DLINE-NODE TOPOLOGY`
+    block, and so on -- one section per kind, holding every E id. A deck that
+    writes the block again for its second condition aborts on read with
+      Section 'DNODE-NODE TOPOLOGY' is defined more than once.
+    (measured on a trial deck that gave its Dirichlet points and its Neumann
+    points separate topology blocks).
+
+AND READ THE LOG FROM THE TOP. 4C buffers stdout and MPI_Abort kills it
+before the flush, so `| tail` shows only MPI boilerplate. Measured on one
+failing deck: 8 lines without line buffering, 43 with it. Run
+    stdbuf -oL <4C binary> deck.4C.yaml out > run.log 2>&1 ; head -40 run.log
+`Invalid MIT-MAGIC-COOKIE-1 key` is an X11 warning that appears on
+SUCCESSFUL runs too — `4C -p` prints it and then dumps the whole grammar.
+It never explains a failure.
+  * `SOLID` IS THE 3-D CONTINUUM ELEMENT; THE 2-D ONE IS CALLED `WALL`. Writing
+    `SOLID QUAD4` fails with
+
+        Element 'SOLID' does not seem to know cell type 'quad4'.
+
+    Measured on this build, from 4C's own grammar (`4C -p`):
+        SOLID        HEX8 HEX18 HEX20 HEX27 TET4 TET10 WEDGE6 PYRAMID5 NURBS27
+        WALL         QUAD4 QUAD8 QUAD9 TRI3 TRI6 NURBS4 NURBS9
+        THERMO       QUAD4 QUAD8 QUAD9 TRI3 TRI6 + the 3-D types
+    A WALL element line carries its own extra keywords, and this one RUNS
+    (exit 0, "processor 0 finished normally", num_dof 8 on a single element):
+
+        STRUCTURE ELEMENTS:
+          - "1 WALL QUAD4 1 2 3 4 MAT 1 KINEM linear EAS none THICK 1.0
+             STRESS_STRAIN plane_strain GP 2 2"
+
+  * 2-D THERMO_STRUCTURE_INTERACTION IS NOT AVAILABLE IN THIS BUILD, and the
+    error does not say so. A 2-D TSI deck fails with
+
+        4C_tsi_utils.cpp: Unsupported solid element type!
+
+    even after the element name is corrected to WALL. The reason is in the
+    source: `TSI::Utils::ThermoStructureCloneStrategy::set_element_data`
+    accepts ONLY a `SolidScatra` element and throws for anything else, and
+    SOLIDSCATRA's cell types are HEX8, HEX27, TET4, TET10 and NURBS27 — every
+    one of them three-dimensional. So the clone step can never succeed in 2-D,
+    whatever else the deck says.
+
+    For a two-dimensional thermoelastic subdomain, do NOT keep repairing the
+    TSI deck, and do NOT conclude the problem cannot be solved (one run gave
+    up at this sentence with 26 minutes left). THE MEASURED ROUTE: a
+    three-dimensional slab one element thick -- SOLIDSCATRA HEX8, u_z fixed
+    on every node, plane strain by construction -- and it is served ready to
+    run: `prepare_simulation(solver='fourc', physics='tsi')` hands over the
+    `plane_strain_2d` variant (executed on this binary to 'processor 0
+    finished normally'), which SOLVES its temperature: thermal Dirichlet on
+    the two x-faces, heat source and body force as FUNCTs, the clamped
+    face's reactions monitored. Keep the thermal expansion from
+    THEXPANS/INITTEMP (alpha = beta/(3*lambda+2*mu) for a task that states
+    beta). For a COUPLED subdomain take the served contract,
+    `knowledge(topic='coupling', solver='fourc', physics='thermoelastic')`:
+    two 4C runs per iteration -- Scalar_Transport for T and its consistent
+    boundary flux, the TSI slab for u with `TAG: monitor_reaction` on the
+    interface point conditions giving the consistent traction (measured
+    order 2.0) -- exchanging [T, ux, uy] / [qn, qx, qy] per interface point. The alternative of two
+    separate problem types (`Structure` with WALL elements and `Thermo` with
+    THERMO elements, exchanging the thermal strain yourself) has no served
+    recipe. Runs have
+    lost their whole budget rewriting section names against this, because
+    the message names an element type and not the dimension.
+
+  * DESIGN ENTITY IDS START AT 1, AND A 0 IS A SEGMENTATION FAULT WITH NO
+    MESSAGE. `E:` in a condition block and the `DLINE`/`DNODE`/`DSURF` number
+    in the matching topology block are ONE-BASED. Writing `E: 0` with
+    `NODE n DLINE 0`, which is the natural thing to do coming from Python,
+    indexes past the end of the design-entity array:
+
+        E: 0 / DLINE 0   ->  Signal: Segmentation fault (11)
+                             Signal code: Address not mapped (1)     exit 139
+        E: 1 / DLINE 1   ->  Read/generate conditions ... 0.0024 secs
+                             processor 0 finished normally           exit 0
+
+    Measured by running the SAME deck twice with only that digit changed. There
+    is no error message, no line number and no mention of conditions: the
+    process simply dies, and the crash arrives during "Read/generate
+    conditions", so it reads like a problem with the condition's CONTENT. A run
+    that responds by rewriting the section names, swapping
+    `DESIGN LINE TRANSPORT DIRICH` for `DESIGN LINE DIRICH`, or changing the
+    element TYPE will crash identically every time. Check the digit first.
+
+  * `PROBLEMTYPE: "Thermo"` with a `THERMAL DYNAMIC` section and
+        IO:
+          VERBOSITY: "Standard"
+        IO/RUNTIME VTK OUTPUT:
+          OUTPUT_DATA_FORMAT: ascii
+    writes <prefix>-vtk-files/thermo-<step>-<rank>.vtu -- ASCII VTU, readable
+    with meshio, which is what you need to evaluate the field at probe points.
+  * `PROBLEMTYPE: "Scalar_Transport"` with the SAME IO block writes NO VTU on
+    this build: only <prefix>.control and <prefix>.result.scatra.s1, the latter
+    binary. `4C -p` offers IO/RUNTIME VTK OUTPUT/{BEAMS,FLUID,STRUCTURE} and no
+    scatra subsection, and SCALAR TRANSPORT DYNAMIC's `OUTPUTSCALARS` emits
+    totals and means, not fields.
+Choose the route by what you must DELIVER, not only by what the physics is
+called: a conduction problem whose field you have to probe is easier to read
+back through Thermo.
+

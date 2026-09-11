@@ -2250,6 +2250,40 @@ def _vector_block(script_name: str) -> str:
         f"```python\n{_serve_participant(p)}```\n")
 
 
+def _thermoelastic_block(script_name: str) -> str:
+    """The THERMO-ELASTIC participant (temperature AND displacement through
+    one interface state), when one ships for this backend.
+
+    Measured 2026-09-11 on the thermo-mechanical coupled cell: three runs
+    that were handed the scalar heat contract and the sentence "4C has no
+    2-D TSI element" filed give-ups, one of them with the solves already on
+    disk. The contract exists for two codes now (4C as the Dirichlet side --
+    two runs per iteration, 4C's own boundary flux and reaction monitor as
+    the recovery -- and FEniCSx in both roles), validated by execution at
+    three mesh levels against a manufactured thermo-elastic solution.
+    Appended wherever the file exists; `knowledge(topic='coupling',
+    solver=..., physics='thermoelastic')` serves it FIRST.
+    """
+    p = _PARTICIPANT_DIR / f"participant_{script_name}_thermoelastic.py"
+    if not p.is_file():
+        return ""
+    return (
+        "\n## THERMO-ELASTIC VARIANT — temperature AND displacement through ONE "
+        "interface (solve elided)\n\n"
+        "Use this contract when the task transmits temperature and displacement "
+        "together across the interface (steady thermoelasticity split into "
+        "subdomains). `values` = [T, ux, uy] and `normal_fluxes` = [qn, qx, qy] "
+        "per interface point, the traction in the SAME sign convention as the "
+        "heat flux -- minus the flux of the conserved quantity through this "
+        "side's outward normal -- so the two sides' exports cancel componentwise "
+        "and the Neumann side applies the partner's numbers UNCHANGED. A task "
+        "that asks for the OUTWARD traction sigma.n_out gets minus the exported "
+        "(qx, qy). Both are recovered from THIS side's own assembled systems "
+        "(4C: its own boundary-flux VTU and its Dirichlet reaction monitor), "
+        "never by differencing a P1 field on the boundary.\n\n"
+        f"```python\n{_serve_participant(p)}```\n")
+
+
 def _scaffold_first(traps: str):
     """When a backend's traps carry a config-driven scaffold (a fenced block
     that reads ./config.json -- 4C and DUNE-fem tonight), that scaffold IS
@@ -2307,6 +2341,7 @@ def _payload(title: str, sides: str, script_name: str, launch: str,
             f"## Launching it\n\n{launch}\n"
             f"## {title}-specific traps\n\n{traps}\n{extra}"
             f"{_vector_block(script_name)}"
+            f"{_thermoelastic_block(script_name)}"
             f"{_transient_block(script_name)}"
             f"{_threed_block(script_name)}")
 

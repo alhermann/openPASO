@@ -1281,7 +1281,13 @@ def register_knowledge_tools(mcp: FastMCP):
    combined eletype, NOT plain `SOLID HEX8` (structure-only) or
    the legacy `WALL` 2D eletype.
    - SOLIDSCATRA combines structural + scalar transport capabilities
-   - Must be 3D (no 2D TSI elements in 4C)
+   - No 2D TSI element exists. A 2D PLANE-STRAIN problem is NOT out of
+     reach: run it as a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab with u_z
+     pinned on every node (exact plane strain, not an approximation).
+     `prepare_simulation(solver='fourc', physics='tsi')` serves that slab
+     with its temperature SOLVED (thermal Dirichlet faces, heat source and
+     body force as FUNCTs), and `knowledge(topic='coupling',
+     solver='fourc', physics='thermoelastic')` the coupled contract on it.
 
 2. **Material:** `MAT_Struct_ThermoStVenantK`
    ```yaml
@@ -1538,7 +1544,15 @@ direction, which is not what "one-way TSI" usually means.
 2. **CLONING MAP is mandatory** — without it, 4C crashes at initialization
 3. **THEXPANS units** — must be consistent with temperature units (1/K or 1/°C)
 4. **INITTEMP** — the reference temperature for zero thermal strain
-5. **3D only** — no 2D TSI elements available in 4C
+5. **No 2D TSI element** — a 2D plane-strain problem runs as a
+   one-element-thick SOLIDSCATRA HEX8 slab with u_z pinned everywhere
+   (exact plane strain; served by `prepare_simulation(solver='fourc',
+   physics='tsi')`). Do not conclude that 4C cannot do 2D thermo-mechanics.
+6. **Reaction forces** — the VTU carries none, but `TAG: monitor_reaction`
+   on a DIRICH condition plus an `IO/MONITOR STRUCTURE DBC` section
+   (FILE_TYPE yaml, WRITE_CONDITION_INFORMATION true) writes one
+   `<out>-<id>_monitor_dbc.yaml` per condition with the node gid
+   (zero-based) and the reaction force; structural conditions only.
 '''
 
     @mcp.tool()

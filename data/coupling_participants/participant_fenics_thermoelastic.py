@@ -104,6 +104,29 @@ def sample(imp, key, fallback, y):
 
 imp = read_imports()
 
+# ── HOLE 1 (yours): mesh, spaces, dof sets, interface measure, forms, outer BCs.
+#    The dolfinx 0.10 idioms, described (the code and the forms are yours): the
+#    mesh is dmesh.create_rectangle over the corners [X0, Y0] and [X1, Y1] with
+#    NX by NY triangle cells; ST is a scalar ("Lagrange", 1) fem.functionspace
+#    and SU the vector one with shape (2,); create the facet-to-cell
+#    connectivity (topology dim - 1 to dim). tabulate_dof_coordinates() has
+#    ONE ROW PER NODE, and in SU's array component c of node n sits at index
+#    2*n + c. iface_T and iface_U are the rows with x equal to IFACE_X, SORTED
+#    BY y (constant order every iteration), y_if their y; outer_T and outer_U
+#    the rows on x equal to OUTER_X or y equal to Y0 or Y1. The two interface
+#    rows that also lie on y equal to Y0 or Y1 are CORNERS: leave them out of
+#    iface_bc_T and iface_bc_U (they keep the outer value on both sides;
+#    handed to the interface they cost 4.7% in u and 28% in traction). ds_if
+#    is a ufl.Measure over "ds" restricted through meshtags of the interface
+#    facets (dmesh.locate_entities_boundary with np.isclose on x). vT and vu
+#    are the test functions; aT and au your bilinear forms (conduction with K;
+#    plane-strain elasticity with LAM and MU); L_T_vol the heat source ALONE
+#    (a fem.Function on ST interpolated from F_T, times vT, over dx); fU_h the
+#    body force as a fem.Function on SU interpolated from F_U (np.vstack of
+#    its two arrays); bcs_T and bcs_U lists of fem.dirichletbc carrying the
+#    OUTER values on the outer rows (as int32 arrays).
+#    LEAVE BEHIND: domain, ST, SU, iface_T, iface_U, iface_bc_T, iface_bc_U,
+#    y_if, outer_T, outer_U, ds_if, vT, vu, aT, au, L_T_vol, fU_h, bcs_T, bcs_U.
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
                                 [NX, NY], dmesh.CellType.triangle)
@@ -193,6 +216,14 @@ else:
     L_T_if = gq * vT * ds_if
     L_U_if = ufl.inner(gt, vu) * ds_if
 
+# ── HOLE 2 (yours): the two solves, in this order. Solve the heat problem
+#    with dolfinx.fem.petsc.LinearProblem (aT against L_T_vol + L_T_if, bcs_T,
+#    the keyword petsc_options_prefix, ksp preonly with an lu pc) into Th.
+#    Then build L_U_vol = the body-force term plus the thermal term
+#    BETA * Th * div(vu) over dx of the DISCRETE temperature, and solve au
+#    against L_U_vol + L_U_if with bcs_U into Uh. Keep L_U_vol apart from the
+#    interface term: the recovery below subtracts the VOLUME load alone.
+#    LEAVE BEHIND: Th, Uh, L_U_vol.
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
 Th = LinearProblem(aT, L_T_vol + L_T_if, bcs=bcs_T, petsc_options_prefix="teT",
                    petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()

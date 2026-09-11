@@ -207,11 +207,16 @@ It never explains a failure.
     on every node, plane strain by construction -- and it is served ready to
     run: `prepare_simulation(solver='fourc', physics='tsi')` hands over the
     `plane_strain_2d` variant (executed on this binary to 'processor 0
-    finished normally'); put the task's thermal sources and boundary
-    conditions on that slab in place of its volume-wide temperature, keep the
-    thermal expansion from THEXPANS/INITTEMP (alpha = beta/(3*lambda+2*mu)
-    for a task that states beta), and exchange [T, ux, uy] / [q_n, t_x, t_y]
-    per interface point as the coupling contract says. The alternative of two
+    finished normally'), which SOLVES its temperature: thermal Dirichlet on
+    the two x-faces, heat source and body force as FUNCTs, the clamped
+    face's reactions monitored. Keep the thermal expansion from
+    THEXPANS/INITTEMP (alpha = beta/(3*lambda+2*mu) for a task that states
+    beta). For a COUPLED subdomain take the served contract,
+    `knowledge(topic='coupling', solver='fourc', physics='thermoelastic')`:
+    two 4C runs per iteration -- Scalar_Transport for T and its consistent
+    boundary flux, the TSI slab for u with `TAG: monitor_reaction` on the
+    interface point conditions giving the consistent traction (measured
+    order 2.0) -- exchanging [T, ux, uy] / [qn, qx, qy] per interface point. The alternative of two
     separate problem types (`Structure` with WALL elements and `Thermo` with
     THERMO elements, exchanging the thermal strain yourself) has no served
     recipe. Runs have

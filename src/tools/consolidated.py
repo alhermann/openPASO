@@ -2287,7 +2287,7 @@ _DECIDING_FACTS = {
         "structural element that is rejected against MAT_scatra."
         # Facts 12-13 measured by execution 2026-09-04 on the
         # thermo-mechanical coupled walk (4C 2026.2.0-dev, 89519cfe76).
-        "\n12. STEADY THERMO-MECHANICS IN ONE 4C RUN: PROBLEMTYPE Thermo_Structure_Interaction with COUPALGO tsi_oneway, Statics in both STRUCTURAL DYNAMIC and THERMAL DYNAMIC, material MAT_Struct_ThermoStVenantK (stress C:(eps - alpha*(T-T0)*I), i.e. sigma_el - beta*T*I with beta=(3*lambda+2*mu)*alpha and T0 from INITTEMP) plus a CLONING MATERIAL MAP entry pairing it with a MAT_Fourier thermal material. A 2D plane-strain problem runs as a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab with u_z=0 pinned on BOTH z-layers (per-node POINT DIRICH) -- that is exact plane strain, not an approximation. Thermal body sources go in as DESIGN VOL THERMO NEUMANN conditions. 4C's VTU carries NO mechanical reaction forces: recover interface tractions by re-assembling the stiffness residual at 4C's own solution (interior residual of the re-assembly measured at or below 1.2e-14 across three refinement levels)."
+        "\n12. STEADY THERMO-MECHANICS IN ONE 4C RUN: PROBLEMTYPE Thermo_Structure_Interaction with COUPALGO tsi_oneway, Statics in both STRUCTURAL DYNAMIC and THERMAL DYNAMIC, material MAT_Struct_ThermoStVenantK (stress C:(eps - alpha*(T-T0)*I), i.e. sigma_el - beta*T*I with beta=(3*lambda+2*mu)*alpha and T0 from INITTEMP) plus a CLONING MATERIAL MAP entry pairing it with a MAT_Fourier thermal material. A 2D plane-strain problem runs as a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab with u_z=0 pinned on BOTH z-layers (per-node POINT DIRICH) -- that is exact plane strain, not an approximation. Thermal body sources go in as DESIGN VOL THERMO NEUMANN conditions. 4C's VTU carries NO mechanical reaction forces, but its DIRICHLET MONITOR does: `TAG: monitor_reaction` on each interface DESIGN POINT DIRICH entry plus an `IO/MONITOR STRUCTURE DBC` section (INTERVAL_STEPS 1, FILE_TYPE yaml, WRITE_CONDITION_INFORMATION true) writes <out>-<id>_monitor_dbc.yaml per condition with the node gid (ZERO-based: gid 17 is the deck's NODE 18) and the reaction f. At an interior interface node of the slab (f_layer0 + f_layer1)/(h*t_z) IS the traction in the flux convention -(sigma.n_out): measured 1.45e-2, 3.6e-3, 9.0e-4 relative at h = 1/10, 1/20, 1/40 against a manufactured thermo-elastic solution (order 2.0). Thermal DIRICH entries write no reaction file, so the consistent heat flux comes from a Scalar_Transport run with CALCFLUX_BOUNDARY on the same 2-D mesh; knowledge(topic='coupling', solver='fourc', physics='thermoelastic') serves the whole two-run contract, measured."
         '\n13. WHERE 4C EVALUATES A FUNCT LOAD DIFFERS BY PROBLEM TYPE, and the difference is O(h^2) in the solution: scatra SURF NEUMANN with a FUNCT source assembles the INTERPOLATED load M*f(nodes) (matches that discrete system to 1.7e-15); TSI VOL THERMO NEUMANN evaluates f at the 2x2 GAUSS POINTS (matches to ~1e-15). The two discrete solutions differ by 1.4e-2 at h=1/8, shrinking O(h^2). Consequence: a CALCFLUX boundary flux is the exact reaction of ITS OWN discrete system; compare it only against a re-assembly using the SAME load rule, or the mismatch (5.3e-2 at h=1/8 here) reads as a recovery bug that is not there.'
         # Fact 14 measured by execution 2026-09-05 (4C 2026.2.0-dev).
         + '\n14. A SAMPLED Neumann profile needs no polynomial fit: `DESIGN POINT NEUMANN CONDITIONS` works for Scalar_Transport with pre-integrated nodal loads -- per interior interface node F_i = h/6*(g_{i-1} + 4*g_i + g_{i+1}), FUNCT [0]. Delivery proven by the zero-vs-real load check (fields differ by 4.1e-3 at N=8) and the field converges at order ~1.95. The LINE NEUMANN + fitted-FUNCT route also works but silently smooths any profile the fit cannot represent.'),
@@ -2916,7 +2916,7 @@ def register_consolidated_tools(mcp: FastMCP):
             return json.dumps({solver: general}, indent=2)
 
         elif topic == "coupling":
-            return _get_coupling_knowledge(solver, signal)
+            return _get_coupling_knowledge(solver, signal, physics)
 
         elif topic == "tsi":
             return _get_tsi_knowledge()
@@ -3120,7 +3120,7 @@ def register_consolidated_tools(mcp: FastMCP):
             # words that are ABOUT coupling — so a single-code request is never
             # diverted here.
             if _is_coupling_request(topic):
-                return _get_coupling_knowledge(solver, signal)
+                return _get_coupling_knowledge(solver, signal, physics)
 
             # THE LONG FORM, BECAUSE THE COMPACT BLOCK PROMISES IT.
             #
@@ -6239,7 +6239,7 @@ def register_consolidated_tools(mcp: FastMCP):
             # elided for every code and the agent writes them (Option B).
             _scripts = []
             for _c in sorted(_prepared | {backend.name()}):
-                _s = _coupling_participant_script(_c)
+                _s = _coupling_participant_script(_c, physics)
                 if not _s:
                     continue
                 _label = (
@@ -7173,7 +7173,47 @@ def _capture_knowledge_fn(fn_name: str, *args) -> str:
                 f"`{type(exc).__name__}: {exc}`")
 
 
-def _get_coupling_knowledge(solver: str = "", signal: str = ""):
+_THERMOELASTIC_HEADING = "\n## THERMO-ELASTIC VARIANT"
+
+
+def _is_thermoelastic(physics: str) -> bool:
+    """Does the physics word name a temperature-plus-displacement exchange?"""
+    p = (physics or "").strip().lower().replace("-", "_").replace(" ", "_")
+    if not p:
+        return False
+    return any(t in p for t in ("thermoelast", "thermo_elast", "thermomech", "thermo_mech",
+                                "thermal_stress", "thermostruct", "thermo_struct",
+                                "thermal_solid", "structural_thermal", "thermal_structure",
+                                "thermo_structure")) or p in ("tsi",)
+
+
+def _promote_thermoelastic(payload: str) -> str:
+    """Move the thermo-elastic section (heading, paragraph, fenced contract)
+    in front of the scalar contract, so the first reply of a session and the
+    28k pointer-mode head carry IT as the contract. Measured 2026-09-11: the
+    block sat behind the traps, the vector and the transient sections, past
+    every cut, and the thermo-mechanical cell's workers copied the scalar
+    heat contract instead."""
+    if not isinstance(payload, str):
+        return payload
+    a = payload.find(_THERMOELASTIC_HEADING)
+    if a < 0:
+        return payload
+    f = payload.find("```python", a)
+    if f < 0:
+        return payload
+    e = payload.find("```\n", f + 9)
+    if e < 0:
+        return payload
+    section = payload[a:e + 4]
+    rest = payload[:a] + payload[e + 4:]
+    anchor = rest.find("## PARTICIPANT CONTRACT")
+    if anchor < 0:
+        return payload
+    return rest[:anchor] + section.lstrip("\n") + "\n\n" + rest[anchor:]
+
+
+def _get_coupling_knowledge(solver: str = "", signal: str = "", physics: str = ""):
     """Return coupling knowledge string (or a visible error block).
 
     `solver` is honoured: the payload for a named backend is its complete
@@ -7181,6 +7221,9 @@ def _get_coupling_knowledge(solver: str = "", signal: str = ""):
     be dropped on the floor, so every backend got the same bytes.
     """
     payload = _capture_knowledge_fn("get_coupling_knowledge", solver, signal)
+    # A THERMO-ELASTIC EXCHANGE GETS THE THERMO-ELASTIC CONTRACT FIRST.
+    if _is_thermoelastic(physics) and isinstance(payload, str):
+        payload = _promote_thermoelastic(payload)
     # THE PARTS DOOR IS SERVED AS IS. `signal='participant[:role]:partN'`
     # exists for clients that truncate long replies, so its bounded chunk of
     # the elided contract must reach the agent whole: no must-read prepended,
@@ -7248,7 +7291,7 @@ def _get_coupling_knowledge(solver: str = "", signal: str = ""):
     return _with_facts(_front_load_coupling(payload, solver, must_read=_mr))
 
 
-def _coupling_participant_script(solver: str) -> str:
+def _coupling_participant_script(solver: str, physics: str = "") -> str:
     """The participant CONTRACT for `solver` (solve elided) — the lead-in
     paragraph plus the first fenced contract block — pulled from that solver's
     own coupling payload. '' if the solver ships no served participant.
@@ -7282,6 +7325,10 @@ def _coupling_participant_script(solver: str) -> str:
             cands.append((fence, block))
     if not cands:
         return ""
+    if _is_thermoelastic(physics):
+        te = [c for c in cands if '"field_name": "thermoelastic"' in c[1]]
+        if te:
+            cands = te
     fence, block = next((c for c in cands if "config.json" in c[1]), cands[0])
     # THE PUSHED COPY IS THE LEAN ONE: comment blocks thinned to a line, code
     # untouched, so copying it into a file costs half the output tokens. The
@@ -7499,7 +7546,9 @@ job at once -- every single step is small.
 
 YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict:
     spawn_subagent(role='worker', task="Write side A's participant script in
-    ./side_A: call knowledge(topic='coupling', solver='<side A's code>') and
+    ./side_A: call knowledge(topic='coupling', solver='<side A's code>')
+    (add physics='thermoelastic' when the interface carries temperature AND
+    displacement together) and
     copy the served CONTRACT for the role the task gives side A into
     ./side_A/participant_A.py unchanged (the imports.json handshake, sign
     convention, flux recovery, exports schema and export self-check); fill
@@ -7521,7 +7570,10 @@ One couple call per mesh level, on the exact levels your task prescribes.
 
 DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH -- THE CONTRACT EXISTS
 FOR YOUR CODE. For EACH of your two codes call `knowledge(topic='coupling',
-solver='<that code>')`. THE ROLES COME FROM THE TASK: when it says which
+solver='<that code>')` -- with physics='thermoelastic' when the interface
+carries temperature AND displacement together: the reply then leads with the
+thermo-elastic contract ([T, ux, uy] in, [qn, qx, qy] out), served for 4C
+and FEniCSx. THE ROLES COME FROM THE TASK: when it says which
 subdomain is the Dirichlet side and which the Neumann side, that is fixed.
 Each served contract states which side it is (some carry both behind a SIDE
 switch, some are one side); take the one for the role your task gives that

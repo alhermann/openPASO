@@ -1,3 +1,6 @@
+Use this contract when the task transmits temperature and displacement together across the interface (steady thermoelasticity split into subdomains). `values` = [T, ux, uy] and `normal_fluxes` = [qn, qx, qy] per interface point, the traction in the SAME sign convention as the heat flux -- minus the flux of the conserved quantity through this side's outward normal -- so the two sides' exports cancel componentwise and the Neumann side applies the partner's numbers UNCHANGED. A task that asks for the OUTWARD traction sigma.n_out gets minus the exported (qx, qy). Both are recovered from THIS side's own assembled systems (4C: its own boundary-flux VTU and its Dirichlet reaction monitor), never by differencing a P1 field on the boundary.
+
+```python
 """4C as the DIRICHLET side of a THERMO-ELASTIC coupling (steady thermoelasticity,
 plane strain): the partner's temperature AND displacement come in together at
 the interface, this side's heat flux AND traction go out together.
@@ -90,8 +93,7 @@ NU = LAM / (2.0 * (LAM + MU))
 ALPHA = BETA / (3.0 * LAM + 2.0 * MU)
 # SOURCES AS 4C EXPRESSION STRINGS (not Python functions): '^' for powers,
 # lowercase 'pi', 'x', 'y'. "0.0" means none. They reach the solve only through
-# FUNCT blocks in YOUR decks; a Python src() that never reaches a deck does
-# nothing (the classic 4C trap).
+# ... (explanation continues in the annotated block)
 SRC_T = str(CFG.get("source_T", "0.0")).replace("**", "^")
 SRC_UX = str(CFG.get("source_ux", "0.0")).replace("**", "^")
 SRC_UY = str(CFG.get("source_uy", "0.0")).replace("**", "^")
@@ -200,100 +202,17 @@ def _diagnose_at_exit():
 
 atexit.register(_diagnose_at_exit)
 
-# ── YOUR TWO DECKS AND RUNS -- what the hole below must do (the deck grammar,
-#    measured on this binary; the decks and the runs themselves are yours) ──
-# THE TWO DECKS AND THE RUNS ARE YOURS. Build the 2-D node layout of this
-# subdomain (NX x NY quads on [X0,X1] x [Y0,Y1]), find the interface nodes,
-# write and run BOTH decks, and leave behind the names listed at the end.
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
 #
-# RUN T -- the heat equation, 2-D, PROBLEMTYPE "Scalar_Transport":
-#   SCALAR TRANSPORT DYNAMIC: TIMEINTEGR "Stationary", SOLVERTYPE "linear_full",
-#     VELOCITYFIELD "zero", TIMESTEP/NUMSTEP/MAXTIME 1, LINEAR_SOLVER 1,
-#     CALCFLUX_BOUNDARY "diffusive"
-#   IO/RUNTIME VTK OUTPUT: INTERVAL_STEPS 1 (no other IO section)
-#   SOLVER 1: SOLVER "UMFPACK";  MATERIALS: MAT 1 MAT_scatra DIFFUSIVITY KV
-#   FUNCT1: SYMBOLIC_FUNCTION_OF_SPACE_TIME "<SRC_T>" and a DESIGN SURF NEUMANN
-#     entry (E 1, NUMDOF 1, ONOFF [1], VAL [1.0], FUNCT [1]) so the source
-#     enters the assembled RHS
-#   DESIGN LINE DIRICH CONDITIONS on the OUTER boundary line (VAL [0.0] or the
-#     task's outer T), DESIGN POINT DIRICH CONDITIONS one per INTERIOR interface
-#     node with VAL [partner_values(y)[0]] (the interface ENDPOINTS keep the
-#     outer datum: they are outer-boundary nodes on both sides)
-#   SCATRA FLUX CALC LINE CONDITIONS: - E: <the interface DLINE id>
-#   NODE COORDS ("NODE i COORD x y 0.0"), TRANSPORT ELEMENTS ("e TRANSP QUAD4
-#     n1 n2 n3 n4 MAT 1 TYPE Std"), DLINE-NODE TOPOLOGY (outer line AND the
-#     interface line), DNODE-NODE TOPOLOGY (one DNODE per interface point
-#     condition, ids continuous across ALL condition families), DSURF-NODE
-#     TOPOLOGY (every node, DSURFACE 1)
+# Build the mesh, the function space, the weak form and the linear solve for
+# ... (explanation continues in the annotated block)
+# ordinary finite-element work and OASiS has no business dictating it.
 #
-# RUN U -- the displacement, PROBLEMTYPE "Thermo_Structure_Interaction" on the
-# one-element-thick slab (DIM 3): every 2-D node twice, at z = 0 and z = TZ
-# (TZ = min(hx, hy) keeps the hexes well shaped), each quad as ONE
-# "e SOLIDSCATRA HEX8 n1 n2 n3 n4 n5 n6 n7 n8 MAT 1 KINEM linear TYPE Undefined"
-# (bottom four counter-clockwise, then the same four on the top layer):
-#   IO: STRUCT_STRESS "No", STRUCT_STRAIN "No"
-#   IO/MONITOR STRUCTURE DBC: INTERVAL_STEPS 1, FILE_TYPE yaml,
-#     WRITE_CONDITION_INFORMATION true
-#   STRUCTURAL DYNAMIC: DYNAMICTYPE "Statics", TIMESTEP/NUMSTEP/MAXTIME 1,
-#     LINEAR_SOLVER 2;  THERMAL DYNAMIC: DYNAMICTYPE Statics, same steps,
-#     LINEAR_SOLVER 1;  TSI DYNAMIC: COUPALGO "tsi_oneway", NUMSTEP/MAXTIME/
-#     TIMESTEP 1, ITEMAX 1;  TSI DYNAMIC/PARTITIONED: COUPVARIABLE "Temperature"
-#   IO/RUNTIME VTK OUTPUT: INTERVAL_STEPS 1;  IO/RUNTIME VTK OUTPUT/STRUCTURE:
-#     OUTPUT_STRUCTURE true, DISPLACEMENT true;  THERMAL DYNAMIC/RUNTIME VTK
-#     OUTPUT: OUTPUT_THERMO true, TEMPERATURE true
-#   SOLVER 1 and SOLVER 2: SOLVER "UMFPACK"
-#   MATERIALS: MAT 1 MAT_Struct_ThermoStVenantK {YOUNGNUM 1, YOUNG [E_MOD],
-#     NUE NU, DENS 1, THEXPANS ALPHA, INITTEMP 0, THERMOMAT 2};
-#     MAT 2 MAT_Fourier {CAPA 1, CONDUCT: constant: [KV]}
-#   CLONING MATERIAL MAP: - SRC_FIELD "structure", SRC_MAT 1, TAR_FIELD
-#     "thermo", TAR_MAT 2
-#   FUNCT1 "<SRC_UX>", FUNCT2 "<SRC_UY>", FUNCT3 "<SRC_T>"
-#   DESIGN VOL NEUMANN CONDITIONS: E 1, NUMDOF 3, ONOFF [1,1,0], VAL
-#     [1.0,1.0,0.0], FUNCT [1,2,0]           (the body force)
-#   DESIGN VOL THERMO NEUMANN CONDITIONS: E 1, NUMDOF 1, ONOFF [1], VAL [1.0],
-#     FUNCT [3]                              (the heat source)
-#   DESIGN VOL DIRICH CONDITIONS: E 1, NUMDOF 3, ONOFF [0,0,1], VAL [0,0,0],
-#     FUNCT [0,0,0]                          (u_z = 0 everywhere: plane strain)
-#   DESIGN SURF DIRICH CONDITIONS (E 1: all outer-boundary nodes of BOTH
-#     layers, NUMDOF 3, ONOFF [1,1,1], VAL [0,0,0]) and DESIGN SURF THERMO
-#     DIRICH CONDITIONS (E 1, NUMDOF 1, ONOFF [1], VAL [0]) -- or the task's
-#     outer values
-#   DESIGN POINT DIRICH CONDITIONS: one entry per INTERIOR interface node AND
-#     per layer (two entries per 2-D node), NUMDOF 3, ONOFF [1,1,1],
-#     VAL [ux, uy, 0.0] from partner_values(y), FUNCT [0,0,0],
-#     TAG: monitor_reaction
-#   DESIGN POINT THERMO DIRICH CONDITIONS: the same DNODE ids, NUMDOF 1,
-#     ONOFF [1], VAL [T] from partner_values(y), FUNCT [0]
-#   NODE COORDS, STRUCTURE ELEMENTS, DNODE-NODE TOPOLOGY (one DNODE per point
-#     condition), DSURF-NODE TOPOLOGY (the outer nodes, both layers),
-#     DVOL-NODE TOPOLOGY (every node)
-#
-# Run each deck with the binary at config `fourc_bin` and its libraries on
-# `fourc_ld` as LD_LIBRARY_PATH, line-buffered, console captured:
-#     stdbuf -oL -eL <bin> <deck> <out_prefix> > <deck>.log 2>&1
-# with two different output prefixes, e.g. out_T and out_U. When a run exits
-# non-zero DO NOT raise: fall through, the served check reads the log and the
-# decks and names the cause. OASiS does not run the solver for you.
-#
-# WHAT YOUR SOLVE MUST LEAVE BEHIND (the recovery below uses these names):
-#     nodes      the 2-D node list [(x, y), ...] indexed by 4C node id - 1
-#                (the same ids in run T; run U's 3-D ids may differ, the
-#                recovery maps its reactions by coordinate)
-#     interior   the INTERIOR interface node ids (1-based, run-T numbering),
-#                ordered along the interface; the two endpoints are dropped
-#     TZ         the slab thickness used in run U
-#     OUT_T      run T's output prefix (its VTU is <OUT_T>-vtk-files/scatra-*.vtu)
-#     OUT_U      run U's output prefix (structure-*.vtu, thermo-*.vtu and
-#                <OUT_U>-*_monitor_dbc.yaml)
-#     DECK_U     the path of the run-U deck (its NODE COORDS map node gids to
-#                coordinates for the reaction files)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
-# Build `nodes`, `interior`, write and run deck T and deck U as described
-# above, and leave behind the names listed there.
-nodes, interior, TZ = [], [], None
-OUT_T, OUT_U, DECK_U = "out_T", "out_U", "deck_U.4C.yaml"
-raise SystemExit("the deck-and-run hole above the recovery is not filled")
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# ... (explanation continues in the annotated block)
 
 # ── RECOVERY FROM 4C's OWN OUTPUTS (served) ────────────────────────────────
 import meshio  # noqa: E402
@@ -353,7 +272,7 @@ U2d = _nodal(meshio.read(vtu_U), "displacement", 2, zlayer=0.0)
 Ttsi = _nodal(meshio.read(vtu_UT), "temperature", 1, zlayer=0.0)[:, 0]
 # The two runs solve the same discrete heat problem up to the load rule
 # (nodal vs Gauss-point evaluation of the source, O(h^2)); a larger gap means
-# one deck is not the problem it claims to be -- checked, not assumed.
+# ... (explanation continues in the annotated block)
 _dT = float(np.max(np.abs(Ttsi - T2d)) / max(float(np.max(np.abs(T2d))), 1e-300))
 if _dT > 0.05:
     raise SystemExit(f"the TSI deck's temperature differs from the scatra deck's by {_dT:.3f} relative: "
@@ -438,3 +357,4 @@ print(f"NDOF = {3 * len(nodes)}")
 print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
       f"T=[{T2d.min():.6g},{T2d.max():.6g}] u=[{U2d.min():.6g},{U2d.max():.6g}]  "
       f"scatra-vs-tsi T mismatch {_dT:.2e}")
+```

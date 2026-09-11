@@ -2380,7 +2380,14 @@ _DECIDING_FACTS = {
         "a bare `ConvectionDiffusionApplication` is a NameError (measured). A variable list WITHOUT "
         "CONDUCTIVITY does not fail at setup: the solve SEGFAULTS with no message (exit 139, measured on a "
         "trial repair that listed the other four). `Properties` has no `AddProperty`/`Value`; nodal values "
-        "carry the material (fact 2)."),
+        "carry the material (fact 2)."
+        # Fact 12 measured 2026-09-11 on a coupled run (Kratos 10.x, ConvectionDiffusionApplication).
+        "\n12. THE FLUX CONDITION READS ITS LOAD FROM THE NODES. `FluxCondition2D2N` integrates the NODAL "
+        "value of the surface-source variable (FACE_HEAT_FLUX): `mp.CreateNewCondition('FluxCondition2D2N', "
+        "id, [n1, n2], props)` WITHOUT `n.SetSolutionStepValue(KM.FACE_HEAT_FLUX, q)` on both of its nodes "
+        "assembles exactly zero and the run exits 0 (measured: a Neumann side built that way exported the "
+        "no-load answer at every iteration and couple() reported it UNRESPONSIVE; the served Neumann contract "
+        "sets the nodal value first). The condition takes no flux property of its own."),
 }
 _DECIDING_FACTS["dune-fem"] = _DECIDING_FACTS["dune"]
 _DECIDING_FACTS["dunefem"] = _DECIDING_FACTS["dune"]

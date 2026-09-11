@@ -231,6 +231,9 @@ def main():
 
     # ── the interface: the partner's flux, applied UNCHANGED (see the header) ──
     for j in range(NY + 1):
+        # THE NODAL VALUE IS THE LOAD. FluxCondition2D2N integrates FACE_HEAT_FLUX
+        # from its NODES; a condition created without this SetSolutionStepValue
+        # assembles zero, exits 0 and is reported unresponsive (measured 2026-09-11).
         mp.Nodes[nid[(i_if, j)]].SetSolutionStepValue(
             KM.FACE_HEAT_FLUX, float(q_in[j]))
     props = mp.GetProperties()[1]

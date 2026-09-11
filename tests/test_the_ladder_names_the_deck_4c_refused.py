@@ -184,3 +184,24 @@ def test_twisted_elements_are_named_with_the_counter_clockwise_rule():
     assert any("zero or negative area" in w and "element 1" in w and "counter-clockwise" in w for w in why), why
     good = 'NODE COORDS:\n' + coords + 'TRANSPORT ELEMENTS:\n  - "1 TRANSP QUAD4 1 2 5 4 MAT 1 TYPE Std"\n  - "2 TRANSP QUAD4 2 3 6 5 MAT 1 TYPE Std"\n'
     assert not any("zero or negative area" in w for w in lint_deck(good))
+
+
+def test_material_parameters_are_judged_by_the_grammar():
+    """Measured on a ladder-loop worker deck: MAT_Struct_ThermoStVenantK without YOUNGNUM stopped 4C with
+    "Parameter 'YOUNGNUM' not found in container"; the gate names the missing parameter and the material's
+    parameter list, an unknown material name gets the closest known ones."""
+    import pytest
+    from tools.fourc_deck_lint import grammar, material_defects
+    binp = Path("/home/alexander/4C/build/4C")
+    if not binp.is_file():
+        pytest.skip("4C binary not on this host")
+    g = grammar(str(binp), "/opt/4C-dependencies/lib"); mats = g["materials"]
+    assert "MAT_Struct_ThermoStVenantK" in mats and mats["MAT_Struct_ThermoStVenantK"].get("YOUNGNUM") is True
+    assert mats["MAT_Struct_ThermoStVenantK"].get("THERMOMAT") is False and "MAT_scatra" in mats and "MAT_Fourier" in mats
+    deck = ('MATERIALS:\n  - MAT: 1\n    MAT_Struct_ThermoStVenantK:\n      YOUNG: [1.0]\n      NUE: 0.3\n      DENS: 1\n'
+            '      THEXPANS: 1e-5\n      INITTEMP: 0\n      THERMOMAT: 2\n  - MAT: 2\n    MAT_Fourier:\n      CAPA: 1\n      CONDUCT:\n        constant: [1.0]\n'
+            '  - MAT: 3\n    MAT_ThermoStVenantK:\n      YOUNG: [1.0]\nCLONING MATERIAL MAP:\n  - SRC_FIELD: "structure"\n')
+    out = material_defects(deck, mats)
+    assert any("MAT_Struct_ThermoStVenantK is missing required parameter(s) YOUNGNUM" in w for w in out), out
+    assert not any("MAT_Fourier" in w for w in out), out
+    assert any("material 'MAT_ThermoStVenantK' is not in the binary's grammar" in w and "MAT_Struct_ThermoStVenantK" in w for w in out), out

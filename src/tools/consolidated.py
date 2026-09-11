@@ -4002,7 +4002,7 @@ def register_consolidated_tools(mcp: FastMCP):
         except Exception as e:                          # noqa: BLE001
             findings.append(f"(setup check failed: {e!r})")
         if backend.name() == "fourc":
-            from tools.fourc_deck_lint import grammar, lint_deck, unknown_sections   # noqa: PLC0415
+            from tools.fourc_deck_lint import grammar, lint_deck, material_defects, unknown_sections   # noqa: PLC0415
             findings += lint_deck(text)
             _bin = None
             try:
@@ -4016,6 +4016,7 @@ def register_consolidated_tools(mcp: FastMCP):
             g = grammar(str(_bin) if _bin else os.environ.get("FOURC_BINARY"), _ld or None)
             if g["sections"]:
                 findings += unknown_sections(text, g["sections"], g["elements"])
+                findings += material_defects(text, g.get("materials", {}))
             else:
                 findings.append("(section names not judged: no 4C binary found for `4C -p`)")
         head = f"CHECK_INPUT ({solver}, {Path(input_path).name if input_path else 'inline text'}): "

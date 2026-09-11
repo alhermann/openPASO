@@ -28,7 +28,7 @@ def grammar(bin_path, ld: str | None = None) -> dict:
     key = str(bin_path or "")
     if key in _VALID_CACHE:
         return _VALID_CACHE[key]
-    g = {"sections": set(), "elements": set()}
+    g = {"sections": set(), "elements": set(), "materials": {}}
     try:
         if key and Path(key).is_file():
             env = dict(os.environ)
@@ -39,10 +39,86 @@ def grammar(bin_path, ld: str | None = None) -> dict:
                 re.findall(r"^  - ([A-Z][A-Z0-9 _/.:-]*?)\s*$", dump.split("legacy_string_sections:", 1)[-1], re.M)) | {"TITLE"}
             g["elements"] = set(re.findall(r"^  ([A-Z][A-Z0-9_]*):\s*$",
                                            dump.split("legacy_element_specs:", 1)[-1].split("legacy_particle_specs:", 1)[0], re.M))
+            g["materials"] = _material_specs(dump)
     except Exception:                                   # noqa: BLE001
-        g = {"sections": set(), "elements": set()}
+        g = {"sections": set(), "elements": set(), "materials": {}}
     _VALID_CACHE[key] = g
     return g
+
+
+def _material_specs(dump: str) -> dict:
+    """{material name: {parameter: required?}} from the grammar dump: every `- name: MAT_*` group and the
+    parameter names nested under it (measured need: a worker's MAT_Struct_ThermoStVenantK without
+    YOUNGNUM stopped 4C with "Parameter 'YOUNGNUM' not found in container")."""
+    specs: dict = {}
+    lines = dump.splitlines()
+    i = 0
+    while i < len(lines):
+        m = re.match(r"^(\s*)- name: (MAT_[A-Za-z0-9_]+)\s*$", lines[i])
+        if m and i + 2 < len(lines) and "type: group" in lines[i + 1] + lines[i + 2]:
+            ind, name, params, cur, depth0 = len(m.group(1)), m.group(2), {}, None, None
+            j = i + 1
+            while j < len(lines):
+                ln = lines[j]
+                if ln.strip() and len(ln) - len(ln.lstrip()) <= ind:
+                    break
+                pm = re.match(r"^(\s*)- name: ([A-Za-z0-9_]+)\s*$", ln)
+                if pm and len(pm.group(1)) > ind:
+                    # the material's own parameters sit at ONE depth; deeper names are the alternatives of a
+                    # nested one_of (MAT_Fourier's CONDUCT: constant | from_file | ...), not parameters
+                    if depth0 is None:
+                        depth0 = len(pm.group(1))
+                    if len(pm.group(1)) == depth0:
+                        cur = pm.group(2)
+                        params[cur] = True
+                    else:
+                        cur = None
+                elif cur and depth0 is not None and re.match(r"^\s*required: (true|false)\s*$", ln) \
+                        and len(ln) - len(ln.lstrip()) == depth0 + 2:
+                    params[cur] = ln.strip().endswith("true")
+                j += 1
+            specs.setdefault(name, {}).update(params)
+            i = j
+        else:
+            i += 1
+    return specs
+
+
+def material_defects(text: str, mats: dict) -> list[str]:
+    """The deck's MATERIALS entries against the binary's material grammar: an unknown material name (with
+    the closest known), a missing required parameter, a parameter the material does not have."""
+    if not mats:
+        return []
+    blk = re.search(r"^MATERIALS:\s*$(.*?)(?=^[A-Z][A-Z0-9 _/.:-]*?:\s*$|\Z)", text, re.M | re.S)
+    if not blk:
+        return []
+    body = blk.group(1)
+    out = []
+    for m in re.finditer(r"^(\s+)(MAT_[A-Za-z0-9_]+):\s*$", body, re.M):
+        ind, name = len(m.group(1)), m.group(2)
+        keys = []
+        for ln in body[m.end():].splitlines()[1:]:
+            if not ln.strip():
+                continue
+            if len(ln) - len(ln.lstrip()) <= ind:
+                break
+            km = re.match(r"^\s+([A-Za-z0-9_]+):", ln)
+            if km and len(ln) - len(ln.lstrip()) == ind + 2:
+                keys.append(km.group(1))
+        if name not in mats:
+            close = difflib.get_close_matches(name, sorted(mats), n=3, cutoff=0.6)
+            out.append(f"material '{name}' is not in the binary's grammar (`4C -p`)"
+                       + (f"; closest known: {', '.join(close)}" if close else ""))
+            continue
+        spec = mats[name]
+        missing = [p for p, req in spec.items() if req and p not in keys]
+        unknown = [k for k in keys if k not in spec]
+        if missing:
+            out.append(f"{name} is missing required parameter(s) {', '.join(missing)}; its parameters are "
+                       f"{', '.join(spec)} (4C stops with \"Parameter '{missing[0]}' not found in container\")")
+        if unknown:
+            out.append(f"{name} has parameter(s) its grammar does not know: {', '.join(unknown)}; known: {', '.join(spec)}")
+    return out
 
 
 def valid_sections(bin_path, ld: str | None = None) -> set:
@@ -310,7 +386,8 @@ def side_dir_report(side: Path) -> dict:
         tb = python_stop_lines(txt)
         if tb:
             tracebacks[lg.name] = tb
-        if not said and not tb and ("4C" in txt or "processor 0" in txt or "Problem type" in txt or "PROBLEMTYPE" in txt):
+        if (not said and not tb and "finished normally" not in txt
+                and ("4C" in txt or "processor 0" in txt or "Problem type" in txt or "PROBLEMTYPE" in txt)):
             # a 4C console with neither an error block nor a signal: its last lines are the only verdict
             tail = [l.strip() for l in txt.splitlines() if l.strip() and not set(l.strip()) <= set("+-|=*")]
             consoles[lg.name] = " | ".join(tail[-3:])
@@ -329,7 +406,7 @@ def side_dir_report(side: Path) -> dict:
             txt = dk.read_text(errors="ignore")
         except OSError:
             continue
-        why = lint_deck(txt) + unknown_sections(txt, valid, elements)
+        why = lint_deck(txt) + unknown_sections(txt, valid, elements) + material_defects(txt, g.get("materials", {}))
         if why:
             defects[dk.name] = why
     return {"finished": finished, "monitors": monitors, "errors": errors, "defects": defects,

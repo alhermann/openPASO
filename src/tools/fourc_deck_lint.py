@@ -123,13 +123,23 @@ def closest_sections(unknown: str, names: list, n: int = 5) -> list[str]:
 
 
 def fourc_error_lines(log_text: str, n: int = 8) -> str:
-    """4C's own error block after 'PROC 0 ERROR' (the first n non-empty lines), or ''."""
+    """4C's own error block after 'PROC 0 ERROR' (the first n non-empty lines), or -- when the binary
+    died on a signal instead of an error message -- the signal and the last thing 4C printed before
+    it (measured: a flux-output table dividing by a zero boundary area ends in 'Floating point
+    exception' with no error line at all), or ''."""
     lines = log_text.splitlines()
     for i, ln in enumerate(lines):
         if "PROC 0 ERROR" in ln:
             said = [l.strip() for l in lines[i + 1:i + 14]
                     if l.strip() and not l.startswith("---") and "MPI_ABORT" not in l]
             return " | ".join(said[:n])
+    for i, ln in enumerate(lines):
+        if "*** Process received signal ***" in ln:
+            sig = next((l.split("Signal:", 1)[1].strip() for l in lines[i:i + 4] if "Signal:" in l), "signal")
+            code = next((l.split("Signal code:", 1)[1].strip() for l in lines[i:i + 5] if "Signal code:" in l), "")
+            before = [l.strip() for l in lines[max(0, i - 12):i] if l.strip() and not set(l.strip()) <= set("+-|=")]
+            return (f"4C died on {sig}" + (f" ({code})" if code else "") + " with no error message; the last "
+                    f"thing it printed: " + " | ".join(before[-2:]))
     return ""
 
 
@@ -190,7 +200,41 @@ def lint_deck(text: str) -> list[str]:
     if re.search(r"FUNCT\d+:", text) and re.search(r"\bFUNCT:\s*\[\s*0(\s*,\s*0)*\s*\]", text) \
             and not re.search(r"\bFUNCT:\s*\[[^\]]*[1-9]", text):
         why.append("FUNCT blocks are defined but no condition references one (FUNCT: [0,...] everywhere): the sources never reach the load")
+    why += _lines_without_an_element_edge(text)
     return why
+
+
+def _lines_without_an_element_edge(text: str) -> list[str]:
+    """A DLINE whose nodes share no edge of any 2-D element is a zero-length boundary: a condition on
+    it integrates to nothing, and 4C's flux table divides by its area and dies on a floating point
+    exception (measured on a worker deck whose interface node ids did not match its element
+    numbering). Only decks with 2-D element connectivity are judged."""
+    quads = re.findall(r'"\s*\d+\s+\w+\s+(?:QUAD4|QUAD8|QUAD9|TRI3|TRI6)\s+((?:\d+\s+)+)', text)
+    if not quads:
+        return []
+    edges = set()
+    for q in quads:
+        ids = [int(x) for x in q.split()]
+        if len(ids) < 3:
+            continue
+        corners = ids[:4] if len(ids) >= 4 and len(ids) not in (6,) else ids[:3]
+        for a, b in zip(corners, corners[1:] + corners[:1]):
+            edges.add((min(a, b), max(a, b)))
+    if not edges:
+        return []
+    out = []
+    lines: dict = {}
+    for n, d in re.findall(r'"NODE\s+(\d+)\s+DLINE\s+(\d+)"', text):
+        lines.setdefault(d, set()).add(int(n))
+    for d, nodes in sorted(lines.items(), key=lambda p: int(p[0])):
+        if len(nodes) < 2:
+            out.append(f"DLINE {d} has {len(nodes)} node(s): a line condition needs the consecutive nodes of an edge")
+            continue
+        if not any((min(a, b), max(a, b)) in edges for a in nodes for b in nodes if a < b):
+            out.append(f"DLINE {d} ({len(nodes)} nodes) shares no edge with any element: its node ids do not match "
+                       "the element numbering, so a condition on it is a zero-length boundary (4C's flux table "
+                       "then divides by zero)")
+    return out
 
 
 def side_dir_report(side: Path) -> dict:

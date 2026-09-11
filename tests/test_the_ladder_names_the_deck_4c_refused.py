@@ -116,3 +116,20 @@ def test_the_real_binary_grammar_judges_a_worker_section(tmp_path):
     _w(tmp_path / "side_A", "run_u.log", "PROC 0 ERROR in x.cpp, line 546:\nSection 'IO/RUNTIME VTK OUTPUT/THERMO' is not a valid section name.\n")
     r = coupled_ladder(tmp_path)
     assert r["step"] == 2 and "THERMAL DYNAMIC/RUNTIME VTK OUTPUT" in r["brief"] and "is not a valid section name" in r["brief"]
+
+
+def test_a_signal_crash_and_a_line_without_an_edge_are_named():
+    """Measured on a te4c10 worker deck: the interface DLINE's node ids did not match the element
+    numbering, 4C's flux table divided by a zero boundary area and died on a floating point exception
+    with no error message at all; the lint names both the crash and the cause."""
+    from tools.fourc_deck_lint import fourc_error_lines, lint_deck
+    log = ("banner\nNormal fluxes at boundary 'ScaTraFluxCalc' on discretization 'scatra':\n+----+\n| ID | DOF |\n"
+           "[kevin:1] *** Process received signal ***\n[kevin:1] Signal: Floating point exception (8)\n"
+           "[kevin:1] Signal code: Floating point divide-by-zero (3)\n[kevin:1] [ 0] libc\n")
+    said = fourc_error_lines(log)
+    assert "Floating point exception" in said and "ScaTraFluxCalc" in said
+    deck = ('TRANSPORT ELEMENTS:\n  - "1 TRANSP QUAD4 1 2 5 4 MAT 1 TYPE Std"\n  - "2 TRANSP QUAD4 2 3 6 5 MAT 1 TYPE Std"\n'
+            'DLINE-NODE TOPOLOGY:\n  - "NODE 1 DLINE 1"\n  - "NODE 4 DLINE 1"\n  - "NODE 7 DLINE 2"\n  - "NODE 8 DLINE 2"\n')
+    why = lint_deck(deck)
+    assert any("DLINE 2" in w and "shares no edge" in w for w in why), why
+    assert not any("DLINE 1" in w for w in why), why       # nodes 1-4 ARE an edge of element 1

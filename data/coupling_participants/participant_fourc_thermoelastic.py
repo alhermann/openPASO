@@ -95,11 +95,21 @@ def why_4c_did_not_finish(tag=""):
                 _lines = open(_lg, errors="ignore").read().splitlines()
             except OSError:
                 continue
+            _hit = False
             for _i, _ln in enumerate(_lines):
                 if "PROC 0 ERROR" in _ln:
                     _said = [l.strip() for l in _lines[_i + 1:_i + 12] if l.strip() and not l.startswith("---") and "MPI_ABORT" not in l]
                     _why.append(f"4C said ({_lg}): " + " | ".join(_said[:8]))
+                    _hit = True
                     break
+            if not _hit:   # a crash without an error message (measured: a zero-area flux boundary -> floating point exception)
+                for _i, _ln in enumerate(_lines):
+                    if "*** Process received signal ***" in _ln:
+                        _sig = next((l.split("Signal:", 1)[1].strip() for l in _lines[_i:_i + 4] if "Signal:" in l), "a signal")
+                        _bef = [l.strip() for l in _lines[max(0, _i - 12):_i] if l.strip() and not set(l.strip()) <= set("+-|=")]
+                        _why.append(f"4C died on {_sig} ({_lg}) with no error message; the last thing it printed: " + " | ".join(_bef[-2:])
+                                    + " -- a flux table dividing by a ZERO boundary area means the flux-calc DLINE shares no edge with any element (its node ids do not match the element numbering)")
+                        break
         for _deck in sorted(glob.glob("*.4C.yaml")) or sorted(glob.glob("*.yaml")):
             _txt = open(_deck, errors="ignore").read()
             _secs = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, re.M)
@@ -172,6 +182,17 @@ def why_4c_did_not_finish(tag=""):
                     _why.append(f"{_deck}: needs CALCFLUX_BOUNDARY \"diffusive\" AND a `SCATRA FLUX CALC LINE CONDITIONS` entry (E 2) for the flux recovery")
                 if re.search(r"^IO:\s*$", _txt, re.M):
                     _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck is rejected; the VTU appears without it")
+            # a DLINE whose nodes share no element edge is a zero-length boundary (measured: flux table -> FPE)
+            _edges = set()
+            for _q in re.findall(r'"\s*\d+\s+\w+\s+(?:QUAD4|TRI3)\s+((?:\d+\s+)+)', _txt):
+                _ids = [int(x) for x in _q.split()][:4]
+                _edges |= {(min(a, b), max(a, b)) for a, b in zip(_ids, _ids[1:] + _ids[:1])}
+            _dl = {}
+            for _n, _d in re.findall(r'"NODE\s+(\d+)\s+DLINE\s+(\d+)"', _txt):
+                _dl.setdefault(_d, set()).add(int(_n))
+            for _d, _ns in _dl.items():
+                if _edges and len(_ns) >= 2 and not any((min(a, b), max(a, b)) in _edges for a in _ns for b in _ns if a < b):
+                    _why.append(f"{_deck}: DLINE {_d} ({len(_ns)} nodes) shares no edge with any element -- its node ids do not match the element numbering, so a condition on it is a zero-length boundary")
             _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt) if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
             if _badkw:
                 _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL (anything else defines nothing and the conditions on it are silently dropped)")

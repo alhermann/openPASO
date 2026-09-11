@@ -406,6 +406,7 @@ and several fixes **lowered** the apparent uplift:
 | 31 | 06351c1e | C3 5941-43, C1 6861-63, C2 6871-73 (launched 19:56, graded 20:42) | 1/9 CORRECT: C3 5942 (order 1.79). C3 5941 coupled three proven levels but its field files are not on the prescribed probe grid; C3 5943 and C2 6872 two proven levels, level 3 without the NDOF line (wall); C2 6873 three levels on a genuinely unchanged mesh (693/957 on both sides at every level); C1 6861-63 and C2 6871 HONEST_INCOMPLETE. TALLY 18. |
 | 32 | 52f797c3 | C3 5951-53, C1 6881-83, C2 6891-93 (launched 20:43, graded 21:28) | 1/9 CORRECT: C2 6891 (order 1.99). C2 6892 COMPLETED_UNPHYSICAL (three levels, order 0.66); C3 5952 level 1 proven; C3 5951 NO_SOLUTION_FILES; five HONEST_INCOMPLETE (all three C1, C3 5953, C2 6893). TALLY 19. |
 | 33 | 26de59c4 | C3 5961-63, C1 6901-03, C2 6911-13 (launched 21:30, graded 22:15) | 2/9 CORRECT: C3 5962 (order 1.98), C3 5963 (order 2.01). C3 5961 three proven levels, level-3 run log without the NDOF line (wall); C2 6911 three proven levels with run logs reading 54/957 at every level; C2 6912 and 6913 CONFIDENTLY_WRONG (three levels, orders 1.10 and 0.04); C1 6901-03 HONEST_INCOMPLETE. TALLY 21. |
+| 34 | a145a00c | C3 5971-73, C1 6921-23, C2 6931-33 (launched 22:16, graded 23:02) | 1/9 CORRECT: C3 5973 (order 1.98). C3 5972 level 1 proven; C3 5971 NO_SOLUTION_FILES; six HONEST_INCOMPLETE (all three C1, all three C2). TALLY 22. |
 
 ### Per-step trials (from 2026-09-10 evening, Alexander's method)
 

@@ -3161,10 +3161,17 @@ def register_consolidated_tools(mcp: FastMCP):
             # the cap (deal.II/stokes: 48k of JSON) -- cap the catalog, keep
             # the tail whole
             i = out.index(_UNIVERSAL_BLOCK)
+            j = out.find("\n\n## Post-mortem breadcrumbs")
+            if 0 <= j < i:
+                i = j                      # the breadcrumbs precede the block: keep both
             body, tail = out[:i], out[i:]
             body = _cap_knowledge_reply(body, topic, solver, physics, signal,
                                         limit=max(8000, _KNOWLEDGE_REPLY_LIMIT - len(tail)))
             return body + tail
+        if (topic or "").strip().lower() == "postmortems" and out.lstrip().startswith(("[", "{")):
+            # a JSON record set that callers parse as JSON: appending prose
+            # to it broke every parser (measured: json 'Extra data')
+            return _cap_knowledge_reply(out, topic, solver, physics, signal)
         body = _cap_knowledge_reply(out, topic, solver, physics, signal,
                                     limit=_KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE))
         return body + _UNIVERSAL_CORE

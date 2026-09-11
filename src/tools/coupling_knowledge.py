@@ -2251,91 +2251,34 @@ def _vector_block(script_name: str) -> str:
 
 
 FOURC_THERMOELASTIC_HEADERS = """\
-   header string (the physics, dynamics, solver, material, source and outer
-   boundary sections listed below, measured on this binary) followed by the
-   served tables: deck T = HEADER_T + deck_T_tables(), deck U = HEADER_U +
-   deck_U_tables(). The tables carry the interface point conditions, the node
-   and element lists and the topology; a header must not repeat them ──
-THE TWO DECKS AND THE RUNS ARE YOURS. Build the 2-D node layout of this
-subdomain (NX x NY quads on [X0,X1] x [Y0,Y1]), find the interface nodes,
-write and run BOTH decks, and leave behind the names listed at the end.
+HEADER_T (deck T, PROBLEMTYPE "Scalar_Transport", DIM 2): SCALAR TRANSPORT DYNAMIC {TIMEINTEGR "Stationary",
+SOLVERTYPE "linear_full", VELOCITYFIELD "zero", TIMESTEP/NUMSTEP/MAXTIME 1, LINEAR_SOLVER 1, CALCFLUX_BOUNDARY
+"diffusive"}; IO/RUNTIME VTK OUTPUT {INTERVAL_STEPS 1} and NO other IO section; SOLVER 1 {SOLVER "UMFPACK"};
+MATERIALS: MAT 1 MAT_scatra {DIFFUSIVITY KV}; FUNCT1 {SYMBOLIC_FUNCTION_OF_SPACE_TIME "<SRC_T>"} with a DESIGN SURF
+NEUMANN CONDITIONS entry {E 1, NUMDOF 1, ONOFF [1], VAL [1.0], FUNCT [1]} so the source enters the load; DESIGN LINE
+DIRICH CONDITIONS {E 1, NUMDOF 1, ONOFF [1], VAL [<outer T>], FUNCT [0]} on the outer line; SCATRA FLUX CALC LINE
+CONDITIONS {- E: 2} (the interface line). Then deck_T_tables() -- nothing else.
 
-RUN T -- the heat equation, 2-D, PROBLEMTYPE "Scalar_Transport":
-  SCALAR TRANSPORT DYNAMIC: TIMEINTEGR "Stationary", SOLVERTYPE "linear_full",
-    VELOCITYFIELD "zero", TIMESTEP/NUMSTEP/MAXTIME 1, LINEAR_SOLVER 1,
-    CALCFLUX_BOUNDARY "diffusive"
-  IO/RUNTIME VTK OUTPUT: INTERVAL_STEPS 1 (no other IO section)
-  SOLVER 1: SOLVER "UMFPACK";  MATERIALS: MAT 1 MAT_scatra DIFFUSIVITY KV
-  FUNCT1: SYMBOLIC_FUNCTION_OF_SPACE_TIME "<SRC_T>" and a DESIGN SURF NEUMANN
-    entry (E 1, NUMDOF 1, ONOFF [1], VAL [1.0], FUNCT [1]) so the source
-    enters the assembled RHS
-  DESIGN LINE DIRICH CONDITIONS on the OUTER boundary line (E 1, VAL [0.0] or
-    the task's outer T)
-  SCATRA FLUX CALC LINE CONDITIONS: - E: 2   (the interface line)
-  -- then deck_T_tables() (the interface point conditions, NODE COORDS,
-    TRANSPORT ELEMENTS, DLINE/DNODE/DSURF topology): nothing else
+HEADER_U (deck U, PROBLEMTYPE "Thermo_Structure_Interaction", DIM 3): IO {STRUCT_STRESS "No", STRUCT_STRAIN "No"};
+IO/MONITOR STRUCTURE DBC {INTERVAL_STEPS 1, FILE_TYPE yaml, WRITE_CONDITION_INFORMATION true}; STRUCTURAL DYNAMIC
+{DYNAMICTYPE "Statics", TIMESTEP/NUMSTEP/MAXTIME 1, LINEAR_SOLVER 2}; THERMAL DYNAMIC {DYNAMICTYPE Statics, same
+steps, LINEAR_SOLVER 1}; TSI DYNAMIC {COUPALGO "tsi_oneway", NUMSTEP/MAXTIME/TIMESTEP 1, ITEMAX 1}; TSI
+DYNAMIC/PARTITIONED {COUPVARIABLE "Temperature"}; IO/RUNTIME VTK OUTPUT {INTERVAL_STEPS 1}; IO/RUNTIME VTK
+OUTPUT/STRUCTURE {OUTPUT_STRUCTURE true, DISPLACEMENT true}; THERMAL DYNAMIC/RUNTIME VTK OUTPUT {OUTPUT_THERMO true,
+TEMPERATURE true}; SOLVER 1 and SOLVER 2 {SOLVER "UMFPACK"}; MATERIALS: MAT 1 MAT_Struct_ThermoStVenantK {YOUNGNUM 1,
+YOUNG [E_MOD], NUE NU, DENS 1, THEXPANS ALPHA, INITTEMP 0, THERMOMAT 2}, MAT 2 MAT_Fourier {CAPA 1, CONDUCT:
+constant: [KV]}; CLONING MATERIAL MAP {- SRC_FIELD "structure", SRC_MAT 1, TAR_FIELD "thermo", TAR_MAT 2};
+FUNCT1 "<SRC_UX>", FUNCT2 "<SRC_UY>", FUNCT3 "<SRC_T>"; DESIGN VOL NEUMANN CONDITIONS {E 1, NUMDOF 3, ONOFF [1,1,0],
+VAL [1.0,1.0,0.0], FUNCT [1,2,0]} (body force); DESIGN VOL THERMO NEUMANN CONDITIONS {E 1, NUMDOF 1, ONOFF [1],
+VAL [1.0], FUNCT [3]} (heat source); DESIGN VOL DIRICH CONDITIONS {E 1, NUMDOF 3, ONOFF [0,0,1], VAL [0,0,0],
+FUNCT [0,0,0]} (u_z = 0, plane strain); DESIGN SURF DIRICH CONDITIONS {E 1, NUMDOF 3, ONOFF [1,1,1], VAL [0,0,0],
+FUNCT [0,0,0]} and DESIGN SURF THERMO DIRICH CONDITIONS {E 1, NUMDOF 1, ONOFF [1], VAL [0], FUNCT [0]} (or the
+task's outer values). Then deck_U_tables() -- nothing else. All three VOL conditions share E 1 (one DVOL), both
+SURF conditions share E 1 (one DSURFACE); the tables carry those ids and every point condition.
 
-RUN U -- the displacement, PROBLEMTYPE "Thermo_Structure_Interaction" on the
-one-element-thick slab (DIM 3): every 2-D node twice, at z = 0 and z = TZ
-(TZ = min(hx, hy) keeps the hexes well shaped), each quad as ONE
-"e SOLIDSCATRA HEX8 n1 n2 n3 n4 n5 n6 n7 n8 MAT 1 KINEM linear TYPE Undefined"
-(bottom four counter-clockwise, then the same four on the top layer):
-  IO: STRUCT_STRESS "No", STRUCT_STRAIN "No"
-  IO/MONITOR STRUCTURE DBC: INTERVAL_STEPS 1, FILE_TYPE yaml,
-    WRITE_CONDITION_INFORMATION true
-  STRUCTURAL DYNAMIC: DYNAMICTYPE "Statics", TIMESTEP/NUMSTEP/MAXTIME 1,
-    LINEAR_SOLVER 2;  THERMAL DYNAMIC: DYNAMICTYPE Statics, same steps,
-    LINEAR_SOLVER 1;  TSI DYNAMIC: COUPALGO "tsi_oneway", NUMSTEP/MAXTIME/
-    TIMESTEP 1, ITEMAX 1;  TSI DYNAMIC/PARTITIONED: COUPVARIABLE "Temperature"
-  IO/RUNTIME VTK OUTPUT: INTERVAL_STEPS 1;  IO/RUNTIME VTK OUTPUT/STRUCTURE:
-    OUTPUT_STRUCTURE true, DISPLACEMENT true;  THERMAL DYNAMIC/RUNTIME VTK
-    OUTPUT: OUTPUT_THERMO true, TEMPERATURE true
-  SOLVER 1 and SOLVER 2: SOLVER "UMFPACK"
-  MATERIALS: MAT 1 MAT_Struct_ThermoStVenantK {YOUNGNUM 1, YOUNG [E_MOD],
-    NUE NU, DENS 1, THEXPANS ALPHA, INITTEMP 0, THERMOMAT 2};
-    MAT 2 MAT_Fourier {CAPA 1, CONDUCT: constant: [KV]}
-  CLONING MATERIAL MAP: - SRC_FIELD "structure", SRC_MAT 1, TAR_FIELD
-    "thermo", TAR_MAT 2
-  FUNCT1 "<SRC_UX>", FUNCT2 "<SRC_UY>", FUNCT3 "<SRC_T>"
-  DESIGN VOL NEUMANN CONDITIONS: E 1, NUMDOF 3, ONOFF [1,1,0], VAL
-    [1.0,1.0,0.0], FUNCT [1,2,0]           (the body force)
-  DESIGN VOL THERMO NEUMANN CONDITIONS: E 1, NUMDOF 1, ONOFF [1], VAL [1.0],
-    FUNCT [3]                              (the heat source)
-  DESIGN VOL DIRICH CONDITIONS: E 1, NUMDOF 3, ONOFF [0,0,1], VAL [0,0,0],
-    FUNCT [0,0,0]                          (u_z = 0 everywhere: plane strain)
-  DESIGN SURF DIRICH CONDITIONS (E 1: all outer-boundary nodes of BOTH
-    layers, NUMDOF 3, ONOFF [1,1,1], VAL [0,0,0]) and DESIGN SURF THERMO
-    DIRICH CONDITIONS (E 1, NUMDOF 1, ONOFF [1], VAL [0]) -- or the task's
-    outer values
-  -- then deck_U_tables() (both point-condition families, NODE COORDS of both
-    layers, SOLIDSCATRA HEX8 elements, DNODE/DSURF/DVOL topology): nothing else
-
-THE TOPOLOGY KEYWORDS, EXACTLY (measured: a script that wrote DVOLUME ran to
-"finished normally" with its body force, heat source and u_z pin silently
-dropped): entries are the strings "NODE <n> DNODE <d>", "NODE <n> DLINE <l>",
-"NODE <n> DSURFACE <s>" and "NODE <n> DVOL <v>" -- the entity words are DNODE,
-DLINE, DSURFACE, DVOL and nothing else. ONE design entity per set: all three
-VOL conditions of run U point at the SAME `E: 1` backed by one "DVOL 1" per
-node; the two outer SURF conditions (DIRICH and THERMO DIRICH) share `E: 1`
-backed by "DSURFACE 1" on every outer node of both layers; every POINT
-condition has its own DNODE id, the ids continuous across the DIRICH and
-THERMO DIRICH families. A condition whose E id has no topology entry is
-ACCEPTED by 4C and does nothing.
-
-Run each deck with the binary at config `fourc_bin` and its libraries on
-`fourc_ld` as LD_LIBRARY_PATH, line-buffered, console captured:
-    stdbuf -oL -eL <bin> <deck> <out_prefix> > <deck>.log 2>&1
-with two different output prefixes, e.g. out_T and out_U. When a run exits
-non-zero DO NOT raise: fall through, the served check reads the log and the
-decks and names the cause. OASiS does not run the solver for you.
-
-WHAT YOUR SOLVE MUST LEAVE BEHIND (the recovery below uses these names;
-nodes, interior and TZ are already defined above):
-    OUT_T      run T's output prefix (its VTU is <OUT_T>-vtk-files/scatra-*.vtu)
-    OUT_U      run U's output prefix (structure-*.vtu, thermo-*.vtu and
-               <OUT_U>-*_monitor_dbc.yaml)
-    DECK_U     the path of the run-U deck (its NODE COORDS map node gids to
-               coordinates for the reaction files)
+Run each deck line-buffered with its console in a log: stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1;
+on a non-zero exit fall through (the served check reads the log). Topology entry words are DNODE, DLINE,
+DSURFACE, DVOL only (a DVOLUME entry defines nothing and 4C silently drops the conditions on it).
 """
 
 
@@ -2370,12 +2313,12 @@ def _thermoelastic_block(script_name: str) -> str:
         "(qx, qy). Both are recovered from THIS side's own assembled systems "
         "(4C: its own boundary-flux VTU and its Dirichlet reaction monitor), "
         "never by differencing a P1 field on the boundary.\n\n"
-        f"```python\n{_serve_participant(p)}```\n"
-        + (("\n### THE TWO DECK HEADERS OF THE 4C THERMO-ELASTIC CONTRACT (deck grammar, measured on this binary)\n\n"
-            "Hole 2 of the contract above is the two header strings plus the two runs; each deck is "
-            "HEADER_T + deck_T_tables() and HEADER_U + deck_U_tables(). The headers carry exactly these "
-            "sections and nothing the served tables already carry:\n\n" + FOURC_THERMOELASTIC_HEADERS + "\n")
-           if script_name == "fourc" else ""))
+        + (("THE TWO DECK HEADERS (hole 2 of the block below; deck grammar measured on this binary). "
+            "Each deck is HEADER_T + deck_T_tables() and HEADER_U + deck_U_tables(); a header carries "
+            "exactly these sections and nothing the served tables already carry:\n\n"
+            + FOURC_THERMOELASTIC_HEADERS + "\n")
+           if script_name == "fourc" else "")
+        + f"```python\n{_serve_participant(p)}```\n")
 
 
 def _scaffold_first(traps: str):

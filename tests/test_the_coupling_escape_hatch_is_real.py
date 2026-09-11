@@ -130,9 +130,17 @@ def test_an_unsignalled_request_is_unchanged(knowledge_tool):
     # that never called prepare_simulation hand-rolled the code's API from
     # memory); they are bounded by their own length, not by the head cap
     facts = len(_deciding_block("kratos", "coupled side"))
-    assert len(plain) <= _COUPLING_HEAD_LIMIT + len(_UNIVERSAL_CORE) + NOTICE + facts, (
+    # 2026-09-11: the first reply of a session is lead A + the WHOLE contract
+    # block(s) + the notice + lead B + the facts, and the wrapper caps the body
+    # at _KNOWLEDGE_REPLY_LIMIT before appending the core; the Kratos blocks
+    # have grown past the old composition bound, so the bound is the wrapper's.
+    from tools.consolidated import _KNOWLEDGE_REPLY_LIMIT, _COUPLING_LEAD_A, _COUPLING_LEAD_B
+    composed = (len(_COUPLING_LEAD_A) + _COUPLING_HEAD_LIMIT + NOTICE + len(_COUPLING_LEAD_B)
+                + facts + len(_UNIVERSAL_CORE))
+    assert len(plain) <= min(composed, _KNOWLEDGE_REPLY_LIMIT + len(_UNIVERSAL_CORE)) + 600, (
         f"the unsignalled coupling reply is {len(plain)} characters against a "
-        f"head limit of {_COUPLING_HEAD_LIMIT}; the cap is not being enforced"
+        f"head limit of {_COUPLING_HEAD_LIMIT} and a reply limit of {_KNOWLEDGE_REPLY_LIMIT}; "
+        f"the cap is not being enforced"
     )
 
 

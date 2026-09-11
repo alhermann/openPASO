@@ -8017,8 +8017,12 @@ def _front_load_coupling(payload: str, solver: str = "",
     else:
         if len(_lead) + len(payload) <= _COUPLING_HEAD_LIMIT:
             return _append_deck_grammar(_lead + payload, solver)
-        budget = _COUPLING_HEAD_LIMIT - len(_lead)
-        limit = _COUPLING_HEAD_LIMIT
+        # NEVER CUT INSIDE THE FIRST CONTRACT BLOCK. Measured 2026-09-11: the
+        # thermo-elastic 4C block is 27k, the flat head 28k minus the lead cut
+        # its exports tail off in the worker's own call, and the worker wrote
+        # its own export code in place of the missing lines.
+        budget = max(_COUPLING_HEAD_LIMIT - len(_lead), _contract_block_end(payload, 0))
+        limit = len(_lead) + budget
     head = _lead + payload[:budget]
     # Cut on a section boundary so no instruction is truncated mid-sentence --
     # but take the LONGEST safe cut, not the first marker type that qualifies.

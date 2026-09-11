@@ -1,33 +1,18 @@
-"""4C as the DIRICHLET side of a THERMO-ELASTIC coupling (steady thermoelasticity, plane
-strain): the partner's temperature AND displacement come in together, this side's heat
-flux AND traction go out together.
-
+"""4C as the DIRICHLET side of a THERMO-ELASTIC coupling (steady thermoelasticity, plane strain).
     imports  values        = [T, ux, uy]   per interface point
-    exports  normal_fluxes = [qn, qx, qy]  qn = -(k grad T).n_out,  (qx, qy) = -(sigma_tot.n_out)
-The traction uses the SAME sign rule as the heat flux (minus the flux through n_out), so
-the two sides' exports cancel and the Neumann partner applies them UNCHANGED. The task's
-OUTWARD traction sigma.n_out is MINUS the exported (qx, qy); qn as it is.
-
-TWO 4C RUNS PER ITERATION, both yours (hole 2), both under a second: run T is a 2-D
-Scalar_Transport deck (the heat equation alone, CALCFLUX_BOUNDARY "diffusive" gives 4C's
-consistent boundary flux); run U is a Thermo_Structure_Interaction deck on a ONE-ELEMENT-
-THICK SOLIDSCATRA HEX8 slab with u_z pinned (exact plane strain), tsi_oneway with
-COUPVARIABLE Temperature, MAT_Struct_ThermoStVenantK (sigma = C:(eps - alpha T I), alpha
-= beta/(3 lambda + 2 mu), INITTEMP 0), and `TAG: monitor_reaction` on the interface point
-conditions: 4C then writes one <out>-<id>_monitor_dbc.yaml per condition with the node
-gid (ZERO-based) and the reaction f, and (f_layer0 + f_layer1)/(h*t_z) IS the exported
-traction (measured order 2.0: 1.45e-2, 3.6e-3, 9.0e-4 at h = 1/10, 1/20, 1/40).
-
-SERVED HERE: the handshake (three components mapped per component), the node classification
-and the point-condition and table text for both decks, the finish diagnosis, the recovery
-from 4C's own outputs, the self-checks and the exports. YOURS: the node layout (hole 1)
-and the two deck headers plus the runs (hole 2); the grammar of the headers is in the
-door's text right after this block.
-
-config.json: {"level":k,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,"k":..,"lam":..,
-"mu":..,"beta":..,"iface":"left|right|bottom|top","source_T":"<4C expression>",
-"source_ux":"..","source_uy":"..","fourc_bin":..,"fourc_ld":..}. Expressions: '^' for
-powers (never '**'), lowercase 'pi', coordinates 'x', 'y'.
+    exports  normal_fluxes = [qn, qx, qy]  qn = -(k grad T).n_out, (qx, qy) = -(sigma_tot.n_out)
+The traction uses the heat flux's sign rule (minus the flux through n_out): the two sides' exports
+cancel and the Neumann partner applies them UNCHANGED. The task's OUTWARD traction is MINUS (qx, qy).
+TWO 4C RUNS PER ITERATION (hole 2, both under a second): run T, a 2-D Scalar_Transport deck with
+CALCFLUX_BOUNDARY "diffusive" (4C's consistent boundary flux); run U, a Thermo_Structure_Interaction
+deck on a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab with u_z pinned (exact plane strain), tsi_oneway,
+COUPVARIABLE Temperature, MAT_Struct_ThermoStVenantK (alpha = beta/(3 lambda + 2 mu), INITTEMP 0),
+`TAG: monitor_reaction` on the interface point conditions: 4C writes <out>-<id>_monitor_dbc.yaml per
+condition (node gid ZERO-based, force f) and (f_layer0 + f_layer1)/(h*t_z) IS the exported traction
+(measured order 2.0). SERVED: handshake, node classification, point conditions and deck tables,
+finish diagnosis, recovery, self-checks, exports. YOURS: hole 1 (node layout), hole 2 (headers, runs).
+config.json: {"level","nx","ny","x0","x1","y0","y1","k","lam","mu","beta","iface":"left|right|
+bottom|top","source_T","source_ux","source_uy" (4C expressions: '^', lowercase pi),"fourc_bin","fourc_ld"}
 """
 import atexit
 import glob
@@ -99,70 +84,55 @@ def partner_values(y_or_x):
 
 # ── DID 4C FINISH? (served: when a run leaves no output, name the cause) ─
 def why_4c_did_not_finish(tag=""):
+    """When a run leaves no usable output: 4C's own error line, then the deck defects measured on worker decks."""
     _why = []
-    try:                                   # 1. 4C's own message
+    try:
         for _lg in sorted(glob.glob("*.log")) + sorted(glob.glob("*.txt")):
             try:
-                with open(_lg, errors="ignore") as _fh:
-                    _lines = _fh.read().splitlines()
+                _lines = open(_lg, errors="ignore").read().splitlines()
             except OSError:
                 continue
             for _i, _ln in enumerate(_lines):
                 if "PROC 0 ERROR" in _ln:
-                    _said = []
-                    for l in _lines[_i + 1:_i + 14]:
-                        if l.startswith("---") or l.lstrip().startswith(("0#", "1#")) or "MPI_ABORT" in l:
-                            break
-                        if l.strip():
-                            _said.append(l.strip())
-                    _why.append(f"4C said ({_lg}): " + " | ".join(_said))
+                    _said = [l.strip() for l in _lines[_i + 1:_i + 12] if l.strip() and not l.startswith("---") and "MPI_ABORT" not in l]
+                    _why.append(f"4C said ({_lg}): " + " | ".join(_said[:8]))
                     break
-    except Exception as _e:                # noqa: BLE001
-        _why.append(f"(log scan failed: {_e!r})")
-    try:                                   # 2. the decks, linted for the measured defects
         for _deck in sorted(glob.glob("*.4C.yaml")) or sorted(glob.glob("*.yaml")):
-            with open(_deck, errors="ignore") as _fh:
-                _txt = _fh.read()
+            _txt = open(_deck, errors="ignore").read()
             _secs = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, re.M)
-            _dup = sorted({s for s in _secs if _secs.count(s) > 1})
+            _dup = sorted({x for x in _secs if _secs.count(x) > 1})
             if _dup:
-                _why.append(f"{_deck}: section(s) written more than once, 4C reads each once: " + ", ".join(_dup))
+                _why.append(f"{_deck}: section(s) written twice: " + ", ".join(_dup))
             if "Thermo_Structure_Interaction" in _txt:
                 if "CLONING MATERIAL MAP" not in _txt:
                     _why.append(f"{_deck}: TSI needs a CLONING MATERIAL MAP pairing the structure material with the MAT_Fourier thermal material")
                 if "COUPVARIABLE" not in _txt or "Temperature" not in _txt.split("COUPVARIABLE", 1)[-1][:40]:
                     _why.append(f"{_deck}: TSI DYNAMIC/PARTITIONED needs COUPVARIABLE \"Temperature\" (the default gives zero thermal strain)")
                 if re.search(r"\b(WALL|SOLID) QUAD4\b|\bTRI3\b", _txt):
-                    _why.append(f"{_deck}: 4C has no 2-D thermo-elastic element; use a one-element-thick SOLIDSCATRA HEX8 slab with u_z pinned")
+                    _why.append(f"{_deck}: 4C has no 2-D thermo-elastic element; use the one-element-thick SOLIDSCATRA HEX8 slab")
                 if "monitor_reaction" in _txt and "IO/MONITOR STRUCTURE DBC" not in _txt:
                     _why.append(f"{_deck}: TAG: monitor_reaction writes nothing without an IO/MONITOR STRUCTURE DBC section")
                 if "DESIGN VOL THERMO DIRICH" in _txt:
                     _why.append(f"{_deck}: DESIGN VOL THERMO DIRICH imposes the temperature volume-wide; use SURF (outer) and POINT (interface) THERMO DIRICH")
             if "Scalar_Transport" in _txt:
                 if "THERMAL DYNAMIC:" in _txt and "SCALAR TRANSPORT DYNAMIC:" not in _txt:
-                    _why.append(f"{_deck}: PROBLEMTYPE Scalar_Transport needs its dynamics under `SCALAR TRANSPORT DYNAMIC`, not `THERMAL DYNAMIC`")
-                if "CALCFLUX_BOUNDARY" in _txt and "FLUX CALC" not in _txt:
-                    _why.append(f"{_deck}: CALCFLUX_BOUNDARY is set but no `SCATRA FLUX CALC LINE CONDITIONS` entry names the interface")
-                if "CALCFLUX_BOUNDARY" not in _txt:
-                    _why.append(f"{_deck}: no CALCFLUX_BOUNDARY \"diffusive\" -- no flux_boundary_phi_1 for the recovery")
-            if re.search(r"^IO:\s*$", _txt, re.M) and "Scalar_Transport" in _txt:
-                _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck is rejected; the VTU appears without it")
-            _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt)
-                             if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
+                    _why.append(f"{_deck}: Scalar_Transport needs `SCALAR TRANSPORT DYNAMIC`, not `THERMAL DYNAMIC`")
+                if "CALCFLUX_BOUNDARY" not in _txt or "FLUX CALC" not in _txt:
+                    _why.append(f"{_deck}: needs CALCFLUX_BOUNDARY \"diffusive\" AND a `SCATRA FLUX CALC LINE CONDITIONS` entry (E 2) for the flux recovery")
+                if re.search(r"^IO:\s*$", _txt, re.M):
+                    _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck is rejected; the VTU appears without it")
+            _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt) if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
             if _badkw:
-                _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL "
-                            f"(anything else defines nothing and the conditions on it are silently dropped)")
+                _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL (anything else defines nothing and the conditions on it are silently dropped)")
             _topo = set(re.findall(r"D(?:NODE|LINE|SURF|VOL)\s+(\d+)", _txt))
             for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
                 _head = _b.split(":", 1)[0].strip()
-                if not (_head.startswith("DESIGN") and _head.endswith("CONDITIONS")):
-                    continue
-                _ids = re.findall(r"\bE:\s*(\d+)", _b)
-                _missing = sorted({i for i in _ids if i not in _topo}, key=int)
-                if _missing:
-                    _why.append(f"{_deck}: {_head} names E id(s) {', '.join(_missing[:6])} that no *-NODE TOPOLOGY section defines")
+                if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
+                    _missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", _b) if x not in _topo}, key=int)
+                    if _missing:
+                        _why.append(f"{_deck}: {_head} names E id(s) {', '.join(_missing[:6])} that no *-NODE TOPOLOGY section defines")
     except Exception as _e:                # noqa: BLE001
-        _why.append(f"(deck lint failed: {_e!r})")
+        _why.append(f"(diagnosis failed: {_e!r})")
     if not _why:
         _why.append("no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck")
     return f"4C DID NOT FINISH{(' (' + tag + ')') if tag else ''} -- " + "; ".join(_why)

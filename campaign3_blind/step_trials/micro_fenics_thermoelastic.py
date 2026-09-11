@@ -15,7 +15,9 @@ served = (HERE / "served_fenics_thermoelastic_pointer.txt").read_text()
 
 XA, XB, LY = 0.8, 1.6, 1.0; KV, LAM, MU, BETA = 3.0, 400.0, 500.0, 1.0
 x, y = sp.symbols("x y")
-T = x * (XB - x) * sp.sin(sp.pi * y); ux = sp.Rational(2, 100) * x * (XB - x) * sp.sin(sp.pi * y); uy = sp.Rational(1, 100) * x**2 * (XB - x) * sp.sin(sp.pi * y)
+# T's x-derivative must not vanish at the interface x = 0.8 (x*(1.6-x) has its maximum there and gave a
+# zero heat datum, a degenerate trial): the extra (x + 0.4) factor moves the extremum
+T = x * (XB - x) * (x + sp.Rational(2, 5)) * sp.sin(sp.pi * y); ux = sp.Rational(2, 100) * x * (XB - x) * sp.sin(sp.pi * y); uy = sp.Rational(1, 100) * x**2 * (XB - x) * sp.sin(sp.pi * y)
 exx, eyy, exy = sp.diff(ux, x), sp.diff(uy, y), (sp.diff(ux, y) + sp.diff(uy, x)) / 2
 sxx = 2 * MU * exx + LAM * (exx + eyy) - BETA * T; syy = 2 * MU * eyy + LAM * (exx + eyy) - BETA * T; sxy = 2 * MU * exy
 fT = sp.simplify(-KV * (sp.diff(T, x, 2) + sp.diff(T, y, 2)))
@@ -67,7 +69,7 @@ def run_participant(code: str) -> tuple[bool, str]:
             exV = np.column_stack([Tf(C[:, 0], C[:, 1]), uxf(C[:, 0], C[:, 1]), uyf(C[:, 0], C[:, 1])])
             ev = [float(np.abs(V[inner, c] - exV[inner, c]).max() / np.abs(exV[:, c]).max()) for c in range(3)]
             exQ = -np.column_stack([gT(C[:, 0], C[:, 1]), gx(C[:, 0], C[:, 1]), gy(C[:, 0], C[:, 1])])
-            eq = [float(np.abs(Q[inner, c] - exQ[inner, c]).max() / np.abs(exQ[:, c]).max()) for c in range(3)] if Q.ndim == 2 and Q.shape == V.shape else [9, 9, 9]
+            eq = [float(np.abs(Q[inner, c] - exQ[inner, c]).max() / max(np.abs(exQ[:, c]).max(), 1e-12)) for c in range(3)] if Q.ndim == 2 and Q.shape == V.shape else [9, 9, 9]
             ok = all(er < 0.06 for er in ev) and all(er < 0.1 for er in eq) and ndof   # the validated file reaches 1.8e-2 / 1.2e-2 / 8e-3 and 1.6e-2 at 8x10
             return ok, f"exports n={len(C)} T_err={ev[0]:.2e} ux_err={ev[1]:.2e} uy_err={ev[2]:.2e} load_consistency={max(eq):.2e} NDOF_line={ndof}"
         except Exception as exc:

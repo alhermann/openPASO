@@ -5213,6 +5213,27 @@ def register_consolidated_tools(mcp: FastMCP):
         # solver produced, already validated by the checks in this verdict --
         # as ready-to-save CSV text. OASiS writes no file and computes no
         # number here; the agent saves its own data verbatim.
+        # EACH SIDE'S SOLVER CONSOLE, KEPT PER LEVEL. The driver retains each
+        # participant's captured console in participant_output.log, which the
+        # next level overwrites; measured on four cells, the per-level run
+        # logs were then all written from the finest level's output and every
+        # level carried the same DOF count. When the call names a level (the
+        # iface_level argument, or a history_path like residual_level<k>.csv),
+        # the same console is also kept as participant_output_level<k>.log.
+        _lvl_for_log = int(iface_level) if iface_level else 0
+        if not _lvl_for_log and history_path:
+            _m_lvl = re.search(r"level[_-]?(\d+)", Path(history_path).name)
+            if _m_lvl:
+                _lvl_for_log = int(_m_lvl.group(1))
+        if _lvl_for_log:
+            for _p in parts:
+                try:
+                    _src = Path(_p.work_dir) / "participant_output.log"
+                    if _src.is_file():
+                        (Path(_p.work_dir) / f"participant_output_level{_lvl_for_log}.log").write_text(
+                            _src.read_text(errors="replace"))
+                except OSError:
+                    pass
         iface_csv = None
         if r.converged and (r.exports or {}):
           try:                       # a malformed export must not destroy

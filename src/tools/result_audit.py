@@ -2593,9 +2593,10 @@ def coupled_ladder(work: Path) -> dict | None:
                            f"console output for {sorted(sides_l) or 'no'} side(s).",
                         f"For level {k}, for EACH side: the per-level run log the task names must hold that "
                         "solver's OWN console output (banner, iteration lines) plus the DOF-count line. The "
-                        "driver kept each participant's captured output next to its exports.json -- copy that "
-                        "file into the run log; never summarise or retype it. CHECK: audit_results(work_dir) "
-                        "reports no run-log finding for this level.")
+                        f"coupling tool kept each participant's captured console for THIS level as "
+                        f"participant_output_level{k}.log next to its exports.json (participant_output.log is "
+                        "only the latest level's) -- copy that file into the run log; never summarise or retype "
+                        "it. CHECK: audit_results(work_dir) reports no run-log finding for this level.")
     next_level = (max(done_levels) + 1) if done_levels else 1
     short = (f" (its history so far has {rows_by_level.get(next_level, 0)} row(s))"
              if next_level in rows_by_level else "")

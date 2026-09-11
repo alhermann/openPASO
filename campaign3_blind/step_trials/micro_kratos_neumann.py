@@ -28,7 +28,7 @@ def run_participant(code: str) -> tuple[bool, str]:
         d = Path(td); (d / "participant_B.py").write_text(code)
         ys = [i / 10 for i in range(11)]
         (d / "imports.json").write_text(json.dumps({"left": {"field_name": "u", "n_points": len(ys),
-            "coordinates": [[0.6, y] for y in ys], "values": [0.8 * math.sin(math.pi * y) for y in ys],
+            "coordinates": [[0.6, y] for y in ys], "values": [0.0 for y in ys],   # a Neumann side must not use these
             "normal_fluxes": [5.0 * math.sin(math.pi * y) for y in ys]}}))
         try:
             r = subprocess.run([PY, "participant_B.py"], cwd=td, capture_output=True, text=True, timeout=600,

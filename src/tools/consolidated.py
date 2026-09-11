@@ -7862,7 +7862,15 @@ def _contract_block_end(payload: str, floor: int) -> int:
             return floor
         block = payload[i:j + 3]
         if "imports.json" in block and "exports.json" in block:
-            return max(floor, min(j + 3 + 200, len(payload)))
+            end = j + 3
+            # a second role's contract directly behind the first (the Neumann
+            # side of a backend that ships both) belongs in the same head
+            nxt = payload.find("```python", end)
+            if 0 <= nxt <= end + 1500 and "NEUMANN-SIDE PARTICIPANT" in payload[end:nxt]:
+                nj = payload.find("```", nxt + 9)
+                if nj > 0 and "imports.json" in payload[nxt:nj]:
+                    end = nj + 3
+            return max(floor, min(end + 200, len(payload)))
         pos = j + 3
 
 

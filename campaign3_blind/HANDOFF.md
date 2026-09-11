@@ -519,6 +519,13 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   interpolation (numpy.loadtxt + scipy griddata, measured on a served
   per-level dump; commit af7c4f8d). Round 13 launched on it (seeds C3
   5681-83, C1 6461-63, C2 6471-73).
+- 05:55: the OTHER role's contract (Kratos's Neumann side) now sits right
+  behind the first contract in the door payload, and the first reply of a
+  session is cut behind BOTH blocks: a C2 parent that wrote the Kratos
+  Neumann side itself (round 14, 6493) had only the Dirichlet block in its
+  first reply and hand-rolled the load. Measured after: kratos first reply
+  carries two contracts; part B's tail is cut only for kratos and 4C (the
+  longest contract material), whose run-log rules the ladder repeats.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

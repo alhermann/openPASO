@@ -2298,9 +2298,14 @@ def _payload(title: str, sides: str, script_name: str, launch: str,
             f"`signal='participant:part1'`. Measured: every recent coupled "
             f"run that wrote this file from scratch instead failed on the "
             f"handshake or the recovery.\n\n{contract}\n\n"
+            # the OTHER role's contract comes right behind the first one, so the
+            # first reply of a session (cut behind the contract blocks) carries
+            # both roles -- measured 2026-09-11: a task that made Kratos the
+            # Neumann side got only the Dirichlet block in that reply and the
+            # parent hand-rolled the Neumann side and lost
+            f"{_role_block(script_name)}"
             f"## Launching it\n\n{launch}\n"
             f"## {title}-specific traps\n\n{traps}\n{extra}"
-            f"{_role_block(script_name)}"
             f"{_vector_block(script_name)}"
             f"{_transient_block(script_name)}"
             f"{_threed_block(script_name)}")

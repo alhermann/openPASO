@@ -196,7 +196,9 @@ else:
 
 # ── HOLE 2 (yours): forms, sources, outer BCs, the two solves, in this order.
 #    aT and au: your bilinear forms in tT/vT and uu/vu (conduction with K;
-#    plane-strain elasticity with LAM and MU). L_T_vol: the heat source ALONE
+#    plane-strain elasticity with LAM and MU), written as UFL expressions:
+#    ufl.inner(., .) for scalar products, `*` for products, `* ufl.dx` for the
+#    integral -- never a `.` between UFL objects. L_T_vol: the heat source ALONE
 #    (a fem.Function on ST interpolated from F_T, times vT, over dx). fU_h: the
 #    body force as a fem.Function on SU interpolated from F_U (np.vstack of its
 #    two arrays, shape (2, n) -- NOT transposed: measured, the transpose fails

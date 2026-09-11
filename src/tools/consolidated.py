@@ -5876,6 +5876,25 @@ def register_consolidated_tools(mcp: FastMCP):
                 _next = (_ra.coupled_ladder(Path(_root)) or {}).get("text")
         except Exception:                                # advisory only
             _next = None
+        # THE DELIVERABLE DEFECTS THE AUDIT NAMES RIDE ON couple() TOO. Measured (rounds 29-31):
+        # parents call audit_results 0-1 times a run and couple() 3-8 times; the run logs copied
+        # from another level and the field files written at the nodes instead of the prescribed
+        # probe points were named by the audit nobody called. Reads the agent's own files.
+        _deliv = []
+        try:
+            if _root:
+                for _fn in (_ra.wrong_level_run_log_findings, _ra.solution_rows_grow_findings,
+                            _ra.identical_solution_levels_findings):
+                    try:
+                        _deliv += list(_fn(Path(_root)) or [])
+                    except Exception:                    # noqa: BLE001
+                        pass
+        except Exception:                                # noqa: BLE001
+            _deliv = []
+        if _deliv:
+            _dtxt = ("YOUR DELIVERABLES ON DISK HAVE DEFECTS THE GRADER WILL SEE -- fix them before the next level: "
+                     + " | ".join(str(_f.get("finding", ""))[:600] for _f in _deliv[:3]))
+            _lead = _dtxt + ("\n" + _lead if _lead else "")
         if _next:
             _lead = (_lead + "\n" + _next) if _lead else _next
             result = {"next_step": _next, **result}

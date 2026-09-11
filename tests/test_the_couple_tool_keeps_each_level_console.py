@@ -137,3 +137,29 @@ def test_an_unchanged_mesh_between_levels_leads_the_reply(tmp_path, couple_tool,
     lead = out.get("what_to_fix_next") or ""
     assert lead.startswith("MESH UNCHANGED FROM LEVEL 1"), lead[:300]
     assert "A (NDOF 7 at both levels)" in lead and "B (NDOF 7 at both levels)" in lead
+
+
+def test_a_wrong_level_run_log_on_disk_leads_the_next_couple_reply(tmp_path, couple_tool, monkeypatch):
+    """Rounds 29-31: run logs copied from another level were named by an audit nobody called; couple()
+    is called several times a run, so the deliverable findings ride on it."""
+    import asyncio, inspect
+    monkeypatch.chdir(tmp_path)
+    for name, expr in (("A", "0.3 * other + 1.0"), ("B", "0.5 * other + 0.2")):
+        d = tmp_path / f"side_{name}"
+        d.mkdir()
+        (d / "part.py").write_text(TOY.replace("{A}", expr))
+    parts = [{"name": "A", "command": [sys.executable, "part.py"], "work_dir": str(tmp_path / "side_A"), "imports_from": ["B"]},
+             {"name": "B", "command": [sys.executable, "part.py"], "work_dir": str(tmp_path / "side_B"), "imports_from": ["A"]}]
+    r = couple_tool(participants=json.dumps(parts), max_iter=60, tol=1e-8, critic_approved=True, iface_level=1, probe=False)
+    if inspect.iscoroutine(r):
+        r = asyncio.run(r)
+    assert json.loads(str(r)).get("converged")
+    # the agent's level-1 run log for side A carries another level's NDOF
+    (tmp_path / "run_level1_A.log").write_text("toy solver console\nNDOF = 999\n")
+    r = couple_tool(participants=json.dumps(parts), max_iter=60, tol=1e-8, critic_approved=True, iface_level=2, probe=False)
+    if inspect.iscoroutine(r):
+        r = asyncio.run(r)
+    out = json.loads(str(r))
+    lead = out.get("what_to_fix_next") or ""
+    assert lead.startswith("YOUR DELIVERABLES ON DISK HAVE DEFECTS"), lead[:200]
+    assert "RUN LOG FROM THE WRONG LEVEL" in lead and "run_level1_A.log carries NDOF 999" in lead, lead[:700]

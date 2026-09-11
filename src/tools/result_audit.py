@@ -47,7 +47,11 @@ from pathlib import Path
 # only in runs that went through OASiS, which is why the search is filtered
 # rather than naive.
 _SCRATCH = {"simulation_outputs", "coupling", "meshes", "benchmark_results",
-            ".git", "__pycache__", "runs", "runs_quarantine"}
+            ".git", "__pycache__", "runs", "runs_quarantine",
+            # OASiS's own source layout: a cell once pointed audit_results at the
+            # server's src tree and the ladder read core/instructions.py as a
+            # participant script written from scratch
+            "core", "tools", "backends", "src", "site-packages"}
 
 
 
@@ -2569,7 +2573,10 @@ def coupled_ladder(work: Path) -> dict | None:
                         "prescribes by interpolating inside the element (never nearest node) and write the "
                         "per-level field file the task names; write the per-level interface file from that "
                         "side's own converged trace and its own outward flux at the prescribed interface "
-                        "points. The interpolation is four lines (measured on a served per-level dump): "
+                        "points -- BOTH from its interface_level<k>.csv (a Dirichlet side's trace there is the "
+                        "value it imposed, identical to the partner's export; measured: a cell that re-sampled "
+                        "its field file at the boundary instead handed in a trace 2x off while its field was "
+                        "right, and was graded unphysical). The interpolation is four lines (measured on a served per-level dump): "
                         "a = numpy.loadtxt('field_level<k>.csv', delimiter=',', skiprows=1); "
                         "v = scipy.interpolate.griddata(a[:, :2], a[:, 2], P, method='linear') with P the "
                         "(n, 2) probe points -- one such call per value column (a[:, 2], a[:, 3], ... for a "

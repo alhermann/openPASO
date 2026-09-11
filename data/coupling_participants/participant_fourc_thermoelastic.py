@@ -176,6 +176,12 @@ def why_4c_did_not_finish(tag=""):
                     _why.append(f"{_deck}: no CALCFLUX_BOUNDARY \"diffusive\" -- 4C then writes no flux_boundary_phi_1 and the flux recovery has nothing to read")
             if re.search(r"^IO:\s*$", _txt, re.M) and "Scalar_Transport" in _txt:
                 _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck aborted every trial read (\"Could not match this input\"); the VTU appears without it")
+            _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt)
+                             if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
+            if _badkw:
+                _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, "
+                            f"DLINE, DSURFACE, DVOL (a DVOLUME entry defines nothing, and every condition on that "
+                            f"id is silently dropped)")
             _topo = set(re.findall(r"D(?:NODE|LINE|SURF|VOL)\s+(\d+)", _txt))
             for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
                 _head = _b.split(":", 1)[0].strip()
@@ -267,6 +273,18 @@ atexit.register(_diagnose_at_exit)
 #   NODE COORDS, STRUCTURE ELEMENTS, DNODE-NODE TOPOLOGY (one DNODE per point
 #     condition), DSURF-NODE TOPOLOGY (the outer nodes, both layers),
 #     DVOL-NODE TOPOLOGY (every node)
+#
+# THE TOPOLOGY KEYWORDS, EXACTLY (measured: a script that wrote DVOLUME ran to
+# "finished normally" with its body force, heat source and u_z pin silently
+# dropped): entries are the strings "NODE <n> DNODE <d>", "NODE <n> DLINE <l>",
+# "NODE <n> DSURFACE <s>" and "NODE <n> DVOL <v>" -- the entity words are DNODE,
+# DLINE, DSURFACE, DVOL and nothing else. ONE design entity per set: all three
+# VOL conditions of run U point at the SAME `E: 1` backed by one "DVOL 1" per
+# node; the two outer SURF conditions (DIRICH and THERMO DIRICH) share `E: 1`
+# backed by "DSURFACE 1" on every outer node of both layers; every POINT
+# condition has its own DNODE id, the ids continuous across the DIRICH and
+# THERMO DIRICH families. A condition whose E id has no topology entry is
+# ACCEPTED by 4C and does nothing.
 #
 # Run each deck with the binary at config `fourc_bin` and its libraries on
 # `fourc_ld` as LD_LIBRARY_PATH, line-buffered, console captured:

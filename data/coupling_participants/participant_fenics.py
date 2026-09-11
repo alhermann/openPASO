@@ -61,6 +61,19 @@ T_INIT    = 310.0         # iteration-1 fallback interface temperature
 Q_INIT    = 0.0           # iteration-1 fallback interface flux
 # ─────────────────────────────────────────────────────────────────────────
 
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides NX, NY and names the level; the per-level
+#    dumps below carry that level so the coarse levels survive the fine ones.
+LEVEL = 1
+if Path("config.json").is_file():
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
 OUTER_X = X0 if IFACE_X == X1 else X1
 S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at interface = S*e_x
 
@@ -317,6 +330,16 @@ if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size 
                      "array negated, bit for bit: a copy, not a recovery from "
                      "this side's own assembled system")
 
+# PER-LEVEL PERSISTENCE: this level's whole field and its interface trace and
+# flux, named by LEVEL, never overwritten by the next level (exports.json is).
+with open(f"field_level{LEVEL}.csv", "w") as _f:
+    _f.write("x,y,u\n")
+    for (_px, _py), _u in zip(xy[:, :2], uh.x.array):
+        _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(_u):.11e}\n")
+with open(f"interface_level{LEVEL}.csv", "w") as _f:
+    _f.write("x,y,u,qn\n")
+    for _y, _t, _q in zip(y_if, T, Q):
+        _f.write(f"{float(IFACE_X):.11e},{float(_y):.11e},{float(_t):.11e},{float(_q):.11e}\n")
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",
     "n_points": int(len(iface_dofs)),

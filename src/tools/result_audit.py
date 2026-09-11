@@ -2520,10 +2520,11 @@ def coupled_ladder(work: Path) -> dict | None:
             return step(4, f"WRITE LEVEL {k}'S DELIVERABLES: the coupling converged but level {k} has field "
                            f"files for {sorted(sides_f) or 'no'} side(s) and interface files for "
                            f"{sorted(sides_i) or 'no'} side(s).",
-                        f"For level {k}, for EACH side: read that side's converged field (its per-level dump "
-                        "field_level<k>.csv, columns x,y,<field> nodal values, and its exports.json, which is "
-                        "exactly {\"field_name\", \"n_points\", \"coordinates\": [[x, y], ...], \"values\": "
-                        "[...], \"normal_fluxes\": [...]} in interface-node order), evaluate it at the probe points the task "
+                        f"For level {k}, for EACH side: read that side's converged field (its per-level dumps "
+                        "field_level<k>.csv, columns x,y,<field> nodal values, and interface_level<k>.csv, "
+                        "columns x,y,<trace>,<flux> at its interface nodes -- NEVER exports.json, which the next "
+                        "level overwrites: measured, a run that rebuilt level 1 from exports.json after level 2 "
+                        "handed in two byte-identical levels), evaluate it at the probe points the task "
                         "prescribes by interpolating inside the element (never nearest node) and write the "
                         "per-level field file the task names; write the per-level interface file from that "
                         "side's own converged trace and its own outward flux at the prescribed interface "
@@ -2608,7 +2609,8 @@ def missing_fields_findings(work: Path) -> list[dict]:
         f"file; write the per-level interface file from that side's own "
         f"converged trace and flux at the prescribed interface points. Every "
         f"number you already have is on disk in your participants' per-level "
-        f"dumps and exports.json; no re-solve is needed.")}]
+        f"dumps (field_level<k>.csv, interface_level<k>.csv; exports.json holds "
+        f"only the LAST level); no re-solve is needed.")}]
 
 
 def summary_names_findings(work: Path) -> list[dict]:

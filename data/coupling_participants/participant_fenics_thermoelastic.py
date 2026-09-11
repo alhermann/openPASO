@@ -107,7 +107,9 @@ imp = read_imports()
 # ── HOLE 1 (yours): the mesh and the two spaces. dmesh.create_rectangle over
 #    the corners [X0, Y0] and [X1, Y1] with NX by NY triangle cells (the P1
 #    idiom on this install; halve h per level); ST the scalar ("Lagrange", 1)
-#    fem.functionspace and SU the vector one with shape (2,).
+#    fem.functionspace and SU the vector one, fem.functionspace with the
+#    element tuple ("Lagrange", 1, (2,)) -- there is NO fem.VectorFunctionSpace
+#    on this install (AttributeError, measured).
 #    LEAVE BEHIND: domain, ST, SU.
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
@@ -184,9 +186,15 @@ else:
 #    plane-strain elasticity with LAM and MU). L_T_vol: the heat source ALONE
 #    (a fem.Function on ST interpolated from F_T, times vT, over dx). fU_h: the
 #    body force as a fem.Function on SU interpolated from F_U (np.vstack of its
-#    two arrays). bcs_T and bcs_U: the OUTER Dirichlet conditions, lists of
+#    two arrays, shape (2, n) -- NOT transposed: measured, the transpose fails
+#    with "Interpolation data has the wrong shape/size"); the strain is
+#    ufl.sym(ufl.grad(w)) and the identity ufl.Identity(2) (UFL arguments have
+#    no geometric_dimension()). bcs_T and bcs_U: the OUTER Dirichlet conditions, lists of
 #    fem.dirichletbc carrying T_OUTER / (UX_OUTER, UY_OUTER) on outer_T /
-#    outer_U (int32). Solve the heat problem with dolfinx.fem.petsc.LinearProblem
+#    outer_U (int32) -- either fem.dirichletbc(<a fem.Function holding the
+#    values>, rows) or fem.dirichletbc(fem.Constant(domain, ...), rows, V)
+#    with the SPACE as third argument (a Constant without it is a TypeError,
+#    measured). Solve the heat problem with dolfinx.fem.petsc.LinearProblem
 #    (aT against L_T_vol + L_T_if, bcs = bcs_T + bcs_if_T, the keyword
 #    petsc_options_prefix, ksp preonly with an lu pc) into Th. Then
 #    L_U_vol = the body-force term plus the thermal term BETA * Th * div(vu)

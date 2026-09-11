@@ -89,7 +89,7 @@ SYS = "You are a finite-element simulation assistant. What follows is the docume
 results = []
 for i in range(N):
     t0 = time.time()
-    resp = client.chat.completions.create(model=MODEL, temperature=0.7, seed=5000 + i, max_tokens=20000,
+    resp = client.chat.completions.create(model=MODEL, temperature=0.7, seed=5000 + i, max_tokens=32000,
         extra_body={"reasoning": {"max_tokens": 4000}},
         messages=[{"role": "system", "content": SYS}, {"role": "user", "content": TASK}])
     text = resp.choices[0].message.content or ""; fin = resp.choices[0].finish_reason
@@ -100,7 +100,7 @@ for i in range(N):
     if not ok and REPAIRS > 0:
         for _r in range(REPAIRS):
             attempts += 1
-            fix = client.chat.completions.create(model=MODEL, temperature=0.7, seed=6000 + i, max_tokens=20000,
+            fix = client.chat.completions.create(model=MODEL, temperature=0.7, seed=6000 + i, max_tokens=32000,
                 extra_body={"reasoning": {"max_tokens": 4000}},
                 messages=[{"role": "system", "content": SYS}, {"role": "user", "content": TASK},
                           {"role": "assistant", "content": "```python\n" + code + "```"},

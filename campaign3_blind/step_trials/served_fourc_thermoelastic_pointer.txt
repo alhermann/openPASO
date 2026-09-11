@@ -236,6 +236,12 @@ def why_4c_did_not_finish(tag=""):
                     _why.append(f"{_deck}: no CALCFLUX_BOUNDARY \"diffusive\" -- 4C then writes no flux_boundary_phi_1 and the flux recovery has nothing to read")
             if re.search(r"^IO:\s*$", _txt, re.M) and "Scalar_Transport" in _txt:
                 _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck aborted every trial read (\"Could not match this input\"); the VTU appears without it")
+            _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt)
+                             if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
+            if _badkw:
+                _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, "
+                            f"DLINE, DSURFACE, DVOL (a DVOLUME entry defines nothing, and every condition on that "
+                            f"id is silently dropped)")
             _topo = set(re.findall(r"D(?:NODE|LINE|SURF|VOL)\s+(\d+)", _txt))
             for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
                 _head = _b.split(":", 1)[0].strip()
@@ -327,6 +333,18 @@ atexit.register(_diagnose_at_exit)
 #   NODE COORDS, STRUCTURE ELEMENTS, DNODE-NODE TOPOLOGY (one DNODE per point
 #     condition), DSURF-NODE TOPOLOGY (the outer nodes, both layers),
 #     DVOL-NODE TOPOLOGY (every node)
+#
+# THE TOPOLOGY KEYWORDS, EXACTLY (measured: a script that wrote DVOLUME ran to
+# "finished normally" with its body force, heat source and u_z pin silently
+# dropped): entries are the strings "NODE <n> DNODE <d>", "NODE <n> DLINE <l>",
+# "NODE <n> DSURFACE <s>" and "NODE <n> DVOL <v>" -- the entity words are DNODE,
+# DLINE, DSURFACE, DVOL and nothing else. ONE design entity per set: all three
+# VOL conditions of run U point at the SAME `E: 1` backed by one "DVOL 1" per
+# node; the two outer SURF conditions (DIRICH and THERMO DIRICH) share `E: 1`
+# backed by "DSURFACE 1" on every outer node of both layers; every POINT
+# condition has its own DNODE id, the ids continuous across the DIRICH and
+# THERMO DIRICH families. A condition whose E id has no topology entry is
+# ACCEPTED by 4C and does nothing.
 #
 # Run each deck with the binary at config `fourc_bin` and its libraries on
 # `fourc_ld` as LD_LIBRARY_PATH, line-buffered, console captured:
@@ -467,29 +485,11 @@ for n in interior:
     _xy = (round(float(nodes[n - 1][0]), 9), round(float(nodes[n - 1][1]), 9))
     if _xy not in _F:
         raise SystemExit(f"no reaction file for the interface node at {_xy}: its POINT DIRICH entries "
-                         f"(both layers) need TAG: monitor_reaction")
-    q_t.append([_F[_xy][0] / _share, _F[_xy][1] / _share])   # MEASURED sign: this IS -(sigma.n_out)
-co = [[float(nodes[n - 1][0]), float(nodes[n - 1][1])] for n in interior]
-Q = [[qn, qt[0], qt[1]] for qn, qt in zip(q_n, q_t)]
-
-# ── EXPORT SELF-CHECK ─ keep this block ───────────────────────────────────
-_chk = np.asarray(Q, float)
-if not np.isfinite(_chk).all():
-    raise SystemExit("EXPORT SELF-CHECK: non-finite interface fluxes; nothing was exported")
-_chk_imp = imp if imp else {}
-_chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
-                            for _d in _chk_imp.values()]) if _chk_imp else np.zeros(0))
-if _chk_qin.size == _chk.size and _chk.size and np.array_equal(_chk.ravel(), -_chk_qin):
-    raise SystemExit("EXPORT SELF-CHECK: the exported fluxes are the partner's array negated, bit for "
-                     "bit: a copy, not a recovery from this side's own runs")
-if np.abs(_chk[:, 1:]).max() == 0.0 and np.abs(U2d).max() > 0:
-    raise SystemExit("EXPORT SELF-CHECK: a zero traction against a nonzero displacement field: the "
-                     "reaction files carried nothing -- check TAG: monitor_reaction on the interface "
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 46,440 further characters exist and are NOT lost.
+THIS PAYLOAD IS TRUNCATED HERE. 48,198 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 27,968 of 74,042 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 27,990 of 75,822 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
 

@@ -3033,6 +3033,14 @@ with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\\n")
     for (_px, _py), _u in zip(nodes, u):
         _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\\n")
+# and its own interface trace and flux at THIS level's interface nodes:
+# exports.json is overwritten by the next level, this file is not (measured:
+# a run that rebuilt level 1's interface file from exports.json after level 2
+# handed in two byte-identical levels).
+with open(f"interface_level{_LVL}.csv", "w") as _f:
+    _f.write("x,y,u,qn\\n")
+    for (_px, _py), _n, _q in zip(co, interior, q_own):
+        _f.write(f"{_px:.11e},{_py:.11e},{float(u[_n - 1]):.11e},{float(_q):.11e}\\n")
 # THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its own -- the
 # audit and the hand-in read that exact shape (measured: three coupled
 # rounds lost their best cells to logs whose only NDOF sat inside a prose
@@ -4456,6 +4464,13 @@ with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\\n")
     for (_px, _py), _u in zip(node_coords, u_vert):
         _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\\n")
+# and its own interface trace and flux at THIS level's interface vertices
+# (exports.json is overwritten by the next level; this file is not).
+_uv = {(round(float(_px), 10), round(float(_py), 10)): float(_u) for (_px, _py), _u in zip(node_coords, u_vert)}
+with open(f"interface_level{_LVL}.csv", "w") as _f:
+    _f.write("x,y,u,qn\\n")
+    for (_px, _py), _q in zip(co_out, q_own):
+        _f.write(f"{_px:.11e},{_py:.11e},{_uv.get((round(float(_px), 10), round(float(_py), 10)), float('nan')):.11e},{float(_q):.11e}\\n")
 # THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its own (the
 # audit and the hand-in read that exact shape); the descriptive line follows.
 print(f"NDOF = {len(u_vert)}")

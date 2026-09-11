@@ -32,6 +32,18 @@ K = 1.0
 T_OUTER = 100.0
 T_INIT = 50.0            # iteration-1 fallback interface temperature
 nx, ny = 32, 32
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides nx, ny and names the level; the per-level
+#    dumps below carry that level so the coarse levels survive the fine ones.
+LEVEL = 1
+if Path("config.json").is_file():
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        LEVEL = int(_cfg.get("level", LEVEL))
+        nx = int(_cfg.get("nx", nx))
+        ny = int(_cfg.get("ny", ny))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
 # ─────────────────────────────────────────────────────────────────────────
 
 
@@ -198,6 +210,16 @@ def main() -> None:
                          "array negated, bit for bit: a copy, not a recovery from "
                          "this side's own assembled system")
 
+    # PER-LEVEL PERSISTENCE: this level's field and interface data, named by
+    # LEVEL; exports.json is overwritten by the next level, these are not.
+    with open(f"field_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u\n")
+        for n in mp.Nodes:
+            _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(n.GetSolutionStepValue(KM.TEMPERATURE)):.11e}\n")
+    with open(f"interface_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u,qn\n")
+        for y, t, q in zip(y_if, T_if, q_out):
+            _f.write(f"{float(X1):.11e},{float(y):.11e},{float(t):.11e},{float(q):.11e}\n")
     Path("exports.json").write_text(json.dumps({
         "field_name": "temperature",
         "n_points": len(T_if),

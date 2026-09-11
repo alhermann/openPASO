@@ -82,6 +82,19 @@ UI_X, UI_Y = 0.0, 0.0     # iteration-1 fallback interface displacement
 TI_X, TI_Y = 0.0, 0.0     # iteration-1 fallback interface traction export
 # ─────────────────────────────────────────────────────────────────────────
 
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides NX, NY and names the level; the per-level
+#    dumps below carry that level so the coarse levels survive the fine ones.
+LEVEL = 1
+if Path("config.json").is_file():
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
 LAM = E_MOD * NU / ((1.0 + NU) * (1.0 - 2.0 * NU))   # plane strain
 MU = E_MOD / (2.0 * (1.0 + NU))
 
@@ -337,6 +350,16 @@ print(f"[fenics {SIDE}] interface n={len(U)} "
       f"tx=[{Q[:,0].min():.6g},{Q[:,0].max():.6g}] "
       f"ty=[{Q[:,1].min():.6g},{Q[:,1].max():.6g}]")
 
+# PER-LEVEL PERSISTENCE: this level's whole field and its interface trace and
+# traction, named by LEVEL, never overwritten by the next level (exports.json is).
+with open(f"field_level{LEVEL}.csv", "w") as _f:
+    _f.write("x,y,ux,uy\n")
+    for _i, (_px, _py) in enumerate(xy[:, :2]):
+        _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(uh.x.array[2 * _i]):.11e},{float(uh.x.array[2 * _i + 1]):.11e}\n")
+with open(f"interface_level{LEVEL}.csv", "w") as _f:
+    _f.write("x,y,ux,uy,qx,qy\n")
+    for _y, (_ux, _uy), (_qx, _qy) in zip(y_if, U, Q):
+        _f.write(f"{float(IFACE_X):.11e},{float(_y):.11e},{float(_ux):.11e},{float(_uy):.11e},{float(_qx):.11e},{float(_qy):.11e}\n")
 # exports.json LAST: the driver takes its existence as proof of success.
 Path("exports.json").write_text(json.dumps({
     "field_name": "displacement",

@@ -184,8 +184,11 @@ def test_served_payload_is_the_elided_contract_of_the_tested_participant(name):
     assert excerpt == _serve_participant(path)
     i = served.index("```python"); j = served.index("```", i + 9)
     first_block = served[i:j + 3]
-    if "config.json" in first_block:
+    if 'CFG = json.loads(Path("config.json")' in first_block:
         # 2026-09-11: a backend that ships a config-driven SCAFFOLD (4C, DUNE)
+        # -- its geometry comes from config.json (every participant now READS
+        # config.json for the per-level rule, so the mention alone is not the
+        # discriminator)
         # serves it as the contract -- the same block prepare_simulation's
         # reveal hands over -- validated by execution against a manufactured
         # solution (tests/test_the_served_scaffolds_run_with_a_fill.py). The

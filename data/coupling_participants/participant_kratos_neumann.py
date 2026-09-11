@@ -99,6 +99,19 @@ def source(x, y):
     return F_SRC(x, y)
 # ─────────────────────────────────────────────────────────────────────────
 
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides NX, NY and names the level; the per-level
+#    dumps below carry that level so the coarse levels survive the fine ones.
+LEVEL = 1
+if Path("config.json").is_file():
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
 ON_MAX_X = abs(IFACE_X - X1) < abs(IFACE_X - X0)   # interface is this side's x-max?
 OUTER_X = X0 if ON_MAX_X else X1
 S = 1.0 if ON_MAX_X else -1.0          # outward normal at the interface = S * e_x
@@ -375,13 +388,17 @@ def main():
           f"T=[{T.min():.6g},{T.max():.6g}] {bal}")
     print(f"NDOF = {len(mp.Nodes)}")
 
-    field_coords = [[float(n.X), float(n.Y)] for n in mp.Nodes]
-    field_values = [float(n.GetSolutionStepValue(KM.TEMPERATURE))
-                    for n in mp.Nodes]
-    Path("field.json").write_text(json.dumps({
-        "coordinates": field_coords,
-        "values": field_values,
-    }, indent=2))
+    # PER-LEVEL PERSISTENCE: this level's whole field and its interface trace
+    # and flux, named by LEVEL, never overwritten by the next level (exports.json
+    # is). Build the task's per-level files from these.
+    with open(f"field_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u\n")
+        for n in mp.Nodes:
+            _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(n.GetSolutionStepValue(KM.TEMPERATURE)):.11e}\n")
+    with open(f"interface_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u,qn\n")
+        for n, t, q in zip(_if_nodes, T, Q):
+            _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(t):.11e},{float(q):.11e}\n")
 
     # exports.json LAST: the driver takes its existence as proof of success.
     Path("exports.json").write_text(json.dumps({

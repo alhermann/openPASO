@@ -80,11 +80,26 @@ def _tokens(name: str) -> list[str]:
     return [w for w in re.split(r"[ /_-]+", name.upper()) if w]
 
 
+def _acronym_cover(u: list, ct: list) -> tuple:
+    """Candidate words that are the initials of a run of the unknown's words (TSI <- THERMO STRUCTURE
+    INTERACTION), and the unknown-word indices such a run covers."""
+    acr, cov = set(), set()
+    for y in ct:
+        if 3 <= len(y) <= 5 and y.isalpha():   # two letters match by accident (LS <- LINE STRUCTURE)
+            for k in range(len(u) - len(y) + 1):
+                if "".join(w[0] for w in u[k:k + len(y)]) == y:
+                    acr.add(y)
+                    cov |= set(range(k, k + len(y)))
+    return acr, cov
+
+
 def closest_sections(unknown: str, names: list, n: int = 5) -> list[str]:
     """Known names ranked by word similarity both ways, each word weighted by how rare it is across
     the grammar (common words like RUNTIME/VTK/OUTPUT count less than the word that distinguishes the
     name), so 'IO/RUNTIME VTK OUTPUT/THERMO' lists THERMAL DYNAMIC/RUNTIME VTK OUTPUT among its five
-    (character ratios alone ranked it sixth, measured on the installed grammar)."""
+    (character ratios alone ranked it sixth, measured on the installed grammar). A known word that is
+    the acronym of a run of the unknown's words counts as an exact match of that run, so 'THERMO
+    STRUCTURE INTERACTION DYNAMIC' finds TSI DYNAMIC (measured on a worker deck)."""
     u = _tokens(unknown)
     if not u:
         return []
@@ -98,7 +113,9 @@ def closest_sections(unknown: str, names: list, n: int = 5) -> list[str]:
     for c, ct in toks.items():
         if not ct:
             continue
-        num = sum(wt(a) * best(a, ct) for a in u) + sum(wt(b) * best(b, u) for b in ct)
+        acr, cov = _acronym_cover(u, ct)
+        num = (sum(wt(a) * (1.0 if i in cov else best(a, ct)) for i, a in enumerate(u))
+               + sum(wt(b) * (1.0 if b in acr else best(b, u)) for b in ct))
         den = sum(wt(a) for a in u) + sum(wt(b) for b in ct)
         scored.append((num / den, c))
     scored.sort(key=lambda p: (-p[0], p[1]))

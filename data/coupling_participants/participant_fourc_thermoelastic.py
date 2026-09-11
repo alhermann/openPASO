@@ -131,10 +131,23 @@ def why_4c_did_not_finish(tag=""):
                             if _s.endswith(" ELEMENTS") and _s.split()[0] in _ELEM:   # an element TYPE used as a section name
                                 _msg += (f"; '{_s.split()[0]}' is an ELEMENT TYPE for the element lines inside one of: "
                                          + ", ".join(sorted(n for n in _VALID if n.endswith(" ELEMENTS"))))
-                            else:   # word-wise similarity both ways, rare words weigh more: THERMO finds THERMAL
+                            else:   # word-wise similarity both ways, rare words weigh more (THERMO finds THERMAL);
+                                    # a known word that is the initials of a run of your words is exact (TSI <- THERMO STRUCTURE INTERACTION)
                                 _u = _tok(_s)
-                                _sc = sorted((((sum(_wt(x) * _best(x, ct) for x in _u) + sum(_wt(y) * _best(y, _u) for y in ct))
-                                               / (sum(_wt(x) for x in _u) + sum(_wt(y) for y in ct))), c) for c, ct in _tk.items() if ct)
+                                def _acr(ct):
+                                    a, cov = set(), set()
+                                    for y in ct:
+                                        if 3 <= len(y) <= 5 and y.isalpha():   # two letters match by accident (LS <- LINE STRUCTURE)
+                                            for k in range(len(_u) - len(y) + 1):
+                                                if "".join(w[0] for w in _u[k:k + len(y)]) == y:
+                                                    a.add(y); cov |= set(range(k, k + len(y)))
+                                    return a, cov
+                                def _score(ct):
+                                    a, cov = _acr(ct)
+                                    return ((sum(_wt(x) * (1.0 if i in cov else _best(x, ct)) for i, x in enumerate(_u))
+                                             + sum(_wt(y) * (1.0 if y in a else _best(y, _u)) for y in ct))
+                                            / (sum(_wt(x) for x in _u) + sum(_wt(y) for y in ct)))
+                                _sc = sorted((_score(ct), c) for c, ct in _tk.items() if ct)
                                 _close = [c for v, c in _sc[::-1][:5] if v >= 0.45]
                                 if _close:
                                     _msg += f"; closest known: {', '.join(repr(c) for c in _close)}"

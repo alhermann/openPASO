@@ -100,6 +100,12 @@ def test_the_real_binary_grammar_judges_a_worker_section(tmp_path):
     assert "SOLIDSCATRA" in g["elements"] and "TRANSP" in g["elements"]
     e = unknown_sections("SOLIDSCATRA ELEMENTS:\n  - x\n", valid, g["elements"])
     assert len(e) == 1 and "ELEMENT TYPE" in e[0] and "STRUCTURE ELEMENTS" in e[0]
+    # measured worker names: the invented family word and the spelled-out acronym
+    e = unknown_sections("THERMO STRUCTURE INTERACTION DYNAMIC:\n  x: 1\nDESIGN POINT STRUCTURE DIRICH CONDITIONS:\n  - E: 1\n", valid, g["elements"])
+    assert "'TSI DYNAMIC'" in e[0], e[0]
+    assert e[1].split("closest known: ")[1].startswith("'DESIGN POINT DIRICH CONDITIONS'"), e[1]
+    e = unknown_sections("DESIGN LINE STRUCTURE DIRICH CONDITIONS:\n  - E: 1\n", valid, g["elements"])
+    assert e[0].split("closest known: ")[1].startswith("'DESIGN LINE DIRICH CONDITIONS'"), e[0]   # no two-letter acronym hit (LS)
     from tools.result_audit import coupled_ladder
     _w(tmp_path / "side_A", "participant_A.py", PART)
     _w(tmp_path / "side_B", "participant_B.py", PART)

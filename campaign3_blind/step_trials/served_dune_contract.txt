@@ -1,17 +1,4 @@
-CIPANT SCAFFOLD (config-driven). The
-  handshake mapped onto your dofs, the vertex-ordered mesh access, the P1
-  consistent flux-recovery FORMULA and the exports schema are served in the
-  block below. THE SIMPLEX MESH, THE WEAK FORM AND THE SOLVE ARE ELIDED, as TWO
-  marked holes: (1) the simplex grid and the P1 space, leaving `gridView`,
-  `space`, `x`; (2) the form, material, source, boundary conditions and solve,
-  leaving `uh` and `F_SRC`. Write them from `prepare_simulation(solver='dune',
-  physics='<your physics>')` and the measured facts above, and drop them into
-  the marked regions; everything between and after the holes is served and
-  measured working (a manufactured solution recovers the interface flux to
-  2e-2 at h = 0.1). Traps the served part encodes: the dof->vertex map goes
-  through interpolated coordinate fields (never assume dof order equals vertex
-  order), and the two interface ENDPOINTS keep the outer Dirichlet value (corner
-  rule; the flux export drops them).
+## PARTICIPANT CONTRACT — COPY THIS INTO ITS OWN FILE NOW (write_file side_<x>.py), then edit the marked block and write the solve where the banner sits. It is the handshake, the interface sign convention, the consistent flux recovery, the exports schema and the export self-check, thinned of its explanations so it is cheap to copy; the annotated version is `signal='participant:part1'`. Measured: every recent coupled run that wrote this file from scratch instead failed on the handshake or the recovery.
 
 ```python
 """DUNE-fem as the DIRICHLET side of a partitioned coupling (CG P1).
@@ -199,6 +186,9 @@ with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\n")
     for (_px, _py), _u in zip(node_coords, u_vert):
         _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\n")
+# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its own (the
+# audit and the hand-in read that exact shape); the descriptive line follows.
+print(f"NDOF = {len(u_vert)}")
 print(f"DUNE Dirichlet participant: NDOF = {len(u_vert)}  "
       f"max|u| = {float(np.abs(u_vert).max()) if len(u_vert) else 0:.6e}")
 

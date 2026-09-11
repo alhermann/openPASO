@@ -1,17 +1,4 @@
-FFOLD (config-driven; "side": "dirichlet" |
-  "neumann" in ./config.json is the role the task gives 4C's subdomain; both
-  roles executed on this binary against a manufactured solution). The handshake, 4C's
-  CALCFLUX_BOUNDARY flux-recovery route and the exports schema are served in the
-  block below; THE 4C DECK AND THE SOLVE ARE ELIDED -- write them from
-  `prepare_simulation(solver='fourc', physics='<your physics>')` and drop them
-  into the marked region. Measured facts it still encodes: 4C's own
-  CALCFLUX_BOUNDARY is assembly-consistent (a hand re-assembly on a different
-  element is first order -- it cut the coarse interface imbalance 20x,
-  0.54 -> 0.026, and lifted the jump order from ~0.8 to ~2 on the measured
-  interior; delivery proven zero-vs-real, field moved 1.38e-1 vs 0, recovered
-  flux -0.75 against applied +0.75), and two traps live in the elided deck --
-  the GLOBAL DNODE-id rule across condition families, and that this build writes
-  scatra VTU with no VTK section.
+## PARTICIPANT CONTRACT — COPY THIS INTO ITS OWN FILE NOW (write_file side_<x>.py), then edit the marked block and write the solve where the banner sits. It is the handshake, the interface sign convention, the consistent flux recovery, the exports schema and the export self-check, thinned of its explanations so it is cheap to copy; the annotated version is `signal='participant:part1'`. Measured: every recent coupled run that wrote this file from scratch instead failed on the handshake or the recovery.
 
 ```python
 """4C as EITHER side of a partitioned coupling (Scalar_Transport).
@@ -335,6 +322,10 @@ with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\n")
     for (_px, _py), _u in zip(nodes, u):
         _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\n")
+# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its own -- the
+# audit and the hand-in read that exact shape (measured: three coupled
+# ... (explanation continues in the annotated block)
+print(f"NDOF = {len(nodes)}")
 print(f"4C Neumann participant: NDOF = {len(nodes)}  "
       f"max|u| = {max(abs(t) for t in vals) if vals else 0:.6e}")
 

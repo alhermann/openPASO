@@ -504,6 +504,13 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   postmortems JSON is no longer broken by appended prose (commits 44ec65d0,
   6b834c6f and after). Round 10 (30b6d46c) runs without these; round 11
   will carry them.
+- 03:55: THE RUN-LOG CONTRACT LINE. The task's execution-log contract is
+  `NDOF = <integer>` on a line of its own; the served scaffolds printed it
+  inside a prose line ("4C Neumann participant: NDOF = 187  max|u| = ..."),
+  which neither the grader nor OASiS's own audit reads -- the recurring
+  MALFORMED reason of rounds 9-11 (6391, 6402 level 3, 6433, 5653). Both
+  scaffolds now print the canonical line first (commit 251194dc; the
+  execution test still passes). Round 12 launched on it.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

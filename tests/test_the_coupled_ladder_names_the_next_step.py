@@ -92,9 +92,11 @@ def test_the_next_level_brief_names_couple_levels_with_a_literal_k(tmp_path):
         _w(tmp_path / f"side_{s}", "exports.json", json.dumps({"values": [1.0], "normal_fluxes": [2.0]}))
         _w(tmp_path, f"solution_level1_{s}.csv", "x,y,u\n0,0,1\n")
         _w(tmp_path, f"interface_level1_{s}.csv", "x,y,u,qn\n0,0,1,2\n")
-        _w(tmp_path, f"run_level1_{s}.csv", "x\n")
+        # a per-level run log with a solver's own console line (a DUNE-fem iteration line) and a DOF line
+        _w(tmp_path, f"run_level1_{s}.log", "Fem::CG it: 5 : residual 1.0e-09\nNDOF = 81\n")
     _w(tmp_path, "residual_level1.csv", "iteration,interface_residual\n1,0.5\n2,0.1\n3,0.01\n")
     r = coupled_ladder(tmp_path)
     txt = r["text"]
+    assert r["step"] == 6, txt[:200]
     assert "couple_levels(" in txt.split("HAND THIS STEP")[0]          # the next action leads the step line
     assert "{k}" in txt and "with 1" not in txt

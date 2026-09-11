@@ -2993,6 +2993,11 @@ with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\\n")
     for (_px, _py), _u in zip(nodes, u):
         _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\\n")
+# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its own -- the
+# audit and the hand-in read that exact shape (measured: three coupled
+# rounds lost their best cells to logs whose only NDOF sat inside a prose
+# line). The descriptive line follows it.
+print(f"NDOF = {len(nodes)}")
 print(f"4C Neumann participant: NDOF = {len(nodes)}  "
       f"max|u| = {max(abs(t) for t in vals) if vals else 0:.6e}")
 
@@ -4411,6 +4416,9 @@ with open(f"field_level{_LVL}.csv", "w") as _f:
     _f.write("x,y,u\\n")
     for (_px, _py), _u in zip(node_coords, u_vert):
         _f.write(f"{_px:.11e},{_py:.11e},{float(_u):.11e}\\n")
+# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its own (the
+# audit and the hand-in read that exact shape); the descriptive line follows.
+print(f"NDOF = {len(u_vert)}")
 print(f"DUNE Dirichlet participant: NDOF = {len(u_vert)}  "
       f"max|u| = {float(np.abs(u_vert).max()) if len(u_vert) else 0:.6e}")
 

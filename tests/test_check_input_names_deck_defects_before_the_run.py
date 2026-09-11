@@ -84,3 +84,17 @@ def test_the_measured_first_attempt_traps_ride_with_the_4c_coupling_door():
     assert "FIRST-ATTEMPT DECK TRAPS" in reply and "ONE topology section per kind" in reply
     assert "check_input(solver='fourc'" in reply and "counter-clockwise" in reply
     assert "partner_values" in reply and "EXPORT SELF-CHECK" in reply      # the contract rides with the facts
+
+
+def test_the_parents_first_4c_reply_keeps_the_must_read_whole():
+    """Measured: the 31k thermo-elastic block pushed part B (rho budget, interface-file rule, measured
+    history) past the 48k cap in the parent's first reply. Now the first reply keeps the contract's
+    prose plus a pointer and part B whole; the worker's own (second) call leads with the full block."""
+    t = _tools()
+    first = t["knowledge"](topic="coupling", solver="fourc", physics="thermoelastic")
+    first = first if isinstance(first, str) else str(first)
+    assert "THE COUPLING HISTORY IS MEASURED" in first and "rho" in first        # part B's tail survives
+    assert "IS NOT REPEATED IN THIS FIRST REPLY" in first and "partner_values" not in first
+    second = t["knowledge"](topic="coupling", solver="fourc", physics="thermoelastic")
+    second = second if isinstance(second, str) else str(second)
+    assert "partner_values" in second and "EXPORT SELF-CHECK" in second and "WHAT DECIDES THIS RUN" in second[:800]

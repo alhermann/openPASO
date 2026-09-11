@@ -116,54 +116,8 @@ def why_4c_did_not_finish(tag=""):
             _dup = sorted({x for x in _secs if _secs.count(x) > 1})
             if _dup:
                 _why.append(f"{_deck}: section(s) written twice: " + ", ".join(_dup))
-            try:   # the grammar judgement stands on its own: no binary, no judgement, other findings kept
-                # section names judged by the BINARY's own grammar (`4C -p`, read once); the closest known
-                # names ride along (measured: invented names like IO/RUNTIME VTK OUTPUT/THERMO stop 4C first)
-                if not globals().get("_VALID"):
-                    _dump = subprocess.run([str(CFG.get("fourc_bin") or os.environ.get("FOURC_BIN", "4C")), "-p"],
-                                           capture_output=True, text=True, timeout=180,
-                                           env=dict(os.environ, LD_LIBRARY_PATH=f"{CFG.get('fourc_ld') or ''}:{os.environ.get('LD_LIBRARY_PATH', '')}")).stdout
-                    globals()["_VALID"] = set(re.findall(r"^    - name: (.+?)\s*$", _dump, re.M)) | set(
-                        re.findall(r"^  - ([A-Z][A-Z0-9 _/.:-]*?)\s*$", _dump.split("legacy_string_sections:", 1)[-1], re.M)) | {"TITLE"}
-                    globals()["_ELEM"] = set(re.findall(r"^  ([A-Z][A-Z0-9_]*):\s*$",
-                                                        _dump.split("legacy_element_specs:", 1)[-1].split("legacy_particle_specs:", 1)[0], re.M))
-                if len(_VALID) > 100:
-                    import difflib, math
-                    from collections import Counter
-                    _tok = lambda nm: [w for w in re.split(r"[ /_-]+", nm.upper()) if w]
-                    _tk = {c: _tok(c) for c in _VALID}
-                    _fq = Counter(w for ct in _tk.values() for w in set(ct))
-                    _wt = lambda w: 1.0 / (1.0 + math.log(_fq.get(w, 0) + 1))
-                    _best = lambda a, bs: max((difflib.SequenceMatcher(None, a, b).ratio() for b in bs), default=0.0)
-                    for _s in dict.fromkeys(_secs):
-                        if _s not in _VALID and not re.fullmatch(r"FUNCT\d+", _s):
-                            _msg = f"{_deck}: section '{_s}' is not in the binary's grammar (`4C -p`)"
-                            if _s.endswith(" ELEMENTS") and _s.split()[0] in _ELEM:   # an element TYPE used as a section name
-                                _msg += (f"; '{_s.split()[0]}' is an ELEMENT TYPE for the element lines inside one of: "
-                                         + ", ".join(sorted(n for n in _VALID if n.endswith(" ELEMENTS"))))
-                            else:   # word-wise similarity both ways, rare words weigh more (THERMO finds THERMAL);
-                                    # a known word that is the initials of a run of your words is exact (TSI <- THERMO STRUCTURE INTERACTION)
-                                _u = _tok(_s)
-                                def _acr(ct):
-                                    a, cov = set(), set()
-                                    for y in ct:
-                                        if 3 <= len(y) <= 5 and y.isalpha():   # two letters match by accident (LS <- LINE STRUCTURE)
-                                            for k in range(len(_u) - len(y) + 1):
-                                                if "".join(w[0] for w in _u[k:k + len(y)]) == y:
-                                                    a.add(y); cov |= set(range(k, k + len(y)))
-                                    return a, cov
-                                def _score(ct):
-                                    a, cov = _acr(ct)
-                                    return ((sum(_wt(x) * (1.0 if i in cov else _best(x, ct)) for i, x in enumerate(_u))
-                                             + sum(_wt(y) * (1.0 if y in a else _best(y, _u)) for y in ct))
-                                            / (sum(_wt(x) for x in _u) + sum(_wt(y) for y in ct)))
-                                _sc = sorted((_score(ct), c) for c, ct in _tk.items() if ct)
-                                _close = [c for v, c in _sc[::-1][:5] if v >= 0.45]
-                                if _close:
-                                    _msg += f"; closest known: {', '.join(repr(c) for c in _close)}"
-                            _why.append(_msg)
-            except Exception:                # noqa: BLE001
-                pass
+            # section names, materials and their parameters are judged by the binary's own grammar in
+            # check_input(solver='fourc', input_path=<deck>); run it before the binary -- this check stays short
             if "Thermo_Structure_Interaction" in _txt:
                 if "CLONING MATERIAL MAP" not in _txt:
                     _why.append(f"{_deck}: TSI needs a CLONING MATERIAL MAP pairing the structure material with the MAT_Fourier thermal material")
@@ -192,32 +146,6 @@ def why_4c_did_not_finish(tag=""):
                     _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck is rejected; the VTU appears without it")
                 if "IO/RUNTIME VTK OUTPUT" not in _txt:
                     _why.append(f"{_deck}: no VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1); the run finishes 'normally' with nothing to read")
-            # twisted or clockwise elements: zero/negative area from the deck's own coordinates (measured: 70 of 80
-            # quads written (i, i+1, i+NX, i+NX+1); 4C says only 'determinant ... zero or negative' or dies on an FPE)
-            _xy = {int(n): (float(x), float(y)) for n, x, y in re.findall(r'"NODE\s+(\d+)\s+COORD\s+(\S+)\s+(\S+)\s+\S+"', _txt)}
-            _bad = []
-            for _e, _k, _ids in re.findall(r'"\s*(\d+)\s+\w+\s+(QUAD4|TRI3)\s+((?:\d+\s+)+)', _txt):
-                _nn = [int(i) for i in _ids.split()][:4 if _k == "QUAD4" else 3]
-                if len(_nn) >= 3 and all(i in _xy for i in _nn):
-                    _p = [_xy[i] for i in _nn]
-                    _ar = 0.5 * sum(_p[q][0] * _p[(q + 1) % len(_p)][1] - _p[(q + 1) % len(_p)][0] * _p[q][1] for q in range(len(_p)))
-                    if _ar <= 1e-14:
-                        _bad.append((_e, _nn))
-            if _bad:
-                _why.append(f"{_deck}: {len(_bad)} element(s) with zero or negative area from the deck's own NODE COORDS (first: element "
-                            f"{_bad[0][0]} nodes {' '.join(map(str, _bad[0][1]))}) -- every element's nodes must run counter-clockwise: "
-                            f"for node id = i + 1 + (NX + 1) * j the quad of cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1)")
-            # a DLINE whose nodes share no element edge is a zero-length boundary (measured: flux table -> FPE)
-            _edges = set()
-            for _q in re.findall(r'"\s*\d+\s+\w+\s+(?:QUAD4|TRI3)\s+((?:\d+\s+)+)', _txt):
-                _ids = [int(x) for x in _q.split()][:4]
-                _edges |= {(min(a, b), max(a, b)) for a, b in zip(_ids, _ids[1:] + _ids[:1])}
-            _dl = {}
-            for _n, _d in re.findall(r'"NODE\s+(\d+)\s+DLINE\s+(\d+)"', _txt):
-                _dl.setdefault(_d, set()).add(int(_n))
-            for _d, _ns in _dl.items():
-                if _edges and len(_ns) >= 2 and not any((min(a, b), max(a, b)) in _edges for a in _ns for b in _ns if a < b):
-                    _why.append(f"{_deck}: DLINE {_d} ({len(_ns)} nodes) shares no edge with any element -- its node ids do not match the element numbering, so a condition on it is a zero-length boundary")
             _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt) if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
             if _badkw:
                 _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL (anything else defines nothing and the conditions on it are silently dropped)")
@@ -234,6 +162,7 @@ def why_4c_did_not_finish(tag=""):
         _why.append(f"(diagnosis failed: {_e!r})")
     if not _why:
         _why.append("no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck")
+    _why.append("check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, condition ids, element geometry) in one call")
     return f"4C DID NOT FINISH{(' (' + tag + ')') if tag else ''} -- " + "; ".join(_why)
 
 

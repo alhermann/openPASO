@@ -8288,6 +8288,21 @@ def _front_load_coupling(payload: str, solver: str = "",
         budget = _contract_block_end(payload, _COUPLING_CONTRACT_HEAD)
         if len(payload) <= budget:
             return _append_deck_grammar(_lead + payload + "\n" + _tail, solver)
+        # THE PARENT'S FIRST REPLY MUST KEEP PART B WHOLE. Measured 2026-09-11 on the 4C
+        # thermo-elastic door: lead A (5k) + the 31k contract block + part B (23k) ran to 83k,
+        # the 48k reply cap cut part B at 9.6k of 23k (the rho budget, the interface-file
+        # rule, the measured-history rule never reached the parent) and every fact with it.
+        # Under the orchestrator rule the parent never copies the contract -- its worker's
+        # own door call leads with it -- so when the block does not fit next to part B, the
+        # first reply keeps the contract's prose and says where the block comes from.
+        _fence = payload.find("```python")
+        if 0 <= _fence < budget and len(_lead) + budget + len(_tail) > _KNOWLEDGE_REPLY_LIMIT:
+            _phys = " physics='thermoelastic'," if "THERMO-ELASTIC VARIANT" in payload[:_fence] else ""
+            note = (f"\n[THE SERVED CONTRACT BLOCK ({budget - _fence:,} characters) IS NOT REPEATED IN THIS "
+                    f"FIRST REPLY so the must-read below arrives whole. Your WORKER's own call "
+                    f"knowledge(topic='coupling', solver='{solver}',{_phys} ...) leads with the complete "
+                    f"block, the deciding facts and the deck grammar; hand the worker the brief, not this text.]\n")
+            return _append_deck_grammar(_lead + payload[:_fence] + note + "\n" + _tail, solver)
         limit = len(_lead) + budget
     else:
         if len(_lead) + len(payload) <= _COUPLING_HEAD_LIMIT:

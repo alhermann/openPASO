@@ -2377,7 +2377,10 @@ _DECIDING_FACTS = {
         "can store the variables specified in its variables list ... CONDUCTIVITY` -- a trial repair died there); "
         "`mp.SetBufferSize(1)`; `props = mp.CreateNewProperties(1)`. The application is loaded by "
         "`import KratosMultiphysics.ConvectionDiffusionApplication` and referenced only through that module path -- "
-        "a bare `ConvectionDiffusionApplication` is a NameError (measured)."),
+        "a bare `ConvectionDiffusionApplication` is a NameError (measured). A variable list WITHOUT "
+        "CONDUCTIVITY does not fail at setup: the solve SEGFAULTS with no message (exit 139, measured on a "
+        "trial repair that listed the other four). `Properties` has no `AddProperty`/`Value`; nodal values "
+        "carry the material (fact 2)."),
 }
 _DECIDING_FACTS["dune-fem"] = _DECIDING_FACTS["dune"]
 _DECIDING_FACTS["dunefem"] = _DECIDING_FACTS["dune"]

@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False :: ecent call last):\n  File \"/tmp/tmpoppwazf7/participant_B.py\", line 364, in <module>\n    main()\n  File \"/tmp/tmpoppwazf7/participant_B.py\", line 147, in main\n    n.SetSolutionStepValue(KM.CONDUCTIVITY, K)\nRuntimeError: Error: This container only can store the variables specified in its variables list. The variables list doesn't have this variable:CONDUCTIVITY variable #2403538944CONDUCTIVITY variable #2403538944 #2403538944\n\nin kratos/containers/variables_list_data_value_container.h:285: TDataType& VariablesListDataValueContainer::GetValue(const Variable<TDataType>&) [with TDataType = double]\n\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 992.5,
+  "lines": 380
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpew7yapcu/participant_B.py\", line 311, in <module>\n    main()\n  File \"/tmp/tmpew7yapcu/participant_B.py\", line 182, in main\n    props.Value[KM.CONDUCTIVITY] = K\n    ^^^^^^^^^^^\nAttributeError: 'Kratos.Properties' object has no attribute 'Value'\n",
+  "kept_selfcheck": false,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 449.4,
+  "lines": 311
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=-11 exports=False :: ",
+  "kept_selfcheck": false,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 323.2,
+  "lines": 345
+ }
+]

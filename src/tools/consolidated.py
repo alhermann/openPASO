@@ -5753,6 +5753,126 @@ def register_consolidated_tools(mcp: FastMCP):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
+    async def couple_levels(participants: str, levels: str, critic_approved: bool = False,
+                            max_iter: int = 150, tol: float = 1e-6, accelerator: str = "aitken",
+                            theta: float = 0.5, probe: bool = True, history_dir: str = "") -> str:
+        """EVERY PRESCRIBED MESH LEVEL IN ONE CALL -- the same partitioned coupling as
+        `couple`, run once per level of a task's mesh sequence.
+
+        Measured over three development rounds: six couplings that were proven at
+        level 1 (both codes ran, the iteration converged) never reached level 3,
+        because every level cost the agent ten more tool calls -- edit both
+        config.json files, call couple, save the history, write the deliverables --
+        and the wall clock ran out. This call does the per-level plumbing itself:
+
+          * `levels` is a JSON list, one entry per level, e.g.
+                [{"level": 1, "A": {"nx": 5, "ny": 8},  "B": {"nx": 7, "ny": 8}},
+                 {"level": 2, "A": {"nx": 10, "ny": 16}, "B": {"nx": 14, "ny": 16}},
+                 {"level": 3, "A": {"nx": 20, "ny": 32}, "B": {"nx": 28, "ny": 32}}]
+            where the keys under each participant's NAME are merged into that
+            participant's ./config.json before its level runs (the served
+            contracts mesh from nx and ny and name their per-level dumps by
+            `level`, which is set from the entry) -- halve h per level as the
+            task prescribes, i.e. double every cell count;
+          * each level starts from the previous level's converged interface
+            state (the driver's warm start), which is why the levels must run in
+            the same work directories;
+          * each level writes <history_dir>/residual_level<k>.csv (the measured
+            iteration history, ready as the task's coupling-history file) and
+            keeps each side's solver console as participant_output_level<k>.log
+            next to its exports.json;
+          * the reply carries, per level, the verdict, the iteration count, the
+            history path and the interface tables ready to save. It stops at the
+            first level that does not converge; fix that level and call again
+            from it (the earlier levels' files stay).
+
+        Everything `couple` checks is checked here too (it IS couple, per level).
+        `history_dir` defaults to the task's working directory. Pass
+        critic_approved=True after the critic reviewed the participants.
+        """
+        try:
+            lv = json.loads(levels)
+        except json.JSONDecodeError as e:
+            return json.dumps({"error": f"invalid levels JSON: {e}"})
+        if not isinstance(lv, list) or not lv or not all(isinstance(x, dict) for x in lv):
+            return json.dumps({"error": "levels must be a non-empty JSON list of objects "
+                                        "{\"level\": k, \"<participant name>\": {<config keys>}, ...}"})
+        try:
+            specs = json.loads(participants)
+        except json.JSONDecodeError as e:
+            return json.dumps({"error": f"invalid participants JSON: {e}"})
+        if not isinstance(specs, list) or len(specs) < 2:
+            return json.dumps({"error": "need a JSON list of >=2 participants"})
+        names = {s.get("name"): s for s in specs if isinstance(s, dict) and s.get("name")}
+        cell_work = os.environ.get("OASIS_CELL_WORKDIR")
+        if not history_dir:
+            history_dir = cell_work or str(Path(specs[0].get("work_dir", ".")).resolve().parent)
+        out_levels = []
+        for entry in lv:
+            try:
+                k = int(entry.get("level", len(out_levels) + 1))
+            except (TypeError, ValueError):
+                return json.dumps({"error": f"bad level entry {entry!r}"})
+            for nm, spec in names.items():
+                wd = Path(str(spec.get("work_dir", "")))
+                if not wd.is_absolute():
+                    return json.dumps({"error": f"participant {nm}: work_dir must be an ABSOLUTE path"})
+                if cell_work and not wd.resolve().is_relative_to(Path(cell_work).resolve()):
+                    return json.dumps({"error": f"participant {nm}: work_dir {wd} is outside this task's "
+                                                f"working directory {cell_work}"})
+                wd.mkdir(parents=True, exist_ok=True)
+                cfg_path = wd / "config.json"
+                cfg = {}
+                if cfg_path.is_file():
+                    try:
+                        cfg = json.loads(cfg_path.read_text() or "{}")
+                    except json.JSONDecodeError:
+                        cfg = {}
+                    if not isinstance(cfg, dict):
+                        cfg = {}
+                upd = entry.get(nm)
+                if isinstance(upd, dict):
+                    cfg.update(upd)
+                cfg["level"] = k
+                cfg_path.write_text(json.dumps(cfg, indent=2))
+            reply = await couple(participants, max_iter=max_iter, tol=tol, accelerator=accelerator,
+                                 theta=theta, probe=probe, critic_approved=critic_approved,
+                                 history_path=str(Path(history_dir) / f"residual_level{k}.csv"),
+                                 iface_level=k)
+            try:
+                rep = json.loads(reply)
+            except Exception:                                   # noqa: BLE001
+                rep = {"error": "unparseable couple reply", "raw": str(reply)[:3000]}
+            compact = {"level": k}
+            for key in ("converged", "iterations", "residual", "error", "history_file",
+                        "interface_csv", "captured_solver_logs", "validation", "relaxation",
+                        "responsiveness"):
+                if key in rep:
+                    compact[key] = rep[key]
+            if rep.get("what_to_fix_next"):
+                compact["what_to_fix_next"] = str(rep["what_to_fix_next"])[:2000]
+            out_levels.append(compact)
+            if not rep.get("converged"):
+                break
+        all_ok = bool(out_levels) and len(out_levels) == len(lv) and all(x.get("converged") for x in out_levels)
+        if all_ok:
+            nxt = ("EVERY REQUESTED LEVEL CONVERGED. For EACH level k and EACH side: write the task's "
+                   "per-level field file from that side's field_level<k>.csv (interpolated at the task's "
+                   "probe points, one griddata call per value column), its per-level interface file from "
+                   "interface_level<k>.csv (trace and flux at its interface nodes, interpolated along the "
+                   "interface to the task's interface points), and its per-level run log from "
+                   "participant_output_level<k>.log plus the NDOF line; the coupling histories are already "
+                   "at the history paths above. Then audit_results(work_dir) and the summary.")
+        else:
+            bad = out_levels[-1]["level"] if out_levels else "?"
+            nxt = (f"LEVEL {bad} DID NOT CONVERGE (or errored): read its what_to_fix_next and the "
+                   f"participant logs, fix the cause, then call couple_levels again with the levels "
+                   f"from {bad} on -- the earlier levels' files and histories stay.")
+        return json.dumps({"all_levels_converged": all_ok, "levels_run": len(out_levels),
+                           "levels_requested": len(lv), "history_dir": history_dir,
+                           "levels": out_levels, "next_step": nxt}, indent=2)
+
+    @mcp.tool()
     async def couple_precice(participants: str, data: str, exchanges: str,
                              work_dir: str, scheme: str = "serial-explicit",
                              dimensions: int = 2, max_time: float = 10.0,
@@ -7608,7 +7728,12 @@ and on success returns your interface tables READY TO SAVE plus the paths of
 the captured solver logs. DO NOT hand-roll this loop yourself: measured
 across the runs that did, the hand-rolled exchange stalls (residuals
 9.92->9.98 over 100 iterations; constant 1.0) and cannot show two codes coupled.
-One couple call per mesh level, on the exact levels your task prescribes.
+One couple call per mesh level, on the exact levels your task prescribes --
+or ONE couple_levels(participants=..., levels='[{"level": 1, "A": {"nx": ..,
+"ny": ..}, "B": {...}}, ...]') call for the whole sequence: it writes each side's
+config.json per level, warm-starts each level from the previous one, and keeps
+every level's history, console and interface tables (measured: couplings proven
+at level 1 ran out of wall clock before level 3 when every level cost ten calls).
 
 DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH -- THE CONTRACT EXISTS
 FOR YOUR CODE. For EACH of your two codes call `knowledge(topic='coupling',

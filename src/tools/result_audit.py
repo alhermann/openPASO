@@ -2610,7 +2610,11 @@ def coupled_ladder(work: Path) -> dict | None:
     if done_levels:
         what = (f"LEVELS {done_levels} ARE COMPLETE ON DISK. If your task prescribes more levels, couple "
                 f"level {next_level}; otherwise write the summary.")
-        brief = (f"If the task prescribes a level {next_level}: in BOTH ./config.json set level={next_level} AND "
+        brief = (f"If the task prescribes a level {next_level}: ONE couple_levels(participants=..., levels=[...]) call "
+                 f"runs every remaining level (it sets each side's config.json level and nx, ny per level, doubling "
+                 f"every cell count to halve h, warm-starts each level from the previous one, and writes each "
+                 f"residual_level<k>.csv and participant_output_level<k>.log); otherwise, per level: in BOTH "
+                 f"./config.json set level={next_level} AND "
                  f"halve h -- double every cell count (nx, ny) -- because the served participants mesh from nx and "
                  f"ny and take level as a label (measured: three runs changed only the label, coupled three identical "
                  f"meshes and were graded on an unchanged NDOF); then "

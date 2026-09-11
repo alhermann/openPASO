@@ -88,33 +88,39 @@ def extract(text):
     code = m.group(1) if m else text
     return "\n".join(l for l in code.splitlines() if not l.strip().startswith("```")) + "\n"
 
-client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ["OPENROUTER_API_KEY"])
-SYS = "You are a finite-element simulation assistant. What follows is the documentation the OASiS server gave you for 4C.\n\n" + served
-results = []
-for i in range(N):
-    t0 = time.time()
-    resp = client.chat.completions.create(model=MODEL, temperature=0.7, seed=5000 + i, max_tokens=32000,
-        extra_body={"reasoning": {"max_tokens": 4000}},
-        messages=[{"role": "system", "content": SYS}, {"role": "user", "content": TASK}])
-    text = resp.choices[0].message.content or ""; fin = resp.choices[0].finish_reason
-    code = extract(text); (HERE / f"participant_{TAG}_{i}.py").write_text(code)
-    kept = "EXPORT SELF-CHECK" in code
-    ok, info = run_participant(code) if code.strip() else (False, f"EMPTY (finish_reason={fin})")
-    attempts = 1
-    if not ok and REPAIRS > 0:
-        for _r in range(REPAIRS):
-            attempts += 1
-            fix = client.chat.completions.create(model=MODEL, temperature=0.7, seed=6000 + i, max_tokens=32000,
-                extra_body={"reasoning": {"max_tokens": 4000}},
-                messages=[{"role": "system", "content": SYS}, {"role": "user", "content": TASK},
-                          {"role": "assistant", "content": "```python\n" + code + "```"},
-                          {"role": "user", "content": "That script was run exactly as specified and did NOT pass. Its run ended with:\n\n" + info[-1500:] + "\n\nHand in the corrected COMPLETE script, again as one ```python fenced block, keeping every served line as given."}])
-            code = extract(fix.choices[0].message.content or ""); (HERE / f"participant_{TAG}_{i}_fix{_r+1}.py").write_text(code)
-            kept = "EXPORT SELF-CHECK" in code
-            ok, info = run_participant(code)
-            if ok:
-                break
-    results.append({"i": i, "ok": ok, "info": info, "kept_selfcheck": kept, "attempts": attempts, "finish": fin, "secs": round(time.time() - t0, 1), "lines": code.count("\n")})
-    print(f"[{TAG}] sample {i}: {'PASS' if ok else 'FAIL'} | kept self-check={kept} | attempts={attempts} | finish={fin} | {info[:300]}", flush=True)
-print(f"[{TAG}] pass rate {sum(r['ok'] for r in results)}/{N}", flush=True)
-(HERE / f"results_{TAG}.json").write_text(json.dumps(results, indent=1))
+
+def main():
+    client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ["OPENROUTER_API_KEY"])
+    SYS = "You are a finite-element simulation assistant. What follows is the documentation the OASiS server gave you for 4C.\n\n" + served
+    results = []
+    for i in range(N):
+        t0 = time.time()
+        resp = client.chat.completions.create(model=MODEL, temperature=0.7, seed=5000 + i, max_tokens=32000,
+            extra_body={"reasoning": {"max_tokens": 4000}},
+            messages=[{"role": "system", "content": SYS}, {"role": "user", "content": TASK}])
+        text = resp.choices[0].message.content or ""; fin = resp.choices[0].finish_reason
+        code = extract(text); (HERE / f"participant_{TAG}_{i}.py").write_text(code)
+        kept = "EXPORT SELF-CHECK" in code
+        ok, info = run_participant(code) if code.strip() else (False, f"EMPTY (finish_reason={fin})")
+        attempts = 1
+        if not ok and REPAIRS > 0:
+            for _r in range(REPAIRS):
+                attempts += 1
+                fix = client.chat.completions.create(model=MODEL, temperature=0.7, seed=6000 + i, max_tokens=32000,
+                    extra_body={"reasoning": {"max_tokens": 4000}},
+                    messages=[{"role": "system", "content": SYS}, {"role": "user", "content": TASK},
+                              {"role": "assistant", "content": "```python\n" + code + "```"},
+                              {"role": "user", "content": "That script was run exactly as specified and did NOT pass. Its run ended with:\n\n" + info[-1500:] + "\n\nHand in the corrected COMPLETE script, again as one ```python fenced block, keeping every served line as given."}])
+                code = extract(fix.choices[0].message.content or ""); (HERE / f"participant_{TAG}_{i}_fix{_r+1}.py").write_text(code)
+                kept = "EXPORT SELF-CHECK" in code
+                ok, info = run_participant(code)
+                if ok:
+                    break
+        results.append({"i": i, "ok": ok, "info": info, "kept_selfcheck": kept, "attempts": attempts, "finish": fin, "secs": round(time.time() - t0, 1), "lines": code.count("\n")})
+        print(f"[{TAG}] sample {i}: {'PASS' if ok else 'FAIL'} | kept self-check={kept} | attempts={attempts} | finish={fin} | {info[:300]}", flush=True)
+    print(f"[{TAG}] pass rate {sum(r['ok'] for r in results)}/{N}", flush=True)
+    (HERE / f"results_{TAG}.json").write_text(json.dumps(results, indent=1))
+
+
+if __name__ == "__main__":
+    main()

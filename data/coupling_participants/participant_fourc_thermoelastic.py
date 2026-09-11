@@ -127,11 +127,13 @@ def why_4c_did_not_finish(tag=""):
             _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt) if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
             if _badkw:
                 _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL (anything else defines nothing and the conditions on it are silently dropped)")
-            _topo = set(re.findall(r"D(?:NODE|LINE|SURF|VOL)\s+(\d+)", _txt))
+            _topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", _txt))
             for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
                 _head = _b.split(":", 1)[0].strip()
                 if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
-                    _missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", _b) if x not in _topo}, key=int)
+                    _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head)
+                    _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+                    _missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", _b) if (_kind, x) not in _topo}, key=int)
                     if _missing:
                         _why.append(f"{_deck}: {_head} names E id(s) {', '.join(_missing[:6])} that no *-NODE TOPOLOGY section defines")
     except Exception as _e:                # noqa: BLE001
@@ -173,6 +175,24 @@ raise SystemExit("the mesh-decks-and-runs hole above the recovery is not filled"
 
 # ── RECOVERY FROM 4C's OWN OUTPUTS (served): boundary flux VTU, displacement VTU, reaction yaml ──
 import meshio  # noqa: E402
+
+# ── YOUR DECKS, CHECKED BEFORE ANYTHING IS READ (served): 4C drops a condition whose E id no
+#    topology section defines and RUNS THE WRONG PROBLEM to 'finished normally' (measured on a
+#    worker deck: every boundary condition and the source gone, rc 0). A run like that is refused here.
+for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yaml")) if "monitor_dbc" not in p]:
+    _txt = Path(_dk).read_text(errors="ignore")
+    _topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", _txt))
+    _lost = []
+    for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
+        _head = _b.split(":", 1)[0].strip()
+        if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
+            _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head)
+            _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+            _lost += [f"{_head} E {x}" for x in re.findall(r"\bE:\s*(\d+)", _b) if (_kind, x) not in _topo]
+    if _lost:
+        raise SystemExit(f"DECK CHECK: {_dk} puts conditions on E ids that no *-NODE TOPOLOGY section defines "
+                         f"({'; '.join(_lost[:6])}): 4C dropped them silently, so the run solved a different "
+                         f"problem. Add the DNODE/DLINE/DSURF/DVOL-NODE TOPOLOGY entries for those ids.")
 
 
 def _latest(pattern):

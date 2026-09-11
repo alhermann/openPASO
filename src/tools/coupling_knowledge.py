@@ -2858,7 +2858,7 @@ def why_4c_did_not_finish():
                 _why.append("CALCFLUX_BOUNDARY is set but no `SCATRA FLUX CALC LINE CONDITIONS` (SURF in 3-D) entry "
                             "names the interface, and 4C refuses flux output without one")
             _blocks = _re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\\s*$)", _txt, flags=_re.M)
-            _topo = set(_re.findall(r"D(?:NODE|LINE|SURF|VOL)\\s+(\\d+)", _txt))
+            _topo = set(_re.findall(r"\\b(DNODE|DLINE|DSURFACE|DVOL)\\s+(\\d+)", _txt))
             for _b in _blocks:
                 _head = _b.split(":", 1)[0].strip()
                 if not (_head.startswith("DESIGN") and _head.endswith("CONDITIONS")):
@@ -2867,8 +2867,10 @@ def why_4c_did_not_finish():
                 _noid = [e for e in _entries if not _re.search(r"\\bE:\\s*\\d+|NODE_SET_NAME", e)]
                 if _noid:
                     _why.append(f"{len(_noid)} entr{'y' if len(_noid) == 1 else 'ies'} in {_head} without `E: <id>` (or NODE_SET_NAME)")
+                _kw = _re.search(r"\\b(POINT|LINE|SURF|VOL)\\b", _head)
+                _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
                 _ids = _re.findall(r"\\bE:\\s*(\\d+)", _b)
-                _missing = sorted({i for i in _ids if i not in _topo}, key=int)
+                _missing = sorted({i for i in _ids if (_kind, i) not in _topo}, key=int)
                 if _missing:
                     _why.append(f"{_head} names E id(s) {', '.join(_missing)} that no *-NODE TOPOLOGY section defines")
     except Exception as _e:                # noqa: BLE001
@@ -2957,6 +2959,24 @@ atexit.register(_diagnose_at_exit)
 # and never recompute the flux from phi_1 differences.
 import glob
 import meshio
+# ── YOUR DECK, CHECKED BEFORE ANYTHING IS READ (served): 4C drops a condition whose E id no
+#    topology section defines and RUNS THE WRONG PROBLEM to 'finished normally' (measured on a
+#    worker deck: every boundary condition and the source gone, rc 0). A run like that is refused here.
+import re as _re
+for _dk in sorted(glob.glob("*.4C.yaml")) or sorted(glob.glob("*.yaml")):
+    _txt = open(_dk, errors="ignore").read()
+    _topo = set(_re.findall(r"\\b(DNODE|DLINE|DSURFACE|DVOL)\\s+(\\d+)", _txt))
+    _lost = []
+    for _b in _re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\\s*$)", _txt, flags=_re.M):
+        _head = _b.split(":", 1)[0].strip()
+        if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
+            _kw = _re.search(r"\\b(POINT|LINE|SURF|VOL)\\b", _head)
+            _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+            _lost += [f"{_head} E {x}" for x in _re.findall(r"\\bE:\\s*(\\d+)", _b) if (_kind, x) not in _topo]
+    if _lost:
+        raise SystemExit(f"DECK CHECK: {_dk} puts conditions on E ids that no *-NODE TOPOLOGY section defines "
+                         f"({'; '.join(_lost[:6])}): 4C dropped them silently, so the run solved a different "
+                         f"problem. Add the DNODE/DLINE/DSURF/DVOL-NODE TOPOLOGY entries for those ids.")
 # ── DID 4C FINISH? ── the check defined above the hole, run first here ─────
 _vtus = sorted(glob.glob("out-vtk-files/*.vtu"))
 if not _vtus:

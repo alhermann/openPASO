@@ -2433,7 +2433,7 @@ def _fourc_deck_state(side: Path, work: Path) -> dict | None:
         rep = side_dir_report(side)
     except Exception:                                       # noqa: BLE001
         return None
-    if not (rep["decks"] or rep["errors"] or rep["finished"]):
+    if not (rep["decks"] or rep["errors"] or rep["finished"] or rep.get("tracebacks")):
         return None
     try:
         rel = str(side.relative_to(work))
@@ -2443,7 +2443,13 @@ def _fourc_deck_state(side: Path, work: Path) -> dict | None:
     if rep["finished"]:
         fin = ", ".join(f"{p} ({', '.join(k)})" for p, k in rep["finished"].items())
         what.append(f"finished run(s): {fin}")
-        parts.append(f"the run(s) with output prefix {', '.join(rep['finished'])} finished (VTU on disk) -- leave them")
+        if rep["defects"]:
+            # a run that finished on a defective deck solved a different problem (4C drops a
+            # condition on an undefined E id silently and reports 'finished normally')
+            parts.append(f"the run(s) with output prefix {', '.join(rep['finished'])} finished (VTU on disk), but a "
+                         "run whose deck is named below solved the WRONG problem and has to be re-run after the fix")
+        else:
+            parts.append(f"the run(s) with output prefix {', '.join(rep['finished'])} finished (VTU on disk) -- leave them")
     if rep["monitors"]:
         parts.append(f"{len(rep['monitors'])} reaction-monitor file(s) exist")
     for lg, said in rep["errors"].items():
@@ -2452,7 +2458,10 @@ def _fourc_deck_state(side: Path, work: Path) -> dict | None:
     for dk, why in rep["defects"].items():
         what.append(f"{dk}: {len(why)} defect(s)")
         parts.append(f"deck {dk}: " + "; ".join(why))
-    if not rep["errors"] and not rep["defects"]:
+    for lg, tb in rep.get("tracebacks", {}).items():
+        what.append(f"the participant itself stopped in Python ({lg})")
+        parts.append(f"the participant's own Python stop in {lg}: {tb} -- fix that line first")
+    if not rep["errors"] and not rep["defects"] and not rep.get("tracebacks"):
         if rep["finished"]:
             what.append("no exports.json")
             parts.append("every 4C run finished and no defect is named, so the participant stopped in its "

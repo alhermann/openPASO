@@ -25,6 +25,15 @@ def fourc_error_lines(log_text: str, n: int = 8) -> str:
     return ""
 
 
+def python_stop_lines(log_text: str) -> str:
+    """The last lines of a Python traceback in a captured console (the participant's own stop), or ''."""
+    i = log_text.rfind("Traceback (most recent call last)")
+    if i < 0:
+        return ""
+    tail = [l.rstrip() for l in log_text[i:].splitlines()[1:] if l.strip()]
+    return " | ".join(tail[-3:])
+
+
 def lint_deck(text: str) -> list[str]:
     """Deck defects measured on worker decks (each one made 4C stop or solve the wrong problem)."""
     why: list[str] = []
@@ -57,15 +66,17 @@ def lint_deck(text: str) -> list[str]:
     if badkw:
         why.append(f"topology entries use {', '.join(badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL "
                    "(anything else defines nothing and 4C silently drops the conditions on it)")
-    topo = set(re.findall(r"D(?:NODE|LINE|SURF|VOL)\s+(\d+)", text))
+    topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", text))
     for b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", text, flags=re.M):
         head = b.split(":", 1)[0].strip()
         if head.startswith("DESIGN") and head.endswith("CONDITIONS"):
+            kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", head)
+            kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[kw.group(1)] if kw else ""
             entries = [e for e in re.split(r"^\s*-\s", b, flags=re.M)[1:] if e.strip()]
             noid = [e for e in entries if not re.search(r"\bE:\s*\d+|NODE_SET_NAME", e)]
             if noid:
                 why.append(f"{len(noid)} entr{'y' if len(noid) == 1 else 'ies'} in {head} without `E: <id>`")
-            missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", b) if x not in topo}, key=int)
+            missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", b) if (kind, x) not in topo}, key=int)
             if missing:
                 why.append(f"{head} names E id(s) {', '.join(missing[:6])} that no *-NODE TOPOLOGY section defines")
     if re.search(r"FUNCT\d+:", text) and re.search(r"\bFUNCT:\s*\[\s*0(\s*,\s*0)*\s*\]", text) \
@@ -85,14 +96,18 @@ def side_dir_report(side: Path) -> dict:
         if kinds:
             finished[d.name[:-len("-vtk-files")]] = kinds
     monitors = sorted(p.name for p in side.glob("*_monitor_dbc.yaml"))
-    errors = {}
+    errors, tracebacks = {}, {}
     for lg in sorted(side.glob("*.log")) + sorted(side.glob("*.txt")):
         try:
-            said = fourc_error_lines(lg.read_text(errors="ignore"))
+            txt = lg.read_text(errors="ignore")
         except OSError:
             continue
+        said = fourc_error_lines(txt)
         if said:
             errors[lg.name] = said
+        tb = python_stop_lines(txt)
+        if tb:
+            tracebacks[lg.name] = tb
     defects = {}
     decks = sorted(side.glob("*.4C.yaml")) or [p for p in sorted(side.glob("*.yaml")) if "monitor_dbc" not in p.name]
     for dk in decks:
@@ -103,4 +118,4 @@ def side_dir_report(side: Path) -> dict:
         if why:
             defects[dk.name] = why
     return {"finished": finished, "monitors": monitors, "errors": errors, "defects": defects,
-            "decks": [d.name for d in decks]}
+            "tracebacks": tracebacks, "decks": [d.name for d in decks]}

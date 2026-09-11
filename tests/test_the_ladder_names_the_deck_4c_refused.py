@@ -28,6 +28,13 @@ def test_the_lint_names_the_measured_defect_classes():
     assert "DVOLUME-NODE TOPOLOGY' is not a valid section" in fourc_error_lines(LOG)
     assert lint_deck('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nSCALAR TRANSPORT DYNAMIC:\n  CALCFLUX_BOUNDARY: "diffusive"\n'
                      'SCATRA FLUX CALC LINE CONDITIONS:\n  - E: 2\nDLINE-NODE TOPOLOGY:\n  - "NODE 1 DLINE 2"\n') == []
+    # DSURFACE is the entity word for a SURF condition (measured false positive: a worker deck with
+    # "NODE 1 DSURFACE 1" was told its SURF condition E 1 had no topology); ids are per kind
+    clean = ('DESIGN SURF NEUMANN CONDITIONS:\n  - E: 1\n    NUMDOF: 1\nDESIGN LINE DIRICH CONDITIONS:\n  - E: 1\n    NUMDOF: 1\n'
+             'DSURF-NODE TOPOLOGY:\n  - "NODE 1 DSURFACE 1"\nDLINE-NODE TOPOLOGY:\n  - "NODE 1 DLINE 1"\n')
+    assert lint_deck(clean) == []
+    cross = ('DESIGN SURF NEUMANN CONDITIONS:\n  - E: 1\n    NUMDOF: 1\nDLINE-NODE TOPOLOGY:\n  - "NODE 1 DLINE 1"\n')
+    assert any("DESIGN SURF NEUMANN CONDITIONS names E id(s) 1" in w for w in lint_deck(cross))
 
 
 def test_step_2_is_the_refused_deck_when_4c_already_ran(tmp_path):
@@ -42,10 +49,21 @@ def test_step_2_is_the_refused_deck_when_4c_already_ran(tmp_path):
     r = coupled_ladder(tmp_path)
     assert r["step"] == 2 and "MAKE THE 4C DECK RUN" in r["text"]
     b = r["brief"]
-    assert "out_T" in b and "finished" in b                    # the run that worked is left alone
+    assert "out_T" in b and "finished" in b and "leave them" not in b   # a finished run on a defective deck is not left alone
     assert "not a valid section" in b                          # 4C's own words
     assert "deck_U.4C.yaml" in b and "DVOLUME" in b and "VOL THERMO DIRICH" in b
     assert "spawn_subagent(role='worker'" in r["text"]
+
+
+def test_the_participants_own_python_stop_is_in_the_brief(tmp_path):
+    from tools.result_audit import coupled_ladder
+    _w(tmp_path / "side_A", "participant_A.py", PART)
+    _w(tmp_path / "side_B", "participant_B.py", PART)
+    _w(tmp_path / "side_B", "exports.json", json.dumps({"values": [1.0], "normal_fluxes": [2.0]}))
+    _w(tmp_path / "side_A", "participant_output.log", "banner\nTraceback (most recent call last):\n  File \"participant_A.py\", line 513\n"
+                                                      "    deck_u += f'{node_id + {n_nodes}}'\nTypeError: unsupported operand type(s) for +: 'int' and 'set'\n")
+    r = coupled_ladder(tmp_path)
+    assert r["step"] == 2 and "stopped in Python" in r["text"] and "TypeError" in r["brief"] and "fix that line first" in r["brief"]
 
 
 def test_no_deck_and_no_console_keeps_the_plain_step_2(tmp_path):

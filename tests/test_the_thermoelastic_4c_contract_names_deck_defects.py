@@ -69,3 +69,28 @@ def test_a_clean_deck_is_not_accused(tmp_path, monkeypatch):
     for word in ("DVOLUME", "CLONING MATERIAL MAP pairing", "needs COUPVARIABLE", "no 2-D thermo-elastic",
                  "writes nothing without", "imposes the temperature", "names E id(s)"):
         assert word not in why, why
+
+
+def test_the_served_deck_check_refuses_a_condition_on_an_undefined_e_id(tmp_path):
+    """4C runs a deck whose condition E ids have no topology to 'finished normally' with those
+    conditions dropped (measured on a worker deck). The served recovery refuses before reading
+    any output, naming the ids -- a gate on the agent's own deck, not a deck writer."""
+    import json, os, re, subprocess, sys
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "data" / "coupling_participants" / "participant_fourc_thermoelastic.py").read_text()
+    BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+    a = src.index(BEGIN); b = src.index(END, a) + len(END)
+    fill = ('hx, hy = (X1 - X0) / NX, (Y1 - Y0) / NY\n'
+            'nodes = [(X0 + i * hx, Y0 + j * hy) for j in range(NY + 1) for i in range(NX + 1)]\n'
+            'interior = [j * (NX + 1) + NX + 1 for j in range(1, NY)]\nTZ = hx\n'
+            'Path("deck_T.4C.yaml").write_text("PROBLEM TYPE:\\n  PROBLEMTYPE: \\"Scalar_Transport\\"\\n'
+            'DESIGN SURF NEUMANN CONDITIONS:\\n  - E: 1\\n    NUMDOF: 1\\nDLINE-NODE TOPOLOGY:\\n  - \\"NODE 1 DLINE 2\\"\\n")\n'
+            'OUT_T, OUT_U, DECK_U = "out_T", "out_U", "deck_U.4C.yaml"\n')
+    (tmp_path / "participant_A.py").write_text(src[:a] + fill + src[b:])
+    (tmp_path / "config.json").write_text(json.dumps({"level": 1, "nx": 4, "ny": 4, "x0": 0.0, "x1": 1.0, "y0": 0.0, "y1": 1.0,
+                                                       "k": 1.0, "lam": 1.0, "mu": 1.0, "beta": 1.0, "iface": "right"}))
+    (tmp_path / "imports.json").write_text("{}")
+    r = subprocess.run([sys.executable, "participant_A.py"], cwd=tmp_path, capture_output=True, text=True, timeout=120,
+                       env=dict(os.environ, MPLBACKEND="Agg"))
+    assert r.returncode != 0
+    assert "DECK CHECK" in r.stderr and "DESIGN SURF NEUMANN CONDITIONS E 1" in r.stderr, r.stderr[-800:]

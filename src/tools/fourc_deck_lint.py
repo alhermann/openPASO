@@ -70,12 +70,14 @@ def _material_specs(dump: str) -> dict:
                         depth0 = len(pm.group(1))
                     if len(pm.group(1)) == depth0:
                         cur = pm.group(2)
-                        params[cur] = True
+                        params[cur] = {"required": True, "type": ""}
                     else:
                         cur = None
-                elif cur and depth0 is not None and re.match(r"^\s*required: (true|false)\s*$", ln) \
-                        and len(ln) - len(ln.lstrip()) == depth0 + 2:
-                    params[cur] = ln.strip().endswith("true")
+                elif cur and depth0 is not None and len(ln) - len(ln.lstrip()) == depth0 + 2:
+                    if re.match(r"^\s*required: (true|false)\s*$", ln):
+                        params[cur]["required"] = ln.strip().endswith("true")
+                    elif re.match(r"^\s*type: \S+\s*$", ln) and not params[cur]["type"]:
+                        params[cur]["type"] = ln.split(":", 1)[1].strip()
                 j += 1
             specs.setdefault(name, {}).update(params)
             i = j
@@ -111,13 +113,19 @@ def material_defects(text: str, mats: dict) -> list[str]:
                        + (f"; closest known: {', '.join(close)}" if close else ""))
             continue
         spec = mats[name]
-        missing = [p for p, req in spec.items() if req and p not in keys]
+        missing = [p for p, s in spec.items() if s["required"] and p not in keys]
         unknown = [k for k in keys if k not in spec]
         if missing:
             out.append(f"{name} is missing required parameter(s) {', '.join(missing)}; its parameters are "
                        f"{', '.join(spec)} (4C stops with \"Parameter '{missing[0]}' not found in container\")")
         if unknown:
             out.append(f"{name} has parameter(s) its grammar does not know: {', '.join(unknown)}; known: {', '.join(spec)}")
+        # a vector-typed parameter written as a bare number (measured: YOUNG: 787.5 for a `type: vector`
+        # parameter -- 4C says only 'Could not match this input' and prints the block)
+        for k, val in re.findall(r"^\s+([A-Za-z0-9_]+):\s*(\S.*)$", body[m.end():].split("\n  - MAT:", 1)[0], re.M):
+            if k in spec and spec[k]["type"] == "vector" and not val.strip().startswith("["):
+                out.append(f"{name}.{k} is a vector in the grammar (`type: vector`) and must be written as a list, "
+                           f"[{val.strip()}], not the bare value {val.strip()}")
     return out
 
 
@@ -292,7 +300,26 @@ def lint_deck(text: str) -> list[str]:
         why.append("FUNCT blocks are defined but no condition references one (FUNCT: [0,...] everywhere): the sources never reach the load")
     why += _degenerate_elements(text)
     why += _lines_without_an_element_edge(text)
+    why += _missing_runtime_output(text)
     return why
+
+
+def _missing_runtime_output(text: str) -> list[str]:
+    """A deck that runs to 'finished normally' and writes no VTU is useless to a recovery that reads VTU
+    (measured on a ladder-loop deck: TSI run U finished, no structure-*.vtu, no thermo-*.vtu)."""
+    out = []
+    if "Thermo_Structure_Interaction" in text:
+        if "IO/RUNTIME VTK OUTPUT/STRUCTURE" not in text or not re.search(r"DISPLACEMENT:\s*true", text, re.I):
+            out.append("a TSI deck writes no structure VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1) and "
+                       "`IO/RUNTIME VTK OUTPUT/STRUCTURE` with OUTPUT_STRUCTURE true and DISPLACEMENT true; the run "
+                       "finishes 'normally' with nothing to read")
+        if "THERMAL DYNAMIC/RUNTIME VTK OUTPUT" not in text or not re.search(r"TEMPERATURE:\s*true", text, re.I):
+            out.append("a TSI deck writes no thermo VTU without `THERMAL DYNAMIC/RUNTIME VTK OUTPUT` with OUTPUT_THERMO "
+                       "true and TEMPERATURE true")
+    elif "Scalar_Transport" in text and "IO/RUNTIME VTK OUTPUT" not in text:
+        out.append("a Scalar_Transport deck writes no VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1); the run "
+                   "finishes 'normally' with nothing to read")
+    return out
 
 
 def _degenerate_elements(text: str) -> list[str]:

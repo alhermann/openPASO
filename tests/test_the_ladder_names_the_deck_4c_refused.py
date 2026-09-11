@@ -196,8 +196,10 @@ def test_material_parameters_are_judged_by_the_grammar():
     if not binp.is_file():
         pytest.skip("4C binary not on this host")
     g = grammar(str(binp), "/opt/4C-dependencies/lib"); mats = g["materials"]
-    assert "MAT_Struct_ThermoStVenantK" in mats and mats["MAT_Struct_ThermoStVenantK"].get("YOUNGNUM") is True
-    assert mats["MAT_Struct_ThermoStVenantK"].get("THERMOMAT") is False and "MAT_scatra" in mats and "MAT_Fourier" in mats
+    assert "MAT_Struct_ThermoStVenantK" in mats and mats["MAT_Struct_ThermoStVenantK"]["YOUNGNUM"]["required"] is True
+    assert mats["MAT_Struct_ThermoStVenantK"]["THERMOMAT"]["required"] is False and "MAT_scatra" in mats and "MAT_Fourier" in mats
+    assert mats["MAT_Struct_ThermoStVenantK"]["YOUNG"]["type"] == "vector" and mats["MAT_Fourier"]["CAPA"]["type"] == "double"
+    assert list(mats["MAT_Fourier"]) == ["CAPA", "CONDUCT"]
     deck = ('MATERIALS:\n  - MAT: 1\n    MAT_Struct_ThermoStVenantK:\n      YOUNG: [1.0]\n      NUE: 0.3\n      DENS: 1\n'
             '      THEXPANS: 1e-5\n      INITTEMP: 0\n      THERMOMAT: 2\n  - MAT: 2\n    MAT_Fourier:\n      CAPA: 1\n      CONDUCT:\n        constant: [1.0]\n'
             '  - MAT: 3\n    MAT_ThermoStVenantK:\n      YOUNG: [1.0]\nCLONING MATERIAL MAP:\n  - SRC_FIELD: "structure"\n')
@@ -205,3 +207,23 @@ def test_material_parameters_are_judged_by_the_grammar():
     assert any("MAT_Struct_ThermoStVenantK is missing required parameter(s) YOUNGNUM" in w for w in out), out
     assert not any("MAT_Fourier" in w for w in out), out
     assert any("material 'MAT_ThermoStVenantK' is not in the binary's grammar" in w and "MAT_Struct_ThermoStVenantK" in w for w in out), out
+
+
+def test_a_vector_parameter_written_as_a_number_and_a_deck_without_vtk_output_are_named():
+    """Measured on ladder-loop decks: YOUNG: 787.5 where the grammar says `type: vector` ('Could not match
+    this input'), and a TSI run that finished normally without the structure/thermo VTU the recovery reads."""
+    import pytest
+    from tools.fourc_deck_lint import grammar, material_defects, lint_deck
+    binp = Path("/home/alexander/4C/build/4C")
+    if not binp.is_file():
+        pytest.skip("4C binary not on this host")
+    mats = grammar(str(binp), "/opt/4C-dependencies/lib")["materials"]
+    deck = ('MATERIALS:\n  - MAT: 1\n    MAT_Struct_ThermoStVenantK:\n      YOUNGNUM: 1\n      YOUNG: 787.5\n      NUE: 0.3125\n      DENS: 1\n'
+            '      THEXPANS: 1e-5\n      INITTEMP: 0\n      THERMOMAT: 2\nCLONING MATERIAL MAP:\n  - SRC_FIELD: "structure"\n')
+    out = material_defects(deck, mats)
+    assert any("YOUNG is a vector" in w and "[787.5]" in w for w in out), out
+    tsi = 'PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\nCLONING MATERIAL MAP:\n  - x\nTSI DYNAMIC/PARTITIONED:\n  COUPVARIABLE: "Temperature"\n'
+    why = lint_deck(tsi)
+    assert any("no structure VTU" in w for w in why) and any("no thermo VTU" in w for w in why), why
+    full = tsi + 'IO/RUNTIME VTK OUTPUT:\n  INTERVAL_STEPS: 1\nIO/RUNTIME VTK OUTPUT/STRUCTURE:\n  OUTPUT_STRUCTURE: true\n  DISPLACEMENT: true\nTHERMAL DYNAMIC/RUNTIME VTK OUTPUT:\n  OUTPUT_THERMO: true\n  TEMPERATURE: true\n'
+    assert not any("VTU" in w for w in lint_deck(full))

@@ -3969,6 +3969,62 @@ def register_consolidated_tools(mcp: FastMCP):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
+    def check_input(solver: str, input_path: str = "", input_content: str = "") -> str:
+        """Name the defects of an input deck or script BEFORE it runs: the setup checks the run
+        tools apply, as a standalone gate for a code you run yourself (a coupling participant's
+        own deck). For 4C every section name is judged by the INSTALLED binary's own grammar
+        (`4C -p`) and the closest known names are listed, every condition's E id is checked
+        against the topology sections (4C drops a condition on an undefined id silently and
+        finishes on the wrong problem), and the measured TSI / Scalar_Transport deck defects
+        are named -- all of them in one call, where the binary stops at the first. Reads the
+        file, writes nothing; the findings are advisory and name no fix beyond the defect.
+
+        Args:
+            solver: backend name (e.g. 'fourc')
+            input_path: path of the deck or script to check (or pass input_content)
+            input_content: the text itself, when no file exists yet
+        """
+        _get_journal().record("knowledge_lookup", "check_input", solver=solver, physics=input_path or "inline")
+        backend = get_backend(solver)
+        if not backend:
+            return f"Unknown solver: {solver}"
+        text = input_content or ""
+        if input_path:
+            try:
+                text = Path(input_path).read_text(errors="ignore")
+            except OSError as e:
+                return f"check_input: cannot read {input_path}: {e}"
+        if not text.strip():
+            return "check_input: no input text (pass input_path or input_content)"
+        findings = []
+        try:
+            findings += list(backend.validate_input(text) or [])
+        except Exception as e:                          # noqa: BLE001
+            findings.append(f"(setup check failed: {e!r})")
+        if backend.name() == "fourc":
+            from tools.fourc_deck_lint import grammar, lint_deck, unknown_sections   # noqa: PLC0415
+            findings += lint_deck(text)
+            _bin = None
+            try:
+                from backends.fourc.backend import _find_fourc_binary   # noqa: PLC0415
+                _bin = _find_fourc_binary()
+            except Exception:                           # noqa: BLE001
+                _bin = None
+            _ld = os.environ.get("LD_LIBRARY_PATH", "")
+            if Path("/opt/4C-dependencies/lib").is_dir() and "4C-dependencies" not in _ld:
+                _ld = "/opt/4C-dependencies/lib" + (":" + _ld if _ld else "")
+            g = grammar(str(_bin) if _bin else os.environ.get("FOURC_BINARY"), _ld or None)
+            if g["sections"]:
+                findings += unknown_sections(text, g["sections"], g["elements"])
+            else:
+                findings.append("(section names not judged: no 4C binary found for `4C -p`)")
+        head = f"CHECK_INPUT ({solver}, {Path(input_path).name if input_path else 'inline text'}): "
+        if not findings:
+            return head + ("no defect named by the setup checks. That is not proof the deck runs; the "
+                           "binary's own console is.")
+        return head + f"{len(findings)} finding(s), fix every one before running:\n" + "\n".join(f"- {f}" for f in findings)
+
+    @mcp.tool()
     async def run_simulation(solver: str, input_content: str,
                              job_name: str = "", np: int = 1,
                              critic_approved: bool = False,

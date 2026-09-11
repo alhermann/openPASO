@@ -2472,8 +2472,9 @@ def _fourc_deck_state(side: Path, work: Path) -> dict | None:
             parts.append("no 4C console log lies next to the deck(s): run the binary line-buffered "
                          "(stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1) and read the log from the top")
     brief = (f"the directory {rel} holds " + "; ".join(parts) + ". Fix exactly the named deck against "
-             "the grammar (`4C -p`, prepare_simulation(solver='fourc', physics=...)) and re-run that deck "
-             "until its VTU folder appears; a deck that ran is not touched.")
+             "the grammar (`4C -p`, prepare_simulation(solver='fourc', physics=...)), run "
+             "check_input(solver='fourc', input_path=<the deck>) until it names no defect, then re-run that "
+             "deck until its VTU folder appears; a deck that ran is not touched.")
     return {"what": "; ".join(what) + ".", "brief": brief}
 
 def coupled_ladder(work: Path) -> dict | None:

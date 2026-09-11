@@ -2892,7 +2892,8 @@ atexit.register(_diagnose_at_exit)
 #
 # Build the mesh, the material, the elements and the full 4C input deck for the
 # problem you were given, and run the 4C binary on it. That is ordinary 4C
-# input-deck work and OASiS has no business writing your deck. Get the deck
+# input-deck work and OASiS has no business writing your deck; before you run it,
+# check_input(solver='fourc', input_path=<deck>) names every defect the grammar can see. Get the deck
 # grammar (also `4C -p`), a runnable Scalar_Transport skeleton and the measured
 # gotchas from:
 #

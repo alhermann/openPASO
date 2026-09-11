@@ -196,7 +196,8 @@ atexit.register(_diagnose_at_exit)
 #    as point conditions on both layers and the reactions of those conditions monitored)
 #    for the problem you were given: the grammar is `4C -p`,
 #    prepare_simulation(solver='fourc', physics=...) and knowledge(solver='fourc').
-#    Run each deck line-buffered with its console in a log
+#    Before a run, check_input(solver='fourc', input_path=<deck>) names every defect the grammar
+#    can see in one call (4C stops at the first). Run each deck line-buffered with its console in a log
 #    (stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1); on a non-zero exit FALL
 #    THROUGH, the served check reads the log. LEAVE BEHIND exactly these names:
 #      nodes     the list of (x, y) of the 2-D layout; deck node id on the z = 0 layer = index + 1

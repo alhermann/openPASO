@@ -154,17 +154,75 @@ def why_4c_did_not_finish(tag=""):
                 _lines = open(_lg, errors="ignore").read().splitlines()
             except OSError:
                 continue
+            _hit = False
             for _i, _ln in enumerate(_lines):
                 if "PROC 0 ERROR" in _ln:
                     _said = [l.strip() for l in _lines[_i + 1:_i + 12] if l.strip() and not l.startswith("---") and "MPI_ABORT" not in l]
                     _why.append(f"4C said ({_lg}): " + " | ".join(_said[:8]))
+                    _hit = True
                     break
+            if not _hit:   # a crash without an error message (measured: a zero-area flux boundary -> floating point exception)
+                for _i, _ln in enumerate(_lines):
+                    if "*** Process received signal ***" in _ln:
+                        _sig = next((l.split("Signal:", 1)[1].strip() for l in _lines[_i:_i + 4] if "Signal:" in l), "a signal")
+                        _bef = [l.strip() for l in _lines[max(0, _i - 12):_i] if l.strip() and not set(l.strip()) <= set("+-|=")]
+                        _why.append(f"4C died on {_sig} ({_lg}) with no error message; the last thing it printed: " + " | ".join(_bef[-2:])
+                                    + " -- a flux table dividing by a ZERO boundary area means the flux-calc DLINE shares no edge with any element (its node ids do not match the element numbering)")
+                        break
         for _deck in sorted(glob.glob("*.4C.yaml")) or sorted(glob.glob("*.yaml")):
             _txt = open(_deck, errors="ignore").read()
             _secs = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, re.M)
             _dup = sorted({x for x in _secs if _secs.count(x) > 1})
             if _dup:
                 _why.append(f"{_deck}: section(s) written twice: " + ", ".join(_dup))
+            try:   # the grammar judgement stands on its own: no binary, no judgement, other findings kept
+                # section names judged by the BINARY's own grammar (`4C -p`, read once); the closest known
+                # names ride along (measured: invented names like IO/RUNTIME VTK OUTPUT/THERMO stop 4C first)
+                if not globals().get("_VALID"):
+                    _dump = subprocess.run([str(CFG.get("fourc_bin") or os.environ.get("FOURC_BIN", "4C")), "-p"],
+                                           capture_output=True, text=True, timeout=180,
+                                           env=dict(os.environ, LD_LIBRARY_PATH=f"{CFG.get('fourc_ld') or ''}:{os.environ.get('LD_LIBRARY_PATH', '')}")).stdout
+                    globals()["_VALID"] = set(re.findall(r"^    - name: (.+?)\s*$", _dump, re.M)) | set(
+                        re.findall(r"^  - ([A-Z][A-Z0-9 _/.:-]*?)\s*$", _dump.split("legacy_string_sections:", 1)[-1], re.M)) | {"TITLE"}
+                    globals()["_ELEM"] = set(re.findall(r"^  ([A-Z][A-Z0-9_]*):\s*$",
+                                                        _dump.split("legacy_element_specs:", 1)[-1].split("legacy_particle_specs:", 1)[0], re.M))
+                if len(_VALID) > 100:
+                    import difflib, math
+                    from collections import Counter
+                    _tok = lambda nm: [w for w in re.split(r"[ /_-]+", nm.upper()) if w]
+                    _tk = {c: _tok(c) for c in _VALID}
+                    _fq = Counter(w for ct in _tk.values() for w in set(ct))
+                    _wt = lambda w: 1.0 / (1.0 + math.log(_fq.get(w, 0) + 1))
+                    _best = lambda a, bs: max((difflib.SequenceMatcher(None, a, b).ratio() for b in bs), default=0.0)
+                    for _s in dict.fromkeys(_secs):
+                        if _s not in _VALID and not re.fullmatch(r"FUNCT\d+", _s):
+                            _msg = f"{_deck}: section '{_s}' is not in the binary's grammar (`4C -p`)"
+                            if _s.endswith(" ELEMENTS") and _s.split()[0] in _ELEM:   # an element TYPE used as a section name
+                                _msg += (f"; '{_s.split()[0]}' is an ELEMENT TYPE for the element lines inside one of: "
+                                         + ", ".join(sorted(n for n in _VALID if n.endswith(" ELEMENTS"))))
+                            else:   # word-wise similarity both ways, rare words weigh more (THERMO finds THERMAL);
+                                    # a known word that is the initials of a run of your words is exact (TSI <- THERMO STRUCTURE INTERACTION)
+                                _u = _tok(_s)
+                                def _acr(ct):
+                                    a, cov = set(), set()
+                                    for y in ct:
+                                        if 3 <= len(y) <= 5 and y.isalpha():   # two letters match by accident (LS <- LINE STRUCTURE)
+                                            for k in range(len(_u) - len(y) + 1):
+                                                if "".join(w[0] for w in _u[k:k + len(y)]) == y:
+                                                    a.add(y); cov |= set(range(k, k + len(y)))
+                                    return a, cov
+                                def _score(ct):
+                                    a, cov = _acr(ct)
+                                    return ((sum(_wt(x) * (1.0 if i in cov else _best(x, ct)) for i, x in enumerate(_u))
+                                             + sum(_wt(y) * (1.0 if y in a else _best(y, _u)) for y in ct))
+                                            / (sum(_wt(x) for x in _u) + sum(_wt(y) for y in ct)))
+                                _sc = sorted((_score(ct), c) for c, ct in _tk.items() if ct)
+                                _close = [c for v, c in _sc[::-1][:5] if v >= 0.45]
+                                if _close:
+                                    _msg += f"; closest known: {', '.join(repr(c) for c in _close)}"
+                            _why.append(_msg)
+            except Exception:                # noqa: BLE001
+                pass
             if "Thermo_Structure_Interaction" in _txt:
                 if "CLONING MATERIAL MAP" not in _txt:
                     _why.append(f"{_deck}: TSI needs a CLONING MATERIAL MAP pairing the structure material with the MAT_Fourier thermal material")
@@ -183,14 +241,27 @@ def why_4c_did_not_finish(tag=""):
                     _why.append(f"{_deck}: needs CALCFLUX_BOUNDARY \"diffusive\" AND a `SCATRA FLUX CALC LINE CONDITIONS` entry (E 2) for the flux recovery")
                 if re.search(r"^IO:\s*$", _txt, re.M):
                     _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck is rejected; the VTU appears without it")
+            # a DLINE whose nodes share no element edge is a zero-length boundary (measured: flux table -> FPE)
+            _edges = set()
+            for _q in re.findall(r'"\s*\d+\s+\w+\s+(?:QUAD4|TRI3)\s+((?:\d+\s+)+)', _txt):
+                _ids = [int(x) for x in _q.split()][:4]
+                _edges |= {(min(a, b), max(a, b)) for a, b in zip(_ids, _ids[1:] + _ids[:1])}
+            _dl = {}
+            for _n, _d in re.findall(r'"NODE\s+(\d+)\s+DLINE\s+(\d+)"', _txt):
+                _dl.setdefault(_d, set()).add(int(_n))
+            for _d, _ns in _dl.items():
+                if _edges and len(_ns) >= 2 and not any((min(a, b), max(a, b)) in _edges for a in _ns for b in _ns if a < b):
+                    _why.append(f"{_deck}: DLINE {_d} ({len(_ns)} nodes) shares no edge with any element -- its node ids do not match the element numbering, so a condition on it is a zero-length boundary")
             _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt) if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
             if _badkw:
                 _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL (anything else defines nothing and the conditions on it are silently dropped)")
-            _topo = set(re.findall(r"D(?:NODE|LINE|SURF|VOL)\s+(\d+)", _txt))
+            _topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", _txt))
             for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
                 _head = _b.split(":", 1)[0].strip()
                 if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
-                    _missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", _b) if x not in _topo}, key=int)
+                    _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head)
+                    _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+                    _missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", _b) if (_kind, x) not in _topo}, key=int)
                     if _missing:
                         _why.append(f"{_deck}: {_head} names E id(s) {', '.join(_missing[:6])} that no *-NODE TOPOLOGY section defines")
     except Exception as _e:                # noqa: BLE001
@@ -218,7 +289,8 @@ atexit.register(_diagnose_at_exit)
 #    as point conditions on both layers and the reactions of those conditions monitored)
 #    for the problem you were given: the grammar is `4C -p`,
 #    prepare_simulation(solver='fourc', physics=...) and knowledge(solver='fourc').
-#    Run each deck line-buffered with its console in a log
+#    Before a run, check_input(solver='fourc', input_path=<deck>) names every defect the grammar
+#    can see in one call (4C stops at the first). Run each deck line-buffered with its console in a log
 #    (stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1); on a non-zero exit FALL
 #    THROUGH, the served check reads the log. LEAVE BEHIND exactly these names:
 #      nodes     the list of (x, y) of the 2-D layout; deck node id on the z = 0 layer = index + 1
@@ -247,6 +319,24 @@ atexit.register(_diagnose_at_exit)
 
 # ── RECOVERY FROM 4C's OWN OUTPUTS (served): boundary flux VTU, displacement VTU, reaction yaml ──
 import meshio  # noqa: E402
+
+# ── YOUR DECKS, CHECKED BEFORE ANYTHING IS READ (served): 4C drops a condition whose E id no
+#    topology section defines and RUNS THE WRONG PROBLEM to 'finished normally' (measured on a
+#    worker deck: every boundary condition and the source gone, rc 0). A run like that is refused here.
+for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yaml")) if "monitor_dbc" not in p]:
+    _txt = Path(_dk).read_text(errors="ignore")
+    _topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", _txt))
+    _lost = []
+    for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
+        _head = _b.split(":", 1)[0].strip()
+        if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
+            _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head)
+            _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+            _lost += [f"{_head} E {x}" for x in re.findall(r"\bE:\s*(\d+)", _b) if (_kind, x) not in _topo]
+    if _lost:
+        raise SystemExit(f"DECK CHECK: {_dk} puts conditions on E ids that no *-NODE TOPOLOGY section defines "
+                         f"({'; '.join(_lost[:6])}): 4C dropped them silently, so the run solved a different "
+                         f"problem. Add the DNODE/DLINE/DSURF/DVOL-NODE TOPOLOGY entries for those ids.")
 
 
 def _latest(pattern):
@@ -403,98 +493,11 @@ print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
 ```
 
 
-## PARTICIPANT CONTRACT — COPY THIS INTO ITS OWN FILE NOW (write_file side_<x>.py), then edit the marked block and write the solve where the banner sits. It is the handshake, the interface sign convention, the consistent flux recovery, the exports schema and the export self-check, thinned of its explanations so it is cheap to copy; the annotated version is `signal='participant:part1'`. Measured: every recent coupled run that wrote this file from scratch instead failed on the handshake or the recovery.
-
-```python
-"""4C as EITHER side of a partitioned coupling (Scalar_Transport).
-
-THE ROLE COMES FROM ./config.json: "side": "neumann" | "dirichlet" -- the role
-the task gives the subdomain 4C owns (the Dirichlet side receives the field
-VALUES and imposes them; the Neumann side receives the outward FLUX and applies
-it as its load). One file, both roles; nothing else changes between them but
-what the deck imposes at the interface and what is exported as values.
-
-Reads ./config.json {"level":k,"nx":..,"ny":..,"x0":..,"x1":..,"y0":..,"y1":..,
-"k":diffusivity,"iface":"left|right|bottom|top","source_expr":"<f(x,y) or 0.0>",
-"fourc_bin":..,"fourc_ld":..}.
-Contract: reads ./imports.json (the partner's interface samples at its points),
-maps them onto THIS side's interface nodes -- as the Neumann load (side
-"neumann", opposite normals) or as the imposed Dirichlet trace (side
-"dirichlet") -- runs YOUR 4C deck, and exports its own consistent outward flux
-plus, on the Neumann side only, its interface TRACE as values (the Dirichlet
-side imposed the trace, it does not own one: values = []).
-
-WHAT IS SERVED HERE is the handshake (config + imports + sign convention), the
-CALCFLUX_BOUNDARY flux-recovery route, and the exports schema. THE 4C DECK AND
-THE SOLVE ARE YOURS to write -- see the banner. Get the deck from
-prepare_simulation(solver='fourc', physics='<your physics>').
-"""
-import json
-import os
-import numpy as np
-from pathlib import Path
-
-CFG = json.loads(Path("config.json").read_text())
-# A multi-level coupling call hands this level's keys in the environment
-# (OASIS_CONFIG_JSON, a JSON object) instead of writing this file.
-CFG.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))
-NX, NY = CFG["nx"], CFG["ny"]
-X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
-KV = CFG["k"]; IF = CFG.get("iface", "left")
-SIDE = CFG.get("side", "neumann")   # "neumann" | "dirichlet": the role the task gives this subdomain
-
-# SOURCE f(x,y) AS A 4C EXPRESSION STRING (not a Python function): '^' for
-# powers (never '**'), lowercase 'pi' ('PI' aborts: "Missing variables PI"),
-# coordinates 'x','y', time 't'; "0.0" means no source. Wire it into YOUR deck
-# as FUNCT1 + a DESIGN SURF NEUMANN VAL*FUNCT block; a Python src() that never
-# reaches the deck is the classic 4C trap and does nothing.
-SRC_EXPR = str(CFG.get("source_expr", CFG.get("source_const", "0.0")))
-HAS_SRC = SRC_EXPR.strip() not in ("", "0", "0.", "0.0")
-
-# ---- the partner's interface samples, mapped onto THIS side (handshake) ----
-imp = {}
-if Path("imports.json").is_file():
-    imp = json.loads(Path("imports.json").read_text())
-def _partner(key, y_or_x):
-    """One imported partner sample (key = "normal_fluxes" on the Neumann side,
-    "values" on the Dirichlet side) interpolated onto one of THIS side's
-    interface points. The driver does NOT interpolate between the two meshes --
-    each participant maps the partner's samples onto its own points, here. Empty
-    on iteration 1, so fall back to 0.0."""
-    for _n, d in imp.items():
-        co = d.get("coordinates") or []; q = d.get(key) or []
-        if co and q and len(q) == len(co):
-            ax = 1 if IF in ("left", "right") else 0
-            pts = sorted(zip([c[ax] for c in co], q))
-            xs = [p[0] for p in pts]; qs = [float(p[1]) for p in pts]
-            t = min(max(y_or_x, xs[0]), xs[-1])
-            for a, b, qa, qb in zip(xs, xs[1:], qs, qs[1:]):
-                if a <= t <= b:
-                    w = 0.0 if b == a else (t - a) / (b - a)
-                    return qa + w * (qb - qa)
-            return qs[-1]
-    return 0.0
-def partner_flux(y_or_x):
-    """NEUMANN side: the partner's outward flux at one of your interface points --
-    your inward load there. Build your Neumann loads from this in the solve."""
-    return _partner("normal_fluxes", y_or_x)
-def partner_value(y_or_x):
-    """DIRICHLET side: the partner's field value at one of your interface points --
-    the trace you impose there. Build your interface Dirichlet data from this."""
-    return _partner("values", y_or_x)
-# SIGN CONVENTION: the inward load on THIS side is the partner's OUTWARD flux --
-# the two interface normals are opposite. Apply the partner's number UNCHANGED
-# as your 4C Neumann VAL; there is no extra minus sign anywhere.
-
-# ── DID 4C FINISH? (served: when the run leaves no output, name the cause) ─
-# An empty out-vtk-files/ means 4C aborted on your deck. Its own message sits
-# in the console log you captured, and the deck defects measured to abort
-# every trial deck are mechanical -- so this reads the log and lints the deck
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 39,525 further characters exist and are NOT lost.
+THIS PAYLOAD IS TRUNCATED HERE. 46,523 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 27,966 of 67,125 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 30,567 of 76,724 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
 
@@ -602,51 +605,9 @@ FOUR MEASURED WAYS THIS DIES, all of them silently:
     And the constant is lowercase `pi`: `PI` aborts the run with "Missing
     variables PI to evaluate expression" (measured on a trial deck).
     The task states its source term in Python notation; rewrite every term.
-(c) ONOFF / VAL / FUNCT must each have EXACTLY `NUMDOF` entries, or
-      [!] Candidate parameter 'VAL' has incorrect size
-(d) A condition's dimension must not exceed the problem's: a
-    `DESIGN VOL ...` block on a 2-D problem gives
-      Dimension of condition is larger than the problem dimension.
-(e) NO SECTION OR KEY THE GRAMMAR DOES NOT LIST. 4C matches every block
-    against its specification and aborts on the first unknown key with
-      Could not match this input
-    followed by the offending block. Measured in three of three trial decks
-    written from this grammar: an added `IO:` block with `VERBOSITY:
-    "Standard"` aborts the run. 4C's defaults need no IO section at all;
-    keep exactly the sections above and nothing you did not see documented.
-(f) EVERY `E:` ID A CONDITION NAMES MUST EXIST IN THE MATCHING TOPOLOGY.
-    Ids are 1-based and contiguous. A `DESIGN LINE ... CONDITIONS` entry
-    with `E: 4` while `DLINE-NODE TOPOLOGY` defines only DLINE 1..3 aborts
-    with
-      DLine 4 not in range [0:4[  DLine condition on non existent DLine
-    Count the distinct DLINE (DSURFACE, DNODE) ids in your topology and use
-    only those; give every interface, outer-boundary and surface set its
-    own id and its own topology lines.
-(g) NEVER TYPE NODE COORDS, ELEMENTS OR TOPOLOGY BY HAND. Generate them in
-    a short loop (a Python script that writes the deck for the level in
-    ./config.json, which is what the participant contract does) and let the
-    loop count them. Measured on trial decks typed out in full: a list one
-    node short aborts with
-      Element 79 cannot find node 99
-    and a long typed deck was cut off mid-string and failed to parse with
-      reached end of file looking for closing quote
-    A generator is thirty lines; the deck it writes can be any size.
-(h) EVERY TOPOLOGY SECTION APPEARS ONCE. All point sets share the one
-    `DNODE-NODE TOPOLOGY` block, all line sets the one `DLINE-NODE TOPOLOGY`
-    block, and so on -- one section per kind, holding every E id. A deck that
-    writes the block again for its second condition aborts on read with
-      Section 'DNODE-NODE TOPOLOGY' is defined more than once.
-    (measured on a trial deck that gave its Dirichlet points and its Neumann
-    points separate topology blocks).
-
-AND READ THE LOG FROM THE TOP. 4C buffers stdout and MPI_Abort kills it
-before the flush, so `| tail` shows only MPI boilerplate. Measured on one
-failing deck: 8 lines without line buffering, 43 with it. Run
-    stdbuf -oL <4C binary> deck.4C.yaml out > run.log 2>&1 ; head -40 run.log
-`Invalid MIT-MAGIC-COOKIE-1 key` is an X11 warning that appears on
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,199 OF 48,870 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,153 OF 51,471 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 ────────────────────────────────────────

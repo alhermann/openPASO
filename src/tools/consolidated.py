@@ -2367,7 +2367,17 @@ _DECIDING_FACTS = {
         "`n.SetSolutionStepValue(KM.TEMPERATURE, value); n.Fix(KM.TEMPERATURE)` on every outer-boundary "
         "node; there is no Dirichlet condition to create (`The Condition \"ThermalDirichlet2D2N\" is not "
         "registered!` -- a trial repair died there). Conditions are for FLUXES (ThermalFace2D2N / "
-        "FluxCondition2D2N on the interface edges, fact 4) and for nothing else here."),
+        "FluxCondition2D2N on the interface edges, fact 4) and for nothing else here.\n"
+        "11. THE MODEL SETUP ORDER, EXACTLY (measured on the tested program): `mp.ProcessInfo[KM.DOMAIN_SIZE] = 2`; "
+        "`settings = KM.ConvectionDiffusionSettings()` with `SetUnknownVariable(KM.TEMPERATURE)`, "
+        "`SetDiffusionVariable(KM.CONDUCTIVITY)`, `SetVolumeSourceVariable(KM.HEAT_FLUX)`, "
+        "`SetSurfaceSourceVariable(KM.FACE_HEAT_FLUX)` and `mp.ProcessInfo.SetValue(KM.CONVECTION_DIFFUSION_SETTINGS, settings)`; "
+        "then `mp.AddNodalSolutionStepVariable(v)` for EACH of TEMPERATURE, CONDUCTIVITY, HEAT_FLUX, FACE_HEAT_FLUX, "
+        "REACTION_FLUX BEFORE the first `CreateNewNode` (a node created earlier cannot hold them: `This container only "
+        "can store the variables specified in its variables list ... CONDUCTIVITY` -- a trial repair died there); "
+        "`mp.SetBufferSize(1)`; `props = mp.CreateNewProperties(1)`. The application is loaded by "
+        "`import KratosMultiphysics.ConvectionDiffusionApplication` and referenced only through that module path -- "
+        "a bare `ConvectionDiffusionApplication` is a NameError (measured)."),
 }
 _DECIDING_FACTS["dune-fem"] = _DECIDING_FACTS["dune"]
 _DECIDING_FACTS["dunefem"] = _DECIDING_FACTS["dune"]

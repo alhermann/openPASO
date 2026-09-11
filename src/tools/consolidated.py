@@ -7148,6 +7148,13 @@ def _get_coupling_knowledge(solver: str = "", signal: str = ""):
         # alone
         if not _facts or not isinstance(text, str):
             return text
+        # FIRST REPLY OF A SESSION (part A leads): the facts close the reply,
+        # after the contract and part B -- the parent reads orchestration and
+        # the contract; the worker's own door call (pointer mode) leads with
+        # the facts. Measured: with the facts up front, 4C's and DUNE's first
+        # replies lost the tail of part B to the 48k cap.
+        if text.startswith(_COUPLING_LEAD_A) and not text.startswith(_COUPLING_MUST_READ):
+            return text + "\n" + _facts
         for lead in (_COUPLING_MUST_READ, _MUST_READ_POINTER):
             if text.startswith(lead):
                 return lead + _facts + text[len(lead):]
@@ -7796,7 +7803,43 @@ Two ways that capture silently fails, both measured:
     and a fatal substitute for it.
 
 """
+
+# THE CONTRACT ARRIVES IN THE FIRST REPLY OF A SESSION. Measured 2026-09-11:
+# the must-read had grown to 27k characters against a 28k head budget, so the
+# first coupling call of every session -- the one the parent reads -- carried
+# no participant contract at all (zero python fences in a 48k reply, every
+# backend); only a later call, in pointer mode, did. The must-read is
+# therefore split at the sentence that introduces the contract: part A (the
+# orchestrator rule, the couple() recipe, the ladder, the first worker brief)
+# leads, the code's own payload head follows with its contract inside the
+# first 16k, and part B (the rules that decide convergence) closes the reply.
+_COUPLING_LEAD_SPLIT = "DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH"
+_COUPLING_LEAD_A = _COUPLING_MUST_READ[:_COUPLING_MUST_READ.index(_COUPLING_LEAD_SPLIT)]
+_COUPLING_LEAD_B = _COUPLING_MUST_READ[_COUPLING_MUST_READ.index(_COUPLING_LEAD_SPLIT):]
+_COUPLING_CONTRACT_HEAD = 11000     # floor for the payload head between the two parts when no contract block is found
 _COUPLING_MUST_READ += "\n" + _PER_SIDE_NAMING
+
+
+
+def _contract_block_end(payload: str, floor: int) -> int:
+    """Where the payload's first participant contract block closes (the fence
+    after the first ```python block that carries the handshake), so the
+    must-read reply can be cut behind the contract and never through it.
+    `floor` when the payload has no such block."""
+    if not isinstance(payload, str):
+        return floor
+    pos = 0
+    while True:
+        i = payload.find("```python", pos)
+        if i < 0:
+            return floor
+        j = payload.find("```", i + 9)
+        if j < 0:
+            return floor
+        block = payload[i:j + 3]
+        if "imports.json" in block and "exports.json" in block:
+            return max(floor, min(j + 3 + 200, len(payload)))
+        pos = j + 3
 
 
 def _front_load_coupling(payload: str, solver: str = "",
@@ -7817,10 +7860,33 @@ def _front_load_coupling(payload: str, solver: str = "",
     # text they were being sent to find.
     if not isinstance(payload, str):
         return _append_deck_grammar(payload, solver)
-    _lead = _COUPLING_MUST_READ if must_read else _MUST_READ_POINTER
-    if len(_lead) + len(payload) <= _COUPLING_HEAD_LIMIT:
-        return _append_deck_grammar(_lead + payload, solver)
-    budget = _COUPLING_HEAD_LIMIT - len(_lead)
+    _lead = _COUPLING_LEAD_A if must_read else _MUST_READ_POINTER
+    _tail = _COUPLING_LEAD_B if must_read else ""
+    if must_read:
+        # In the first reply the must-read itself is present, so the payload's
+        # own recap of it and the parts-door preamble are dead weight; drop
+        # them, or 4C's 22k scaffold plus part B overruns the reply cap and
+        # part B loses its tail (measured 2026-09-11).
+        try:
+            from .coupling_knowledge import _RECAP as _recap_text
+            payload = payload.replace(_recap_text, "")
+        except Exception:                                  # noqa: BLE001
+            pass
+        _cp = payload.find("# Coupling participant:")
+        if _cp > 0:
+            payload = payload[_cp:]
+        # the head must hold the WHOLE first contract block (4C's lean
+        # contract is ~22k, Kratos's ~7k), so its budget is the end of that
+        # block plus the section boundary after it, never a fixed number
+        budget = _contract_block_end(payload, _COUPLING_CONTRACT_HEAD)
+        if len(payload) <= budget:
+            return _append_deck_grammar(_lead + payload + "\n" + _tail, solver)
+        limit = len(_lead) + budget
+    else:
+        if len(_lead) + len(payload) <= _COUPLING_HEAD_LIMIT:
+            return _append_deck_grammar(_lead + payload, solver)
+        budget = _COUPLING_HEAD_LIMIT - len(_lead)
+        limit = _COUPLING_HEAD_LIMIT
     head = _lead + payload[:budget]
     # Cut on a section boundary so no instruction is truncated mid-sentence --
     # but take the LONGEST safe cut, not the first marker type that qualifies.
@@ -7833,10 +7899,18 @@ def _front_load_coupling(payload: str, solver: str = "",
     # discarded to avoid a mid-sentence cut that a later `\n\n` would have
     # avoided just as well.
     cuts = [head.rfind(m) for m in ("\n────", "\n\n#", "\n\n", "\n")]
-    cut = max([c for c in cuts if c > _COUPLING_HEAD_LIMIT // 2], default=-1)
+    cut = max([c for c in cuts if c > limit // 2], default=-1)
     if cut > 0:
         head = head[:cut]
     rest = len(payload) - (len(head) - len(_lead))
+    if must_read:
+        hint = (f"\n\n{'─' * 70}\n"
+                f"THIS PAYLOAD IS TRUNCATED HERE (this code's coupling text): {rest:,} further "
+                f"characters (its traps, the other role, launch notes) exist and "
+                f"are NOT lost -- knowledge(topic='coupling', solver='{solver}') "
+                f"again, or with signal='<what you are stuck on>', returns them. "
+                f"The must-read continues below.\n{'─' * 70}\n")
+        return _append_deck_grammar(head + hint + "\n" + _tail, solver)
     hint = (f"\n\n{'─' * 70}\n"
             f"THIS PAYLOAD IS TRUNCATED HERE. {rest:,} further characters "
             f"exist and are NOT lost.\n"
@@ -7858,7 +7932,7 @@ def _front_load_coupling(payload: str, solver: str = "",
             f"standalone until it writes exports.json; get the SECOND one "
             f"running; then call couple(); then write the deliverables. Ask "
             f"for more text only when a specific step has failed.\n")
-    return _append_deck_grammar(head + hint, solver)
+    return _append_deck_grammar(head + hint + ("\n" + _tail if _tail else ""), solver)
 
 
 def _get_tsi_knowledge():

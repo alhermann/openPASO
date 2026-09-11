@@ -2250,8 +2250,34 @@ def _vector_block(script_name: str) -> str:
         f"```python\n{_serve_participant(p)}```\n")
 
 
+def _scaffold_first(traps: str):
+    """When a backend's traps carry a config-driven scaffold (a fenced block
+    that reads ./config.json -- 4C and DUNE-fem tonight), that scaffold IS
+    the contract: it is what prepare_simulation's reveal serves, and it is
+    the one validated by execution. Measured 2026-09-11: the door's first
+    block was the older file contract while the scaffold sat 30k characters
+    later under the traps, so the first reply of a session served one script
+    and the reveal another. Returns (scaffold_block, traps_without_it) or
+    (None, traps)."""
+    pos = 0
+    while True:
+        i = traps.find("```python", pos)
+        if i < 0:
+            return None, traps
+        j = traps.find("```", i + 9)
+        if j < 0:
+            return None, traps
+        block = traps[i:j + 3]
+        if "config.json" in block and "imports.json" in block and "exports.json" in block:
+            remainder = traps[:i] + "(the scaffold itself is the PARTICIPANT CONTRACT block above)" + traps[j + 3:]
+            return block, remainder
+        pos = j + 3
+
+
 def _payload(title: str, sides: str, script_name: str, launch: str,
              traps: str, extra: str = "") -> str:
+    scaffold, traps = _scaffold_first(traps)
+    contract = scaffold if scaffold else f"```python\n{lean_view(_script(script_name))}```"
     return ("## If your client truncates long replies: fetch this contract in parts\n\n"
       f"Call `knowledge(topic='coupling', solver='{script_name}', "
       "signal='participant:part1')`, then request each next part named "
@@ -2271,7 +2297,7 @@ def _payload(title: str, sides: str, script_name: str, launch: str,
             f"explanations so it is cheap to copy; the annotated version is "
             f"`signal='participant:part1'`. Measured: every recent coupled "
             f"run that wrote this file from scratch instead failed on the "
-            f"handshake or the recovery.\n\n```python\n{lean_view(_script(script_name))}```\n\n"
+            f"handshake or the recovery.\n\n{contract}\n\n"
             f"## Launching it\n\n{launch}\n"
             f"## {title}-specific traps\n\n{traps}\n{extra}"
             f"{_role_block(script_name)}"

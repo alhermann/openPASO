@@ -87,12 +87,15 @@ class TestTheServedPayload(unittest.TestCase):
         characters in. Both are still inside the block. A fixed 2,500 would fail
         for the right reason and the wrong cause.
         """
-        from tools.consolidated import _COUPLING_MUST_READ
-        self.assertLess(
-            self.served.index("SWAP WHICH SIDE IS DIRICHLET"),
-            len(_COUPLING_MUST_READ),
-            "the swap remedy is no longer inside the must-read block, so it is "
-            "subject to truncation again")
+        # 2026-09-11: the must-read is split around the code's contract (part
+        # A leads, the contract follows, part B closes the reply), so the
+        # remedy sits in part B; the guarantee is that part B is served WHOLE
+        # in the first reply of a session, i.e. nothing of it is cut.
+        from tools.consolidated import _COUPLING_LEAD_B
+        self.assertIn("SWAP WHICH SIDE IS DIRICHLET", self.served,
+                      "the swap remedy is no longer served")
+        self.assertIn(_COUPLING_LEAD_B.strip()[-300:], self.served,
+                      "the tail of the must-read's part B was cut from the first reply")
 
     def test_history_path_is_named_first_and_no_benchmark_file_name_is_served(self):
         """MEASURED GAP: the served coupling payload once said nothing about

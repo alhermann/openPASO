@@ -182,14 +182,29 @@ def test_served_payload_is_the_elided_contract_of_the_tested_participant(name):
     from tools.coupling_knowledge import lean_view
     excerpt = _script(name)
     assert excerpt == _serve_participant(path)
-    # the payload carries the LEAN view of the elided contract (comment blocks
-    # thinned, every code line kept) -- the copyable form; the annotated text
-    # is behind the parts door
-    assert lean_view(excerpt) in served, (
-        f"solver='{name}': the payload does not contain the lean view of what "
-        f"_script() returns -- the served path and the tested file have diverged")
-    code = [l for l in excerpt.splitlines() if l.strip() and not l.strip().startswith("#")]
-    assert all(l in served for l in code), f"solver='{name}': a code line was dropped"
+    i = served.index("```python"); j = served.index("```", i + 9)
+    first_block = served[i:j + 3]
+    if "config.json" in first_block:
+        # 2026-09-11: a backend that ships a config-driven SCAFFOLD (4C, DUNE)
+        # serves it as the contract -- the same block prepare_simulation's
+        # reveal hands over -- validated by execution against a manufactured
+        # solution (tests/test_the_served_scaffolds_run_with_a_fill.py). The
+        # file contract stays behind the parts door.
+        from tools.consolidated import _coupling_participant_script
+        reveal = _coupling_participant_script(name)
+        assert first_block.strip()[-300:] in reveal, (
+            f"solver='{name}': the door's contract block and the reveal's differ")
+        for served_part in ("imports.json", "exports.json", "EXPORT SELF-CHECK", "OASiS DOES NOT SERVE THIS"):
+            assert served_part in first_block, f"solver='{name}': {served_part} missing from the scaffold"
+    else:
+        # the payload carries the LEAN view of the elided contract (comment
+        # blocks thinned, every code line kept) -- the copyable form; the
+        # annotated text is behind the parts door
+        assert lean_view(excerpt) in served, (
+            f"solver='{name}': the payload does not contain the lean view of what "
+            f"_script() returns -- the served path and the tested file have diverged")
+        code = [l for l in excerpt.splitlines() if l.strip() and not l.strip().startswith("#")]
+        assert all(l in served for l in code), f"solver='{name}': a code line was dropped"
     assert excerpt != text, f"solver='{name}': nothing was elided"
     bodies = _solve_bodies(text)
     assert bodies, f"{path.name} has no marked SOLVE region"
@@ -546,7 +561,7 @@ def test_knowledge_tool_output_matches_the_payload_function(topic):
     # is left must be a PREFIX of the tested function's output. A drifted copy
     # fails that immediately; a truncated faithful copy passes.
     from tools.knowledge import _UNIVERSAL_CORE, _UNIVERSAL
-    from tools.consolidated import _COUPLING_MUST_READ, _MUST_READ_POINTER
+    from tools.consolidated import _COUPLING_MUST_READ, _MUST_READ_POINTER, _COUPLING_LEAD_A
     fn = coupling_knowledge if topic == "coupling" else precice_knowledge
     tool = _knowledge_tool()
     for solver in [""] + _BACKEND_ORDER:
@@ -562,7 +577,7 @@ def test_knowledge_tool_output_matches_the_payload_function(topic):
             body = body[:body.rfind("\n", 0, cut)].rstrip("\u2500\n ")
         # the must-read leads the FIRST coupled reply of a session; every
         # later one leads with the pointer to it -- strip whichever it is
-        for lead in (_COUPLING_MUST_READ, _MUST_READ_POINTER):
+        for lead in (_COUPLING_MUST_READ, _MUST_READ_POINTER, _COUPLING_LEAD_A):
             if body.startswith(lead):
                 body = body[len(lead):]
                 break
@@ -730,8 +745,10 @@ def test_complete_templates_contain_no_task_result_artifacts():
     from tools.coupling_knowledge import coupling_knowledge as _ck
     for solver in _BACKEND_ORDER:
         payload = _ck(solver)
-        assert "EDIT THIS BLOCK" in payload
-        assert "PLACEHOLDER" in payload
+        # the file contracts mark their editable block; a served scaffold
+        # (4C, DUNE since 2026-09-11) marks its holes with the SOLVE bars
+        assert "EDIT THIS BLOCK" in payload or "OASiS DOES NOT SERVE THIS" in payload
+        assert "PLACEHOLDER" in payload or "OASiS DOES NOT SERVE THIS" in payload
         for artifact in ("solution_level1_A.csv", "INTERFACE_RESIDUAL =",
                          "MESH_INDEPENDENCE = CONVERGED"):
             assert artifact not in payload, (

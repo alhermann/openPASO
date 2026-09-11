@@ -171,6 +171,15 @@ def lint_deck(text: str) -> list[str]:
         if "DESIGN VOL THERMO DIRICH" in text:
             why.append("DESIGN VOL THERMO DIRICH imposes the temperature volume-wide (no heat equation is solved); "
                        "use SURF (outer) and POINT (interface) THERMO DIRICH")
+        # a temperature condition filed under the STRUCTURAL Dirichlet family: 4C stops with
+        # '1 DOFs given but 3 expected in Point Dirichlet boundary condition' (measured)
+        for b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", text, flags=re.M):
+            head = b.split(":", 1)[0].strip()
+            if re.fullmatch(r"DESIGN (POINT|LINE|SURF|VOL) DIRICH CONDITIONS", head) and re.search(r"\bNUMDOF:\s*1\b", b):
+                kind = head.split()[1]
+                why.append(f"{head} has an entry with NUMDOF 1: that family carries the 3 displacement dofs of the slab "
+                           f"(NUMDOF 3, ONOFF/VAL/FUNCT with three entries); a temperature value belongs in "
+                           f"DESIGN {kind} THERMO DIRICH CONDITIONS (NUMDOF 1)")
     if "Scalar_Transport" in text:
         if "THERMAL DYNAMIC:" in text and "SCALAR TRANSPORT DYNAMIC:" not in text:
             why.append("Scalar_Transport needs `SCALAR TRANSPORT DYNAMIC`, not `THERMAL DYNAMIC`")

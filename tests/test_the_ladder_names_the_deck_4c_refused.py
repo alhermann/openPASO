@@ -147,3 +147,17 @@ def test_a_console_without_verdict_is_quoted_not_called_missing(tmp_path):
     r = coupled_ladder(tmp_path)
     assert r["step"] == 2 and "no 4C console found" not in r["brief"]
     assert "ends without a finish" in r["text"] and "core dumped" in r["brief"]
+
+
+def test_a_temperature_in_the_structural_dirichlet_family_is_named():
+    """Measured on a te4c10 worker deck: a point temperature under DESIGN POINT DIRICH CONDITIONS with
+    NUMDOF 1 stops a TSI run with '1 DOFs given but 3 expected in Point Dirichlet boundary condition'."""
+    from tools.fourc_deck_lint import lint_deck
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\nCLONING MATERIAL MAP:\n  - SRC_FIELD: "structure"\n'
+            'TSI DYNAMIC/PARTITIONED:\n  COUPVARIABLE: "Temperature"\n'
+            'DESIGN POINT DIRICH CONDITIONS:\n  - E: 1\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [0.5]\n    FUNCT: [0]\n'
+            'DESIGN POINT THERMO DIRICH CONDITIONS:\n  - E: 1\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [0.5]\n    FUNCT: [0]\n'
+            'DNODE-NODE TOPOLOGY:\n  - "NODE 1 DNODE 1"\n')
+    why = lint_deck(deck)
+    assert any("DESIGN POINT DIRICH CONDITIONS has an entry with NUMDOF 1" in w and "THERMO DIRICH" in w for w in why), why
+    assert not any("THERMO DIRICH CONDITIONS has an entry" in w for w in why)

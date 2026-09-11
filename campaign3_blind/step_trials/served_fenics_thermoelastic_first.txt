@@ -152,6 +152,19 @@ T_INIT, UX_INIT, UY_INIT = 0.0, 0.0, 0.0   # iteration-1 fallback field
 Q_INIT    = (0.0, 0.0, 0.0)                # iteration-1 fallback flux/traction
 # ─────────────────────────────────────────────────────────────────────────
 
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides NX, NY and names the level; the per-level
+#    dumps below carry that level so the coarse levels survive the fine ones.
+LEVEL = 1
+if Path("config.json").is_file():
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
 OUTER_X = X0 if abs(IFACE_X - X1) < abs(IFACE_X - X0) else X1
 S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at the interface = S*e_x
 
@@ -393,6 +406,21 @@ if SIDE == "neumann" and _qin.size:
 if SIDE == "dirichlet" and _qin.shape == Q.shape and Q.size and np.array_equal(Q, -_qin):
     raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array negated, bit for bit")
 
+# PER-LEVEL PERSISTENCE: this level's whole field (x, y, T, ux, uy at the nodes)
+# and its interface trace, flux and OUTWARD traction (tx = -qx, ty = -qy), named
+# by LEVEL, never overwritten by the next level (exports.json is). Build the
+# task's per-level files from these.
+xyT_all = ST.tabulate_dof_coordinates()
+with open(f"field_level{LEVEL}.csv", "w") as _f:
+    _f.write("x,y,T,ux,uy\n")
+    for _i, (_px, _py) in enumerate(xyT_all[:, :2]):
+        _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(Th.x.array[_i]):.11e},"
+                 f"{float(Uh.x.array[2 * _i]):.11e},{float(Uh.x.array[2 * _i + 1]):.11e}\n")
+with open(f"interface_level{LEVEL}.csv", "w") as _f:
+    _f.write("x,y,T,ux,uy,qn,tx,ty\n")
+    for _y, (_t, _ux, _uy), (_qn, _qx, _qy) in zip(y_if, V, Q):
+        _f.write(f"{float(IFACE_X):.11e},{float(_y):.11e},{float(_t):.11e},{float(_ux):.11e},"
+                 f"{float(_uy):.11e},{float(_qn):.11e},{float(-_qx):.11e},{float(-_qy):.11e}\n")
 # exports.json LAST: the driver takes its existence as proof of success.
 Path("exports.json").write_text(json.dumps({
     "field_name": "thermoelastic",

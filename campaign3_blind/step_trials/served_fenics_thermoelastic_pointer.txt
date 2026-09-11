@@ -128,6 +128,19 @@ T_INIT, UX_INIT, UY_INIT = 0.0, 0.0, 0.0   # iteration-1 fallback field
 Q_INIT    = (0.0, 0.0, 0.0)                # iteration-1 fallback flux/traction
 # ─────────────────────────────────────────────────────────────────────────
 
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides NX, NY and names the level; the per-level
+#    dumps below carry that level so the coarse levels survive the fine ones.
+LEVEL = 1
+if Path("config.json").is_file():
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
 OUTER_X = X0 if abs(IFACE_X - X1) < abs(IFACE_X - X0) else X1
 S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at the interface = S*e_x
 
@@ -369,6 +382,21 @@ if SIDE == "neumann" and _qin.size:
 if SIDE == "dirichlet" and _qin.shape == Q.shape and Q.size and np.array_equal(Q, -_qin):
     raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's array negated, bit for bit")
 
+# PER-LEVEL PERSISTENCE: this level's whole field (x, y, T, ux, uy at the nodes)
+# and its interface trace, flux and OUTWARD traction (tx = -qx, ty = -qy), named
+# by LEVEL, never overwritten by the next level (exports.json is). Build the
+# task's per-level files from these.
+xyT_all = ST.tabulate_dof_coordinates()
+with open(f"field_level{LEVEL}.csv", "w") as _f:
+    _f.write("x,y,T,ux,uy\n")
+    for _i, (_px, _py) in enumerate(xyT_all[:, :2]):
+        _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(Th.x.array[_i]):.11e},"
+                 f"{float(Uh.x.array[2 * _i]):.11e},{float(Uh.x.array[2 * _i + 1]):.11e}\n")
+with open(f"interface_level{LEVEL}.csv", "w") as _f:
+    _f.write("x,y,T,ux,uy,qn,tx,ty\n")
+    for _y, (_t, _ux, _uy), (_qn, _qx, _qy) in zip(y_if, V, Q):
+        _f.write(f"{float(IFACE_X):.11e},{float(_y):.11e},{float(_t):.11e},{float(_ux):.11e},"
+                 f"{float(_uy):.11e},{float(_qn):.11e},{float(-_qx):.11e},{float(-_qy):.11e}\n")
 # exports.json LAST: the driver takes its existence as proof of success.
 Path("exports.json").write_text(json.dumps({
     "field_name": "thermoelastic",
@@ -534,40 +562,10 @@ wi = wvec.array[iface_dofs]
 
 Q = np.zeros(len(iface_dofs))
 ok = np.abs(wi) > 1e-14
-Q[ok] = -r.array[iface_dofs][ok] / wi[ok]
-
-# An interface node that ALSO lies on the outer Dirichlet boundary carries
-# the OUTER reaction as well, so its residual is not this interface's flux
-# ... (explanation continues in the annotated block)
-suspect = np.isin(iface_dofs, outer_dofs) | ~ok
-good = np.where(~suspect)[0]
-if len(good):
-    for i in np.where(suspect)[0]:
-        Q[i] = Q[good[np.argmin(np.abs(good - i))]]
-
-T = uh.x.array[iface_dofs]
-print(f"[fenics {SIDE}] interface n={len(T)} "
-      f"T=[{T.min():.6g},{T.max():.6g}] q=[{Q.min():.6g},{Q.max():.6g}]")
-
-# EACH SIDE COMPUTES ITS OWN FLUX. NEVER WRITE THE PARTNER'S NEGATED.
-#
-# ... (explanation continues in the annotated block)
-# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
-#    fine and are worthless: a non-finite field; a Neumann side whose imported
-#    load never entered the assembled system (it returns the no-load answer and
-# ... (explanation continues in the annotated block)
-_chk_vals = np.asarray(T, float).ravel()
-_chk_flux = np.asarray(Q, float).ravel()
-if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
-    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or fluxes; "
-                     "the solve did not produce a usable field, so nothing was "
-                     "exported")
-_chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
-            if Path("imports.json").is_file() else {})
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 63,586 further characters exist and are NOT lost.
+THIS PAYLOAD IS TRUNCATED HERE. 65,046 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 27,915 of 91,135 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fenics', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 27,980 of 92,660 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fenics', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.

@@ -504,7 +504,7 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   postmortems JSON is no longer broken by appended prose (commits 44ec65d0,
   6b834c6f and after). Round 10 (30b6d46c) runs without these; round 11
   will carry them.
-- 03:55: THE RUN-LOG CONTRACT LINE. The task's execution-log contract is
+- 03:45: THE RUN-LOG CONTRACT LINE. The task's execution-log contract is
   `NDOF = <integer>` on a line of its own; the served scaffolds printed it
   inside a prose line ("4C Neumann participant: NDOF = 187  max|u| = ..."),
   which neither the grader nor OASiS's own audit reads -- the recurring

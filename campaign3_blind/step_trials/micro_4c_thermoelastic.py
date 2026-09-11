@@ -1,6 +1,6 @@
 """Micro-test (the real step): can the 27B, as a focused worker, write the 4C DIRICHLET-side THERMO-ELASTIC
 participant (two decks per level, 4C run twice, flux + traction recovered, exports.json written) from exactly
-what OASiS serves for physics='thermoelastic'?  Usage: python micro_4c_thermoelastic.py <n> [tag] [repairs].
+what OASiS serves for physics='thermoelastic'?  Usage: python micro_4c_thermoelastic.py <n> [tag] [repairs] [extra_served_file,...].
 Graded by RUNNING the script against a manufactured thermo-elastic solution (never the campaign's)."""
 import os, re, sys, json, subprocess, tempfile, time
 from pathlib import Path
@@ -15,6 +15,10 @@ PY = "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python"
 served = (HERE / "served_fourc_thermoelastic_pointer.txt").read_text()
 if "THE 4C DECK GRAMMAR" not in served:
     served += "\n\n" + (HERE / "served_fourc_grammar.txt").read_text()
+# argv[4]: extra served replies (comma-separated files), e.g. the prepare_simulation(solver='fourc',
+# physics='tsi') reply a real agent can fetch (its 3x3 illustrative template and the corpus TSI tests).
+for _extra in (sys.argv[4].split(",") if len(sys.argv) > 4 and sys.argv[4] else []):
+    served += "\n\n# ---- reply of another OASiS door the agent can call ----\n" + Path(_extra).read_text()
 
 LX, LY = 0.8, 1.0; KV, LAM, MU, BETA = 2.0, 500.0, 300.0, 1.0
 x, y = sp.symbols("x y")

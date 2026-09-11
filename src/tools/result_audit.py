@@ -2423,6 +2423,50 @@ def what_to_fix_next(findings, *, converged: bool = True,
     return head
 
 
+
+def _fourc_deck_state(side: Path, work: Path) -> dict | None:
+    """What 4C left in a participant's directory, as the next sub-step: which deck it refused
+    (its own error lines, the defects named from the deck text) or which runs finished.
+    None when the directory holds no deck and no 4C console yet."""
+    try:
+        from tools.fourc_deck_lint import side_dir_report   # noqa: PLC0415
+        rep = side_dir_report(side)
+    except Exception:                                       # noqa: BLE001
+        return None
+    if not (rep["decks"] or rep["errors"] or rep["finished"]):
+        return None
+    try:
+        rel = str(side.relative_to(work))
+    except ValueError:
+        rel = side.name
+    parts, what = [], []
+    if rep["finished"]:
+        fin = ", ".join(f"{p} ({', '.join(k)})" for p, k in rep["finished"].items())
+        what.append(f"finished run(s): {fin}")
+        parts.append(f"the run(s) with output prefix {', '.join(rep['finished'])} finished (VTU on disk) -- leave them")
+    if rep["monitors"]:
+        parts.append(f"{len(rep['monitors'])} reaction-monitor file(s) exist")
+    for lg, said in rep["errors"].items():
+        what.append(f"4C stopped ({lg})")
+        parts.append(f"4C's own error in {lg}: {said}")
+    for dk, why in rep["defects"].items():
+        what.append(f"{dk}: {len(why)} defect(s)")
+        parts.append(f"deck {dk}: " + "; ".join(why))
+    if not rep["errors"] and not rep["defects"]:
+        if rep["finished"]:
+            what.append("no exports.json")
+            parts.append("every 4C run finished and no defect is named, so the participant stopped in its "
+                         "recovery or export: run it again and read ITS stderr from the top (the served "
+                         "check names the missing output)")
+        else:
+            what.append("deck(s) written, no 4C console found")
+            parts.append("no 4C console log lies next to the deck(s): run the binary line-buffered "
+                         "(stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1) and read the log from the top")
+    brief = (f"the directory {rel} holds " + "; ".join(parts) + ". Fix exactly the named deck against "
+             "the grammar (`4C -p`, prepare_simulation(solver='fourc', physics=...)) and re-run that deck "
+             "until its VTU folder appears; a deck that ran is not touched.")
+    return {"what": "; ".join(what) + ".", "brief": brief}
+
 def coupled_ladder(work: Path) -> dict | None:
     """The next unmet step of a partitioned coupled run, read from the files,
     phrased as the brief of the sub-agent that should do it.
@@ -2541,6 +2585,19 @@ def coupled_ladder(work: Path) -> dict | None:
     unrun = [q for q in scripts if q.parent not in dirs_with_export]
     if len(dirs_with_export) < 2 and unrun:
         who = ", ".join(str(q.relative_to(work)) for q in unrun[:2])
+        # A 4C SIDE THAT ALREADY RAN THE BINARY: the step is the deck 4C refused, not the
+        # whole participant. The side directory holds 4C's own verdict -- its error block
+        # in the captured console, the VTU folder of every run that finished, the reaction
+        # monitor files -- and the deck defects OASiS can name from the deck text. Put
+        # them in the brief, so the worker starts from the defect (measured: a worker
+        # handed the whole step again rewrote the deck from scratch and hit the same
+        # section a second time). Reads only the agent's own files; writes nothing.
+        deck_state = _fourc_deck_state(unrun[0].parent, work)
+        if deck_state:
+            return step(2, f"MAKE THE 4C DECK RUN in {who}: {deck_state['what']}",
+                        f"In the directory of {who}: {deck_state['brief']} Then run the participant again "
+                        "with its interpreter. CHECK: ./exports.json appears beside the script with finite "
+                        "values and the script exited 0.")
         return step(2, f"RUN EACH PARTICIPANT STANDALONE: {who} has not exported yet.",
                     f"In the directory of {who}: write a synthetic ./imports.json (the partner's field name, "
                     "coordinates along the interface, values and normal_fluxes -- plausible numbers) and "

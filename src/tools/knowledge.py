@@ -294,7 +294,7 @@ IF YOU HAVE DELIVERED AND WANT TO KNOW WHETHER IT IS RIGHT
    (7% of all runs), and a field off by orders of magnitude in its overall size.
 
    YOUR OWN CONVERGENCE VERDICT DOES NOT SEPARATE THEM. Measured, a run's
-   MESH_INDEPENDENCE = NOT_CONVERGED catches about three quarters of the wrong
+   own not-converged verdict catches about three quarters of the wrong
    runs, but it also fires on HALF the correct ones, so on its own it says
    almost nothing. What is falsifiable, with no reference answer:
      a. DOES YOUR FIELD SATISFY THE EQUATION YOU WERE GIVEN? Pick a smooth
@@ -664,7 +664,7 @@ SEVEN RULES THAT APPLY WHATEVER YOU ASKED FOR
    converges cleanly — and the failures that survive that do not show up in a
    refinement study at all: a solution converging beautifully TO THE WRONG
    FUNCTION, and a field off by orders of magnitude in size. Your own
-   MESH_INDEPENDENCE verdict
+   mesh-independence verdict
    does not separate them: it catches three quarters of the wrong runs and also
    fires on HALF the correct ones.
 

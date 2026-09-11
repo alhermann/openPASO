@@ -2250,36 +2250,6 @@ def _vector_block(script_name: str) -> str:
         f"```python\n{_serve_participant(p)}```\n")
 
 
-FOURC_THERMOELASTIC_HEADERS = """\
-HEADER_T (deck T, PROBLEMTYPE "Scalar_Transport", DIM 2): SCALAR TRANSPORT DYNAMIC {TIMEINTEGR "Stationary",
-SOLVERTYPE "linear_full", VELOCITYFIELD "zero", TIMESTEP/NUMSTEP/MAXTIME 1, LINEAR_SOLVER 1, CALCFLUX_BOUNDARY
-"diffusive"}; IO/RUNTIME VTK OUTPUT {INTERVAL_STEPS 1} and NO other IO section; SOLVER 1 {SOLVER "UMFPACK"};
-MATERIALS: MAT 1 MAT_scatra {DIFFUSIVITY KV}; FUNCT1 {SYMBOLIC_FUNCTION_OF_SPACE_TIME "<SRC_T>"} with a DESIGN SURF
-NEUMANN CONDITIONS entry {E 1, NUMDOF 1, ONOFF [1], VAL [1.0], FUNCT [1]} so the source enters the load; DESIGN LINE
-DIRICH CONDITIONS {E 1, NUMDOF 1, ONOFF [1], VAL [<outer T>], FUNCT [0]} on the outer line; SCATRA FLUX CALC LINE
-CONDITIONS {- E: 2} (the interface line). Then deck_T_tables() -- nothing else.
-
-HEADER_U (deck U, PROBLEMTYPE "Thermo_Structure_Interaction", DIM 3): IO {STRUCT_STRESS "No", STRUCT_STRAIN "No"};
-IO/MONITOR STRUCTURE DBC {INTERVAL_STEPS 1, FILE_TYPE yaml, WRITE_CONDITION_INFORMATION true}; STRUCTURAL DYNAMIC
-{DYNAMICTYPE "Statics", TIMESTEP/NUMSTEP/MAXTIME 1, LINEAR_SOLVER 2}; THERMAL DYNAMIC {DYNAMICTYPE Statics, same
-steps, LINEAR_SOLVER 1}; TSI DYNAMIC {COUPALGO "tsi_oneway", NUMSTEP/MAXTIME/TIMESTEP 1, ITEMAX 1}; TSI
-DYNAMIC/PARTITIONED {COUPVARIABLE "Temperature"}; IO/RUNTIME VTK OUTPUT {INTERVAL_STEPS 1}; IO/RUNTIME VTK
-OUTPUT/STRUCTURE {OUTPUT_STRUCTURE true, DISPLACEMENT true}; THERMAL DYNAMIC/RUNTIME VTK OUTPUT {OUTPUT_THERMO true,
-TEMPERATURE true}; SOLVER 1 and SOLVER 2 {SOLVER "UMFPACK"}; MATERIALS: MAT 1 MAT_Struct_ThermoStVenantK {YOUNGNUM 1,
-YOUNG [E_MOD], NUE NU, DENS 1, THEXPANS ALPHA, INITTEMP 0, THERMOMAT 2}, MAT 2 MAT_Fourier {CAPA 1, CONDUCT:
-constant: [KV]}; CLONING MATERIAL MAP {- SRC_FIELD "structure", SRC_MAT 1, TAR_FIELD "thermo", TAR_MAT 2};
-FUNCT1 "<SRC_UX>", FUNCT2 "<SRC_UY>", FUNCT3 "<SRC_T>"; DESIGN VOL NEUMANN CONDITIONS {E 1, NUMDOF 3, ONOFF [1,1,0],
-VAL [1.0,1.0,0.0], FUNCT [1,2,0]} (body force); DESIGN VOL THERMO NEUMANN CONDITIONS {E 1, NUMDOF 1, ONOFF [1],
-VAL [1.0], FUNCT [3]} (heat source); DESIGN VOL DIRICH CONDITIONS {E 1, NUMDOF 3, ONOFF [0,0,1], VAL [0,0,0],
-FUNCT [0,0,0]} (u_z = 0, plane strain); DESIGN SURF DIRICH CONDITIONS {E 1, NUMDOF 3, ONOFF [1,1,1], VAL [0,0,0],
-FUNCT [0,0,0]} and DESIGN SURF THERMO DIRICH CONDITIONS {E 1, NUMDOF 1, ONOFF [1], VAL [0], FUNCT [0]} (or the
-task's outer values). Then deck_U_tables() -- nothing else. All three VOL conditions share E 1 (one DVOL), both
-SURF conditions share E 1 (one DSURFACE); the tables carry those ids and every point condition.
-
-Run each deck line-buffered with its console in a log: stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1;
-on a non-zero exit fall through (the served check reads the log). Topology entry words are DNODE, DLINE,
-DSURFACE, DVOL only (a DVOLUME entry defines nothing and 4C silently drops the conditions on it).
-"""
 
 
 def _thermo_notice(script_name: str) -> str:
@@ -2328,11 +2298,6 @@ def _thermoelastic_block(script_name: str) -> str:
         "(qx, qy). Both are recovered from THIS side's own assembled systems "
         "(4C: its own boundary-flux VTU and its Dirichlet reaction monitor), "
         "never by differencing a P1 field on the boundary.\n\n"
-        + (("THE TWO DECK HEADERS (hole 2 of the block below; deck grammar measured on this binary). "
-            "Each deck is HEADER_T + deck_T_tables() and HEADER_U + deck_U_tables(); a header carries "
-            "exactly these sections and nothing the served tables already carry:\n\n"
-            + FOURC_THERMOELASTIC_HEADERS + "\n")
-           if script_name == "fourc" else "")
         + f"```python\n{_serve_participant(p)}```\n")
 
 

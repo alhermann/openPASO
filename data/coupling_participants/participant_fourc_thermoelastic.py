@@ -3,14 +3,14 @@
     exports  normal_fluxes = [qn, qx, qy]  qn = -(k grad T).n_out, (qx, qy) = -(sigma_tot.n_out)
 The traction uses the heat flux's sign rule (minus the flux through n_out): the two sides' exports
 cancel and the Neumann partner applies them UNCHANGED. The task's OUTWARD traction is MINUS (qx, qy).
-TWO 4C RUNS PER ITERATION (hole 2, both under a second): run T, a 2-D Scalar_Transport deck with
+TWO 4C RUNS PER ITERATION (your hole, both under a second): run T, a 2-D Scalar_Transport deck with
 CALCFLUX_BOUNDARY "diffusive" (4C's consistent boundary flux); run U, a Thermo_Structure_Interaction
 deck on a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab with u_z pinned (exact plane strain), tsi_oneway,
 COUPVARIABLE Temperature, MAT_Struct_ThermoStVenantK (alpha = beta/(3 lambda + 2 mu), INITTEMP 0),
 `TAG: monitor_reaction` on the interface point conditions: 4C writes <out>-<id>_monitor_dbc.yaml per
 condition (node gid ZERO-based, force f) and (f_layer0 + f_layer1)/(h*t_z) IS the exported traction
-(measured order 2.0). SERVED: handshake, node classification, point conditions and deck tables,
-finish diagnosis, recovery, self-checks, exports. YOURS: hole 1 (node layout), hole 2 (headers, runs).
+(measured order 2.0). SERVED: the handshake, the finish diagnosis, the recovery, self-checks and
+the exports. YOURS: the mesh (the 2-D layout and the slab), both decks and both runs.
 config.json: {"level","nx","ny","x0","x1","y0","y1","k","lam","mu","beta","iface":"left|right|
 bottom|top","source_T","source_ux","source_uy" (4C expressions: '^', lowercase pi),"fourc_bin","fourc_ld"}
 """
@@ -148,122 +148,28 @@ def _diagnose_at_exit():
 
 atexit.register(_diagnose_at_exit)
 
-# ── HOLE 1 (yours): the 2-D node layout of this subdomain. Build the NX x NY
-#    structured grid on [X0, X1] x [Y0, Y1] and leave behind
-#      nodes   the list of (x, y) tuples; 4C node id = list index + 1
-#      quads   the list of 4-tuples of node ids, each quad counter-clockwise
-#              (i,j), (i+1,j), (i+1,j+1), (i,j+1)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
-hx, hy = (X1 - X0) / NX, (Y1 - Y0) / NY
-nodes = [(X0 + i * hx, Y0 + j * hy) for j in range(NY + 1) for i in range(NX + 1)]
-def _gid(i, j):
-    return 1 + i + (NX + 1) * j
-quads = [(_gid(i, j), _gid(i + 1, j), _gid(i + 1, j + 1), _gid(i, j + 1)) for j in range(NY) for i in range(NX)]
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
-
-# ── THE INTERFACE HANDSHAKE ONTO YOUR NODES (served): interface / interior / outer
-#    by coordinate, the slab numbering, and the point conditions and tables of both decks ──
-N2 = len(nodes)
-_TOL = 1e-9 * max(X1 - X0, Y1 - Y0)
-_AX, _VAL = {"left": (0, X0), "right": (0, X1), "bottom": (1, Y0), "top": (1, Y1)}[IF]
-def _on_edge(n):
-    x, y = nodes[n - 1]
-    return abs(x - X0) < _TOL or abs(x - X1) < _TOL or abs(y - Y0) < _TOL or abs(y - Y1) < _TOL
-iface_all = sorted([n for n in range(1, N2 + 1) if abs(nodes[n - 1][_AX] - _VAL) < _TOL],
-                   key=lambda n: nodes[n - 1][1 - _AX])
-if len(iface_all) < 3:
-    raise SystemExit(f"only {len(iface_all)} node(s) lie on the {IF} edge x/y = {_VAL}: `nodes` and config disagree")
-interior = iface_all[1:-1]                      # the two ENDPOINTS keep the outer datum (they are outer nodes)
-outer = [n for n in range(1, N2 + 1) if _on_edge(n) and n not in set(interior)]
-TZ = min((X1 - X0) / NX, (Y1 - Y0) / NY)        # slab thickness: one well-shaped HEX8 layer
-def gid3(n, layer):
-    """4C node id of 2-D node n on slab layer 0 (z = 0) or 1 (z = TZ): the second layer follows the first."""
-    return n + layer * N2
-_g = {n: partner_values(nodes[n - 1][1 - _AX]) for n in interior}     # (T, ux, uy) per interior node
-
-def scatra_point_conditions():
-    """Deck T: `DESIGN POINT DIRICH CONDITIONS` entries imposing the partner's T on the interior interface
-    nodes, and the matching `DNODE-NODE TOPOLOGY` entries (DNODE ids 1..len(interior))."""
-    cond, topo = [], []
-    for d, n in enumerate(interior, 1):
-        cond.append(f"  - E: {d}\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [{_g[n][0]:.17g}]\n    FUNCT: [0]\n")
-        topo.append(f'  - "NODE {n} DNODE {d}"\n')
-    return "".join(cond), "".join(topo)
-
-def slab_point_conditions():
-    """Deck U: the partner's (ux, uy) as `DESIGN POINT DIRICH CONDITIONS` entries (NUMDOF 3, u_z = 0,
-    TAG: monitor_reaction) and its T as `DESIGN POINT THERMO DIRICH CONDITIONS` entries, on BOTH slab
-    layers of every interior interface node, with one DNODE per node-and-layer, ids continuous across
-    the two families; plus the matching `DNODE-NODE TOPOLOGY` entries."""
-    struct, thermo, topo = [], [], []
-    d = 0
-    for n in interior:
-        T, ux, uy = _g[n]
-        for layer in (0, 1):
-            d += 1
-            struct.append(f"  - E: {d}\n    NUMDOF: 3\n    ONOFF: [1, 1, 1]\n    VAL: [{ux:.17g}, {uy:.17g}, 0.0]\n"
-                          f"    FUNCT: [0, 0, 0]\n    TAG: monitor_reaction\n")
-            thermo.append(f"  - E: {d}\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [{T:.17g}]\n    FUNCT: [0]\n")
-            topo.append(f'  - "NODE {gid3(n, layer)} DNODE {d}"\n')
-    return "".join(struct), "".join(thermo), "".join(topo)
-
-def scatra_topology():
-    """Deck T: `DLINE-NODE TOPOLOGY` (DLINE 1 = the outer boundary nodes, DLINE 2 = every interface node)
-    and `DSURF-NODE TOPOLOGY` (every node on DSURFACE 1, the surface the source load acts on)."""
-    dline = "".join(f'  - "NODE {n} DLINE 1"\n' for n in outer) + "".join(f'  - "NODE {n} DLINE 2"\n' for n in iface_all)
-    dsurf = "".join(f'  - "NODE {n} DSURFACE 1"\n' for n in range(1, N2 + 1))
-    return dline, dsurf
-
-def slab_topology():
-    """Deck U: `DSURF-NODE TOPOLOGY` (the outer boundary nodes of BOTH layers on DSURFACE 1) and
-    `DVOL-NODE TOPOLOGY` (every node of both layers on DVOL 1)."""
-    dsurf = "".join(f'  - "NODE {gid3(n, layer)} DSURFACE 1"\n' for layer in (0, 1) for n in outer)
-    dvol = "".join(f'  - "NODE {n} DVOL 1"\n' for n in range(1, 2 * N2 + 1))
-    return dsurf, dvol
-
-def deck_T_tables():
-    """Deck T's TABLES, from YOUR nodes and quads and the partner's data: the interface point
-    conditions, NODE COORDS, TRANSPORT ELEMENTS and the DLINE / DNODE / DSURF topology. Append this to
-    YOUR deck-T header (the sections listed below; do not repeat any of these sections in the header)."""
-    cond, dn = scatra_point_conditions()
-    dline, dsurf = scatra_topology()
-    out = "DESIGN POINT DIRICH CONDITIONS:\n" + cond
-    out += "NODE COORDS:\n" + "".join(f'  - "NODE {n} COORD {x:.15f} {y:.15f} 0.0"\n' for n, (x, y) in enumerate(nodes, 1))
-    out += "TRANSPORT ELEMENTS:\n" + "".join(f'  - "{e} TRANSP QUAD4 {a} {b} {c} {d} MAT 1 TYPE Std"\n'
-                                             for e, (a, b, c, d) in enumerate(quads, 1))
-    out += "DLINE-NODE TOPOLOGY:\n" + dline + "DNODE-NODE TOPOLOGY:\n" + dn + "DSURF-NODE TOPOLOGY:\n" + dsurf
-    return out
-
-def deck_U_tables():
-    """Deck U's TABLES, from YOUR nodes and quads and the partner's data: both point-condition families,
-    NODE COORDS of both slab layers, SOLIDSCATRA HEX8 elements and the DNODE / DSURF / DVOL topology.
-    Append this to YOUR deck-U header (do not repeat any of these sections in the header)."""
-    struct, thermo, dn = slab_point_conditions()
-    dsurf, dvol = slab_topology()
-    out = "DESIGN POINT DIRICH CONDITIONS:\n" + struct + "DESIGN POINT THERMO DIRICH CONDITIONS:\n" + thermo
-    out += "NODE COORDS:\n" + "".join(f'  - "NODE {gid3(n, 0)} COORD {x:.15f} {y:.15f} 0.0"\n' for n, (x, y) in enumerate(nodes, 1))
-    out += "".join(f'  - "NODE {gid3(n, 1)} COORD {x:.15f} {y:.15f} {TZ:.15f}"\n' for n, (x, y) in enumerate(nodes, 1))
-    out += "STRUCTURE ELEMENTS:\n" + "".join(
-        f'  - "{e} SOLIDSCATRA HEX8 {a} {b} {c} {d} {gid3(a, 1)} {gid3(b, 1)} {gid3(c, 1)} {gid3(d, 1)} '
-        f'MAT 1 KINEM linear TYPE Undefined"\n' for e, (a, b, c, d) in enumerate(quads, 1))
-    out += "DNODE-NODE TOPOLOGY:\n" + dn + "DSURF-NODE TOPOLOGY:\n" + dsurf + "DVOL-NODE TOPOLOGY:\n" + dvol
-    return out
-
-# ── HOLE 2 (yours): the two deck HEADERS and the two runs. Each deck is YOUR header
-#    string (physics, dynamics, solvers, material, sources, outer boundary sections --
-#    the exact section list is in the door's text right after this block) followed by
-#    the served tables: HEADER_T + deck_T_tables() and HEADER_U + deck_U_tables().
-#    Run each with the binary at config fourc_bin (libraries on fourc_ld), line-buffered
+# ── THE HOLE (yours): the mesh, the two decks and the two runs. OASiS serves the
+#    handshake above and the recovery below; what 4C solves is YOUR deck. Build this
+#    subdomain's 2-D node layout (NX x NY on [X0, X1] x [Y0, Y1]) and, for deck U, the
+#    one-element-thick slab (a second node layer at z = TZ). Classify your interface
+#    nodes yourself: partner_values(coord) returns the partner's (T, ux, uy) at one
+#    interface coordinate, and the two interface ENDPOINTS are outer nodes that keep the
+#    outer datum. Write deck T (Scalar_Transport, 2-D, with 4C's consistent boundary flux
+#    on the interface line) and deck U (the TSI slab, with the partner's T and (ux, uy)
+#    as point conditions on both layers and the reactions of those conditions monitored)
+#    for the problem you were given: the grammar is `4C -p`,
+#    prepare_simulation(solver='fourc', physics=...) and knowledge(solver='fourc').
+#    Run each deck line-buffered with its console in a log
 #    (stdbuf -oL -eL <bin> <deck> <prefix> > <deck>.log 2>&1); on a non-zero exit FALL
-#    THROUGH, the served check reads the log. LEAVE BEHIND: OUT_T and OUT_U (the two
-#    output prefixes) and DECK_U (the FILE NAME you wrote deck U to, e.g. "deck_U.4C.yaml").
+#    THROUGH, the served check reads the log. LEAVE BEHIND exactly these names:
+#      nodes     the list of (x, y) of the 2-D layout; deck node id on the z = 0 layer = index + 1
+#      interior  the 1-based ids of the interface nodes WITHOUT the two endpoints, in order along it
+#      TZ        the slab thickness (one well-shaped HEX8 layer)
+#      OUT_T, OUT_U   the two output prefixes;  DECK_U   the file name you wrote deck U to
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
-# Write HEADER_T and HEADER_U (the sections above, as strings), write the decks
-# as HEADER_T + deck_T_tables() and HEADER_U + deck_U_tables(), run both, and
-# leave behind OUT_T, OUT_U, DECK_U.
-OUT_T, OUT_U, DECK_U = "out_T", "out_U", "deck_U.4C.yaml"
-raise SystemExit("the deck-and-run hole above the recovery is not filled")
+raise SystemExit("the mesh-decks-and-runs hole above the recovery is not filled")
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+
 
 # ── RECOVERY FROM 4C's OWN OUTPUTS (served): boundary flux VTU, displacement VTU, reaction yaml ──
 import meshio  # noqa: E402

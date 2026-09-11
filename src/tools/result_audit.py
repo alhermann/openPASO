@@ -827,18 +827,19 @@ def contract_findings(work: Path) -> list[dict]:
         reported = None
         rt = _summary_file(work)
         if rt is not None and rt.is_file():
-            m = re.search(r"^\s*[A-Za-z_]*RESIDUAL[A-Za-z_]*\s*[=:]\s*([-+0-9.eE]+)",
+            m = re.search(r"^\s*([A-Za-z_]*RESIDUAL[A-Za-z_]*)\s*[=:]\s*([-+0-9.eE]+)",
                           rt.read_text(errors="ignore"), re.M | re.I)
             if m:
+                label = m.group(1)
                 try:
-                    reported = float(m.group(1))
+                    reported = float(m.group(2))
                 except ValueError:
                     reported = None
         worst = max(du, dq)
         if reported is not None and reported < 1e-5 and worst > 0.05:
             out.append({"sequence": "interface residual", "values": [],
                         "finding": (
-                f"YOU REPORT INTERFACE_RESIDUAL = {reported:.2e}, BUT YOUR OWN "
+                f"YOU REPORT {label} = {reported:.2e}, BUT YOUR OWN "
                 f"TWO INTERFACE FILES AT LEVEL {lvl} DISAGREE: the field "
                 f"differs by {du:.0%} of its own scale and the two outward "
                 f"fluxes fail to cancel by {dq:.0%}. A partitioned scheme is "
@@ -2354,7 +2355,7 @@ _PRIORITY_TABLE = [
     (30, ("ADD INSTEAD OF CANCELLING", "SAME SIGN", "WRONG SIGN",
           "FAIL TO CANCEL", "SIGN-CONVENTION")),
     (35, ("DISAGREE AT THE INTERFACE", "FIELD CONTINUITY")),
-    (40, ("IS NOT THE DISAGREEMENT", "YOU REPORT INTERFACE_RESIDUAL",
+    (40, ("IS NOT THE DISAGREEMENT", "YOU REPORT ",
           "SHRINKS TOO SLOWLY", "DOES NOT SHRINK", "INCONSISTENT WITH YOUR "
           "SOLVE", "NOT CANCELLING")),
     (45, ("DOES NOT MATCH THE TASK TEXT",)),

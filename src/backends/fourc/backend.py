@@ -1131,10 +1131,8 @@ class FourcBackend(SolverBackend):
             # type of material law for wall element"; SOLID QUAD4 ->
             # "Element 'SOLID' does not seem to know cell type
             # 'quad4'"). One SOLIDSCATRA HEX8
-            # layer with u_z fixed everywhere is exact plane strain. The
-            # temperature is SOLVED (Dirichlet x-faces, heat_source and
-            # body_force FUNCTs, clamped-face reactions monitored); temp_expr
-            # switches to the imposed-field mode.
+            # layer with u_z fixed everywhere is exact plane strain;
+            # temp_expr imposes a (partner-computed) temperature field.
             "tsi_plane_strain_2d":
                 lambda p: matched_tsi_plane_strain_input(
                     nx=min(int(p.get("nx", 16)), 64),
@@ -1148,9 +1146,7 @@ class FourcBackend(SolverBackend):
                     T_right=p.get("T_right", 450.0),
                     temp_expr=p.get("temp_expr"),
                     density=p.get("rho", 7850.0),
-                    conductivity=p.get("kappa", 1.0),
-                    heat_source=p.get("heat_source"),
-                    body_force=p.get("body_force")),
+                    conductivity=p.get("kappa", 1.0)),
             # tsi/oneway_3d: the corrected one-way (thermo->structure)
             # heated-beam input. Existed in inline_mesh since the
             # coupled_solve era but was never exposed as a variant —

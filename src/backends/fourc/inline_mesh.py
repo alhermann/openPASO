@@ -2134,51 +2134,37 @@ def matched_tsi_plane_strain_input(
     temp_expr: str | None = None,
     density: float = 7850.0,
     conductivity: float = 1.0, capacity: float = 1.0,
-    heat_source: str | None = None,
-    body_force: tuple | None = None,
 ) -> str:
     """4C thermo-elastic PLANE STRAIN via a pseudo-2D thin slab (one-way TSI).
 
     Why this exists: 4C has NO 2D TSI elements — every TSI corpus test is
     3D SOLIDSCATRA. The two 2D structural eletypes both dead-end when a
-    thermo material is attached (WALL QUAD4 + MAT_Struct_ThermoStVenantK,
-    SOLID QUAD4 on current builds), both reproduced live against a built 4C
-    binary. The correct route is the standard thin-slab trick implemented
-    here:
+    thermo material is attached:
+      * WALL QUAD4  + MAT_Struct_ThermoStVenantK
+          -> "Invalid type of material law for wall element" (4C_w1_mat.cpp:179)
+      * SOLID QUAD4 (any material, current builds)
+          -> "Element 'SOLID' does not seem to know cell type 'quad4'"
+    Both reproduced live against a built 4C binary. The correct route is
+    the standard thin-slab trick implemented here:
 
       - 3D mesh [0,lx]x[0,ly]x[0,t] with ONE SOLIDSCATRA HEX8 layer in z
         (t defaults to ly/ny so elements stay well-shaped),
       - plane strain enforced exactly by fixing u_z on ALL nodes
         (DESIGN VOL DIRICH, ONOFF [0,0,1]),
-      - the x=0 face clamped (structural Dirichlet, all 3 dofs) with its
-        reactions monitored: TAG: monitor_reaction + IO/MONITOR STRUCTURE
-        DBC (FILE_TYPE yaml, WRITE_CONDITION_INFORMATION true) writes one
-        PREFIX-ID_monitor_dbc.yaml per condition with the node gids
-        (ZERO-based) and the reaction force f,
-      - TOLDISP/TOLRES 1e-6: a linear static problem converges in the
-        TangDis predictor, and an ABSOLUTE 1e-8 on a stiff material under a
-        real load (E = 200 GPa, a body force) is below roundoff of |K u|, so
-        4C stops with "The nonlinear solver did not converge!" (measured;
-        1e-6 runs, and relative norms do not help because the predictor's
-        first residual is already the converged one),
-      - COUPALGO tsi_oneway, Statics, single step: thermal expansion drives
-        the structural solve.
+      - the x=0 face clamped (structural Dirichlet, all 3 dofs),
+      - the temperature FIELD imposed on the whole volume via
+        DESIGN VOL THERMO DIRICH + FUNCT1 = ``temp_expr`` (also the thermal
+        initial field), so a partner code's temperature solution can be
+        passed in as a symbolic expression of x/y — the one-way coupled
+        (partner -> 4C) use case,
+      - COUPALGO tsi_oneway, Statics, single step: thermal expansion of
+        the imposed field drives the structural solve.
 
-    TWO MODES. Without ``temp_expr`` (the default since 2026-09-11) the slab
-    SOLVES its temperature: T_left on the x = 0 face and T_right on the
-    x = lx face as thermal Dirichlet data, ``heat_source`` (a 4C FUNCT
-    expression in x, y; '^' for powers, lowercase pi) as a DESIGN VOL THERMO
-    NEUMANN load and ``body_force`` (a pair of FUNCT expressions) as a DESIGN
-    VOL NEUMANN load. That is the shape a coupled thermo-elastic subdomain
-    needs; the version that imposed the temperature volume-wide was copied
-    by a run that then imposed T = 0 everywhere and never solved the heat
-    equation. With ``temp_expr`` the temperature FIELD is imposed
-    volume-wide (DESIGN VOL THERMO DIRICH + FUNCT1, also the thermal initial
-    field), the one-way partner->4C use case. The default field of both
-    modes is the linear profile between T_left and T_right, so the deck runs
-    rc=0 on a built 4C binary in either mode and the tip displacement tracks
-    the analytic plane-strain thermal-expansion estimate (see
-    tests/test_fourc_inline_tsi.py for the deck-level checks).
+    ``temp_expr`` defaults to the linear profile
+    "T_left + (T_right-T_left)*x/lx". The deck runs rc=0 on a built 4C
+    binary; validate the result yourself against the analytic
+    plane-strain thermal-expansion estimate for the parameters you pass
+    (see tests/test_fourc_inline_tsi.py for the deck-level checks).
     """
     nx = max(1, int(nx)); ny = max(1, int(ny))
     lz = float(thickness) if thickness else float(ly) / ny
@@ -2191,53 +2177,35 @@ def matched_tsi_plane_strain_input(
     ng = mesh["node_grid"]
 
     clamp_face = sorted({ng[(0, j, k)] for j in range(ny + 1) for k in (0, 1)})
-    far_face = sorted({ng[(nx, j, k)] for j in range(ny + 1) for k in (0, 1)})
     all_nodes = sorted(ng.values())
 
-    solve_T = not temp_expr
     if not temp_expr:
         temp_expr = f"{T_left} + ({T_right} - {T_left}) * x / {lx}"
-    title = ("solved temperature -> thermo-elastic expansion" if solve_T
-             else "imposed temperature field -> thermo-elastic expansion")
-    if solve_T:
-        thermal_dyn = (
-            "THERMAL DYNAMIC:\n"
-            "  DYNAMICTYPE: Statics\n"
-            "  TIMESTEP: 1.0\n"
-            "  NUMSTEP: 1\n"
-            "  MAXTIME: 1.0\n"
-            "  LINEAR_SOLVER: 1\n")
-    else:
-        thermal_dyn = (
-            "THERMAL DYNAMIC:\n"
-            '  INITIALFIELD: "field_by_function"\n'
-            "  INITFUNCNO: 1\n"
-            "  TIMESTEP: 1.0\n"
-            "  MAXTIME: 1.0\n"
-            "  LINEAR_SOLVER: 1\n")
 
     yaml = f'''TITLE:
-  - "TSI plane strain (pseudo-2D thin slab): {title}"
+  - "TSI plane strain (pseudo-2D thin slab): imposed temperature field -> thermo-elastic expansion"
 PROBLEM SIZE:
   DIM: 3
 PROBLEM TYPE:
   PROBLEMTYPE: "Thermo_Structure_Interaction"
-IO/MONITOR STRUCTURE DBC:
-  INTERVAL_STEPS: 1
-  FILE_TYPE: yaml
-  WRITE_CONDITION_INFORMATION: true
 STRUCTURAL DYNAMIC:
   INT_STRATEGY: Standard
   DYNAMICTYPE: "Statics"
   TIMESTEP: 1.0
   NUMSTEP: 1
   MAXTIME: 1.0
-  TOLDISP: 1e-6
-  TOLRES: 1e-6
+  TOLDISP: 1e-8
+  TOLRES: 1e-8
   MAXITER: 20
   LINEAR_SOLVER: 2
   PREDICT: TangDis
-{thermal_dyn}TSI DYNAMIC:
+THERMAL DYNAMIC:
+  INITIALFIELD: "field_by_function"
+  INITFUNCNO: 1
+  TIMESTEP: 1.0
+  MAXTIME: 1.0
+  LINEAR_SOLVER: 1
+TSI DYNAMIC:
   COUPALGO: "tsi_oneway"
   MAXTIME: 1.0
   TIMESTEP: 1.0
@@ -2275,65 +2243,14 @@ CLONING MATERIAL MAP:
     SRC_MAT: 1
     TAR_FIELD: "thermo"
     TAR_MAT: 2
+FUNCT1:
+  - COMPONENT: 0
+    SYMBOLIC_FUNCTION_OF_SPACE_TIME: "{temp_expr}"
 IO/RUNTIME VTK OUTPUT:
   INTERVAL_STEPS: 1
 IO/RUNTIME VTK OUTPUT/STRUCTURE:
   OUTPUT_STRUCTURE: true
   DISPLACEMENT: true
-THERMAL DYNAMIC/RUNTIME VTK OUTPUT:
-  OUTPUT_THERMO: true
-  TEMPERATURE: true
-'''
-    if solve_T:
-        src_T = (heat_source or "").strip().replace("**", "^")
-        has_src = bool(src_T) and src_T not in ("0", "0.0")
-        bf = tuple(str(b).strip().replace("**", "^") for b in (body_force or ()))
-        has_bf = len(bf) == 2
-        if has_src:
-            yaml += f'''FUNCT1:
-  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "{src_T}"
-'''
-        if has_bf:
-            yaml += f'''FUNCT2:
-  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "{bf[0]}"
-FUNCT3:
-  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "{bf[1]}"
-'''
-        yaml += f'''# The temperature is SOLVED: thermal Dirichlet on the two x-faces
-# (T_left at x = 0, T_right at x = lx); a heat source enters as a volume
-# load (FUNCT1), a body force as DESIGN VOL NEUMANN (FUNCT2, FUNCT3).
-DESIGN SURF THERMO DIRICH CONDITIONS:
-  - E: 1
-    NUMDOF: 1
-    ONOFF: [1]
-    VAL: [{T_left}]
-    FUNCT: [0]
-  - E: 2
-    NUMDOF: 1
-    ONOFF: [1]
-    VAL: [{T_right}]
-    FUNCT: [0]
-'''
-        if has_src:
-            yaml += '''DESIGN VOL THERMO NEUMANN CONDITIONS:
-  - E: 1
-    NUMDOF: 1
-    ONOFF: [1]
-    VAL: [1.0]
-    FUNCT: [1]
-'''
-        if has_bf:
-            yaml += '''DESIGN VOL NEUMANN CONDITIONS:
-  - E: 1
-    NUMDOF: 3
-    ONOFF: [1, 1, 0]
-    VAL: [1.0, 1.0, 0.0]
-    FUNCT: [2, 3, 0]
-'''
-    else:
-        yaml += f'''FUNCT1:
-  - COMPONENT: 0
-    SYMBOLIC_FUNCTION_OF_SPACE_TIME: "{temp_expr}"
 # Impose the (partner-supplied) temperature field on the whole volume:
 # thermal Dirichlet everywhere = the thermal solve reproduces FUNCT1
 # exactly, and one-way TSI turns it into thermal strain.
@@ -2343,23 +2260,20 @@ DESIGN VOL THERMO DIRICH CONDITIONS:
     ONOFF: [1]
     VAL: [1.0]
     FUNCT: [1]
-'''
-    yaml += '''# Plane strain: u_z = 0 on every node of the slab.
+# Plane strain: u_z = 0 on every node of the slab.
 DESIGN VOL DIRICH CONDITIONS:
   - E: 1
     NUMDOF: 3
     ONOFF: [0, 0, 1]
     VAL: [0.0, 0.0, 0.0]
     FUNCT: [0, 0, 0]
-# Clamped edge x=0 (all displacement dofs); TAG: monitor_reaction writes its
-# reactions to PREFIX-ID_monitor_dbc.yaml files (node gids zero-based).
+# Clamped edge x=0 (all displacement dofs).
 DESIGN SURF DIRICH CONDITIONS:
   - E: 1
     NUMDOF: 3
     ONOFF: [1, 1, 1]
     VAL: [0.0, 0.0, 0.0]
     FUNCT: [0, 0, 0]
-    TAG: monitor_reaction
 '''
 
     yaml += 'NODE COORDS:\n'
@@ -2371,9 +2285,6 @@ DESIGN SURF DIRICH CONDITIONS:
     yaml += 'DSURF-NODE TOPOLOGY:\n'
     for nid in clamp_face:
         yaml += f'  - "NODE {nid} DSURFACE 1"\n'
-    if solve_T:
-        for nid in far_face:
-            yaml += f'  - "NODE {nid} DSURFACE 2"\n'
     yaml += 'DVOL-NODE TOPOLOGY:\n'
     for nid in all_nodes:
         yaml += f'  - "NODE {nid} DVOL 1"\n'

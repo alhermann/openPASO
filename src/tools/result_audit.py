@@ -2527,7 +2527,12 @@ def coupled_ladder(work: Path) -> dict | None:
                         "prescribes by interpolating inside the element (never nearest node) and write the "
                         "per-level field file the task names; write the per-level interface file from that "
                         "side's own converged trace and its own outward flux at the prescribed interface "
-                        "points. CHECK: both sides' field files and interface files for this level exist and "
+                        "points. The interpolation is four lines (measured on a served per-level dump): "
+                        "a = numpy.loadtxt('field_level<k>.csv', delimiter=',', skiprows=1); "
+                        "v = scipy.interpolate.griddata(a[:, :2], a[:, 2], P, method='linear') with P the "
+                        "(n, 2) probe points; a NaN in v is a probe outside this side's subdomain (leave it to "
+                        "the other side); write x, y, v rows. "
+                        "CHECK: both sides' field files and interface files for this level exist and "
                         "audit_results(work_dir) reports no missing-fields finding for it.")
         sides_l = set()
         for q in logs:

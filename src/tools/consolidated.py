@@ -7215,6 +7215,12 @@ def _is_thermoelastic(physics: str) -> bool:
                                 "thermo_structure")) or p in ("tsi",)
 
 
+def _strip_notice(text: str) -> str:
+    """Drop the physics-less notice paragraph (see coupling_knowledge._thermo_notice)."""
+    import re as _re
+    return _re.sub(r"\n\nIF YOUR INTERFACE CARRIES TEMPERATURE AND DISPLACEMENT TOGETHER.*?scalar\) contract\.\n", "", text, count=1, flags=_re.S)
+
+
 def _promote_thermoelastic(payload: str) -> str:
     """Move the thermo-elastic section (heading, paragraph, fenced contract)
     in front of the scalar contract, so the first reply of a session and the
@@ -7238,7 +7244,9 @@ def _promote_thermoelastic(payload: str) -> str:
     anchor = rest.find("## PARTICIPANT CONTRACT")
     if anchor < 0:
         return payload
-    return rest[:anchor] + section.lstrip("\n") + "\n\n" + rest[anchor:]
+    out = rest[:anchor] + section.lstrip("\n") + "\n\n" + rest[anchor:]
+    # the physics-less notice does not apply once the thermo-elastic block leads
+    return _strip_notice(out)
 
 
 def _get_coupling_knowledge(solver: str = "", signal: str = "", physics: str = ""):

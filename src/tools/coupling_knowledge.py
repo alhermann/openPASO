@@ -2282,6 +2282,21 @@ DSURFACE, DVOL only (a DVOLUME entry defines nothing and 4C silently drops the c
 """
 
 
+def _thermo_notice(script_name: str) -> str:
+    """One paragraph after the payload's title, for a backend that ships a
+    thermo-elastic contract: the physics-less call is told where the other
+    contract is. Measured 2026-09-11: a thermo-elastic cell's worker called the
+    door without physics, got the scalar contract, invented a TSI deck from
+    memory ("TSI CONTROL is not a valid section") and filed a blocker."""
+    if not (_PARTICIPANT_DIR / f"participant_{script_name}_thermoelastic.py").is_file():
+        return ""
+    return ("\nIF YOUR INTERFACE CARRIES TEMPERATURE AND DISPLACEMENT TOGETHER (a thermo-elastic "
+            "task: T, ux, uy in, heat flux and traction out), THE CONTRACT BELOW IS NOT THE ONE "
+            f"FOR YOU: call knowledge(topic='coupling', solver='{script_name}', "
+            "physics='thermoelastic') and use the thermo-elastic contract it leads with. The "
+            "block below is the single-field (scalar) contract.\n")
+
+
 def _thermoelastic_block(script_name: str) -> str:
     """The THERMO-ELASTIC participant (temperature AND displacement through
     one interface state), when one ships for this backend.
@@ -2357,7 +2372,8 @@ def _payload(title: str, sides: str, script_name: str, launch: str,
       "`signal='participant:neumann:part1'`. The parts are the same "
       "contract as below, solve elided; there is no complete program to "
       "reconstruct.\n\n"
-      f"# Coupling participant: {title}\n\n"
+      f"# Coupling participant: {title}\n"
+            f"{_thermo_notice(script_name)}\n"
             f"## Sides this backend can take\n\n{sides}\n\n"
             f"{_RECAP}\n"
             f"## PARTICIPANT CONTRACT — COPY THIS INTO ITS OWN FILE NOW "

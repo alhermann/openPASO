@@ -376,9 +376,40 @@ def slab_topology():
     dvol = "".join(f'  - "NODE {n} DVOL 1"\n' for n in range(1, 2 * N2 + 1))
     return dsurf, dvol
 
-# ── HOLE 2 (yours): the two decks and the two runs. What each deck must contain
-#    (the deck grammar, measured on this binary); the point conditions and the
-#    topology tables come from the served functions above, the rest is yours ──
+def deck_T_tables():
+    """Deck T's TABLES, from YOUR nodes and quads and the partner's data: the interface point
+    conditions, NODE COORDS, TRANSPORT ELEMENTS and the DLINE / DNODE / DSURF topology. Append this to
+    YOUR deck-T header (the sections listed below; do not repeat any of these sections in the header)."""
+    cond, dn = scatra_point_conditions()
+    dline, dsurf = scatra_topology()
+    out = "DESIGN POINT DIRICH CONDITIONS:\n" + cond
+    out += "NODE COORDS:\n" + "".join(f'  - "NODE {n} COORD {x:.15f} {y:.15f} 0.0"\n' for n, (x, y) in enumerate(nodes, 1))
+    out += "TRANSPORT ELEMENTS:\n" + "".join(f'  - "{e} TRANSP QUAD4 {a} {b} {c} {d} MAT 1 TYPE Std"\n'
+                                             for e, (a, b, c, d) in enumerate(quads, 1))
+    out += "DLINE-NODE TOPOLOGY:\n" + dline + "DNODE-NODE TOPOLOGY:\n" + dn + "DSURF-NODE TOPOLOGY:\n" + dsurf
+    return out
+
+def deck_U_tables():
+    """Deck U's TABLES, from YOUR nodes and quads and the partner's data: both point-condition families,
+    NODE COORDS of both slab layers, SOLIDSCATRA HEX8 elements and the DNODE / DSURF / DVOL topology.
+    Append this to YOUR deck-U header (do not repeat any of these sections in the header)."""
+    struct, thermo, dn = slab_point_conditions()
+    dsurf, dvol = slab_topology()
+    out = "DESIGN POINT DIRICH CONDITIONS:\n" + struct + "DESIGN POINT THERMO DIRICH CONDITIONS:\n" + thermo
+    out += "NODE COORDS:\n" + "".join(f'  - "NODE {gid3(n, 0)} COORD {x:.15f} {y:.15f} 0.0"\n' for n, (x, y) in enumerate(nodes, 1))
+    out += "".join(f'  - "NODE {gid3(n, 1)} COORD {x:.15f} {y:.15f} {TZ:.15f}"\n' for n, (x, y) in enumerate(nodes, 1))
+    out += "STRUCTURE ELEMENTS:\n" + "".join(
+        f'  - "{e} SOLIDSCATRA HEX8 {a} {b} {c} {d} {gid3(a, 1)} {gid3(b, 1)} {gid3(c, 1)} {gid3(d, 1)} '
+        f'MAT 1 KINEM linear TYPE Undefined"\n' for e, (a, b, c, d) in enumerate(quads, 1))
+    out += "DNODE-NODE TOPOLOGY:\n" + dn + "DSURF-NODE TOPOLOGY:\n" + dsurf + "DVOL-NODE TOPOLOGY:\n" + dvol
+    return out
+
+# ── HOLE 2 (yours): the two deck HEADERS and the two runs. Each deck is YOUR
+#    header string (the physics, dynamics, solver, material, source and outer
+#    boundary sections listed below, measured on this binary) followed by the
+#    served tables: deck T = HEADER_T + deck_T_tables(), deck U = HEADER_U +
+#    deck_U_tables(). The tables carry the interface point conditions, the node
+#    and element lists and the topology; a header must not repeat them ──
 # THE TWO DECKS AND THE RUNS ARE YOURS. Build the 2-D node layout of this
 # subdomain (NX x NY quads on [X0,X1] x [Y0,Y1]), find the interface nodes,
 # write and run BOTH decks, and leave behind the names listed at the end.
@@ -393,13 +424,10 @@ def slab_topology():
 #     entry (E 1, NUMDOF 1, ONOFF [1], VAL [1.0], FUNCT [1]) so the source
 #     enters the assembled RHS
 #   DESIGN LINE DIRICH CONDITIONS on the OUTER boundary line (E 1, VAL [0.0] or
-#     the task's outer T); DESIGN POINT DIRICH CONDITIONS = the first string of
-#     scatra_point_conditions() (the partner's T on the interior interface nodes)
+#     the task's outer T)
 #   SCATRA FLUX CALC LINE CONDITIONS: - E: 2   (the interface line)
-#   NODE COORDS ("NODE i COORD x y 0.0" from `nodes`), TRANSPORT ELEMENTS
-#     ("e TRANSP QUAD4 n1 n2 n3 n4 MAT 1 TYPE Std" from `quads`), DLINE-NODE
-#     TOPOLOGY and DSURF-NODE TOPOLOGY = scatra_topology(), DNODE-NODE TOPOLOGY
-#     = the second string of scatra_point_conditions()
+#   -- then deck_T_tables() (the interface point conditions, NODE COORDS,
+#     TRANSPORT ELEMENTS, DLINE/DNODE/DSURF topology): nothing else
 #
 # RUN U -- the displacement, PROBLEMTYPE "Thermo_Structure_Interaction" on the
 # one-element-thick slab (DIM 3): every 2-D node twice, at z = 0 and z = TZ
@@ -433,13 +461,8 @@ def slab_topology():
 #     layers, NUMDOF 3, ONOFF [1,1,1], VAL [0,0,0]) and DESIGN SURF THERMO
 #     DIRICH CONDITIONS (E 1, NUMDOF 1, ONOFF [1], VAL [0]) -- or the task's
 #     outer values
-#   DESIGN POINT DIRICH CONDITIONS, DESIGN POINT THERMO DIRICH CONDITIONS and
-#     DNODE-NODE TOPOLOGY = the three strings of slab_point_conditions()
-#   NODE COORDS: every 2-D node twice, "NODE {gid3(n, 0)} COORD x y 0.0" then
-#     "NODE {gid3(n, 1)} COORD x y {TZ}"; STRUCTURE ELEMENTS: one
-#     "e SOLIDSCATRA HEX8 n1 n2 n3 n4 {gid3(n1,1)} {gid3(n2,1)} {gid3(n3,1)}
-#     {gid3(n4,1)} MAT 1 KINEM linear TYPE Undefined" per quad;
-#     DSURF-NODE TOPOLOGY and DVOL-NODE TOPOLOGY = slab_topology()
+#   -- then deck_U_tables() (both point-condition families, NODE COORDS of both
+#     layers, SOLIDSCATRA HEX8 elements, DNODE/DSURF/DVOL topology): nothing else
 #
 # THE TOPOLOGY KEYWORDS, EXACTLY (measured: a script that wrote DVOLUME ran to
 # "finished normally" with its body force, heat source and u_z pin silently
@@ -639,6 +662,7 @@ print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
 #     OUT_U
 #     i
 #     nodes
+#     quads
 #
 # That is the whole contract. Read the surviving lines to see the
 # shape each one has to have -- they are already indexed, assembled

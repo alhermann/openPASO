@@ -530,6 +530,14 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   first reply and hand-rolled the load. Measured after: kratos first reply
   carries two contracts; part B's tail is cut only for kratos and 4C (the
   longest contract material), whose run-log rules the ladder repeats.
+- 07:10: C2's remaining blocker is the Kratos NEUMANN side (round 15's
+  6511 handed in three levels and graded COMPLETED_UNPHYSICAL with a
+  hand-rolled Kratos side). The served Kratos Neumann contract
+  (participant_kratos_neumann.py, four elided holes, conservation
+  self-check) was validated unelided on the manufactured problem: flux
+  error 8.2e-2, trace 1.8e-2 at 8x10. `micro_kratos_neumann.py` now runs
+  the worker step against that grade (one repair round); first trial
+  running alongside round 16.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

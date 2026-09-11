@@ -196,9 +196,14 @@ def lint_deck(text: str) -> list[str]:
     topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", text))
     for b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", text, flags=re.M):
         head = b.split(":", 1)[0].strip()
-        if head.startswith("DESIGN") and head.endswith("CONDITIONS"):
+        if head.endswith("CONDITIONS"):
+            # every condition family with a geometry word -- DESIGN ... and SCATRA FLUX CALC LINE CONDITIONS alike
+            # (measured: a flux-calc line on a DLINE with no topology section escaped a DESIGN-only check and
+            # 4C stopped with 'DLine 1 not in range [0:0[')
             kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", head)
-            kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[kw.group(1)] if kw else ""
+            if not kw:
+                continue
+            kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[kw.group(1)]
             entries = [e for e in re.split(r"^\s*-\s", b, flags=re.M)[1:] if e.strip()]
             noid = [e for e in entries if not re.search(r"\bE:\s*\d+|NODE_SET_NAME", e)]
             if noid:

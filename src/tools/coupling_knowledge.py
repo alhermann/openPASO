@@ -2864,14 +2864,14 @@ def why_4c_did_not_finish():
             _topo = set(_re.findall(r"\\b(DNODE|DLINE|DSURFACE|DVOL)\\s+(\\d+)", _txt))
             for _b in _blocks:
                 _head = _b.split(":", 1)[0].strip()
-                if not (_head.startswith("DESIGN") and _head.endswith("CONDITIONS")):
+                _kw = _re.search(r"\\b(POINT|LINE|SURF|VOL)\\b", _head) if _head.endswith("CONDITIONS") else None
+                if not _kw:   # every condition family with a geometry word (SCATRA FLUX CALC LINE CONDITIONS too)
                     continue
                 _entries = [e for e in _re.split(r"^\\s*-\\s", _b, flags=_re.M)[1:] if e.strip()]
                 _noid = [e for e in _entries if not _re.search(r"\\bE:\\s*\\d+|NODE_SET_NAME", e)]
                 if _noid:
                     _why.append(f"{len(_noid)} entr{'y' if len(_noid) == 1 else 'ies'} in {_head} without `E: <id>` (or NODE_SET_NAME)")
-                _kw = _re.search(r"\\b(POINT|LINE|SURF|VOL)\\b", _head)
-                _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+                _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)]
                 _ids = _re.findall(r"\\bE:\\s*(\\d+)", _b)
                 _missing = sorted({i for i in _ids if (_kind, i) not in _topo}, key=int)
                 if _missing:
@@ -2973,9 +2973,9 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or sorted(glob.glob("*.yaml")):
     _lost = []
     for _b in _re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\\s*$)", _txt, flags=_re.M):
         _head = _b.split(":", 1)[0].strip()
-        if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
-            _kw = _re.search(r"\\b(POINT|LINE|SURF|VOL)\\b", _head)
-            _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+        _kw = _re.search(r"\\b(POINT|LINE|SURF|VOL)\\b", _head) if _head.endswith("CONDITIONS") else None
+        if _kw:   # every condition family with a geometry word (SCATRA FLUX CALC LINE CONDITIONS too)
+            _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)]
             _lost += [f"{_head} E {x}" for x in _re.findall(r"\\bE:\\s*(\\d+)", _b) if (_kind, x) not in _topo]
     if _lost:
         raise SystemExit(f"DECK CHECK: {_dk} puts conditions on E ids that no *-NODE TOPOLOGY section defines "

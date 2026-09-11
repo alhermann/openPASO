@@ -203,9 +203,9 @@ def why_4c_did_not_finish(tag=""):
             _topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", _txt))
             for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
                 _head = _b.split(":", 1)[0].strip()
-                if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
-                    _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head)
-                    _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+                _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head) if _head.endswith("CONDITIONS") else None
+                if _kw:   # every condition family with a geometry word (SCATRA FLUX CALC LINE CONDITIONS too)
+                    _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)]
                     _missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", _b) if (_kind, x) not in _topo}, key=int)
                     if _missing:
                         _why.append(f"{_deck}: {_head} names E id(s) {', '.join(_missing[:6])} that no *-NODE TOPOLOGY section defines")
@@ -259,9 +259,9 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yam
     _lost = []
     for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
         _head = _b.split(":", 1)[0].strip()
-        if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
-            _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head)
-            _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+        _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head) if _head.endswith("CONDITIONS") else None
+        if _kw:   # every condition family with a geometry word (SCATRA FLUX CALC LINE CONDITIONS too)
+            _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)]
             _lost += [f"{_head} E {x}" for x in re.findall(r"\bE:\s*(\d+)", _b) if (_kind, x) not in _topo]
     if _lost:
         raise SystemExit(f"DECK CHECK: {_dk} puts conditions on E ids that no *-NODE TOPOLOGY section defines "

@@ -161,3 +161,13 @@ def test_a_temperature_in_the_structural_dirichlet_family_is_named():
     why = lint_deck(deck)
     assert any("DESIGN POINT DIRICH CONDITIONS has an entry with NUMDOF 1" in w and "THERMO DIRICH" in w for w in why), why
     assert not any("THERMO DIRICH CONDITIONS has an entry" in w for w in why)
+
+
+def test_a_flux_calc_line_without_topology_is_named():
+    """Measured on a te4c10 worker deck: SCATRA FLUX CALC LINE CONDITIONS on E 2 with no DLINE topology at
+    all; 4C stopped with 'DLine 1 not in range [0:0['. A DESIGN-only check let it through."""
+    from tools.fourc_deck_lint import lint_deck
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nSCALAR TRANSPORT DYNAMIC:\n  CALCFLUX_BOUNDARY: "diffusive"\n'
+            'SCATRA FLUX CALC LINE CONDITIONS:\n  - E: 2\nDSURF-NODE TOPOLOGY:\n  - "NODE 1 DSURFACE 1"\n')
+    why = lint_deck(deck)
+    assert any("SCATRA FLUX CALC LINE CONDITIONS names E id(s) 2" in w for w in why), why

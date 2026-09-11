@@ -368,6 +368,8 @@ and several fixes **lowered** the apparent uplift:
 
 ## 5. Status, measured
 
+**2026-09-11 06:10: the first honest coupled CORRECT -- round 14, C3 seed 5693 (DUNE-fem + 4C), observed order 1.83 over three coupled levels, both served contracts kept, graded blind by `grade_round.py` with the sealed keys. Run directory: `campaign3_blind/runs/C3_27b_MCP_seed5693/` (source dc98a6e7, task sha bd4f2a83...).**
+
 ### Honest coupled rounds of 2026-09-10 (Option B build, 27B, development seeds)
 
 | round | commit | seeds | outcome | what the trajectories showed |
@@ -384,6 +386,7 @@ and several fixes **lowered** the apparent uplift:
 | 11 | 108dbed9 | C3 5661-63, C1 6421-23, C2 6431-33 | 0/9 (7 HONEST_INCOMPLETE, 1 FAILED, 1 MALFORMED) | compact core (3.8k rides on every reply instead of 25.5k): input tokens per run fell to 1.7-4.2M (rounds 7-10: 1-13M). Eight of nine worked to the wall; C2 6433 coupled two levels with both codes PROVEN and lost on the run-log contract (no run_level<k>.log with an NDOF line); C2 6431 wrote three levels of files and handed in incomplete; both C3 cells with both contracts on disk coupled level 1 only. |
 | 12 | 251194dc | C3 5671-73, C1 6441-43, C2 6451-53 | 0/9 (2 MALFORMED, 5 HONEST_INCOMPLETE, 2 FAILED) | canonical NDOF line in the served scaffolds. All nine cells worked to the 45-min wall (no early give-up at all). The run-log contract is now met where logs were written (6451: four run logs with NDOF lines, levels 1-2 coupled and PROVEN with both codes; 6452 level 1); both lost only on the levels they did not reach. C3: all three cells had both contracts on disk, two coupled level 1. C1: 0 contracts, 3 give-ups at the wall. Time is the binding constraint for every cell that works. |
 | 13 | af7c4f8d | C3 5681-83, C1 6461-63, C2 6471-73 | 0/9 (5 MALFORMED, 1 FABRICATED, 2 HONEST_INCOMPLETE, 1 FAILED) | interpolation lines in the deliverables brief (used by 3 cells). SIX cells with both codes PROVEN and real couplings: C3 5681 two levels coupled with the interface SATISFIED (first time for DUNE+4C), C2 6472 two levels with the interface satisfied, C3 5682 / C2 6471 level 1, C3 5683 level 2 at residual 3.6e-6 vs 1e-6; every one lost on the levels the wall cut. C2 6473 copied its level-1 residual history to levels 2-3 and was caught (FABRICATED_NO_RUN, confined to the history). C1 3/3 without a contract. |
+| 14 | dc98a6e7 | C3 5691-93, C1 6481-83, C2 6491-93 | **1/9 CORRECT** (C3 5693), 4 MALFORMED, 4 HONEST_INCOMPLETE | **THE FIRST HONEST COUPLED CORRECT.** C3 5693 (DUNE-fem + 4C, both served contracts kept, 63 calls, hit the 45-min wall after every deliverable was on disk): three levels coupled (48, 43, 40 iterations to below 1e-6), coupling PROVEN, interface SATISFIED, both codes PROVEN, errors 1.18e-3 / 3.29e-4 / 9.26e-5 at 3872 probe points, observed order 1.83 (theoretical 2, band 0.8-3.2), r2 1.00, monotone. Also: C2 6492 coupled three levels with both codes proven and lost only because its Kratos mesh never changed across levels (NDOF 72, 72, 72 -- the mesh-ladder finding names exactly this); C3 5691 two levels with the interface satisfied and no run logs; C2 6491 two levels. C1 0/3 as before. |
 
 ### Per-step trials (from 2026-09-10 evening, Alexander's method)
 

@@ -2363,6 +2363,7 @@ _PRIORITY_TABLE = [
     (55, ("ROWS GROW WITH THE LEVEL", "ROW COUNT GROWS WITH THE LEVEL",
           "RUN TO THE ENDS OF THE INTERFACE", "DISTINCT VALUES ACROSS",
           "NEAREST-NODE")),
+    (58, ("RUN LOG FROM THE WRONG LEVEL",)),
     (60, ("DELIVERABLE SET IS INCOMPLETE", "MISSING LEVEL", "DIFFERING COPY",
           "NO DOF-COUNT LINE", "MESH LADDER THAT WAS NOT HALVED",
           "SUMMARY FILE IS MISSING", "YOUR OWN NDOF IS")),
@@ -2481,6 +2482,57 @@ def _fourc_deck_state(side: Path, work: Path) -> dict | None:
              "check_input(solver='fourc', input_path=<the deck>) until it names no defect, then re-run that "
              "deck until its VTU folder appears; a deck that ran is not touched.")
     return {"what": "; ".join(what) + ".", "brief": brief}
+
+def wrong_level_run_log_findings(work: Path) -> list[dict]:
+    """A run log that is a copy of ANOTHER level's console. Measured (round 29): four cells coupled
+    three refined levels (consoles 54, 187, 693 dofs) and handed in run logs reading 54 at every
+    level -- graded as an unchanged mesh. Compares each run_level<k>_<side>.log's NDOF line with the
+    side's captured participant_output_level<k>.log and names the file to copy."""
+    import re as _re
+    out = []
+    dof_any = _re.compile(r"\bN_?DOFS?\s*[=:]\s*(\d+)", _re.I)
+    consoles = {}
+    for q in work.rglob("participant_output_level*.log"):
+        if _SCRATCH & set(q.relative_to(work).parts[:-1]):
+            continue
+        m = _re.search(r"participant_output_level(\d+)\.log$", q.name)
+        if not m:
+            continue
+        side_dir = q.parent.name
+        try:
+            vals = dof_any.findall(q.read_text(errors="ignore"))
+        except OSError:
+            continue
+        if vals:
+            consoles.setdefault(int(m.group(1)), {})[side_dir] = (vals[-1], q)
+    if not consoles:
+        return out
+    for q in _level_logs(work):
+        m = _LEVEL_FILE.match(q.name)
+        if not m or not m.group("side"):
+            continue
+        k, side = int(m.group("k")), m.group("side")
+        try:
+            vals = dof_any.findall(q.read_text(errors="ignore"))
+        except OSError:
+            continue
+        if not vals or k not in consoles:
+            continue
+        # the side's console dir: a directory whose name ends with the side letter (side_A, A, sideA ...)
+        match = [(d, v) for d, v in consoles[k].items() if d.lower().rstrip("/").endswith(side.lower())]
+        if len(match) != 1:
+            continue
+        d, (ndof, cpath) = match[0]
+        if vals[-1] != ndof:
+            other = [j for j, sides in consoles.items() if sides.get(d, (None,))[0] == vals[-1]]
+            out.append({"sequence": f"run log level {k} side {side}", "values": [],
+                        "finding": (f"RUN LOG FROM THE WRONG LEVEL: {q.relative_to(work)} carries NDOF {vals[-1]} while "
+                                    f"side {side}'s captured console for level {k} says NDOF {ndof}"
+                                    + (f" -- it is level {other[0]}'s console" if other else "")
+                                    + f". Copy {cpath.relative_to(work)} over it verbatim; a run log from another level "
+                                    "reads as an unchanged mesh and sinks the whole mesh sequence.")})
+    return out
+
 
 def coupled_ladder(work: Path) -> dict | None:
     """The next unmet step of a partitioned coupled run, read from the files,
@@ -2877,6 +2929,7 @@ def audit(work_dir: str, claimed_order: float | None = None,
         findings = findings + interface_sign_findings(work)
         findings.extend(interface_continuity_findings(work))
         findings.extend(identical_solution_levels_findings(work))
+        findings.extend(wrong_level_run_log_findings(work))
         findings.extend(solution_rows_grow_findings(work))
         findings = findings + [
             {"sequence": "level files", "values": [],
@@ -3020,6 +3073,7 @@ def audit(work_dir: str, claimed_order: float | None = None,
     findings.extend(export_findings(work))
     findings.extend(interface_continuity_findings(work))
     findings.extend(identical_solution_levels_findings(work))
+    findings.extend(wrong_level_run_log_findings(work))
     findings.extend(solution_rows_grow_findings(work))
     clean = not [f for f in findings if not f.get("informational")]
     # THE LADDER: the next unmet step of a coupled run, from the files. It

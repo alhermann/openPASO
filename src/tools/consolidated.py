@@ -5844,14 +5844,26 @@ def register_consolidated_tools(mcp: FastMCP):
         if r.converged:
             # the one-call mesh sequence leads EVERY converged reply, whatever the funnel found
             # (round 25: six proven couplings ran couple() per level and the wall cut them)
-            _one_call = ("LEVEL CONVERGED. IF THE TASK PRESCRIBES FURTHER MESH LEVELS, RUN THEM ALL NOW IN "
-                         "ONE CALL: couple_levels(participants=<the same list you passed here>, "
-                         "levels=[<next level>, ...every further level], history_pattern='<the task's "
-                         "per-level history file name with {k} in place of the level number>') -- each "
-                         "level warm-starts from the last, every cell count is doubled per level, each "
-                         "level's history and participant_output_level<k>.log are written, and the per-level "
-                         "field and interface dumps stay on disk, so every level's deliverables can be "
-                         "written afterwards.")
+            # THIS LEVEL'S RUN LOGS FIRST, FROM THE NAMED FILES. Measured (round 29): four cells
+            # coupled three refined levels and handed in run logs that were all copies of the
+            # level-1 console (NDOF 54 on every level while the consoles read 54, 187, 693); the
+            # grader read them as an unchanged mesh. The copy is named here with its full path,
+            # per side, and it comes BEFORE the next level, not after all of them.
+            _logs = ""
+            if _lvl_for_log:
+                _logs = " ".join(f"side {_p.name}: {Path(_p.work_dir) / f'participant_output_level{_lvl_for_log}.log'};"
+                                 for _p in parts)
+            _one_call = ((f"LEVEL {_lvl_for_log} CONVERGED. " if _lvl_for_log else "LEVEL CONVERGED. ")
+                         + "FIRST, this level's deliverables: its field and interface files per side from the per-level "
+                           "dumps, and its run log per side as a VERBATIM COPY of that side's captured console for THIS "
+                           "level" + (f" ({_logs})" if _logs else " (participant_output_level<k>.log next to its exports.json)")
+                         + " -- a run log copied from another level's console reads as an unchanged mesh and sinks the "
+                           "whole sequence. THEN, if the task prescribes further mesh levels, run them all in one call: "
+                           "couple_levels(participants=<the same list you passed here>, levels=[<next level>, ...every "
+                           "further level], history_pattern='<the task's per-level history file name with {k} in place "
+                           "of the level number>') -- each level warm-starts from the last, every cell count is doubled "
+                           "per level, and each level's history and participant_output_level<k>.log are written; then "
+                           "write those levels' deliverables the same way.")
             _lead = _one_call + ("\n" + _lead if _lead else "")
         if _mesh_note:
             _lead = _mesh_note + ("\n" + _lead if _lead else "")

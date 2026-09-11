@@ -118,7 +118,8 @@ FILL_DUNE_2_SERVED_SOURCE = (
     "from ufl import TrialFunction, TestFunction, dot, grad, dx, conditional, lt\n"
     "u, v = TrialFunction(space), TestFunction(space)\n"
     "a_form = K_UFL*dot(grad(u), grad(v))*dx + C_UFL*u*v*dx\n"
-    "b_form = src_ufl(x)*v*dx\n"
+    "from ufl import sin as _usin, pi as _upi\n"
+    "b_form = eval(SRC_EXPR, {'__builtins__': {}}, {'x': x[0], 'y': x[1], 'sin': _usin, 'pi': _upi})*v*dx\n"
     "on_if_ufl = conditional(lt(abs(x[IF_COORD] - IF_VAL), _EPS), 1, 0)\n"
     "scheme = galerkin([a_form == b_form, DirichletBC(space, 0.0, 1 - on_if_ufl), DirichletBC(space, gtrace, on_if_ufl)], solver='cg')\n"
     "uh = space.interpolate(0, name='uh')\n"
@@ -141,8 +142,9 @@ def _dune_run(tmp_path, fill2, source_expr):
 
 @pytest.mark.skipif(not DUNE_PY.is_file(), reason="DUNE-fem python not on this host")
 def test_the_dune_scaffold_carries_the_task_source_from_config(tmp_path):
-    """The task's source as a config string: served F_SRC for the consistent load and
-    src_ufl(x) for the form, no hand-written F_SRC anywhere in the fill."""
+    """The task's source as a config string: served F_SRC for the consistent load; the
+    fill writes the form's source itself from the same string (the test fixture's own
+    eval, never served)."""
     r = _dune_run(tmp_path, FILL_DUNE_2_SERVED_SOURCE, "pi^2*x*sin(pi*y)")
     assert r.returncode == 0, r.stderr[-1500:]
     e = json.loads((tmp_path / "exports.json").read_text())
@@ -155,7 +157,7 @@ def test_a_form_that_drops_the_configured_source_is_refused(tmp_path):
     """Measured on a development cell: the polynomial source carried nowhere gave a
     smooth field 1.2e-2 off at every level, order 0.00. With the source in config and
     not in the form, the served interior-residual check must stop the export."""
-    dropped = FILL_DUNE_2_SERVED_SOURCE.replace("b_form = src_ufl(x)*v*dx\n", "b_form = 1e-12*v*dx\n")
+    dropped = FILL_DUNE_2_SERVED_SOURCE.replace("b_form = eval(SRC_EXPR, {'__builtins__': {}}, {'x': x[0], 'y': x[1], 'sin': _usin, 'pi': _upi})*v*dx\n", "b_form = 1e-12*v*dx\n")
     assert dropped != FILL_DUNE_2_SERVED_SOURCE
     r = _dune_run(tmp_path, dropped, "pi^2*x*sin(pi*y)")
     assert r.returncode != 0

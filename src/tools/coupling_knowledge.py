@@ -4334,30 +4334,24 @@ X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV, CV, FV = CFG["k"], CFG.get("reaction", 0.0), CFG.get("source_const", 0.0)
 IF = CFG.get("iface", "right")
 HX, HY = (X1 - X0) / NX, (Y1 - Y0) / NY
-# THE SOURCE COMES FROM config source_expr (the task's f(x, y) as a Python
-# expression in x, y: '**' for powers, sin/cos/exp/sqrt/pi allowed), evaluated
-# here for the consistent load below and, through src_ufl(x), for YOUR form.
-# Measured: a run that carried the task's polynomial source nowhere (config
-# source_const 0.0, the same zero in its form) converged at every level to a
-# smooth field 1.2e-2 off the answer, order 0.00. A constant 'source_const'
-# still works; when both are absent the source is zero.
+# THE SOURCE STRING COMES FROM config source_expr (the task's f(x, y) as a Python
+# expression in x, y: '**' for powers, sin/cos/exp/sqrt/pi allowed). It is
+# evaluated here ONLY for the consistent load of the served flux recovery
+# (F_SRC below); the source term of YOUR form is yours to write in UFL, from the
+# same expression. Measured: a run that carried the task's polynomial source
+# nowhere (config source_const 0.0, the same zero in its form) converged at
+# every level to a smooth field 1.2e-2 off the answer, order 0.00; the check
+# after the recovery now refuses a form that disagrees with this string. A
+# constant 'source_const' still works; when both are absent the source is zero.
 SRC_EXPR = str(CFG.get("source_expr", "")).strip().replace("^", "**")
 import math as _math
 _SRC_CODE = compile(SRC_EXPR, "<source_expr>", "eval") if SRC_EXPR and SRC_EXPR not in ("0", "0.0") else None
 def F_SRC(px, py):
-    """The task's source f at a point, from config (a plain Python function)."""
+    """The task's source f at a point, from config (a plain Python function used by the served recovery)."""
     if _SRC_CODE is None:
         return float(FV)
     return float(eval(_SRC_CODE, {"__builtins__": {}}, {"x": float(px), "y": float(py), "sin": _math.sin, "cos": _math.cos,
                                                        "exp": _math.exp, "sqrt": _math.sqrt, "pi": _math.pi, "abs": abs}))
-def src_ufl(xc):
-    """The SAME source as a UFL expression of the spatial coordinate xc = SpatialCoordinate(space),
-    for the load of your form (`src_ufl(x) * v * dx`); the recovery below integrates F_SRC."""
-    import ufl as _ufl
-    if _SRC_CODE is None:
-        return float(FV)
-    return eval(_SRC_CODE, {"__builtins__": {}}, {"x": xc[0], "y": xc[1], "sin": _ufl.sin, "cos": _ufl.cos,
-                                                  "exp": _ufl.exp, "sqrt": _ufl.sqrt, "pi": _math.pi, "abs": abs})
 
 # ---- the partner's interface samples, mapped onto THIS side (handshake) ----
 imp = {}
@@ -4446,12 +4440,13 @@ C_UFL = _Constant(CV, name="c")
 # and solve. Leave behind exactly these names:
 #     uh       the solved P1 function (uh = space.interpolate(0, name="uh");
 #              scheme.solve(target=uh))
-#     (F_SRC is ALREADY DEFINED above from config source_expr, and src_ufl(x)
-#      is the same f for your form's load: `src_ufl(x) * v * dx` with
-#      x = SpatialCoordinate(space). Redefine F_SRC only when the task's source
-#      cannot be written as one expression string -- and then keep the form and
-#      F_SRC the same f: the recovery below integrates F_SRC and refuses a
-#      field whose interior residual against it is not small)
+#     (F_SRC is ALREADY DEFINED above from config source_expr for the served
+#      recovery; YOUR form's load is yours to write in UFL from the same
+#      expression, with x = SpatialCoordinate(space) and ufl.sin/cos/exp.
+#      Redefine F_SRC only when the task's source cannot be written as one
+#      expression string -- and keep the form and F_SRC the same f: the
+#      recovery below integrates F_SRC and refuses a field whose interior
+#      residual against it is not small)
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
 
 # ── VERTEX-ORDERED ARRAYS FROM YOUR MESH (served: mesh access, not the solve) ──

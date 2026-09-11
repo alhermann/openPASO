@@ -545,8 +545,12 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   every failure one API class deeper -- the solve stack imported from
   StructuralMechanics, `KM.AddDof`, `node.HasDof`, an invented Dirichlet
   condition; facts 9 (the exact core-namespace solve stack) and 10
-  (Dirichlet values are nodal, via Fix) added (bbce8897, 563d21a4);
-  kratosN3 running on facts 8-9.
+  (Dirichlet values are nodal, via Fix) added (bbce8897, 563d21a4).
+  kratosN3 (facts 8-9): 0/3, again one class deeper each time -- a bare
+  `ConvectionDiffusionApplication`, variables added after the nodes, an
+  invented `KM.Properties()` / `AddProperty`, and a SEGFAULT from a
+  variable list without CONDUCTIVITY; fact 11 (the exact model setup order,
+  24ddf3eb, f0de9801). kratosN4 running on facts 8-11.
 - 07:50: the C2 mesh-sequence losses (round 10 6492, round 16 6531/6532:
   three coupled levels on ONE mesh) came from the ladder's next-level brief
   and the must-read saying "set level=k+1 / edit one number" while the

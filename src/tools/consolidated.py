@@ -5787,11 +5787,27 @@ def register_consolidated_tools(mcp: FastMCP):
             # Measured: a run coupled three real levels (9 iterations to 1e-8
             # each) and never wrote a field file, then listed twelve files in
             # its summary that did not exist. Only files on disk count.
+            # THE ONE-CALL MESH SEQUENCE LEADS THE CONVERGED REPLY. Measured in
+            # round 25: six proven couplings ran couple() once per level (~8
+            # minutes a level) and the wall cut them at level 1 or 2; the
+            # couple_levels recipe sat in a ladder step the parents never
+            # reached (0 audit_results calls). The per-level dumps every served
+            # participant keeps (field_level<k>.csv, interface_level<k>.csv,
+            # participant_output_level<k>.log) make it safe to couple every
+            # remaining level first and write the deliverables afterwards.
             _lead = _ra.what_to_fix_next(
                 _compact, converged=bool(r.converged), clean_msg=(
                     "this level's iteration CONVERGED and your files are "
-                    "self-consistent. Only files on disk count, so before the "
-                    "next level: (1) evaluate EACH side's converged field at "
+                    "self-consistent. IF THE TASK PRESCRIBES FURTHER MESH LEVELS, RUN THEM "
+                    "ALL NOW IN ONE CALL: couple_levels(participants=<the same list you "
+                    "passed here>, levels=[<next level>, ...every further level], "
+                    "history_pattern='<the task's per-level history file name with {k} in "
+                    "place of the level number>') -- each level warm-starts from the last, "
+                    "every cell count is doubled per level, and each level's history and "
+                    "participant_output_level<k>.log are written; the per-level field and "
+                    "interface dumps stay on disk, so the deliverables below can be written "
+                    "for every level afterwards. Only files on disk count: for EACH level, "
+                    "(1) evaluate EACH side's converged field at "
                     "the probe points your task prescribes and write that "
                     "side's per-level field file; (2) write each side's "
                     "per-level interface file at the prescribed interface "

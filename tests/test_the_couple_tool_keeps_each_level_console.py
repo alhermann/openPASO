@@ -65,6 +65,10 @@ def test_each_side_keeps_its_console_for_the_named_level(tmp_path, couple_tool, 
         r = asyncio.run(r)
     out = json.loads(str(r))
     assert out.get("converged"), {k: out.get(k) for k in ("error", "reason", "why", "history", "verdict")}
+    # the converged reply LEADS with the one-call mesh sequence and keeps the {k} placeholder literal
+    # (round 25: six proven couplings ran couple() per level and the wall cut them; 0 audit_results calls)
+    lead = out.get("what_to_fix_next") or ""
+    assert "couple_levels(" in lead[:900] and "{k}" in lead, lead[:600]
     for name in ("A", "B"):
         per_level = tmp_path / f"side_{name}" / "participant_output_level2.log"
         assert per_level.is_file(), f"side {name}: no per-level console copy"

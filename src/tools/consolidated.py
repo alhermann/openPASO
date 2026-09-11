@@ -2348,7 +2348,13 @@ _DECIDING_FACTS = {
         "(mean(f)*A/3); the exact mass matrix is 50% off.\n"
         "7. Kratos prints from C++ streams: an in-process stdout redirect "
         "captures ZERO bytes. Run the solve in a SUBPROCESS if the log has to "
-        "show which code ran."),
+        "show which code ran.\n"
+        "8. THE MODEL PART IDIOM, EXACTLY (measured): `model = KM.Model(); mp = "
+        "model.CreateModelPart('thermal')`, then `mp.AddNodalSolutionStepVariable(...)`, "
+        "`mp.CreateNewNode(id, x, y, 0.0)` and `mp.CreateNewElement('LaplacianElement2D3N', "
+        "id, [n1, n2, n3], mp.GetProperties()[1])`. There is no `KM.MainModelPart` and no "
+        "`KM.ModelPart(...)` constructor to call yourself (`Module KratosMultiphysics has no "
+        "attribute MainModelPart` -- a trial script died there twice, before and after a repair)."),
 }
 _DECIDING_FACTS["dune-fem"] = _DECIDING_FACTS["dune"]
 _DECIDING_FACTS["dunefem"] = _DECIDING_FACTS["dune"]

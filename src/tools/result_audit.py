@@ -2461,17 +2461,17 @@ def _fourc_deck_state(side: Path, work: Path) -> dict | None:
     for lg, tb in rep.get("tracebacks", {}).items():
         what.append(f"the participant itself stopped in Python ({lg})")
         parts.append(f"the participant's own Python stop in {lg}: {tb} -- fix that line first")
-    if not rep["errors"] and not rep["defects"] and not rep.get("tracebacks"):
+    for lg, tail in rep.get("consoles", {}).items():
+        # a 4C console with neither a finish nor a recognised error: its last lines are the verdict
+        what.append(f"4C's console {lg} ends without a finish")
+        parts.append(f"the console {lg} shows neither 'finished normally' nor an error block; it ends with: {tail} "
+                     "-- read that log from the top, the cause is above its last lines")
+    if not rep["errors"] and not rep["defects"] and not rep.get("tracebacks") and not rep.get("consoles"):
         if rep["finished"]:
             what.append("no exports.json")
             parts.append("every 4C run finished and no defect is named, so the participant stopped in its "
                          "recovery or export: run it again and read ITS stderr from the top (the served "
                          "check names the missing output)")
-        elif rep.get("consoles"):
-            for lg, tail in rep["consoles"].items():
-                what.append(f"4C's console {lg} ends without a finish")
-                parts.append(f"the console {lg} shows neither 'finished normally' nor an error block; it ends with: {tail} "
-                             "-- read that log from the top, the cause is above its last lines")
         else:
             what.append("deck(s) written, no 4C console found")
             parts.append("no 4C console log lies next to the deck(s): run the binary line-buffered "

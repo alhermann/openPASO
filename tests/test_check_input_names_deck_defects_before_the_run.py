@@ -67,3 +67,20 @@ def test_the_instructions_and_the_ladder_name_the_gate():
     assert "writes nothing into your directories" in INSTRUCTIONS      # couple_levels no longer claims to write config.json
     src = (ROOT / "src" / "tools" / "result_audit.py").read_text()
     assert "check_input(solver='fourc', input_path=<the deck>)" in src
+
+
+def test_the_measured_first_attempt_traps_ride_with_the_4c_coupling_door():
+    """The twelve-deck trap list (one topology section per kind, Scalar_Transport for the flux, the exact
+    runtime output section names, element types vs sections, the material's list-valued YOUNG, the THERMO
+    Dirichlet family, counter-clockwise nodes) is a served fact, measured the way every other backend's
+    facts were, and it points at check_input."""
+    t = _tools()
+    # the session's first reply carries the orchestrator lead and the contract for the PARENT; the
+    # WORKER's own door call (the second, pointer-mode reply) leads with the deciding facts
+    first = t["knowledge"](topic="coupling", solver="fourc", physics="thermoelastic")
+    reply = t["knowledge"](topic="coupling", solver="fourc", physics="thermoelastic")
+    reply = reply if isinstance(reply, str) else str(reply)
+    assert "WHAT DECIDES THIS RUN" in reply[:800]
+    assert "FIRST-ATTEMPT DECK TRAPS" in reply and "ONE topology section per kind" in reply
+    assert "check_input(solver='fourc'" in reply and "counter-clockwise" in reply
+    assert "partner_values" in reply and "EXPORT SELF-CHECK" in reply      # the contract rides with the facts

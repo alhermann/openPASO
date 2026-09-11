@@ -7792,7 +7792,13 @@ ready sub-agent brief: two participants -> each exports standalone -> couple
 level k -> level k's field and interface files -> its captured run logs ->
 the summary. Hand the brief to spawn_subagent(role='worker', task=<brief>)
 as is; the step ends when its check passes on disk. Never judge the whole
-job at once -- every single step is small.
+job at once -- every single step is small. A WORKER THAT REPORTS AN ERROR IS
+NOT RE-BRIEFED BY YOU: call audit_results(work_dir) first. It reads that
+worker's decks and consoles and names the defect and the step -- the code's
+own error line, the sections the installed binary's grammar does not know
+with the closest known names, a condition on an undefined id, the
+participant's own Python stop -- so the next worker starts from the defect,
+not from the whole job again.
 
 YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict:
     spawn_subagent(role='worker', task="Write side A's participant script in
@@ -7804,8 +7810,10 @@ YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict:
     convention, flux recovery, exports schema and export self-check); fill
     only its marked hole(s) with the mesh, form, material, source and solve
     for subdomain A from the task; write ./side_A/config.json for level 1 and
-    a synthetic ./side_A/imports.json; run it with that code's own
-    interpreter (generous timeout, first runs compile) until
+    a synthetic ./side_A/imports.json; if the code takes an input deck, run
+    check_input(solver='<side A's code>', input_path=<the deck>) until it
+    names no defect before the binary runs; run the script with that code's
+    own interpreter (generous timeout, first runs compile) until
     ./side_A/exports.json appears with finite values. CHECK: exports.json
     exists and the script exited 0. Report DONE or the exact error.")
 Then the same for side B. The critic reviews what a worker produced, not a

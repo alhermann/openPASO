@@ -2548,8 +2548,10 @@ def coupled_ladder(work: Path) -> dict | None:
                     "the file unchanged (imports.json handshake, sign convention, flux recovery, exports "
                     "schema, export self-check); fill only its marked hole(s) with the mesh, form, material, "
                     "source and solve for this subdomain from the task; write ./config.json for level 1 and a "
-                    "synthetic ./imports.json; run it with that code's own interpreter until ./exports.json "
-                    "appears with finite values. CHECK: ./side_<x>/exports.json exists and the script exited 0.")
+                    "synthetic ./imports.json; if the code takes an input deck, run check_input(solver=<that code>, "
+                    "input_path=<the deck>) until it names no defect before the binary runs; run the script with "
+                    "that code's own interpreter until ./exports.json appears with finite values. CHECK: "
+                    "./side_<x>/exports.json exists and the script exited 0.")
     # A PARTICIPANT WRITTEN FROM SCRATCH IS THE NEXT STEP, NOT A DETAIL. Every served
     # contract carries at least one of these lines; a script with none of them was
     # not copied from the door. Measured on three cells: a Neumann side that put

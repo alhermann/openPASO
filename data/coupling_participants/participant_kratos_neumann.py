@@ -260,8 +260,22 @@ def main():
     #     argument of ResidualBasedLinearStrategy); the conservation self-check
     #     is built from REACTION_FLUX.
 
-    T = np.array([mp.Nodes[nid[(i_if, j)]].GetSolutionStepValue(KM.TEMPERATURE)
-                  for j in range(NY + 1)])
+    # ── served: the trace is read from the nodes AT x = IFACE_X, checked by
+    #    coordinate before anything is exported. Measured 2026-09-11 on three
+    #    worker scripts written from this contract: two inverted the ON_MAX_X
+    #    test inside their own solve, exported the OUTER column's temperature
+    #    under the interface's coordinates, and nothing else was wrong -- the
+    #    flux, assembled from the conditions, was right in all three. A wrong
+    #    column exits 0 and couples on; this stops it.
+    _if_nodes = [mp.Nodes[nid[(i_if, j)]] for j in range(NY + 1)]
+    _off = [n for n in _if_nodes if abs(n.X - IFACE_X) > TOL]
+    if _off:
+        sys.exit(f"EXPORT SELF-CHECK: {len(_off)} of {len(_if_nodes)} nodes read as the "
+                 f"interface column sit at x={_off[0].X:.6g}, not x={IFACE_X}: i_if names "
+                 f"the wrong column. The interface column is the one whose x equals "
+                 f"IFACE_X: ON_MAX_X = abs(IFACE_X - X1) < abs(IFACE_X - X0), then "
+                 f"i_if = NX if ON_MAX_X else 0 and i_out = 0 if ON_MAX_X else NX")
+    T = np.array([n.GetSolutionStepValue(KM.TEMPERATURE) for n in _if_nodes])
 
     # ── this side's own outward normal flux, from what the CONDITIONS assembled
     #
@@ -370,7 +384,8 @@ def main():
     Path("exports.json").write_text(json.dumps({
         "field_name": "temperature",
         "n_points": int(len(T)),
-        "coordinates": [[float(IFACE_X), float(yy)] for yy in y_if],
+        # the coordinates of the SAME node objects the values were read from
+        "coordinates": [[float(n.X), float(n.Y)] for n in _if_nodes],
         "values": [float(t) for t in T],
         "normal_fluxes": [float(q) for q in Q],
     }, indent=2))

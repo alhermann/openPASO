@@ -5798,15 +5798,7 @@ def register_consolidated_tools(mcp: FastMCP):
             _lead = _ra.what_to_fix_next(
                 _compact, converged=bool(r.converged), clean_msg=(
                     "this level's iteration CONVERGED and your files are "
-                    "self-consistent. IF THE TASK PRESCRIBES FURTHER MESH LEVELS, RUN THEM "
-                    "ALL NOW IN ONE CALL: couple_levels(participants=<the same list you "
-                    "passed here>, levels=[<next level>, ...every further level], "
-                    "history_pattern='<the task's per-level history file name with {k} in "
-                    "place of the level number>') -- each level warm-starts from the last, "
-                    "every cell count is doubled per level, and each level's history and "
-                    "participant_output_level<k>.log are written; the per-level field and "
-                    "interface dumps stay on disk, so the deliverables below can be written "
-                    "for every level afterwards. Only files on disk count: for EACH level, "
+                    "self-consistent. Only files on disk count, so for EACH level: "
                     "(1) evaluate EACH side's converged field at "
                     "the probe points your task prescribes and write that "
                     "side's per-level field file; (2) write each side's "
@@ -5818,6 +5810,18 @@ def register_consolidated_tools(mcp: FastMCP):
                     "that names files not on disk is read as invented."))
         except Exception:                                    # advisory only
             _lead, _compact = None, []
+        if r.converged:
+            # the one-call mesh sequence leads EVERY converged reply, whatever the funnel found
+            # (round 25: six proven couplings ran couple() per level and the wall cut them)
+            _one_call = ("LEVEL CONVERGED. IF THE TASK PRESCRIBES FURTHER MESH LEVELS, RUN THEM ALL NOW IN "
+                         "ONE CALL: couple_levels(participants=<the same list you passed here>, "
+                         "levels=[<next level>, ...every further level], history_pattern='<the task's "
+                         "per-level history file name with {k} in place of the level number>') -- each "
+                         "level warm-starts from the last, every cell count is doubled per level, each "
+                         "level's history and participant_output_level<k>.log are written, and the per-level "
+                         "field and interface dumps stay on disk, so every level's deliverables can be "
+                         "written afterwards.")
+            _lead = _one_call + ("\n" + _lead if _lead else "")
         # THE LADDER RIDES ON EVERY couple() REPLY: the next unmet step, from
         # the files, as a sub-agent brief -- so the agent that just coupled a
         # level is told the one thing to do next instead of judging the job.

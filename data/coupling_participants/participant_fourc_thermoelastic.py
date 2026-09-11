@@ -115,18 +115,30 @@ def why_4c_did_not_finish(tag=""):
                                            env=dict(os.environ, LD_LIBRARY_PATH=f"{CFG.get('fourc_ld') or ''}:{os.environ.get('LD_LIBRARY_PATH', '')}")).stdout
                     globals()["_VALID"] = set(re.findall(r"^    - name: (.+?)\s*$", _dump, re.M)) | set(
                         re.findall(r"^  - ([A-Z][A-Z0-9 _/.:-]*?)\s*$", _dump.split("legacy_string_sections:", 1)[-1], re.M)) | {"TITLE"}
+                    globals()["_ELEM"] = set(re.findall(r"^  ([A-Z][A-Z0-9_]*):\s*$",
+                                                        _dump.split("legacy_element_specs:", 1)[-1].split("legacy_particle_specs:", 1)[0], re.M))
                 if len(_VALID) > 100:
-                    import difflib
+                    import difflib, math
+                    from collections import Counter
                     _tok = lambda nm: [w for w in re.split(r"[ /_-]+", nm.upper()) if w]
+                    _tk = {c: _tok(c) for c in _VALID}
+                    _fq = Counter(w for ct in _tk.values() for w in set(ct))
+                    _wt = lambda w: 1.0 / (1.0 + math.log(_fq.get(w, 0) + 1))
                     _best = lambda a, bs: max((difflib.SequenceMatcher(None, a, b).ratio() for b in bs), default=0.0)
                     for _s in dict.fromkeys(_secs):
                         if _s not in _VALID and not re.fullmatch(r"FUNCT\d+", _s):
-                            _u = _tok(_s)   # word-wise similarity both ways: THERMO finds THERMAL, SOLIDSCATRA finds STRUCTURE
-                            _sc = sorted(((sum(_best(a, _tok(c)) for a in _u) + sum(_best(b, _u) for b in _tok(c))) / (len(_u) + len(_tok(c))), c)
-                                         for c in _VALID if _tok(c))
-                            _close = [c for v, c in _sc[::-1][:5] if v >= 0.45]
-                            _why.append(f"{_deck}: section '{_s}' is not in the binary's grammar (`4C -p`)"
-                                        + (f"; closest known: {', '.join(repr(c) for c in _close)}" if _close else ""))
+                            _msg = f"{_deck}: section '{_s}' is not in the binary's grammar (`4C -p`)"
+                            if _s.endswith(" ELEMENTS") and _s.split()[0] in _ELEM:   # an element TYPE used as a section name
+                                _msg += (f"; '{_s.split()[0]}' is an ELEMENT TYPE for the element lines inside one of: "
+                                         + ", ".join(sorted(n for n in _VALID if n.endswith(" ELEMENTS"))))
+                            else:   # word-wise similarity both ways, rare words weigh more: THERMO finds THERMAL
+                                _u = _tok(_s)
+                                _sc = sorted((((sum(_wt(x) * _best(x, ct) for x in _u) + sum(_wt(y) * _best(y, _u) for y in ct))
+                                               / (sum(_wt(x) for x in _u) + sum(_wt(y) for y in ct))), c) for c, ct in _tk.items() if ct)
+                                _close = [c for v, c in _sc[::-1][:5] if v >= 0.45]
+                                if _close:
+                                    _msg += f"; closest known: {', '.join(repr(c) for c in _close)}"
+                            _why.append(_msg)
             except Exception:                # noqa: BLE001
                 pass
             if "Thermo_Structure_Interaction" in _txt:

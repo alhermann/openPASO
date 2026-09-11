@@ -214,8 +214,44 @@ def lint_deck(text: str) -> list[str]:
     if re.search(r"FUNCT\d+:", text) and re.search(r"\bFUNCT:\s*\[\s*0(\s*,\s*0)*\s*\]", text) \
             and not re.search(r"\bFUNCT:\s*\[[^\]]*[1-9]", text):
         why.append("FUNCT blocks are defined but no condition references one (FUNCT: [0,...] everywhere): the sources never reach the load")
+    why += _degenerate_elements(text)
     why += _lines_without_an_element_edge(text)
     return why
+
+
+def _degenerate_elements(text: str) -> list[str]:
+    """2-D elements with zero or negative signed area from the deck's own NODE COORDS: a twisted or
+    clockwise node order. 4C reports it only as 'The determinant of the matrix is equal zero or
+    negative!' or a floating point exception in the element evaluation (measured on a worker deck:
+    70 of 80 quads written as (i, i+1, i+NX, i+NX+1) instead of counter-clockwise)."""
+    xy = {}
+    for n, x, y in re.findall(r'"NODE\s+(\d+)\s+COORD\s+(\S+)\s+(\S+)\s+\S+"', text):
+        try:
+            xy[int(n)] = (float(x), float(y))
+        except ValueError:
+            continue
+    if not xy:
+        return []
+    els = re.findall(r'"\s*(\d+)\s+\w+\s+(QUAD4|TRI3)\s+((?:\d+\s+)+)', text)
+    bad, total, first = 0, 0, None
+    for e, kind, ids in els:
+        nodes = [int(i) for i in ids.split()][:4 if kind == "QUAD4" else 3]
+        if len(nodes) < 3 or any(i not in xy for i in nodes):
+            continue
+        total += 1
+        p = [xy[i] for i in nodes]
+        area = 0.5 * sum(p[k][0] * p[(k + 1) % len(p)][1] - p[(k + 1) % len(p)][0] * p[k][1] for k in range(len(p)))
+        if area <= 1e-14 * max(1.0, max(abs(c) for q in p for c in q) ** 2):
+            bad += 1
+            first = first or (e, kind, nodes, area)
+    if not bad:
+        return []
+    e, kind, nodes, area = first
+    return [f"{bad} of {total} 2-D elements have zero or negative area from the deck's own NODE COORDS (first: element "
+            f"{e} {kind} nodes {' '.join(map(str, nodes))}, signed area {area:.3g}): the node order of every element must "
+            "run counter-clockwise -- for a structured grid with NX cells per row and node id = i + 1 + (NX + 1) * j the "
+            "quad of cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1). 4C reports this only as a zero or negative "
+            "determinant or a floating point exception in the element evaluation"]
 
 
 def _lines_without_an_element_edge(text: str) -> list[str]:

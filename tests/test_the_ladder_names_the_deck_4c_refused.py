@@ -171,3 +171,15 @@ def test_a_flux_calc_line_without_topology_is_named():
             'SCATRA FLUX CALC LINE CONDITIONS:\n  - E: 2\nDSURF-NODE TOPOLOGY:\n  - "NODE 1 DSURFACE 1"\n')
     why = lint_deck(deck)
     assert any("SCATRA FLUX CALC LINE CONDITIONS names E id(s) 2" in w for w in why), why
+
+
+def test_twisted_elements_are_named_with_the_counter_clockwise_rule():
+    """Measured on a ladder-loop worker deck: quads written (i, i+1, i+NX, i+NX+1) -- zero area -- and 4C
+    said only 'The determinant of the matrix is equal zero or negative!'."""
+    from tools.fourc_deck_lint import lint_deck
+    coords = "".join(f'  - "NODE {1 + i + 3 * j} COORD {i * 0.5:.1f} {j * 0.5:.1f} 0.0"\n' for j in range(2) for i in range(3))
+    twisted = 'NODE COORDS:\n' + coords + 'TRANSPORT ELEMENTS:\n  - "1 TRANSP QUAD4 1 2 3 4 MAT 1 TYPE Std"\n  - "2 TRANSP QUAD4 2 3 6 5 MAT 1 TYPE Std"\n'
+    why = lint_deck(twisted)
+    assert any("zero or negative area" in w and "element 1" in w and "counter-clockwise" in w for w in why), why
+    good = 'NODE COORDS:\n' + coords + 'TRANSPORT ELEMENTS:\n  - "1 TRANSP QUAD4 1 2 5 4 MAT 1 TYPE Std"\n  - "2 TRANSP QUAD4 2 3 6 5 MAT 1 TYPE Std"\n'
+    assert not any("zero or negative area" in w for w in lint_deck(good))

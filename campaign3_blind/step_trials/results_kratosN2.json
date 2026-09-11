@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False :: /participant_B.py\", line 258, in <module>\n    main()\n  File \"/tmp/tmpw2tswjca/participant_B.py\", line 156, in main\n    mp, nid = build_model()\n              ^^^^^^^^^^^^^\n  File \"/tmp/tmpw2tswjca/participant_B.py\", line 96, in build_model\n    KM.AddDof(KM.TEMPERATURE, KM.REACTION_FLUX, mp.Nodes[n_id])\n    ^^^^^^^^^\n  File \"/home/alexander/Schreibtisch/open-fem-agent/.venv/lib/python3.12/site-packages/KratosMultiphysics/__init__.py\", line 64, in __getattr__\n    raise AttributeError(f\"Module {__name__} has no attribute {name}.\")\nAttributeError: Module KratosMultiphysics has no attribute AddDof.\n",
+  "kept_selfcheck": false,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 168.1,
+  "lines": 258
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpd56m2ovf/participant_B.py\", line 378, in <module>\n    main()\n  File \"/tmp/tmpd56m2ovf/participant_B.py\", line 244, in main\n    if not node.HasDof(KM.TEMPERATURE):\n           ^^^^^^^^^^^\nAttributeError: 'Kratos.Node' object has no attribute 'HasDof'. Did you mean: 'HasDofFor'?\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 182.5,
+  "lines": 378
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False :: D3N\n    MixedLaplacianShiftedBoundaryCondition\n    PeriodicCondition\n    PeriodicConditionCorner\n    PeriodicConditionEdge\n    PointCondition2D1N\n    PointCondition3D1N\n    PrismCondition2D4N\n    PrismCondition3D6N\n    SurfaceCondition3D3N\n    SurfaceCondition3D4N\n    SurfaceCondition3D6N\n    SurfaceCondition3D8N\n    SurfaceCondition3D9N\n    ThermalFace2D2N\n    ThermalFace3D3N\n    ThermalFace3D4N\n\n\nin kratos/python/add_model_part_to_python.cpp:178: Condition::Pointer Python::ModelPartCreateNewCondition(ModelPart&, string, ModelPart::IndexType, vector<long unsigned int>&, Properties::Pointer)\n\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 181.8,
+  "lines": 409
+ }
+]

@@ -2362,7 +2362,12 @@ _DECIDING_FACTS = {
         "`strategy = KM.ResidualBasedLinearStrategy(mp, scheme, builder, True, False, False, False)`; "
         "`strategy.Initialize(); strategy.Solve()`. None of these is in StructuralMechanicsApplication "
         "(`cannot import name ResidualBasedLinearStrategy from ...StructuralMechanicsApplication` -- a "
-        "trial script died there; its repair died on `KM.AddDof`)."),
+        "trial script died there; its repair died on `KM.AddDof`).\n"
+        "10. DIRICHLET VALUES ARE NODAL, NOT A CONDITION (measured): "
+        "`n.SetSolutionStepValue(KM.TEMPERATURE, value); n.Fix(KM.TEMPERATURE)` on every outer-boundary "
+        "node; there is no Dirichlet condition to create (`The Condition \"ThermalDirichlet2D2N\" is not "
+        "registered!` -- a trial repair died there). Conditions are for FLUXES (ThermalFace2D2N / "
+        "FluxCondition2D2N on the interface edges, fact 4) and for nothing else here."),
 }
 _DECIDING_FACTS["dune-fem"] = _DECIDING_FACTS["dune"]
 _DECIDING_FACTS["dunefem"] = _DECIDING_FACTS["dune"]

@@ -606,6 +606,33 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
             f"residuals. ANY TOLERANCE APPLIED TO THIS RESULT — including an "
             f"acceptance tolerance — MUST BE AT LEAST {floor:.3e} RELATIVE.")
 
+    # WARM START FROM A PREVIOUS RUN'S EXPORTS. A level k+1 coupling run in the
+    # same work directories finds level k's converged exports.json there; seeding
+    # iteration 1's IMPORTS with it starts the fixed-point iteration next to its
+    # answer instead of at nothing (each participant maps the coarse samples onto
+    # its own nodes, as the served contracts do). Only the imports are seeded: the
+    # relaxation state still starts at iteration 1 from the new exports, so a
+    # changed point count between levels is never relaxed against. Measured on a
+    # manufactured 4C+FEniCSx thermo-elastic pair: 55 iterations cold at every
+    # level; development cells reached level 2 or 3 and ran out of wall clock.
+    warm_seeded = []
+    for p in participants:
+        ep = p.work_dir / "exports.json"
+        if not ep.is_file():
+            continue
+        try:
+            seed = InterfaceData.from_json(ep)
+            sv = _stack(seed)
+            if sv.size and np.all(np.isfinite(sv)):
+                exports[p.name] = seed
+                warm_seeded.append(p.name)
+        except Exception:                             # noqa: BLE001 -- a stale file is not an error
+            continue
+    if warm_seeded:
+        notes.append(f"warm start: iteration 1 imports were seeded from the exports.json already in the "
+                     f"work directories of {', '.join(warm_seeded)} (a previous run's interface state, "
+                     f"typically the previous mesh level's); the relaxation starts fresh at iteration 1")
+
     for it in range(1, max_iter + 1):
         new_exports: dict[str, InterfaceData] = {}
         for p in participants:

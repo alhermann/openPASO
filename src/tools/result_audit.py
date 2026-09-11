@@ -2433,7 +2433,7 @@ def _fourc_deck_state(side: Path, work: Path) -> dict | None:
         rep = side_dir_report(side)
     except Exception:                                       # noqa: BLE001
         return None
-    if not (rep["decks"] or rep["errors"] or rep["finished"] or rep.get("tracebacks")):
+    if not (rep["decks"] or rep["errors"] or rep["finished"] or rep.get("tracebacks") or rep.get("consoles")):
         return None
     try:
         rel = str(side.relative_to(work))
@@ -2467,6 +2467,11 @@ def _fourc_deck_state(side: Path, work: Path) -> dict | None:
             parts.append("every 4C run finished and no defect is named, so the participant stopped in its "
                          "recovery or export: run it again and read ITS stderr from the top (the served "
                          "check names the missing output)")
+        elif rep.get("consoles"):
+            for lg, tail in rep["consoles"].items():
+                what.append(f"4C's console {lg} ends without a finish")
+                parts.append(f"the console {lg} shows neither 'finished normally' nor an error block; it ends with: {tail} "
+                             "-- read that log from the top, the cause is above its last lines")
         else:
             what.append("deck(s) written, no 4C console found")
             parts.append("no 4C console log lies next to the deck(s): run the binary line-buffered "

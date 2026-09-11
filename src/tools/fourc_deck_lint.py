@@ -248,7 +248,7 @@ def side_dir_report(side: Path) -> dict:
         if kinds:
             finished[d.name[:-len("-vtk-files")]] = kinds
     monitors = sorted(p.name for p in side.glob("*_monitor_dbc.yaml"))
-    errors, tracebacks = {}, {}
+    errors, tracebacks, consoles = {}, {}, {}
     for lg in sorted(side.glob("*.log")) + sorted(side.glob("*.txt")):
         try:
             txt = lg.read_text(errors="ignore")
@@ -260,6 +260,10 @@ def side_dir_report(side: Path) -> dict:
         tb = python_stop_lines(txt)
         if tb:
             tracebacks[lg.name] = tb
+        if not said and not tb and ("4C" in txt or "processor 0" in txt or "Problem type" in txt or "PROBLEMTYPE" in txt):
+            # a 4C console with neither an error block nor a signal: its last lines are the only verdict
+            tail = [l.strip() for l in txt.splitlines() if l.strip() and not set(l.strip()) <= set("+-|=*")]
+            consoles[lg.name] = " | ".join(tail[-3:])
     defects = {}
     decks = sorted(side.glob("*.4C.yaml")) or [p for p in sorted(side.glob("*.yaml")) if "monitor_dbc" not in p.name]
     # the binary the agent's own config names (or the environment's): its grammar judges the section names
@@ -279,4 +283,4 @@ def side_dir_report(side: Path) -> dict:
         if why:
             defects[dk.name] = why
     return {"finished": finished, "monitors": monitors, "errors": errors, "defects": defects,
-            "tracebacks": tracebacks, "decks": [d.name for d in decks]}
+            "tracebacks": tracebacks, "consoles": consoles, "decks": [d.name for d in decks]}

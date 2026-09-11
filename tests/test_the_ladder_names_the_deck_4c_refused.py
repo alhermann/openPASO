@@ -133,3 +133,17 @@ def test_a_signal_crash_and_a_line_without_an_edge_are_named():
     why = lint_deck(deck)
     assert any("DLINE 2" in w and "shares no edge" in w for w in why), why
     assert not any("DLINE 1" in w for w in why), why       # nodes 1-4 ARE an edge of element 1
+
+
+def test_a_console_without_verdict_is_quoted_not_called_missing(tmp_path):
+    """Measured on a ladder-loop trial: 4C's console ended in a crash the gate did not recognise, and the
+    brief said 'no 4C console found' while the log lay next to the deck. Now its last lines are quoted."""
+    from tools.result_audit import coupled_ladder
+    _w(tmp_path / "side_A", "participant_A.py", PART)
+    _w(tmp_path / "side_B", "participant_B.py", PART)
+    _w(tmp_path / "side_B", "exports.json", json.dumps({"values": [1.0], "normal_fluxes": [2.0]}))
+    _w(tmp_path / "side_A", "deck_T.4C.yaml", 'PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\n')
+    _w(tmp_path / "side_A", "deck_T.4C.yaml.log", "4C banner\nProblem type: Scalar_Transport\n| time loop |\nsomething odd happened here\ncore dumped\n")
+    r = coupled_ladder(tmp_path)
+    assert r["step"] == 2 and "no 4C console found" not in r["brief"]
+    assert "ends without a finish" in r["text"] and "core dumped" in r["brief"]

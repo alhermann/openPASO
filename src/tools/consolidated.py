@@ -3156,7 +3156,15 @@ def register_consolidated_tools(mcp: FastMCP):
         # 2026-09-11, the coupling door served 48k characters with no core
         # rules at all. The total stays within the reply limit.
         if _UNIVERSAL_BLOCK in out:
-            return _cap_knowledge_reply(out, topic, solver, physics, signal)
+            # the physics path: the rules block and the post-mortem
+            # breadcrumbs sit at the END of a catalog that alone can exceed
+            # the cap (deal.II/stokes: 48k of JSON) -- cap the catalog, keep
+            # the tail whole
+            i = out.index(_UNIVERSAL_BLOCK)
+            body, tail = out[:i], out[i:]
+            body = _cap_knowledge_reply(body, topic, solver, physics, signal,
+                                        limit=max(8000, _KNOWLEDGE_REPLY_LIMIT - len(tail)))
+            return body + tail
         body = _cap_knowledge_reply(out, topic, solver, physics, signal,
                                     limit=_KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE))
         return body + _UNIVERSAL_CORE

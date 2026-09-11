@@ -490,6 +490,18 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   cap). tests/test_the_served_scaffolds_run_with_a_fill.py executes the
   served 4C (both roles, plus a refused wrong load) and DUNE scaffolds
   against manufactured solutions.
+- 02:30: THE EVERY-CALL CORE. The "rules that apply whatever you asked for"
+  block that rides on every knowledge reply had grown to 25.5k characters
+  (its own test bounds it at 5.5k; failing since 2026-09-01): six thousand
+  tokens per knowledge call, half of every capped reply, and cut off entirely
+  from the coupling door's 48k replies. Now ten short rules (3.8k) with every
+  phrase the tests require; the old text is the long form on request
+  (knowledge(topic='universal_full')). The reply body is capped BEFORE the
+  core is appended, so the core always rides; on the physics path the rules
+  block and the post-mortem breadcrumbs are kept whole at the tail; the
+  postmortems JSON is no longer broken by appended prose (commits 44ec65d0,
+  6b834c6f and after). Round 10 (30b6d46c) runs without these; round 11
+  will carry them.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

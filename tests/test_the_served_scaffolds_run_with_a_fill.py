@@ -111,3 +111,53 @@ def test_the_dune_scaffold_recovers_the_manufactured_flux(tmp_path):
     e = json.loads((tmp_path / "exports.json").read_text())
     err = max(abs(q + math.sin(math.pi * c[1])) for c, q in zip(e["coordinates"], e["normal_fluxes"]))
     assert err < 0.05, f"DUNE flux error {err:.3f} against the manufactured solution"
+
+
+FILL_DUNE_2_SERVED_SOURCE = (
+    "from dune.fem.scheme import galerkin\nfrom dune.ufl import DirichletBC\n"
+    "from ufl import TrialFunction, TestFunction, dot, grad, dx, conditional, lt\n"
+    "u, v = TrialFunction(space), TestFunction(space)\n"
+    "a_form = K_UFL*dot(grad(u), grad(v))*dx + C_UFL*u*v*dx\n"
+    "b_form = src_ufl(x)*v*dx\n"
+    "on_if_ufl = conditional(lt(abs(x[IF_COORD] - IF_VAL), _EPS), 1, 0)\n"
+    "scheme = galerkin([a_form == b_form, DirichletBC(space, 0.0, 1 - on_if_ufl), DirichletBC(space, gtrace, on_if_ufl)], solver='cg')\n"
+    "uh = space.interpolate(0, name='uh')\n"
+    "info = scheme.solve(target=uh)\n")
+
+
+def _dune_run(tmp_path, fill2, source_expr):
+    parts = _scaffold("dune").split(BAR)
+    (tmp_path / "participant_A.py").write_text(parts[0] + FILL_DUNE_1 + parts[2] + fill2 + parts[4])
+    (tmp_path / "config.json").write_text(json.dumps({"level": 1, "nx": 6, "ny": 10, "x0": 0.0, "x1": 0.6,
+                                                      "y0": 0.0, "y1": 1.0, "k": 1.0, "reaction": 0.0, "iface": "right",
+                                                      "source_expr": source_expr}))
+    ys = [i / 10 for i in range(11)]
+    (tmp_path / "imports.json").write_text(json.dumps({"B": {
+        "field_name": "u", "n_points": 11, "coordinates": [[0.6, y] for y in ys],
+        "values": [0.6 * math.sin(math.pi * y) for y in ys], "normal_fluxes": [0.0] * 11}}))
+    return subprocess.run([str(DUNE_PY), "participant_A.py"], cwd=tmp_path, capture_output=True, text=True,
+                          timeout=1500, env=dict(os.environ, MPLBACKEND="Agg"))
+
+
+@pytest.mark.skipif(not DUNE_PY.is_file(), reason="DUNE-fem python not on this host")
+def test_the_dune_scaffold_carries_the_task_source_from_config(tmp_path):
+    """The task's source as a config string: served F_SRC for the consistent load and
+    src_ufl(x) for the form, no hand-written F_SRC anywhere in the fill."""
+    r = _dune_run(tmp_path, FILL_DUNE_2_SERVED_SOURCE, "pi^2*x*sin(pi*y)")
+    assert r.returncode == 0, r.stderr[-1500:]
+    e = json.loads((tmp_path / "exports.json").read_text())
+    err = max(abs(q + math.sin(math.pi * c[1])) for c, q in zip(e["coordinates"], e["normal_fluxes"]))
+    assert err < 0.05, f"DUNE flux error {err:.3f} with the served source carrier"
+
+
+@pytest.mark.skipif(not DUNE_PY.is_file(), reason="DUNE-fem python not on this host")
+def test_a_form_that_drops_the_configured_source_is_refused(tmp_path):
+    """Measured on a development cell: the polynomial source carried nowhere gave a
+    smooth field 1.2e-2 off at every level, order 0.00. With the source in config and
+    not in the form, the served interior-residual check must stop the export."""
+    dropped = FILL_DUNE_2_SERVED_SOURCE.replace("b_form = src_ufl(x)*v*dx\n", "b_form = 1e-12*v*dx\n")
+    assert dropped != FILL_DUNE_2_SERVED_SOURCE
+    r = _dune_run(tmp_path, dropped, "pi^2*x*sin(pi*y)")
+    assert r.returncode != 0
+    assert "your form and config disagree" in r.stderr, r.stderr[-1500:]
+    assert not (tmp_path / "exports.json").is_file()

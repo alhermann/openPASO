@@ -4437,6 +4437,8 @@ interior = _if_nodes[1:-1]                                           # endpoints
 # Formed here over YOUR mesh with the standard P1 element matrices (Ke, Me below
 # are the same for every P1 triangle -- they are not tied to any served mesh):
 resid = np.zeros(len(node_coords))
+_ku_part = np.zeros(len(node_coords))      # the operator side K u + c M u, for the served check below
+_bv_part = np.zeros(len(node_coords))      # the served consistent load M f
 for el in elements:                       # el = the 3 vertex ids of one triangle
     P = node_coords[list(el)]
     area = 0.5 * abs((P[1,0]-P[0,0])*(P[2,1]-P[0,1]) - (P[1,1]-P[0,1])*(P[2,0]-P[0,0]))
@@ -4446,7 +4448,9 @@ for el in elements:                       # el = the 3 vertex ids of one triangl
     Ke = KV * area * (gr @ gr.T)                       # element stiffness
     Me = area / 12.0 * (np.ones((3, 3)) + np.eye(3))   # CONSISTENT mass, not lumped
     ue = u_vert[list(el)]
-    resid[list(el)] += Ke @ ue + CV * (Me @ ue) - (Me @ f_vals[list(el)])
+    _ku_part[list(el)] += Ke @ ue + CV * (Me @ ue)
+    _bv_part[list(el)] += Me @ f_vals[list(el)]
+resid = _ku_part - _bv_part
 h_if = HY if IF in ("left", "right") else HX
 # THE FORM AND THE SERVED LOAD MUST AGREE (served check). On the free interior
 # vertices r = K u - b_vol is only the quadrature difference between DUNE's
@@ -4458,13 +4462,15 @@ _outer_set = {_n for _n, (_px, _py) in enumerate(node_coords)
               if (abs(_px - X0) < _EPS or abs(_px - X1) < _EPS or abs(_py - Y0) < _EPS or abs(_py - Y1) < _EPS)
               and _n not in _ifset}
 _free = [_n for _n in range(len(node_coords)) if _n not in _ifset and _n not in _outer_set]
-_r_if = max((abs(float(resid[_n])) for _n in interior), default=0.0)
 _r_in = max((abs(float(resid[_n])) for _n in _free), default=0.0)
-if _r_if > 0 and _r_in > 0.3 * _r_if:
-    raise SystemExit(f"EXPORT SELF-CHECK: the interior residual of the served consistent load against your "
-                     f"solution is {_r_in:.3e}, {_r_in / _r_if:.2f} of the interface functional: your form and "
-                     f"config disagree on k ({KV}), the reaction ({CV}) or the source (source_expr={SRC_EXPR!r}) "
-                     f"-- the load of your form must be src_ufl(x) * v * dx with the same numbers. Nothing was exported")
+_scale_in = max(max((abs(float(_ku_part[_n])) for _n in _free), default=0.0),
+                max((abs(float(_bv_part[_n])) for _n in _free), default=0.0))
+if _scale_in > 0 and _r_in > 0.25 * _scale_in:
+    raise SystemExit(f"EXPORT SELF-CHECK: on the interior vertices your solution's operator side K u + c M u and the "
+                     f"served consistent load M f differ by {_r_in:.3e}, {_r_in / _scale_in:.2f} of their size (a form "
+                     f"that integrates the same f, k and c leaves a few percent): your form and config disagree on "
+                     f"k ({KV}), the reaction ({CV}) or the source (source_expr={SRC_EXPR!r}) -- the load of your form "
+                     f"must be src_ufl(x) * v * dx with the same numbers. Nothing was exported")
 q_own = [float(-resid[n] / h_if) for n in interior]    # interior = interface ids[1:-1]
 co_out = [[float(node_coords[n][0]), float(node_coords[n][1])] for n in interior]
 # exports.json LAST (the driver takes its existence as proof of success).

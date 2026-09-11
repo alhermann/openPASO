@@ -540,7 +540,12 @@ TOPOLOGY' is defined more than once` -> deck grammar trap (h).
   all six attempts on ONE class -- an invented model-part constructor
   (`KM.MainModelPart()`, `KM.ModelPart(...)`) in the elided mesh hole;
   Kratos fact 8 now states the idiom (`model = KM.Model();
-  mp = model.CreateModelPart(...)`, commit db10f676); kratosN2 running on it.
+  mp = model.CreateModelPart(...)`, commit db10f676). kratosN2 (fact 8): 0/3,
+  every failure one API class deeper -- the solve stack imported from
+  StructuralMechanics, `KM.AddDof`, `node.HasDof`, an invented Dirichlet
+  condition; facts 9 (the exact core-namespace solve stack) and 10
+  (Dirichlet values are nodal, via Fix) added (bbce8897, 563d21a4);
+  kratosN3 running on facts 8-9.
 - DUNE worker step, final trials of the night (contract with served UFL
   constants, graded against the reference flux): dune11 without a repair
   round 1/3 (the two failures were a missing `import dune` and

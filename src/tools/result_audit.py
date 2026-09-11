@@ -2683,26 +2683,28 @@ def coupled_ladder(work: Path) -> dict | None:
     short = (f" (its history so far has {rows_by_level.get(next_level, 0)} row(s))"
              if next_level in rows_by_level else "")
     if done_levels:
-        what = (f"LEVELS {done_levels} ARE COMPLETE ON DISK. If your task prescribes more levels, couple "
-                f"level {next_level}; otherwise write the summary.")
-        brief = (f"If the task prescribes a level {next_level}: ONE couple_levels(participants=..., levels=[...], history_pattern=<your task's per-level history file name with {k}>) call "
-                 f"runs every remaining level (it hands each side its level's nx, ny in the environment, doubling "
-                 f"every cell count to halve h, warm-starts each level from the previous one, and writes each "
-                 f"residual_level<k>.csv and participant_output_level<k>.log); otherwise, per level: in BOTH "
-                 f"./config.json set level={next_level} AND "
-                 f"halve h -- double every cell count (nx, ny) -- because the served participants mesh from nx and "
-                 f"ny and take level as a label (measured: three runs changed only the label, coupled three identical "
-                 f"meshes and were graded on an unchanged NDOF); then "
-                 "call couple(participants=..., history_path=<absolute path of this level's residual-history "
-                 "file>) and iterate until it converges; then do steps 4 and 5 for it. If not: write the "
-                 "summary file naming ONLY files that exist, then run audit_results(work_dir). CHECK: the "
-                 "audit reports no missing level, no invented name and no missing field file.")
+        what = (f"LEVELS {done_levels} ARE COMPLETE ON DISK. If your task prescribes more levels, run them ALL "
+                f"in ONE call: couple_levels(participants=<the same list you passed to couple>, levels=[{next_level}, ...], "
+                "history_pattern='<the task's per-level history file name with {k} in place of the level>'). "
+                "Otherwise write the summary.")
+        brief = (f"If the task prescribes a level {next_level}: call couple_levels(participants=<the same list you passed to "
+                 f"couple>, levels=[{next_level}, ...every further level the task prescribes], history_pattern='<the task's "
+                 "per-level history file name with {k} in place of the level number>') ONCE. It runs every remaining "
+                 "level in that single call: each side gets its level's nx, ny in the environment (every cell count "
+                 "doubled to halve h), each level warm-starts from the previous one, and each level's history file and "
+                 "participant_output_level<k>.log are written. Measured: per-level couple() calls cost ten calls a level "
+                 "and six proven couplings never reached level 3 that way. Then do steps 4 and 5 for every new level. "
+                 "If the task prescribes no further level: write the summary file naming ONLY files that exist, then run "
+                 "audit_results(work_dir). CHECK: the audit reports no missing level, no invented name and no missing "
+                 "field file.")
         return step(6, what, brief)
     return step(3, f"COUPLE LEVEL {next_level}{short}.",
                 f"Set level={next_level} in both ./config.json; call couple(participants=[{{name, command, "
                 f"work_dir (absolute), imports_from}} for both sides], max_iter from the served rho guidance, "
                 "tol from the task, history_path=<absolute path of this level's residual-history file>); "
-                "read the reply's WHAT TO FIX NEXT and fix the named side until converged is true. CHECK: "
+                "read the reply's WHAT TO FIX NEXT and fix the named side until converged is true. Once this "
+                "level converges, every further level is ONE couple_levels(participants=<same>, levels=[...], "
+                "history_pattern='<per-level history file name with {k}>') call. CHECK: "
                 "the residual-history file for this level exists with at least three rows and a falling "
                 "residual, and the couple() reply says converged.")
 

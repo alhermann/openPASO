@@ -81,3 +81,20 @@ def test_a_participant_written_from_scratch_is_sent_back_to_the_served_contract(
     _w(tmp_path, "residual_level1.csv", "iteration,interface_residual\n1,0.5\n2,0.1\n3,0.01\n")
     _w(tmp_path / "side_B", "exports.json", json.dumps({"values": [1.0], "normal_fluxes": [2.0]}))
     assert "RESTORE THE SERVED CONTRACT" not in coupled_ladder(tmp_path)["text"]
+
+
+def test_the_next_level_brief_names_couple_levels_with_a_literal_k(tmp_path):
+    """Measured in round 25: the brief rendered {k} as the level number ("with 1") and no cell used the
+    one-call mesh sequence; the next action now leads and the placeholder is literal."""
+    from tools.result_audit import coupled_ladder
+    for s in ("A", "B"):
+        _w(tmp_path / f"side_{s}", f"participant_{s}.py", PART)
+        _w(tmp_path / f"side_{s}", "exports.json", json.dumps({"values": [1.0], "normal_fluxes": [2.0]}))
+        _w(tmp_path, f"solution_level1_{s}.csv", "x,y,u\n0,0,1\n")
+        _w(tmp_path, f"interface_level1_{s}.csv", "x,y,u,qn\n0,0,1,2\n")
+        _w(tmp_path, f"run_level1_{s}.csv", "x\n")
+    _w(tmp_path, "residual_level1.csv", "iteration,interface_residual\n1,0.5\n2,0.1\n3,0.01\n")
+    r = coupled_ladder(tmp_path)
+    txt = r["text"]
+    assert "couple_levels(" in txt.split("HAND THIS STEP")[0]          # the next action leads the step line
+    assert "{k}" in txt and "with 1" not in txt

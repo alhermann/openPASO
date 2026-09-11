@@ -2396,14 +2396,16 @@ _KNOWLEDGE_REPLY_LIMIT = 48_000
 
 
 def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
-                         physics: str = "", signal: str = "") -> str:
-    if not isinstance(out, str) or len(out) <= _KNOWLEDGE_REPLY_LIMIT:
+                         physics: str = "", signal: str = "",
+                         limit: int | None = None) -> str:
+    limit = _KNOWLEDGE_REPLY_LIMIT if limit is None else limit
+    if not isinstance(out, str) or len(out) <= limit:
         return out
     if (signal or "").strip().lower().startswith("participant"):
         return out
-    head = out[:_KNOWLEDGE_REPLY_LIMIT]
+    head = out[:limit]
     cuts = [head.rfind(m) for m in ("\n────", "\n\n#", "\n\n", "\n")]
-    cut = max([c for c in cuts if c > _KNOWLEDGE_REPLY_LIMIT // 2], default=-1)
+    cut = max([c for c in cuts if c > limit // 2], default=-1)
     if cut > 0:
         head = head[:cut]
     asked = ", ".join(f"{k}={v!r}" for k, v in (("topic", topic), ("solver", solver),
@@ -3148,9 +3150,16 @@ def register_consolidated_tools(mcp: FastMCP):
         out = _knowledge_body(topic, solver, physics, signal, category, index)
         if not isinstance(out, str):
             return out
-        # the physics path already carries the full block; never send both
-        out = out if _UNIVERSAL_BLOCK in out else out + _UNIVERSAL_CORE
-        return _cap_knowledge_reply(out, topic, solver, physics, signal)
+        # the physics path already carries the full block; never send both.
+        # CAP THE BODY, THEN APPEND THE CORE: appended first, the core sat at
+        # the end of every long reply and the cap cut it off -- measured
+        # 2026-09-11, the coupling door served 48k characters with no core
+        # rules at all. The total stays within the reply limit.
+        if _UNIVERSAL_BLOCK in out:
+            return _cap_knowledge_reply(out, topic, solver, physics, signal)
+        body = _cap_knowledge_reply(out, topic, solver, physics, signal,
+                                    limit=_KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE))
+        return body + _UNIVERSAL_CORE
 
     # ═══════════════════════════════════════════════════════════
     # 2. DISCOVER (replaces 6 discovery tools)

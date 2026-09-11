@@ -552,6 +552,79 @@ def _physics_tail() -> str:
 # A fixed core on every path is deterministic and the same for every run.
 _UNIVERSAL_CORE = """
 
+────────────────────────────────────────
+TEN RULES THAT APPLY WHATEVER YOU ASKED FOR
+(the long form, with the measured evidence behind each: knowledge(topic='universal_full'))
+────────────────────────────────────────
+
+1. THE DELIVERABLE GOES IN THE DIRECTORY YOU WERE GIVEN: results, scripts and
+   solver output under the working directory your task names -- never a temp
+   dir, the tool's tree or $HOME. Work that cannot be found counts as absent.
+
+2. A SOLVER'S INPUT LANGUAGE IS NOT PYTHON. In decks and expression strings
+   powers are `^` not `**`, constants are the solver's own (lowercase `pi`),
+   and a wrong operator is often SILENT: the numeric prefix is taken, the rest
+   dropped, and the run succeeds with the wrong load. Rewrite every term of a
+   source you copied out of the task text.
+
+3. DO NOT CONCLUDE A SOLVER IS BROKEN. Nearly every "broken solver" seen in
+   development was an unread log: capture BOTH streams (`cmd > out.log 2>&1`),
+   read the log rather than the exit code (codes print their fatal error and
+   still exit 0), re-run with the backend's verbose flag, and ask
+   knowledge(topic='pitfalls', solver=...) before reporting a failure.
+
+4. THE MOST COMMON FAILURE IS NEVER PRODUCING THE NUMBERS: 36% of 464 measured
+   runs wrote no probe output, and the largest slice of those SOLVED and never
+   read the field back at the required points. Do ONE coarse level end to end
+   -- solve, extract at the prescribed points, write the file -- before
+   refining anything.
+
+5. MEASURE, DO NOT GUESS. Whether your field satisfies the equation you were
+   given is falsifiable with no reference answer:
+       verify_pde_consistency(solution_files=..., source_term=...,
+                              coefficient=..., domain=...)
+   Fields that solve the stated problem shrink at order ~2 across levels;
+   wrong ones stay flat. On a coupled task run it on EACH side with that
+   side's own source and coefficient. Report NOT_CONVERGED with the largest
+   relative change rather than a convergence you cannot show.
+
+6. IF YOUR SOLVER IS A BINARY, ITS INPUT FILE IS THE RUN INTERFACE and you
+   cannot guess it: the full deck grammar for 4C, FEBio and SPARTA is served
+   by knowledge(topic='physics', solver=<name>, physics=<name>) and by no
+   other topic -- ask before deciding a deck cannot be written.
+   4C DOES ACCEPT PER-NODE DIRICHLET VALUES (DESIGN POINT DIRICH CONDITIONS
+   with a DNODE-NODE TOPOLOGY block); its design entity ids are ONE-based, and an `E: 0`
+   segfaults with no message.
+
+7. REFINEMENT COUNTS HALVINGS, NOT CELLS: each level halves h (2-D: ~4x the
+   DOFs, 3-D: ~8x); `refined(k)` (scikit-fem), `refine_global(k)` (deal.II)
+   and their kin halve k times, so a task's levels 1, 2, 3 are k = 0, 1, 2
+   from the coarse mesh.
+
+8. YOUR SOLVER WILL ACCEPT A SETTING AND THEN IGNORE IT -- the single most
+   common silent failure: a source, coefficient or boundary value that parses
+   and is never consumed. A driven problem whose field is identically zero is
+   this bug until proven otherwise. THE CHECK COSTS ONE COMMAND: grep your own
+   input for the ingredient's name and confirm something CONSUMES it.
+
+9. GATE ON THREE THINGS BEFORE YOU WRITE YOUR SUMMARY FILE, at EVERY level:
+   the field is non-trivial (distinct values, plausible size), the boundary
+   values come back at the boundary, and the mesh actually changed.
+
+10. READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST
+    NODE: nearest-node caps the measured order at 1 whatever the solver did.
+    It is post-processing -- re-read the field, do not re-solve.
+
+BEFORE YOU HAND IN, RUN `audit_results(work_dir=<your results directory>,
+claimed_order=<the order you are about to claim>)` and act on what it names;
+it reads only your own files.
+"""
+
+# THE LONG FORM (was the every-call core until 2026-09-11: 25.5k characters
+# riding on every knowledge reply, six thousand tokens a call, and half of
+# every capped reply). Served on request as knowledge(topic='universal_full').
+_UNIVERSAL_LONG = """
+
 ────────────────────────────────────────────────────────────────────────────────
 SEVEN RULES THAT APPLY WHATEVER YOU ASKED FOR
 ────────────────────────────────────────────────────────────────────────────────
@@ -1074,7 +1147,7 @@ the ingredient.
 # a 28% reduction that keeps every guarded item on the default path.
 #
 # The tail is not deleted. `knowledge(topic="universal_full")` returns it.
-_UNIVERSAL_FULL = _UNIVERSAL_CORE + _UNIVERSAL
+_UNIVERSAL_FULL = _UNIVERSAL_CORE + _UNIVERSAL_LONG
 _UNIVERSAL = _UNIVERSAL_CORE + (
     "\nThe long form of these rules, with the full measured evidence behind "
     "each, is available on request: knowledge(topic='universal_full'). It is "

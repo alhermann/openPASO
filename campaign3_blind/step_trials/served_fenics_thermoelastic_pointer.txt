@@ -29,7 +29,6 @@ THE COUPLED MUST-READ (the couple() call recipe, history_path, the fields-vs-evi
 Call `knowledge(topic='coupling', solver='fenics', signal='participant:part1')`, then request each next part named in that response and concatenate only the fenced code contents in order. For another role insert it before the part, for example `signal='participant:neumann:part1'`. The parts are the same contract as below, solve elided; there is no complete program to reconstruct.
 
 # Coupling participant: FEniCSx (dolfinx)
-
 ## Sides this backend can take
 
 **Either side.** Both were run as real cross-code couplings against a second code on this install: FEniCSx as the Dirichlet side against 4C on Neumann, and FEniCSx as the Neumann side against 4C on Dirichlet. Both converged with non-matching interface meshes.
@@ -93,6 +92,7 @@ and the imported traction is the partner's sigma_tot . n (thermal part
 included), applied as it comes.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -134,9 +134,10 @@ Q_INIT    = (0.0, 0.0, 0.0)                # iteration-1 fallback flux/traction
 #    next to this script overrides NX, NY and names the level; the per-level
 #    dumps below carry that level so the coarse levels survive the fine ones.
 LEVEL = 1
-if Path("config.json").is_file():
+if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
     try:
-        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         NX = int(_cfg.get("nx", NX))
         NY = int(_cfg.get("ny", NY))
@@ -450,6 +451,7 @@ Top and bottom edges are natural (zero-flux). The non-interface x-boundary
 carries a Dirichlet value T_OUTER.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -505,9 +507,10 @@ Q_INIT    = 0.0           # iteration-1 fallback interface flux
 #    next to this script overrides NX, NY and names the level; the per-level
 # ... (explanation continues in the annotated block)
 LEVEL = 1
-if Path("config.json").is_file():
+if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
     try:
-        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         NX = int(_cfg.get("nx", NX))
         NY = int(_cfg.get("ny", NY))
@@ -548,85 +551,10 @@ imp = read_imports()
 # ─────────────────────────────────────────────────────────────────────────
 # THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
 #
-# Build the mesh, the function space, the weak form and the linear solve for
-# ... (explanation continues in the annotated block)
-# ordinary finite-element work and OASiS has no business dictating it.
-#
-# What OASiS does document — because you cannot guess it and it is what the
-# interface check compares against — is everything AROUND the solve: the
-# imports/exports handshake above, the interface sign convention, and the flux
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 65,510 further characters exist and are NOT lost.
+THIS PAYLOAD IS TRUNCATED HERE. 66,144 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 27,983 of 93,127 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fenics', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 27,957 of 93,735 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fenics', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
-
-
-────────────────────────────────────────
-TEN RULES THAT APPLY WHATEVER YOU ASKED FOR
-(the long form, with the measured evidence behind each: knowledge(topic='universal_full'))
-────────────────────────────────────────
-
-1. THE DELIVERABLE GOES IN THE DIRECTORY YOU WERE GIVEN: results, scripts and
-   solver output under the working directory your task names -- never a temp
-   dir, the tool's tree or $HOME. Work that cannot be found counts as absent.
-
-2. A SOLVER'S INPUT LANGUAGE IS NOT PYTHON. In decks and expression strings
-   powers are `^` not `**`, constants are the solver's own (lowercase `pi`),
-   and a wrong operator is often SILENT: the numeric prefix is taken, the rest
-   dropped, and the run succeeds with the wrong load. Rewrite every term of a
-   source you copied out of the task text.
-
-3. DO NOT CONCLUDE A SOLVER IS BROKEN. Nearly every "broken solver" seen in
-   development was an unread log: capture BOTH streams (`cmd > out.log 2>&1`),
-   read the log rather than the exit code (codes print their fatal error and
-   still exit 0), re-run with the backend's verbose flag, and ask
-   knowledge(topic='pitfalls', solver=...) before reporting a failure.
-
-4. THE MOST COMMON FAILURE IS NEVER PRODUCING THE NUMBERS: 36% of 464 measured
-   runs wrote no probe output, and the largest slice of those SOLVED and never
-   read the field back at the required points. Do ONE coarse level end to end
-   -- solve, extract at the prescribed points, write the file -- before
-   refining anything.
-
-5. MEASURE, DO NOT GUESS. Whether your field satisfies the equation you were
-   given is falsifiable with no reference answer:
-       verify_pde_consistency(solution_files=..., source_term=...,
-                              coefficient=..., domain=...)
-   Fields that solve the stated problem shrink at order ~2 across levels;
-   wrong ones stay flat. On a coupled task run it on EACH side with that
-   side's own source and coefficient. Report NOT_CONVERGED with the largest
-   relative change rather than a convergence you cannot show.
-
-6. IF YOUR SOLVER IS A BINARY, ITS INPUT FILE IS THE RUN INTERFACE and you
-   cannot guess it: the full deck grammar for 4C, FEBio and SPARTA is served
-   by knowledge(topic='physics', solver=<name>, physics=<name>) and by no
-   other topic -- ask before deciding a deck cannot be written.
-   4C DOES ACCEPT PER-NODE DIRICHLET VALUES (DESIGN POINT DIRICH CONDITIONS
-   with a DNODE-NODE TOPOLOGY block); its design entity ids are ONE-based, and an `E: 0`
-   segfaults with no message.
-
-7. REFINEMENT COUNTS HALVINGS, NOT CELLS: each level halves h (2-D: ~4x the
-   DOFs, 3-D: ~8x); `refined(k)` (scikit-fem), `refine_global(k)` (deal.II)
-   and their kin halve k times, so a task's levels 1, 2, 3 are k = 0, 1, 2
-   from the coarse mesh.
-
-8. YOUR SOLVER WILL ACCEPT A SETTING AND THEN IGNORE IT -- the single most
-   common silent failure: a source, coefficient or boundary value that parses
-   and is never consumed. A driven problem whose field is identically zero is
-   this bug until proven otherwise. THE CHECK COSTS ONE COMMAND: grep your own
-   input for the ingredient's name and confirm something CONSUMES it.
-
-9. GATE ON THREE THINGS BEFORE YOU WRITE YOUR SUMMARY FILE, at EVERY level:
-   the field is non-trivial (distinct values, plausible size), the boundary
-   values come back at the boundary, and the mesh actually changed.
-
-10. READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST
-    NODE: nearest-node caps the measured order at 1 whatever the solver did.
-    It is post-processing -- re-read the field, do not re-solve.
-
-BEFORE YOU HAND IN, RUN `audit_results(work_dir=<your results directory>,
-claimed_order=<the order you are about to claim>)` and act on what it names;
-it reads only your own files.

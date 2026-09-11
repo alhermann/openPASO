@@ -10,6 +10,7 @@ Top and bottom edges are natural (zero-flux). The non-interface x-boundary
 carries a Dirichlet value T_OUTER.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -65,9 +66,10 @@ Q_INIT    = 0.0           # iteration-1 fallback interface flux
 #    next to this script overrides NX, NY and names the level; the per-level
 #    dumps below carry that level so the coarse levels survive the fine ones.
 LEVEL = 1
-if Path("config.json").is_file():
+if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
     try:
-        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         NX = int(_cfg.get("nx", NX))
         NY = int(_cfg.get("ny", NY))

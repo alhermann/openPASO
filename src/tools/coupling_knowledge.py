@@ -2769,10 +2769,14 @@ THE SOLVE ARE YOURS to write -- see the banner. Get the deck from
 prepare_simulation(solver='fourc', physics='<your physics>').
 """
 import json
+import os
 import numpy as np
 from pathlib import Path
 
 CFG = json.loads(Path("config.json").read_text())
+# A multi-level coupling call hands this level's keys in the environment
+# (OASIS_CONFIG_JSON, a JSON object) instead of writing this file.
+CFG.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))
 NX, NY = CFG["nx"], CFG["ny"]
 X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV = CFG["k"]; IF = CFG.get("iface", "left")
@@ -4324,11 +4328,15 @@ and a runnable P1 pattern from prepare_simulation(solver='dune',
 physics='<your physics>').
 """
 import json
+import os
 from pathlib import Path
 
 import numpy as np
 
 CFG = json.loads(Path("config.json").read_text())
+# A multi-level coupling call hands this level's keys in the environment
+# (OASIS_CONFIG_JSON, a JSON object) instead of writing this file.
+CFG.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))
 NX, NY = CFG["nx"], CFG["ny"]
 X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV, CV, FV = CFG["k"], CFG.get("reaction", 0.0), CFG.get("source_const", 0.0)
@@ -4519,7 +4527,7 @@ if _scale_in > 0 and _r_in > 0.25 * _scale_in:
                      f"served consistent load M f differ by {_r_in:.3e}, {_r_in / _scale_in:.2f} of their size (a form "
                      f"that integrates the same f, k and c leaves a few percent): your form and config disagree on "
                      f"k ({KV}), the reaction ({CV}) or the source (source_expr={SRC_EXPR!r}) -- the load of your form "
-                     f"must be src_ufl(x) * v * dx with the same numbers. Nothing was exported")
+                     f"must integrate the same source with the same numbers. Nothing was exported")
 q_own = [float(-resid[n] / h_if) for n in interior]    # interior = interface ids[1:-1]
 co_out = [[float(node_coords[n][0]), float(node_coords[n][1])] for n in interior]
 # exports.json LAST (the driver takes its existence as proof of success).

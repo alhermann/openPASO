@@ -66,10 +66,17 @@ and on success returns your interface tables READY TO SAVE plus the paths of
 the captured solver logs. DO NOT hand-roll this loop yourself: measured
 across the runs that did, the hand-rolled exchange stalls (residuals
 9.92->9.98 over 100 iterations; constant 1.0) and cannot show two codes coupled.
-One couple call per mesh level, on the exact levels your task prescribes.
+One couple call per mesh level, on the exact levels your task prescribes --
+or ONE couple_levels(participants=..., levels='[{"level": 1, "A": {"nx": ..,
+"ny": ..}, "B": {...}}, ...]', history_pattern='<the per-level history file
+name your task prescribes, with {k} for the level>') call for the whole
+sequence: it hands each side its level's mesh keys in the environment
+(OASIS_CONFIG_JSON, read by the served contracts -- OASiS writes no file of
+yours), warm-starts each level from the previous one, and keeps every level's
+history, console and interface tables (measured: couplings proven
+at level 1 ran out of wall clock before level 3 when every level cost ten calls).
 
 # Coupling participant: FEniCSx (dolfinx)
-
 ## Sides this backend can take
 
 **Either side.** Both were run as real cross-code couplings against a second code on this install: FEniCSx as the Dirichlet side against 4C on Neumann, and FEniCSx as the Neumann side against 4C on Dirichlet. Both converged with non-matching interface meshes.
@@ -115,6 +122,7 @@ and the imported traction is the partner's sigma_tot . n (thermal part
 included), applied as it comes.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -156,9 +164,10 @@ Q_INIT    = (0.0, 0.0, 0.0)                # iteration-1 fallback flux/traction
 #    next to this script overrides NX, NY and names the level; the per-level
 #    dumps below carry that level so the coarse levels survive the fine ones.
 LEVEL = 1
-if Path("config.json").is_file():
+if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
     try:
-        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         NX = int(_cfg.get("nx", NX))
         NY = int(_cfg.get("ny", NY))
@@ -459,7 +468,7 @@ Path("exports.json").write_text(json.dumps({
 
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE (this code's coupling text): 71,172 further characters (its traps, the other role, launch notes) exist and are NOT lost -- knowledge(topic='coupling', solver='fenics') again, or with signal='<what you are stuck on>', returns them. The must-read continues below.
+THIS PAYLOAD IS TRUNCATED HERE (this code's coupling text): 71,578 further characters (its traps, the other role, launch notes) exist and are NOT lost -- knowledge(topic='coupling', solver='fenics') again, or with signal='<what you are stuck on>', returns them. The must-read continues below.
 ──────────────────────────────────────────────────────────────────────
 
 DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH -- THE CONTRACT EXISTS
@@ -744,74 +753,91 @@ already hold those bytes; the whole fix is not to drop them:
 
 (dof_line being the DOF-count line your task asks for) or skip the capture and
 redirect, `cmd > <the per-level run log for that code> 2>&1`.
+Measured, on the same problem and the same two codes: a real capture is 2947 and
+1476 bytes and carries the solver's banner; a hand-written summary is 56 and 68
+bytes. One run invoked the binary correctly under `stdbuf -oL -eL`, captured
+its output into a variable, drove the interface iteration to 4.4e-07 and
+reached an order of 1.94 against an independent reference -- then wrote three
+lines of its own prose into the log and could not be credited with any of it.
+Some codes need one line to
+say anything at all: FEniCSx `dolfinx.log.set_log_level(LogLevel.INFO)`,
+deal.II `deallog.depth_console(2)` AND a SolverControl with log_history/
+log_result, NGSolve `ngsglobals.msg_level = 3`, DUNE-fem
+`parameters={"linear.verbose": True}`, scikit-fem `logging.basicConfig(
+level=logging.INFO)` whose output goes to STDERR. Kratos, 4C, FEBio and SPARTA
+print by default.
 
-──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,204 OF 52,248 CHARACTERS (topic='coupling', solver='fenics', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+CHECK THE INTERFACE SIGN BEFORE YOU HAND IN: verify_interface_flux(...).
+
+    verify_interface_flux(interface_files="<all per-level interface files, both sides>",
+                          solution_files="<all per-level field files, both sides>",
+                          interface_axis=0)
+
+It needs no reference solution. For a flux you really computed from your own
+solution, q_n(x) / (-du/dn)(x) equals k at every interface point -- so the
+ratio is CONSTANT along the interface whatever k is, and POSITIVE. A constant
+NEGATIVE ratio means your normal points inward.
+
+THE TRAP IT CATCHES: on the NEUMANN side the flux you IMPORT and the flux you
+REPORT have OPPOSITE signs. Kratos's FACE_HEAT_FLUX is the INWARD normal flux,
+while the task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the
+subdomain -- so the number you write into each per-level interface file is the
+NEGATIVE of the one you applied.
+
+Measured on one coupled development run: a run whose two prescribed codes BOTH
+genuinely ran, whose coupling genuinely iterated over three mesh levels, and
+whose interface FIELD matched to 0.000e+00 across the seam was still WRONG,
+because at the finest level one side's implied
+coefficient came out -250.8 instead of +200. Its relative flux jump went
+8.139e-01, 9.066e-01, 9.530e-01 -- growing, not shrinking. The same tool on a
+correct result set returns +0.98 to +1.30 on the k=1 side and +200.4 to +206.7
+on the k=200 side, without any reference solution. One call would have told the
+run which of the two it was.
+
+EACH SIDE'S PER-LEVEL RUN LOG MUST CARRY THAT SOLVER'S OWN OUTPUT.
+
+A DOF-count line alone is code-agnostic: it cannot show WHICH code produced the
+side, so a coupled claim built on it is unproven no matter how good the numbers
+are. Capture the solver's console output into the log next to your DOF-count
+line -- 4C's banner and git SHA, Kratos's strategy telemetry, whatever your code
+prints. This was measured: a run whose numbers were genuinely second order was
+credited to two prescribed codes it had invoked NEITHER of, on the strength of
+fourteen ten-byte files carrying nothing but a DOF count.
+
+Two ways that capture silently fails, both measured:
+  * redirecting Python's stdout around an in-process solve captures ZERO bytes
+    from a code that prints through C++ streams -- os.dup2 on fd 1 around a
+    Kratos solve produced a 0-byte file. RUN THE SOLVE IN A SUBPROCESS and
+    capture that subprocess's stdout; then the capture cannot miss.
+  * a template that assembles and solves the system itself never prints
+    anything from the named code, because the named code never ran. If a
+    template you were given has no import of, or call to, the code the task
+    names, it is the wrong artefact for a task that names it -- ask for the
+    real route. An independent assembly is a fine CHECK on the solver's answer
+    and a fatal substitute for it.
 
 
-────────────────────────────────────────
-TEN RULES THAT APPLY WHATEVER YOU ASKED FOR
-(the long form, with the measured evidence behind each: knowledge(topic='universal_full'))
-────────────────────────────────────────
+# WHAT DECIDES THIS RUN — fenics/coupled side
+# (read this before the corpus below; each line was measured by execution)
 
-1. THE DELIVERABLE GOES IN THE DIRECTORY YOU WERE GIVEN: results, scripts and
-   solver output under the working directory your task names -- never a temp
-   dir, the tool's tree or $HOME. Work that cannot be found counts as absent.
+1. `ufl.FiniteElement` NO LONGER EXISTS (dolfinx 0.10 / ufl 2025.2: AttributeError; the lowercase hint `ufl.finiteelement` is NOT what you want either). Build spaces the modern way -- fem.functionspace(mesh, ('Lagrange', 1)) with lowercase f, or basix.ufl.element('Lagrange', 'triangle', 1). Both measured working on this install.
+2. `LinearProblem` REQUIRES the keyword `petsc_options_prefix` on this install (TypeError without it). Measured working:
+       p = dolfinx.fem.petsc.LinearProblem(a, L, bcs=[bc],
+           petsc_options={'ksp_type': 'preonly', 'pc_type': 'lu'},
+           petsc_options_prefix='run')
+       uh = p.solve()
+   Its solver is the PUBLIC `p.solver`; touching `p._solver` raises AttributeError (one run died on exactly that).
+3. dolfinx is SILENT by default: before creating the mesh, call dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO) -- the DOLFINX_LOGLEVEL environment variable is NOT honoured, and a run whose console output stays empty cannot show which code ran.
+4. Evaluate a Function at arbitrary points with the bb-tree route: bb = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim); cand = dolfinx.geometry.compute_collisions_points(bb, pts); cells = dolfinx.geometry.compute_colliding_cells(mesh, cand, pts); then uh.eval(pts, first_cell_per_point). Nearest-DOF lookup is the export defect that turns a converged solve into a wrong answer.
+5. FIRST USE COMPILES TOO: dolfinx JIT-compiles every new form with ffcx (a minute or more the first time, more under load). A short `timeout` around that first run, or a pipe into `head`, kills it mid-compile and looks like a crash. Run each participant once standalone with a generous timeout before coupling; the cached modules make later runs start in seconds.
+5. `fem.VectorFunctionSpace` DOES NOT EXIST on this install (AttributeError, measured dolfinx 0.10): a vector P1 space is fem.functionspace(mesh, ('Lagrange', 1, (2,))), and in its array component c of node n sits at index 2*n + c (tabulate_dof_coordinates() has one row per node). A vector fem.Function is interpolated from a callable returning shape (2, n) -- np.vstack((fx, fy)) -- and its TRANSPOSE fails with 'Interpolation data has the wrong shape/size' (measured).
+6. UFL arguments have no `.geometric_dimension()` (AttributeError, measured ufl 2025.2): write ufl.Identity(2) for plane strain; ufl.sym(ufl.grad(u)) is the strain. fem.dirichletbc takes (Function, dofs) or (Constant, dofs, V) -- a Constant WITHOUT the space as third argument is a TypeError (measured).
+7. INTERPOLATION IS A METHOD OF THE FUNCTION: f = fem.Function(V); f.interpolate(lambda X: <expression of X[0], X[1]>) with X the (3, n) coordinate array. There is NO module-level fem.interpolate(callable, V) (AttributeError, measured), and a lambda with two arguments (x, y) is a TypeError.
+8. UFL FORMS ARE PYTHON EXPRESSIONS: scalar products are ufl.inner(a, b) (or ufl.dot), products are `*`, integrals are `<integrand> * ufl.dx` and `<integrand> * ds_measure`; the strain is ufl.sym(ufl.grad(u)), the trace ufl.tr(...), the divergence ufl.div(u). There is no `.` operator between UFL objects: a form written as `ufl.grad(u) . ufl.grad(v)` is Python attribute access and dies with "'Grad' object has no attribute 'ufl'" (measured on a worker script).
 
-2. A SOLVER'S INPUT LANGUAGE IS NOT PYTHON. In decks and expression strings
-   powers are `^` not `**`, constants are the solver's own (lowercase `pi`),
-   and a wrong operator is often SILENT: the numeric prefix is taken, the rest
-   dropped, and the run succeeds with the wrong load. Rewrite every term of a
-   source you copied out of the task text.
+* READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST NODE. Measured against an independent reference: one solve exported two ways gave order 1.9796 by interpolation and 0.9815 by nearest-node sampling of nearest node. Free self-check: nearest-node sampling can only return (N-1)^2+1 distinct values, so 1936 probes collapse to 50/226/962 at N=8/16/32.
+* GATE BEFORE YOU HAND IN, at EVERY level: the solver REPORTED convergence (not merely that nothing raised), peak|u| > 0, and your load is not constant. Then compute log2(|L1-L2|/|L2-L3|) yourself.
+* ON A COUPLED SIDE, the consistent outward flux is q = -(K u - b_volume)/h with h the node's tributary length. The FACE load must NOT go into that residual -- include it and the reported flux comes out identically zero.
 
-3. DO NOT CONCLUDE A SOLVER IS BROKEN. Nearly every "broken solver" seen in
-   development was an unread log: capture BOTH streams (`cmd > out.log 2>&1`),
-   read the log rather than the exit code (codes print their fatal error and
-   still exit 0), re-run with the backend's verbose flag, and ask
-   knowledge(topic='pitfalls', solver=...) before reporting a failure.
+----------------------------------------------------------------------
 
-4. THE MOST COMMON FAILURE IS NEVER PRODUCING THE NUMBERS: 36% of 464 measured
-   runs wrote no probe output, and the largest slice of those SOLVED and never
-   read the field back at the required points. Do ONE coarse level end to end
-   -- solve, extract at the prescribed points, write the file -- before
-   refining anything.
-
-5. MEASURE, DO NOT GUESS. Whether your field satisfies the equation you were
-   given is falsifiable with no reference answer:
-       verify_pde_consistency(solution_files=..., source_term=...,
-                              coefficient=..., domain=...)
-   Fields that solve the stated problem shrink at order ~2 across levels;
-   wrong ones stay flat. On a coupled task run it on EACH side with that
-   side's own source and coefficient. Report NOT_CONVERGED with the largest
-   relative change rather than a convergence you cannot show.
-
-6. IF YOUR SOLVER IS A BINARY, ITS INPUT FILE IS THE RUN INTERFACE and you
-   cannot guess it: the full deck grammar for 4C, FEBio and SPARTA is served
-   by knowledge(topic='physics', solver=<name>, physics=<name>) and by no
-   other topic -- ask before deciding a deck cannot be written.
-   4C DOES ACCEPT PER-NODE DIRICHLET VALUES (DESIGN POINT DIRICH CONDITIONS
-   with a DNODE-NODE TOPOLOGY block); its design entity ids are ONE-based, and an `E: 0`
-   segfaults with no message.
-
-7. REFINEMENT COUNTS HALVINGS, NOT CELLS: each level halves h (2-D: ~4x the
-   DOFs, 3-D: ~8x); `refined(k)` (scikit-fem), `refine_global(k)` (deal.II)
-   and their kin halve k times, so a task's levels 1, 2, 3 are k = 0, 1, 2
-   from the coarse mesh.
-
-8. YOUR SOLVER WILL ACCEPT A SETTING AND THEN IGNORE IT -- the single most
-   common silent failure: a source, coefficient or boundary value that parses
-   and is never consumed. A driven problem whose field is identically zero is
-   this bug until proven otherwise. THE CHECK COSTS ONE COMMAND: grep your own
-   input for the ingredient's name and confirm something CONSUMES it.
-
-9. GATE ON THREE THINGS BEFORE YOU WRITE YOUR SUMMARY FILE, at EVERY level:
-   the field is non-trivial (distinct values, plausible size), the boundary
-   values come back at the boundary, and the mesh actually changed.
-
-10. READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST
-    NODE: nearest-node caps the measured order at 1 whatever the solver did.
-    It is post-processing -- re-read the field, do not re-solve.
-
-BEFORE YOU HAND IN, RUN `audit_results(work_dir=<your results directory>,
-claimed_order=<the order you are about to claim>)` and act on what it names;
-it reads only your own files.

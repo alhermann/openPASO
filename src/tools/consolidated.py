@@ -5078,7 +5078,8 @@ def register_consolidated_tools(mcp: FastMCP):
                 parts.append(Participant(name=s["name"], command=list(s["command"]),
                                          work_dir=wd, imports_from=s.get("imports_from", []),
                                          timeout=int(s.get("timeout", 3600)),
-                                         data_files=list(s.get("data_files", []))))
+                                         data_files=list(s.get("data_files", [])),
+                                         env=(dict(s["env"]) if isinstance(s.get("env"), dict) else None)))
             except (KeyError, TypeError) as e:
                 return json.dumps({"error": f"bad participant spec {s!r}: {e}"})
         if not (0.0 < theta <= 1.0):
@@ -5779,11 +5780,15 @@ def register_consolidated_tools(mcp: FastMCP):
                 [{"level": 1, "A": {"nx": 5, "ny": 8},  "B": {"nx": 7, "ny": 8}},
                  {"level": 2, "A": {"nx": 10, "ny": 16}, "B": {"nx": 14, "ny": 16}},
                  {"level": 3, "A": {"nx": 20, "ny": 32}, "B": {"nx": 28, "ny": 32}}]
-            where the keys under each participant's NAME are merged into that
-            participant's ./config.json before its level runs (the served
-            contracts mesh from nx and ny and name their per-level dumps by
-            `level`, which is set from the entry) -- halve h per level as the
-            task prescribes, i.e. double every cell count;
+            where the keys under each participant's NAME, plus "level", are
+            handed to that participant's PROCESS in the environment variable
+            OASIS_CONFIG_JSON (a JSON object; OASIS_LEVEL carries the level
+            alone). OASiS writes NO file into your directories: the served
+            contracts merge OASIS_CONFIG_JSON over their own ./config.json, and
+            a participant you wrote yourself must read it the same way
+            (json.loads(os.environ.get("OASIS_CONFIG_JSON", "{}")) merged over
+            its config) or use one couple() call per level instead. Halve h per
+            level as the task prescribes, i.e. double every cell count;
           * each level starts from the previous level's converged interface
             state (the driver's warm start), which is why the levels must run in
             the same work directories;
@@ -5832,35 +5837,35 @@ def register_consolidated_tools(mcp: FastMCP):
             "couple", _coupling_setup_text(participants=participants, max_iter=max_iter, tol=tol,
                                            accelerator=accelerator, theta=theta, monolithic="",
                                            probe=probe))
+        for nm, spec in names.items():
+            wd = Path(str(spec.get("work_dir", "")))
+            if not wd.is_absolute():
+                return json.dumps({"error": f"participant {nm}: work_dir must be an ABSOLUTE path"})
+            if cell_work and not wd.resolve().is_relative_to(Path(cell_work).resolve()):
+                return json.dumps({"error": f"participant {nm}: work_dir {wd} is outside this task's "
+                                            f"working directory {cell_work}"})
         out_levels = []
         for entry in lv:
             try:
                 k = int(entry.get("level", len(out_levels) + 1))
             except (TypeError, ValueError):
                 return json.dumps({"error": f"bad level entry {entry!r}"})
-            for nm, spec in names.items():
-                wd = Path(str(spec.get("work_dir", "")))
-                if not wd.is_absolute():
-                    return json.dumps({"error": f"participant {nm}: work_dir must be an ABSOLUTE path"})
-                if cell_work and not wd.resolve().is_relative_to(Path(cell_work).resolve()):
-                    return json.dumps({"error": f"participant {nm}: work_dir {wd} is outside this task's "
-                                                f"working directory {cell_work}"})
-                wd.mkdir(parents=True, exist_ok=True)
-                cfg_path = wd / "config.json"
-                cfg = {}
-                if cfg_path.is_file():
-                    try:
-                        cfg = json.loads(cfg_path.read_text() or "{}")
-                    except json.JSONDecodeError:
-                        cfg = {}
-                    if not isinstance(cfg, dict):
-                        cfg = {}
-                upd = entry.get(nm)
-                if isinstance(upd, dict):
-                    cfg.update(upd)
+            # THE LEVEL'S KEYS TRAVEL IN EACH PARTICIPANT'S ENVIRONMENT. OASiS
+            # writes NO file of the agent's -- the served contracts read
+            # OASIS_CONFIG_JSON and merge it over their own ./config.json.
+            level_specs = []
+            for spec in specs:
+                sp = dict(spec)
+                nm = sp.get("name")
+                upd = entry.get(nm) if nm else None
+                cfg = dict(upd) if isinstance(upd, dict) else {}
                 cfg["level"] = k
-                cfg_path.write_text(json.dumps(cfg, indent=2))
-            reply = await couple(participants, max_iter=max_iter, tol=tol, accelerator=accelerator,
+                env = dict(sp.get("env") or {})
+                env["OASIS_LEVEL"] = str(k)
+                env["OASIS_CONFIG_JSON"] = json.dumps(cfg)
+                sp["env"] = env
+                level_specs.append(sp)
+            reply = await couple(json.dumps(level_specs), max_iter=max_iter, tol=tol, accelerator=accelerator,
                                  theta=theta, probe=probe, critic_approved=critic_approved,
                                  history_path=str(Path(history_dir) / history_pattern.replace("{k}", str(k))),
                                  iface_level=k)
@@ -7759,9 +7764,10 @@ One couple call per mesh level, on the exact levels your task prescribes --
 or ONE couple_levels(participants=..., levels='[{"level": 1, "A": {"nx": ..,
 "ny": ..}, "B": {...}}, ...]', history_pattern='<the per-level history file
 name your task prescribes, with {k} for the level>') call for the whole
-sequence: it writes each side's config.json per level, warm-starts each level
-from the previous one, and keeps every level's history, console and interface
-tables (measured: couplings proven
+sequence: it hands each side its level's mesh keys in the environment
+(OASIS_CONFIG_JSON, read by the served contracts -- OASiS writes no file of
+yours), warm-starts each level from the previous one, and keeps every level's
+history, console and interface tables (measured: couplings proven
 at level 1 ran out of wall clock before level 3 when every level cost ten calls).
 
 DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH -- THE CONTRACT EXISTS

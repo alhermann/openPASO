@@ -17,6 +17,7 @@ The exported outward normal flux density is the CONSISTENT (reaction) flux, not
 a difference quotient of the solution — see the block above the export below.
 """
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -36,9 +37,10 @@ nx, ny = 32, 32
 #    next to this script overrides nx, ny and names the level; the per-level
 #    dumps below carry that level so the coarse levels survive the fine ones.
 LEVEL = 1
-if Path("config.json").is_file():
+if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
     try:
-        _cfg = json.loads(Path("config.json").read_text() or "{}")
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         nx = int(_cfg.get("nx", nx))
         ny = int(_cfg.get("ny", ny))

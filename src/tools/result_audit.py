@@ -2611,7 +2611,7 @@ def coupled_ladder(work: Path) -> dict | None:
         what = (f"LEVELS {done_levels} ARE COMPLETE ON DISK. If your task prescribes more levels, couple "
                 f"level {next_level}; otherwise write the summary.")
         brief = (f"If the task prescribes a level {next_level}: ONE couple_levels(participants=..., levels=[...], history_pattern=<your task's per-level history file name with {k}>) call "
-                 f"runs every remaining level (it sets each side's config.json level and nx, ny per level, doubling "
+                 f"runs every remaining level (it hands each side its level's nx, ny in the environment, doubling "
                  f"every cell count to halve h, warm-starts each level from the previous one, and writes each "
                  f"residual_level<k>.csv and participant_output_level<k>.log); otherwise, per level: in BOTH "
                  f"./config.json set level={next_level} AND "

@@ -26,6 +26,9 @@ from pathlib import Path
 import numpy as np
 
 CFG = json.loads(Path("config.json").read_text())
+# A multi-level coupling call hands this level's keys in the environment
+# (OASIS_CONFIG_JSON, a JSON object) instead of writing this file.
+CFG.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))
 NX, NY = int(CFG["nx"]), int(CFG["ny"])
 X0, X1, Y0, Y1 = (float(CFG["x0"]), float(CFG["x1"]),
                   float(CFG["y0"]), float(CFG["y1"]))

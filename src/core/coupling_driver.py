@@ -78,6 +78,7 @@ bit-identical, the floor is 0, and `max(tol, 0) == tol`.
 from __future__ import annotations
 import hashlib
 import json
+import os
 import tempfile
 import shutil
 import subprocess
@@ -110,6 +111,10 @@ class Participant:
     # LOUD setup error — the alternative is the solver dying mid-iteration
     # with an opaque 'Cannot open ...' (the SPARTA failure mode).
     data_files: list[str] = field(default_factory=list)
+    # Extra process environment for THIS participant, merged over the server's.
+    # Data plumbing only (the multi-level call passes each level's mesh keys this
+    # way); OASiS writes no file of the agent's to do it.
+    env: dict | None = None
 
 
 @dataclass
@@ -175,6 +180,15 @@ def _stack(ifd: InterfaceData) -> np.ndarray:
     if ifd.normal_fluxes is not None:
         v = np.concatenate([v, np.asarray(ifd.normal_fluxes, float).ravel()])
     return v
+
+
+def _participant_env(p: 'Participant'):
+    """The subprocess environment for one participant: the server's plus its own `env`."""
+    if not getattr(p, 'env', None):
+        return None
+    merged = dict(os.environ)
+    merged.update({str(k): str(v) for k, v in p.env.items()})
+    return merged
 
 
 def _relax(prev: np.ndarray, new: np.ndarray, theta: float) -> np.ndarray:
@@ -322,7 +336,7 @@ def _invoke(p: Participant, imp: dict) -> tuple[Optional[InterfaceData], Optiona
     if ep.exists():
         ep.unlink()
     try:
-        r = subprocess.run(p.command, cwd=str(p.work_dir), capture_output=True,
+        r = subprocess.run(p.command, cwd=str(p.work_dir), env=_participant_env(p), capture_output=True,
                            text=True, timeout=p.timeout)
     except subprocess.TimeoutExpired:
         return None, f"participant {p.name} timed out"
@@ -645,7 +659,7 @@ def run_coupling(participants: list[Participant], max_iter: int = 50,
             if ep.exists():
                 ep.unlink()
             try:
-                r = subprocess.run(p.command, cwd=str(p.work_dir), capture_output=True,
+                r = subprocess.run(p.command, cwd=str(p.work_dir), env=_participant_env(p), capture_output=True,
                                    text=True, timeout=p.timeout)
             except subprocess.TimeoutExpired:
                 return _finish(converged=False, iterations=it, residual=float("nan"),
@@ -930,7 +944,7 @@ def probe_interface_sensitivity(participants: list[Participant],
                 ip.write_text(text)
                 if ep.exists():
                     ep.unlink()
-                r = subprocess.run(p.command, cwd=str(p.work_dir),
+                r = subprocess.run(p.command, cwd=str(p.work_dir), env=_participant_env(p),
                                    capture_output=True, text=True, timeout=p.timeout)
                 if r.returncode != 0 or not ep.exists():
                     return None

@@ -5780,13 +5780,32 @@ def register_consolidated_tools(mcp: FastMCP):
                 _who = ", ".join(_bad) if _bad else (_m.group(1) if _m else "a participant")
                 _tail = (_err.split("stderr tail:", 1)[1].strip()[-400:]
                          if "stderr tail:" in _err else _err[-400:])
+                # WHAT THE FAILED SIDE LEFT ON DISK LEADS, NOT AN EMPTY STDERR TAIL.
+                # Measured (e2e, 2026-09-12): a participant that wrote a deck, ran 4C
+                # with its console redirected to a file and exited 1 got the lead
+                # "stderr tail: ''. Fix that script" -- while the deck's defects and
+                # 4C's own PROC 0 ERROR line sat in its directory. The same reader the
+                # ladder uses puts them here, in the field the parent reads first.
+                _disk = ""
+                try:
+                    from tools.result_audit import _fourc_deck_state   # noqa: PLC0415
+                    for _n in (_bad or [_who]):
+                        _wd = next((Path(_p.work_dir) for _p in parts if _p.name == _n), None)
+                        if _wd is not None and _wd.is_dir():
+                            _st = _fourc_deck_state(_wd, _wd.parent)
+                            if _st:
+                                _disk += f" ON DISK IN {_wd.name}: {_st['what']} {_st['brief']}"
+                except Exception:                               # noqa: BLE001
+                    _disk = ""
                 presub.insert(0, {"sequence": f"participant {_who}",
                                   "priority": 10, "finding": (
                     f"PARTICIPANT {_who} EXITED NON-ZERO AND WAS NEVER RUN TO "
                     f"AN EXPORT (exit codes {_rcs}): nothing iterated, so every "
                     f"other finding below is a consequence of this one. Its "
-                    f"own stderr tail: {_tail!r}. Fix that script, run it once "
-                    f"standalone until it writes exports.json, then call "
+                    f"own stderr tail: {_tail!r}.{_disk} "
+                    + ("Fix the deck as named, then run that script once "
+                       if _disk else "Fix that script, run it once ")
+                    + "standalone until it writes exports.json, then call "
                     f"couple() again.")})
             # de-duplicate the same defect found twice (live vs file audit)
             _seen = set()

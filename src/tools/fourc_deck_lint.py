@@ -214,8 +214,12 @@ def fourc_error_lines(log_text: str, n: int = 8) -> str:
     lines = log_text.splitlines()
     for i, ln in enumerate(lines):
         if "PROC 0 ERROR" in ln:
-            said = [l.strip() for l in lines[i + 1:i + 14]
-                    if l.strip() and not l.startswith("---") and "MPI_ABORT" not in l]
+            said = []
+            for l in lines[i + 1:i + 14]:
+                if re.match(r"\s*\d+#\s", l) or set(l.strip()) <= set("=-"):
+                    break               # the stack frames and rulers after the message are not the message
+                if l.strip() and "MPI_ABORT" not in l:
+                    said.append(l.strip())
             return " | ".join(said[:n])
     for i, ln in enumerate(lines):
         if "*** Process received signal ***" in ln:
@@ -466,7 +470,11 @@ def side_dir_report(side: Path) -> dict:
         cfg = json.loads((side / "config.json").read_text() or "{}") if (side / "config.json").is_file() else {}
     except Exception:                                   # noqa: BLE001
         cfg = {}
-    g = grammar(cfg.get("fourc_bin") or os.environ.get("FOURC_BIN"), cfg.get("fourc_ld") or os.environ.get("FOURC_LD"))
+    _bin = cfg.get("fourc_bin") or os.environ.get("FOURC_BIN")
+    _ld = cfg.get("fourc_ld") or os.environ.get("FOURC_LD")
+    if not _bin:                    # the agent's own script names no binary: the installed one judges
+        _bin, _ld = binary_and_ld()
+    g = grammar(_bin, _ld)
     valid, elements = g["sections"], g["elements"]
     for dk in decks:
         try:

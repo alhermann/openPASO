@@ -5929,13 +5929,17 @@ def register_consolidated_tools(mcp: FastMCP):
                         _carries = False
                     if not _carries:
                         continue
-                    for _nm in (f"field_level{_lvl_for_log}.csv", f"interface_level{_lvl_for_log}.csv"):
-                        if not (Path(_p.work_dir) / _nm).is_file():
-                            _dump_gap.append(f"side {_p.name}: {_nm}")
+                    # any file the level's dumps could be named: field_level<k>.csv, or a suffixed variant of the
+                    # agent's own (measured, round 44 C2 7163: field_level1_A.csv -- the exact-name check fired six
+                    # times on dumps that were there, and the parent spent its calls listing them)
+                    for _stem in (f"field_level{_lvl_for_log}", f"interface_level{_lvl_for_log}"):
+                        if not any(Path(_p.work_dir).glob(f"{_stem}*.csv")):
+                            _dump_gap.append(f"side {_p.name}: {_stem}*.csv")
             _dump_txt = ("" if not _dump_gap else
                          f"LEVEL {_lvl_for_log}'S PER-LEVEL DUMPS ARE MISSING ({'; '.join(_dump_gap)}): the served contract writes "
-                         f"field_level<k>.csv and interface_level<k>.csv next to exports.json on every run, so the script that ran this "
-                         f"level did not carry that block (an older version, or a rewrite). Fix the participant, then couple() this "
+                         f"field_level<k>.csv and interface_level<k>.csv next to exports.json on every run, and no file of either name (with "
+                         f"or without a suffix) is there, so the script that ran this level did not carry that block (an older version, or a "
+                         f"rewrite). Fix the participant, then couple() this "
                          f"level AGAIN before anything is written from its dumps -- a deliverables pass silently skips a level whose "
                          f"dump is missing, and a level set with one level missing is no result. ")
             _one_call = (_not_yet if _trivial else

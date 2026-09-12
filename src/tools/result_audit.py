@@ -2754,9 +2754,9 @@ def coupled_ladder(work: Path) -> dict | None:
                         continue
                 except OSError:
                     continue
-                for _nm in (f"field_level{k}.csv", f"interface_level{k}.csv"):
-                    if not (_sd / _nm).is_file():
-                        _gap.append(f"{_sd.name}/{_nm}")
+                for _stem in (f"field_level{k}", f"interface_level{k}"):    # the served name or the agent's suffixed variant
+                    if not any(_sd.glob(f"{_stem}*.csv")):
+                        _gap.append(f"{_sd.name}/{_stem}*.csv")
             if _gap:
                 return step(3, f"LEVEL {k} WAS COUPLED BUT ITS PER-LEVEL DUMPS ARE MISSING ({', '.join(_gap[:4])}): the deliverables "
                                f"cannot be written from them; the participant that ran level {k} did not carry the served dump block.",

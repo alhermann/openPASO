@@ -204,8 +204,6 @@ def why_4c_did_not_finish(tag=""):
                     _why.append(f"{_deck}: needs CALCFLUX_BOUNDARY \"diffusive\" AND a `SCATRA FLUX CALC LINE CONDITIONS` entry (E 2) for the flux recovery")
                 if re.search(r"^IO:\s*$", _txt, re.M):
                     _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck is rejected; the VTU appears without it")
-                if "IO/RUNTIME VTK OUTPUT" not in _txt:
-                    _why.append(f"{_deck}: no VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1); the run finishes 'normally' with nothing to read")
             _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt) if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
             if _badkw:
                 _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL (anything else defines nothing and the conditions on it are silently dropped)")
@@ -482,7 +480,7 @@ print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
 ──────────────────────────────────────────────────────────────────────
 THIS PAYLOAD IS TRUNCATED HERE. 48,658 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 29,526 of 77,818 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 29,317 of 77,609 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
 
@@ -581,9 +579,13 @@ complete three-level study from the same binary.
 WHICH PROBLEM TYPE YOU PICK DECIDES WHETHER YOU CAN READ YOUR OWN ANSWER.
 Measured on this build:
 FOUR MEASURED WAYS THIS DIES, all of them silently:
+(a) THE LEGACY BLOCKS ARE YAML SEQUENCES. `NODE COORDS`, `TRANSPORT
+    ELEMENTS` and `D*-NODE TOPOLOGY` entries each need `- ` and quotes.
+    Written bare, YAML reads them as mapping keys and 4C dies with
+      ERROR: could not find ':' colon after key
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,161 OF 52,064 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,207 OF 51,855 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 ────────────────────────────────────────

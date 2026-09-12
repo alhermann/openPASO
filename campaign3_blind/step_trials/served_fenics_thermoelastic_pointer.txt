@@ -553,9 +553,9 @@ imp = read_imports()
 #
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 66,144 further characters exist and are NOT lost.
+THIS PAYLOAD IS TRUNCATED HERE. 66,142 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 27,957 of 93,735 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fenics', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 27,957 of 93,733 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fenics', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
 

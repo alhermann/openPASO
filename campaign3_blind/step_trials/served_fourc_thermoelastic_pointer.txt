@@ -323,6 +323,15 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yam
         raise SystemExit(f"DECK CHECK: {_dk} has {len(_twist)} element(s) with zero or negative area (first: element {_twist[0][0]} "
                          f"nodes {' '.join(map(str, _twist[0][1]))}). Every element's nodes must run counter-clockwise: for node "
                          f"id = i + 1 + (NX + 1) * j the quad of cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1).")
+    # table rows that are not quoted strings: the YAML reader stops with 'could not find ':' colon after key'
+    # at the first bare token (measured, te4c13 repair loop: `- 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std`)
+    _unq = [(_b.split(":", 1)[0].strip(), _r.strip()) for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M)
+            if (_b.split(":", 1)[0].strip().endswith((" ELEMENTS", "-NODE TOPOLOGY")) or _b.split(":", 1)[0].strip() == "NODE COORDS")
+            for _r in re.findall(r"^\s*-\s+([^\"'\n][^\n]*)$", _b, re.M) if re.match(r"(\d+\s+\w|NODE\s+\d+)", _r)]
+    if _unq:
+        raise SystemExit(f"DECK CHECK: {_dk} has {len(_unq)} table row(s) that are not quoted YAML strings (first, in {_unq[0][0]}: "
+                         f"`- {_unq[0][1][:60]}`): every NODE COORDS, element and topology row is ONE quoted string, `- \"...\"`. "
+                         f"4C's reader stops at the first bare token with 'could not find ':' colon after key'.")
     # a section written twice: 4C stops in its reader with 'Section X is defined more than once' (measured, te4c13)
     _heads = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, re.M)
     _dup = sorted({h for h in _heads if _heads.count(h) > 1})
@@ -524,9 +533,10 @@ print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
 ──────────────────────────────────────────────────────────────────────
 THIS PAYLOAD IS TRUNCATED HERE. 54,497 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 32,754 of 86,885 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
-WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
-WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
+
+──────────────────────────────────────────────────────────────────────
+THIS REPLY IS CUT AT 44,157 OF 45,054 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+
 
 THE 4C DECK GRAMMAR — you cannot guess it, and 4C is a BINARY, so the deck is
 this backend's run interface in exactly the way exports.json is the driver's.

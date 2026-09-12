@@ -6024,7 +6024,9 @@ def register_consolidated_tools(mcp: FastMCP):
                 if key in rep:
                     compact[key] = rep[key]
             if rep.get("what_to_fix_next"):
-                compact["what_to_fix_next"] = str(rep["what_to_fix_next"])[:2000]
+                # 4000, not 2000: a failed 4C side's lead now carries the deck's defects and
+                # 4C's own stop line, which the old cap cut off mid-list
+                compact["what_to_fix_next"] = str(rep["what_to_fix_next"])[:4000]
             out_levels.append(compact)
             if not rep.get("converged"):
                 break

@@ -1,0 +1,26 @@
+[
+ {
+  "first_call": "spawn_subagent",
+  "levels_first": true,
+  "secs": 33,
+  "text": "spawn_subagent(role='worker', task=\"IF THE TASK PRESCRIBES LEVELS BEYOND 1, START WITH THIS ONE CALL: couple_levels(participants=[the two participant entries you passed to couple() for level 1 \u2014 look them up in the level 1 run record"
+ },
+ {
+  "first_call": "spawn_subagent",
+  "levels_first": true,
+  "secs": 22,
+  "text": "spawn_subagent(role='worker', task=\"START WITH THIS ONE CALL: couple_levels(participants=['side_A_dune_fem', 'side_B_4C'], levels=[2, 3], history_pattern='history_level{k}.csv') -- every level keeps field_level{k}.csv, interface_level{k}.csv and participant_output_level{k}.log next to each exports.json. THEN, for EVERY coupled level k (k=1,2,3) and EACH side, in ONE script that loops over the levels: read that side's converged field (its per-level dumps field_level{k}.csv, columns x,y,T nodal values, and interface_level{k}.csv, columns x,y,<trace>,<flux> at its interface nodes -- NEVER exports"
+ },
+ {
+  "first_call": "spawn_subagent",
+  "levels_first": true,
+  "secs": 17,
+  "text": "spawn_subagent(role='worker', task=\"couple_levels(participants=['side_A', 'side_B'], levels=[2, 3], history_pattern='history_level{k}.csv') -- every level keeps field_level{k}.csv, interface_level{k}.csv and participant_output_level{k}.log next to each exports.json; THEN, for EVERY coupled level k=1,2,3 and EACH side, in ONE script that loops over the levels: read that side's converged field (its per-level dumps field_level{k}.csv, columns x,y,<field> nodal values, and interface_level{k}.csv, columns x,y,<trace>,<flux> at its interface nodes -- NEVER exports.json, which the next level overwrit"
+ },
+ {
+  "first_call": "spawn_subagent",
+  "levels_first": true,
+  "secs": 16,
+  "text": "spawn_subagent(role='worker', task=\"START WITH THIS ONE CALL: couple_levels(participants=[{'solver': 'dune', 'work_dir': 'side_A', 'script': 'side_A_participant.py'}, {'solver': '4c', 'work_dir': 'side_B', 'script': 'side_B_participant.py'}], levels=[2, 3], history_pattern='history_level{k}.csv') -- every level keeps field_level{k}.csv, interface_level{k}.csv and participant_output_level{k}.log next to each exports.json. THEN, for EVERY coupled level k (1, 2, 3) and EACH side (A, B), in ONE script that loops over the levels: read that side's converged field (its per-level dumps field_level{k}."
+ }
+]

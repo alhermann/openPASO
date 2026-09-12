@@ -3211,6 +3211,28 @@ def register_consolidated_tools(mcp: FastMCP):
             # a JSON record set that callers parse as JSON: appending prose
             # to it broke every parser (measured: json 'Extra data')
             return _cap_knowledge_reply(out, topic, solver, physics, signal)
+        # THE DECK SKELETONS RIDE OUTSIDE THE INSTRUCTION BUDGET. The cap exists because
+        # instructions past ~6,000 words stop being followed; a deck skeleton is a table
+        # the agent copies, not an instruction, and it sat at the END of every 4C coupling
+        # reply. Measured 2026-09-12: the worker's own call (facts 10.6k + the thermo-elastic
+        # contract block 29.9k) left 6k of the 48k for a 16.7k grammar, so the TSI skeleton
+        # never reached a single worker that day (round 40's C1 cells spent their budgets on
+        # exactly that grammar). Now: the text before the grammar is capped as before, the
+        # two skeletons are appended whole, the grammar's prose notes only when they fit.
+        _gm = "THE 4C DECK GRAMMAR"
+        if _gm in out and (topic or "").strip().lower() == "coupling":
+            try:
+                from backends.fourc.deck_grammar import (FOURC_DECK_GRAMMAR as _G, FOURC_DECK_NOTES as _GN,
+                                                         FOURC_DECK_SKELETONS as _GS)
+                i = out.index(_gm)
+                after = out[i + len(_G):] if out.startswith(_G, i) else ""
+                body = out[:i].rstrip("\n")
+                room = _KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE) - len(after)
+                body = _cap_knowledge_reply(body, topic, solver, physics, signal, limit=max(8000, room))
+                gram = _G if len(body) + len(after) + len(_G) <= _KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE) else _GS
+                return body + "\n\n" + gram + after + _UNIVERSAL_CORE
+            except Exception:                            # noqa: BLE001
+                pass
         body = _cap_knowledge_reply(out, topic, solver, physics, signal,
                                     limit=_KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE))
         return body + _UNIVERSAL_CORE

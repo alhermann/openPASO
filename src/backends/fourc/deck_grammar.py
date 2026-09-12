@@ -420,3 +420,16 @@ in one call.
   consistent heat flux comes from a Scalar_Transport run of the same 2-D
   mesh with CALCFLUX_BOUNDARY (the grammar above).
 """
+
+# THE SKELETONS ARE REFERENCE TABLES, NOT INSTRUCTIONS. Split once here so the knowledge
+# door can keep both deck skeletons whole when a reply meets its budget (measured
+# 2026-09-12: the worker's own call -- facts 10.6k + the 4C thermo-elastic contract 29.9k
+# -- left 6k of the 48k cap for this text, and the TSI skeleton at its end was cut in
+# every served reply of the day).
+_i = FOURC_DECK_GRAMMAR.index("WHICH PROBLEM TYPE YOU PICK DECIDES")
+_j = FOURC_DECK_GRAMMAR.index("THE TSI SLAB DECK GRAMMAR")
+FOURC_SCATRA_SKELETON = FOURC_DECK_GRAMMAR[:_i]          # header + the Scalar_Transport skeleton and its two section notes
+FOURC_DECK_NOTES = FOURC_DECK_GRAMMAR[_i:_j]             # the measured ways a deck dies silently (prose)
+FOURC_TSI_SKELETON = FOURC_DECK_GRAMMAR[_j:]             # the TSI slab skeleton with its traps and run note
+FOURC_DECK_SKELETONS = FOURC_SCATRA_SKELETON + FOURC_TSI_SKELETON
+

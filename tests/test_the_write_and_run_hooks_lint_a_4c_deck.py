@@ -127,3 +127,14 @@ def test_a_console_a_participant_script_wrote_during_the_command_is_named_after_
     os.utime(tmp_path / "side_A" / "slab.4C.yaml.log", None)
     assert _fourc_after_shell_check(tmp_path, time.time() - 5,
                                     "cd side_A && /home/alexander/4C/build/4C slab.4C.yaml out > slab.4C.yaml.log 2>&1") == ""
+
+
+def test_4cs_stop_keeps_the_offending_snippet_after_the_blank_line():
+    from tools.fourc_deck_lint import fourc_error_lines
+    log = ("PROC 0 ERROR in /x/4C_io_input_spec_builders.cpp, line 633:\nCould not match this input\n\nIO:\n"
+           "  VERBOSITY: \"Standard\"\n  RUNTIME VTK OUTPUT:\n    THERMO:\n      OUTPUT_SCALAR: phi_1\n\n\n"
+           "against the given input specification. This was the best attempt to match the input:\n\n[!] Candidate group 'IO'\n"
+           "--------------------------------------------------------------------------------\n 0# void FourC::Core::x() in lib4C.so\n")
+    said = fourc_error_lines(log)
+    assert said.startswith("Could not match this input | IO: | VERBOSITY: \"Standard\" | RUNTIME VTK OUTPUT:"), said
+    assert "0#" not in said

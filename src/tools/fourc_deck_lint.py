@@ -215,10 +215,12 @@ def fourc_error_lines(log_text: str, n: int = 8) -> str:
     for i, ln in enumerate(lines):
         if "PROC 0 ERROR" in ln:
             said = []
-            for l in lines[i + 1:i + 14]:
+            for l in lines[i + 1:i + 16]:
+                if not l.strip():
+                    continue            # a blank line separates the message from the offending snippet
                 if re.match(r"\s*\d+#\s", l) or set(l.strip()) <= set("=-"):
                     break               # the stack frames and rulers after the message are not the message
-                if l.strip() and "MPI_ABORT" not in l:
+                if "MPI_ABORT" not in l:
                     said.append(l.strip())
             return " | ".join(said[:n])
     for i, ln in enumerate(lines):

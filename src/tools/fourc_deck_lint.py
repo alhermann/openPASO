@@ -305,7 +305,7 @@ def lint_deck(text: str) -> list[str]:
 
 
 def _missing_runtime_output(text: str) -> list[str]:
-    """A deck that runs to 'finished normally' and writes no VTU is useless to a recovery that reads VTU
+    """A TSI deck that runs to 'finished normally' and writes no VTU is useless to a recovery that reads VTU
     (measured on a ladder-loop deck: TSI run U finished, no structure-*.vtu, no thermo-*.vtu)."""
     out = []
     if "Thermo_Structure_Interaction" in text:
@@ -316,9 +316,9 @@ def _missing_runtime_output(text: str) -> list[str]:
         if "THERMAL DYNAMIC/RUNTIME VTK OUTPUT" not in text or not re.search(r"TEMPERATURE:\s*true", text, re.I):
             out.append("a TSI deck writes no thermo VTU without `THERMAL DYNAMIC/RUNTIME VTK OUTPUT` with OUTPUT_THERMO "
                        "true and TEMPERATURE true")
-    elif "Scalar_Transport" in text and "IO/RUNTIME VTK OUTPUT" not in text:
-        out.append("a Scalar_Transport deck writes no VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1); the run "
-                   "finishes 'normally' with nothing to read")
+    # Scalar_Transport is NOT judged here: measured 2026-09-12 (deck step trial, this binary), a scatra deck with
+    # no IO section at all wrote scatra-00000/00001 VTU files and the .pvd by default -- the earlier finding
+    # named a defect on a deck that ran and was right, and would have cost a repair round for nothing.
     return out
 
 

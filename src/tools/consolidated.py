@@ -2250,10 +2250,9 @@ _DECIDING_FACTS = {
         "instead.\n"
         "5. A spatially varying interface trace needs one DESIGN POINT DIRICH "
         "condition PER NODE -- no fitted FUNCT required.\n"
-        "6. INVOKE IT AS `stdbuf -oL -eL /path/to/4C deck.4C.yaml out`, OR AS "
+        "6. INVOKE IT AS `stdbuf -oL -eL /path/to/4C deck.4C.yaml out` or as `mpirun -np 1 /path/to/4C deck.4C.yaml out`. "
         "The binary finds its libraries by itself (rpath-linked; measured to run with LD_LIBRARY_PATH unset), so add no prefix -- and if you ever do add one, an assignment must come BEFORE the wrapper: `stdbuf -oL VAR=x prog` makes stdbuf try to execute a file called `VAR=x` and your command never runs. Measured: wrapper-then-assignment recovered 0 diagnostic lines, assignment-first 2, `stdbuf ... env VAR=x prog` 2. "
-        "OR AS "
-        "`mpirun -np 1 ...`. 4C's stdout is BLOCK-BUFFERED, and when a deck is "
+        "4C's stdout is BLOCK-BUFFERED, and when a deck is "
         "rejected MPI_Abort tears the process down before that buffer is "
         "flushed, so the line naming the defect is destroyed and all you get "
         "back is the MPI boilerplate. Measured on one rejected deck, same "
@@ -2291,7 +2290,7 @@ _DECIDING_FACTS = {
         '\n13. WHERE 4C EVALUATES A FUNCT LOAD DIFFERS BY PROBLEM TYPE, and the difference is O(h^2) in the solution: scatra SURF NEUMANN with a FUNCT source assembles the INTERPOLATED load M*f(nodes) (matches that discrete system to 1.7e-15); TSI VOL THERMO NEUMANN evaluates f at the 2x2 GAUSS POINTS (matches to ~1e-15). The two discrete solutions differ by 1.4e-2 at h=1/8, shrinking O(h^2). Consequence: a CALCFLUX boundary flux is the exact reaction of ITS OWN discrete system; compare it only against a re-assembly using the SAME load rule, or the mismatch (5.3e-2 at h=1/8 here) reads as a recovery bug that is not there.'
         "\n14. FIRST-ATTEMPT DECK TRAPS MEASURED ON TWELVE WORKER DECKS (2026-09-11), each one stops 4C in its input reader: (a) ONE topology section per kind -- every DNODE/DLINE/DSURF/DVOL entry of the deck goes into the single `DNODE-NODE TOPOLOGY` (etc.) section; a second section of the same name is 'defined more than once'; (b) the consistent heat flux comes from PROBLEMTYPE Scalar_Transport (SCALAR TRANSPORT DYNAMIC with CALCFLUX_BOUNDARY \"diffusive\" and a SCATRA FLUX CALC LINE CONDITIONS entry), never PROBLEMTYPE Thermo, which knows no CALCFLUX_BOUNDARY; (c) runtime output sections are exactly `IO/RUNTIME VTK OUTPUT`, `IO/RUNTIME VTK OUTPUT/STRUCTURE` and `THERMAL DYNAMIC/RUNTIME VTK OUTPUT` -- there is no .../SCATRA or .../THERMO variant (the scatra VTU comes from the plain section); (d) SOLIDSCATRA, WALL, SOLID are ELEMENT TYPES on the lines of `STRUCTURE ELEMENTS`, TRANSP of `TRANSPORT ELEMENTS`; a section named after the element type does not exist; (e) MAT_Struct_ThermoStVenantK takes YOUNGNUM 1 and YOUNG as a LIST ([E]), NUE, DENS, THEXPANS, INITTEMP and THERMOMAT <id of the MAT_Fourier>; (f) a temperature value belongs in the `... THERMO DIRICH CONDITIONS` family (NUMDOF 1); the plain `DESIGN POINT/LINE/SURF DIRICH CONDITIONS` family carries the 3 displacement dofs (NUMDOF 3); (g) 2-D element nodes run counter-clockwise: for node id = i + 1 + (NX + 1) j the quad of cell (i, j) is (id, id+1, id+NX+2, id+NX+1) -- a twisted quad has zero area and 4C says only 'determinant ... zero or negative'. check_input(solver='fourc', input_path=<deck>) names every one of these before the binary runs."
         # Fact 14 measured by execution 2026-09-05 (4C 2026.2.0-dev).
-        + '\n14. A SAMPLED Neumann profile needs no polynomial fit: `DESIGN POINT NEUMANN CONDITIONS` works for Scalar_Transport with pre-integrated nodal loads -- per interior interface node F_i = h/6*(g_{i-1} + 4*g_i + g_{i+1}), FUNCT [0]. Delivery proven by the zero-vs-real load check (fields differ by 4.1e-3 at N=8) and the field converges at order ~1.95. The LINE NEUMANN + fitted-FUNCT route also works but silently smooths any profile the fit cannot represent.'),
+        + '\n15. A SAMPLED Neumann profile needs no polynomial fit: `DESIGN POINT NEUMANN CONDITIONS` works for Scalar_Transport with pre-integrated nodal loads -- per interior interface node F_i = h/6*(g_{i-1} + 4*g_i + g_{i+1}), FUNCT [0]. Delivery proven by the zero-vs-real load check (fields differ by 4.1e-3 at N=8) and the field converges at order ~1.95. The LINE NEUMANN + fitted-FUNCT route also works but silently smooths any profile the fit cannot represent.'),
     # Every line measured by execution on this install (dolfinx 0.10.0,
     # ufl 2025.2.1) on 2026-09-03. repr-generated literal: the measured
     # text contains brace/quote sequences that hand-escaping kept
@@ -7879,8 +7878,13 @@ YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict:
     ./side_A/participant_A.py unchanged (the imports.json handshake, sign
     convention, flux recovery, exports schema and export self-check); fill
     only its marked hole(s) with the mesh, form, material, source and solve
-    for subdomain A from the task; write ./side_A/config.json for level 1 and
-    a synthetic ./side_A/imports.json; if the code takes an input deck, run
+    for subdomain A from the task. THE WORKER SEES ONLY THIS BRIEF, NOT YOUR
+    TASK: paste subdomain A's data from your task into it verbatim --
+    geometry and interface position, equations and coefficients, source
+    terms as written, boundary values, the level-1 mesh, and the file names
+    your task prescribes for this side (measured: a worker briefed without
+    them wrote placeholder source terms). Write ./side_A/config.json for
+    level 1 and a synthetic ./side_A/imports.json; if the code takes an input deck, run
     check_input(solver='<side A's code>', input_path=<the deck>) until it
     names no defect before the binary runs; run the script with that code's
     own interpreter (generous timeout, first runs compile) until

@@ -1029,6 +1029,13 @@ def _fourc_run_check(command: str, output: str, workdir: Path) -> str:
         out += _deck_findings_text("[run check]", deck.name, findings, "in this deck")
     if err and not finished:
         out += "\n[run check] 4C's own stop: " + err.strip()
+    if finished:
+        try:
+            from tools.fourc_deck_lint import field_scale_findings   # noqa: PLC0415
+            for f in field_scale_findings(deck.read_text(errors="ignore"), deck.parent):
+                out += "\n[run check] " + f
+        except Exception:                                # noqa: BLE001
+            pass
     return out
 
 

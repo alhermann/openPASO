@@ -450,6 +450,44 @@ def _lines_without_an_element_edge(text: str) -> list[str]:
     return out
 
 
+def field_scale_findings(deck_text: str, out_dir: Path) -> list[str]:
+    """A finished 4C run whose field dwarfs every number the deck prescribes is a deck defect, not a
+    solution. Measured (round 39, a C1 cell): the scatra run finished normally with T = 8.5e13 at every
+    node while the deck's largest Dirichlet value was 0.8 and its source coefficient 2*pi^2; nothing in
+    the console said so and the parent read it as a result. Reads the newest VTU next to the deck with
+    meshio, compares each point field's peak with the largest prescribed VAL / FUNCT constant (at least
+    1), and names a ratio above 1e6. Names the fact only."""
+    out: list[str] = []
+    try:
+        import meshio  # noqa: PLC0415
+    except Exception:                                   # noqa: BLE001
+        return out
+    try:
+        vtus = sorted(Path(out_dir).glob("*vtk-files/*.vtu"), key=lambda q: q.stat().st_mtime)
+        if not vtus:
+            return out
+        vals = [abs(float(x)) for x in re.findall(r"VAL:\s*\[([^\]]*)\]", deck_text) for x in re.findall(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", x)]
+        funcs = [abs(float(x)) for x in re.findall(r'SYMBOLIC_FUNCTION_OF_SPACE_TIME:\s*"([^"]*)"', deck_text)
+                 for x in re.findall(r"(?<![\w.])\d+\.?\d*(?:[eE][-+]?\d+)?", x)]
+        scale = max([1.0] + vals + funcs)
+        m = meshio.read(vtus[-1])
+        for name, arr in m.point_data.items():
+            import numpy as np  # noqa: PLC0415
+            a = np.asarray(arr, float)
+            if a.size == 0 or not np.isfinite(a).all():
+                if a.size and not np.isfinite(a).all():
+                    out.append(f"4C FIELD {name} in {vtus[-1].parent.name} carries non-finite values: the run finished, the result is not a solution")
+                continue
+            peak = float(np.abs(a).max())
+            if peak > 1e6 * scale:
+                out.append(f"4C FIELD SCALE: {name} peaks at {peak:.3g} in {vtus[-1].parent.name} while the largest number the deck prescribes "
+                           f"(VAL entries, FUNCT constants) is {scale:.3g}: a field this far above its own data is a deck defect (a "
+                           f"material parameter left at a default, a zero conductivity or stiffness, an unconstrained dof), not a solution")
+    except Exception:                                   # noqa: BLE001
+        return out
+    return out
+
+
 def side_dir_report(side: Path) -> dict:
     """What 4C left behind in a participant's directory: which runs finished (their VTU folders),
     4C's own error lines per log, and the named defects per deck. Reads only the agent's own files."""

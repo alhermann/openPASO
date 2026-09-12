@@ -147,3 +147,25 @@ def test_a_python_power_inside_a_4c_function_is_named_for_every_occurrence():
     hits = [f for f in lint_deck(deck) if "uses `**`" in f]
     assert len(hits) == 2, lint_deck(deck)
     assert "2*pi**2*x*sin(pi*y)" in hits[0] and "write `^`" in hits[0]
+
+
+def test_a_finished_run_whose_field_dwarfs_its_data_is_named(tmp_path):
+    import numpy as np
+    meshio = pytest.importorskip("meshio")
+    from tools.fourc_deck_lint import field_scale_findings
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nFUNCT1:\n  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "2*pi^2*x*sin(pi*y)"\n'
+            'DESIGN POINT DIRICH CONDITIONS:\n  - E: 1\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [0.8]\n    FUNCT: [0]\n')
+    (tmp_path / "out-vtk-files").mkdir()
+    pts = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]])
+    cells = [("quad", np.array([[0, 1, 3, 2]]))]
+    meshio.write(tmp_path / "out-vtk-files" / "scatra-00001-0.vtu", meshio.Mesh(pts, cells, point_data={"phi_1": np.full(4, 8.5e13)}))
+    hits = field_scale_findings(deck, tmp_path)
+    assert len(hits) == 1 and hits[0].startswith("4C FIELD SCALE: phi_1 peaks at 8.5e+13") and "is 0.8" not in hits[0], hits
+    assert "largest number the deck prescribes (VAL entries, FUNCT constants) is 2" in hits[0]
+    meshio.write(tmp_path / "out-vtk-files" / "scatra-00001-0.vtu", meshio.Mesh(pts, cells, point_data={"phi_1": np.array([0.0, 0.8, 0.0, 0.79])}))
+    assert field_scale_findings(deck, tmp_path) == []
+    # the run hook carries it for a finished run
+    (tmp_path / "slab.4C.yaml").write_text(deck)
+    meshio.write(tmp_path / "out-vtk-files" / "scatra-00001-0.vtu", meshio.Mesh(pts, cells, point_data={"phi_1": np.full(4, 8.5e13)}))
+    out = _fourc_run_check("stdbuf -oL /home/alexander/4C/build/4C slab.4C.yaml out", "... processor 0 finished normally\n", tmp_path)
+    assert "[run check] 4C FIELD SCALE: phi_1 peaks at 8.5e+13" in out, out

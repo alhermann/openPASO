@@ -1,0 +1,26 @@
+[
+ {
+  "first_call": "spawn_subagent",
+  "levels_first": false,
+  "secs": 20,
+  "text": "spawn_subagent(role='worker', task=\"For level 1, for EACH side: read that side's converged field (its per-level dumps field_level<k>.csv, columns x,y,<field> nodal values, and interface_level<k>.csv, columns x,y,<trace>,<flux> at its interface nodes -- NEVER exports.json, which the next level overwrites: measured, a run that rebuilt level 1 from exports.json after level 2 handed in two byte-identical levels), evaluate it at the probe points the task prescribes by interpolating inside the element (never nearest node) and write the per-level field file the task names; write the per-level interfa"
+ },
+ {
+  "first_call": "spawn_subagent",
+  "levels_first": false,
+  "secs": 8,
+  "text": "spawn_subagent(role='worker', task=\"For level 1, for EACH side: read that side's converged field (its per-level dumps field_level<k>.csv, columns x,y,<field> nodal values, and interface_level<k>.csv, columns x,y,<trace>,<flux> at its interface nodes -- NEVER exports.json, which the next level overwrites: measured, a run that rebuilt level 1 from exports.json after level 2 handed in two byte-identical levels), evaluate it at the probe points the task prescribes by interpolating inside the element (never nearest node) and write the per-level field file the task names; write the per-level interfa"
+ },
+ {
+  "first_call": "spawn_subagent",
+  "levels_first": false,
+  "secs": 19,
+  "text": "spawn_subagent(role='worker', task=\"For level 1, for EACH side: read that side's converged field (its per-level dumps field_level1.csv, columns x,y,<field> nodal values, and interface_level1.csv, columns x,y,<trace>,<flux> at its interface nodes -- NEVER exports.json, which the next level overwrites: measured, a run that rebuilt level 1 from exports.json after level 2 handed in two byte-identical levels), evaluate it at the probe points the task prescribes by interpolating inside the element (never nearest node) and write the per-level field file the task names; write the per-level interface f"
+ },
+ {
+  "first_call": "spawn_subagent",
+  "levels_first": false,
+  "secs": 6,
+  "text": "spawn_subagent(role='worker', task=\"For level 1, for EACH side: read that side's converged field (its per-level dumps field_level1.csv, columns x,y,<field> nodal values, and interface_level1.csv, columns x,y,<trace>,<flux> at its interface nodes -- NEVER exports.json, which the next level overwrites), evaluate it at the probe points the task prescribes by interpolating inside the element (never nearest node) and write the per-level field file the task names; write the per-level interface file from that side's own converged trace and its own outward flux at the prescribed interface points -- BO"
+ }
+]

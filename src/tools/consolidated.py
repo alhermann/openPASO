@@ -4003,23 +4003,8 @@ def register_consolidated_tools(mcp: FastMCP):
         except Exception as e:                          # noqa: BLE001
             findings.append(f"(setup check failed: {e!r})")
         if backend.name() == "fourc":
-            from tools.fourc_deck_lint import grammar, lint_deck, material_defects, unknown_sections   # noqa: PLC0415
-            findings += lint_deck(text)
-            _bin = None
-            try:
-                from backends.fourc.backend import _find_fourc_binary   # noqa: PLC0415
-                _bin = _find_fourc_binary()
-            except Exception:                           # noqa: BLE001
-                _bin = None
-            _ld = os.environ.get("LD_LIBRARY_PATH", "")
-            if Path("/opt/4C-dependencies/lib").is_dir() and "4C-dependencies" not in _ld:
-                _ld = "/opt/4C-dependencies/lib" + (":" + _ld if _ld else "")
-            g = grammar(str(_bin) if _bin else os.environ.get("FOURC_BINARY"), _ld or None)
-            if g["sections"]:
-                findings += unknown_sections(text, g["sections"], g["elements"])
-                findings += material_defects(text, g.get("materials", {}))
-            else:
-                findings.append("(section names not judged: no 4C binary found for `4C -p`)")
+            from tools.fourc_deck_lint import deck_judgement   # noqa: PLC0415
+            findings += deck_judgement(text)
         head = f"CHECK_INPUT ({solver}, {Path(input_path).name if input_path else 'inline text'}): "
         if not findings:
             return head + ("no defect named by the setup checks. That is not proof the deck runs; the "

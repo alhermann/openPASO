@@ -438,3 +438,76 @@ def side_dir_report(side: Path) -> dict:
             defects[dk.name] = why
     return {"finished": finished, "monitors": monitors, "errors": errors, "defects": defects,
             "tracebacks": tracebacks, "consoles": consoles, "decks": [d.name for d in decks]}
+
+
+# ---------------------------------------------------------------------------------------------
+# One judgement for every gate that reads a deck: check_input, the write hook, the run hook.
+# ---------------------------------------------------------------------------------------------
+_DECK_MARKERS = ("PROBLEM TYPE:", "PROBLEMTYPE:", "NODE COORDS", "STRUCTURE ELEMENTS", "TRANSPORT ELEMENTS",
+                 "FLUID ELEMENTS", "THERMO ELEMENTS", "DNODE-NODE TOPOLOGY", "DLINE-NODE TOPOLOGY")
+
+
+def looks_like_deck(text: str) -> bool:
+    """A 4C YAML deck: at least two section heads and one of 4C's own section names."""
+    if not text or not any(m in text for m in _DECK_MARKERS):
+        return False
+    return len(re.findall(r"^[A-Z][A-Z0-9 _/.:-]*?:\s*$", text, re.M)) >= 2
+
+
+def binary_and_ld() -> tuple[str | None, str | None]:
+    """The installed 4C binary (FOURC_BINARY, else the backend's finder) and the library path its
+    `-p` dump needs. (None, None) when there is no binary: then section names are not judged."""
+    _bin = os.environ.get("FOURC_BINARY")
+    if not (_bin and Path(_bin).is_file()):
+        _bin = None
+        try:
+            from backends.fourc.backend import _find_fourc_binary   # noqa: PLC0415
+            found = _find_fourc_binary()
+            _bin = str(found) if found else None
+        except Exception:                               # noqa: BLE001
+            _bin = None
+    ld = os.environ.get("LD_LIBRARY_PATH", "")
+    if Path("/opt/4C-dependencies/lib").is_dir() and "4C-dependencies" not in ld:
+        ld = "/opt/4C-dependencies/lib" + (":" + ld if ld else "")
+    return _bin, (ld or None)
+
+
+def deck_judgement(text: str) -> list[str]:
+    """Every defect the lint can name in ONE pass: the measured deck defects, the section names
+    against the installed binary's own grammar (with the closest known names), the material
+    parameters against its material specs. Names defects only; writes and completes nothing."""
+    findings = lint_deck(text)
+    _bin, ld = binary_and_ld()
+    g = grammar(_bin, ld)
+    if g["sections"]:
+        findings += unknown_sections(text, g["sections"], g["elements"])
+        findings += material_defects(text, g.get("materials", {}))
+    else:
+        findings.append("(section names not judged: no 4C binary found for `4C -p`)")
+    return findings
+
+
+_RUN_RE = re.compile(r"(?:^|[\s;&|(`])(?P<bin>\S*/4C|4C)\s+(?:-{1,2}[\w=-]+\s+)*(?P<deck>[^\s;&|>]+\.(?:4C\.)?(?:yaml|yml|dat))(?=$|[\s;&|>)])",
+                     re.M)
+
+
+def run_command_deck(command: str, cwd: Path) -> Path | None:
+    """The deck a shell command hands to the 4C binary (`.../4C deck.yaml out`, also behind mpirun,
+    stdbuf or `cd side_A &&`), resolved on disk; None when the command does not run 4C."""
+    m = _RUN_RE.search(command or "")
+    if not m:
+        return None
+    deck = m.group("deck").strip("'\"")
+    cand = Path(deck)
+    if not cand.is_absolute():
+        cand = Path(cwd) / deck
+        cd = re.search(r"\bcd\s+([^\s;&|]+)\s*(?:&&|;)", command)
+        if cd and not cand.is_file():
+            cand = Path(cwd) / cd.group(1).strip("'\"") / deck
+    if cand.is_file():
+        return cand
+    try:
+        hits = sorted(Path(cwd).rglob(Path(deck).name))
+    except OSError:
+        hits = []
+    return hits[0] if len(hits) == 1 else None

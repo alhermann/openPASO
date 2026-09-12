@@ -957,3 +957,65 @@ def _early_artefact_check(workdir: Path, written: Path) -> str:
     except Exception:                      # noqa: BLE001
         return ""
     return ""
+
+
+def _fourc_deck_write_check(written: Path, content: str) -> str:
+    """A 4C deck is judged the moment it is written, in the reply the parent is already reading.
+
+    MEASURED (honest coupled rounds 24-38 and the deck step trials te4c8-12): every first-attempt
+    worker deck carried grammar defects (sections 4C does not know, condition ids no topology
+    section defines, twisted elements, a temperature filed under the structural Dirichlet family),
+    0 of 3 ran; the standalone gate that names them all at once, check_input, was called 0-1 times
+    per run, and one parent gave 4C up unrun as 'very complex and error-prone'. The binary stops at
+    the first defect; this names every one before the first run. Names defects only, writes nothing.
+    """
+    if not written.name.lower().endswith((".yaml", ".yml", ".dat")):
+        return ""
+    try:
+        from tools.fourc_deck_lint import deck_judgement, looks_like_deck   # noqa: PLC0415
+        if not looks_like_deck(content):
+            return ""
+        findings = deck_judgement(content)
+    except Exception:                                    # noqa: BLE001
+        return ""
+    return _deck_findings_text("[write check]", written.name, findings, "before any run")
+
+
+def _deck_findings_text(tag: str, name: str, findings: list, when: str) -> str:
+    real = [f for f in findings if not str(f).startswith("(section names not judged")]
+    note = [f for f in findings if str(f).startswith("(section names not judged")]
+    if not real:
+        return (f"\n{tag} 4C DECK {name}: no defect named by the deck lint {when}"
+                + (" " + note[0] if note else "") + " -- not proof it runs; the binary's own console is.")
+    shown = real[:15]
+    more = f"\n  ... and {len(real) - 15} more" if len(real) > 15 else ""
+    return (f"\n{tag} 4C DECK {name}: {len(real)} defect(s) named by the deck lint {when} -- the binary "
+            f"stops at the first, these are all of them; fix every one, then run:\n"
+            + "\n".join(f"  - {f}" for f in shown) + more + ("\n  " + note[0] if note else ""))
+
+
+def _fourc_run_check(command: str, output: str, workdir: Path) -> str:
+    """A shell command that ran the 4C binary on a deck: the deck's defects and 4C's own stop line.
+
+    The parent runs 4C itself through the shell (20 shell calls per run measured, against 0-1 calls
+    of the standalone gate). The reply carries the console; this adds what the console does not say:
+    every deck defect at once (4C reports one), and, when 4C died or MPI_Abort ate the message, the
+    PROC 0 error block or the signal with the last printed lines.
+    """
+    try:
+        from tools.fourc_deck_lint import deck_judgement, fourc_error_lines, run_command_deck   # noqa: PLC0415
+        deck = run_command_deck(command, Path(workdir))
+        if deck is None:
+            return ""
+        findings = deck_judgement(deck.read_text(errors="ignore"))
+        err = fourc_error_lines(output or "")
+    except Exception:                                    # noqa: BLE001
+        return ""
+    finished = "finished normally" in (output or "")
+    out = ""
+    real = [f for f in findings if not str(f).startswith("(section names not judged")]
+    if real or not finished:
+        out += _deck_findings_text("[run check]", deck.name, findings, "in this deck")
+    if err and not finished:
+        out += "\n[run check] 4C's own stop: " + err.strip()
+    return out

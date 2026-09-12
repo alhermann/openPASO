@@ -642,6 +642,7 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
             return (out
                     + (_registry_error_check(out) + _eaten_error_check(out)
                        + _env_after_wrapper_check(command)
+                       + _fourc_run_check(command, out, workdir)
                        if audit_on_submit else "")
                     + _script_check_after_shell(_before_scr)
                     + _artefact_check_after_shell(_before_art)
@@ -728,6 +729,7 @@ def _read_write_tools_for(workdir: Path, *, audit_on_submit: bool = False):
                 reply += _script_noop_check(p, content)
                 reply += _registry_attribute_check(p, content)
                 reply += _extra_script_checks(p, content)
+                reply += _fourc_deck_write_check(p, content)
                 reply += _early_artefact_check(workdir, p)
             if audit_on_submit and p.name == "RESULT.txt":
                 # A GIVE-UP FILED OVER FINISHED WORK, caught structurally.
@@ -1051,7 +1053,7 @@ from tools.workspace_advisor import (          # noqa: E402
     _identical_levels_check, _level_index_check, _registry_attribute_check,
     _looks_like_captured_output, _registry_error_check, _script_noop_check,
     _work_on_disk_contradicting_a_give_up,
-    _wrong_level_run_log_check)
+    _wrong_level_run_log_check, _fourc_deck_write_check, _fourc_run_check)
 
 
 

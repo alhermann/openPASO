@@ -103,7 +103,7 @@ at level 1 ran out of wall clock before level 3 when every level cost ten calls)
 Use this contract when the task transmits temperature and displacement together across the interface (steady thermoelasticity split into subdomains). `values` = [T, ux, uy] and `normal_fluxes` = [qn, qx, qy] per interface point, the traction in the SAME sign convention as the heat flux -- minus the flux of the conserved quantity through this side's outward normal -- so the two sides' exports cancel componentwise and the Neumann side applies the partner's numbers UNCHANGED. A task that asks for the OUTWARD traction sigma.n_out gets minus the exported (qx, qy). Both are recovered from THIS side's own assembled systems (4C: its own boundary-flux VTU and its Dirichlet reaction monitor), never by differencing a P1 field on the boundary.
 
 
-[THE SERVED CONTRACT BLOCK (29,396 characters) IS NOT REPEATED IN THIS FIRST REPLY so the must-read below arrives whole. Your WORKER's own call knowledge(topic='coupling', solver='fourc', physics='thermoelastic', ...) leads with the complete block, the deciding facts and the deck grammar; hand the worker the brief, not this text.]
+[THE SERVED CONTRACT BLOCK (29,844 characters) IS NOT REPEATED IN THIS FIRST REPLY so the must-read below arrives whole. Your WORKER's own call knowledge(topic='coupling', solver='fourc', physics='thermoelastic', ...) leads with the complete block, the deciding facts and the deck grammar; hand the worker the brief, not this text.]
 
 DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH -- THE CONTRACT EXISTS
 FOR YOUR CODE. For EACH of your two codes call `knowledge(topic='coupling',

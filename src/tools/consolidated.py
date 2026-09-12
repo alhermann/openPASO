@@ -5856,7 +5856,27 @@ def register_consolidated_tools(mcp: FastMCP):
             if _lvl_for_log:
                 _logs = " ".join(f"side {_p.name}: {Path(_p.work_dir) / f'participant_output_level{_lvl_for_log}.log'};"
                                  for _p in parts)
-            _one_call = ((f"LEVEL {_lvl_for_log} CONVERGED. " if _lvl_for_log else "LEVEL CONVERGED. ")
+            # A FIXED POINT REACHED AT ONCE IS NOT A COUPLED RESULT. Measured (round 39, a 4C-Kratos
+            # cell): both participants re-served a stale exports.json, the residual was 2e-13 at
+            # iteration 2, the funnel said "unresponsive" -- and this lead said CONVERGED, write the
+            # deliverables. The parent saw the contradiction and spent its calls on it; the level was
+            # read as no coupling (a history under 3 rows). The lead now says what the run is.
+            _unresp = sorted(n for n, st in (getattr(r, "responsiveness", None) or {}).items()
+                             if "unresponsive" in str(st).lower())
+            _probe_hits = [str(x) for x in val if "do not respond" in str(x).lower() or "byte-identical" in str(x).lower()]
+            _n_hist = len(getattr(r, "history", None) or [])
+            _trivial = bool(_unresp or _probe_hits) or _n_hist < 3
+            _lvl_txt = f"LEVEL {_lvl_for_log}" if _lvl_for_log else "THIS LEVEL"
+            _not_yet = (f"{_lvl_txt} IS NOT A COUPLED RESULT YET: the iteration stopped after {_n_hist} step(s)"
+                        + (f"; participant(s) {', '.join(_unresp)} exported byte-identical data while their imports changed" if _unresp else "")
+                        + (f"; {_probe_hits[0][:220]}" if _probe_hits else "")
+                        + ". A fixed point reached at once means the exchanged data never changed between iterations: each "
+                          "participant must read ./imports.json on EVERY run and its export must depend on it, and a stale "
+                          "exports.json left by a standalone test run is re-read as this iteration's answer -- delete it "
+                          "before coupling. Then couple() again. Do not write this level's deliverables from this run: a "
+                          "history under 3 rows shows no coupling to anyone who reads it.")
+            _one_call = (_not_yet if _trivial else
+                         (f"LEVEL {_lvl_for_log} CONVERGED. " if _lvl_for_log else "LEVEL CONVERGED. ")
                          + "FIRST, this level's deliverables: its field and interface files per side from the per-level "
                            "dumps, and its run log per side as a VERBATIM COPY of that side's captured console for THIS "
                            "level" + (f" ({_logs})" if _logs else " (participant_output_level<k>.log next to its exports.json)")

@@ -18,6 +18,7 @@ import subprocess
 from pathlib import Path
 
 _TOPO_WORDS = ("DNODE", "DLINE", "DSURFACE", "DVOL")
+_TOPOLOGY_PAIRS = ('the pairs are section `DNODE-NODE TOPOLOGY` with entries `NODE <n> DNODE <id>`, `DLINE-NODE TOPOLOGY` with `DLINE`, `DSURF-NODE TOPOLOGY` with entries `NODE <n> DSURFACE <id>` (section word DSURF, entry word DSURFACE), `DVOL-NODE TOPOLOGY` with `DVOL`')
 _VALID_CACHE: dict[str, set] = {}
 
 
@@ -282,7 +283,7 @@ def lint_deck(text: str) -> list[str]:
     badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', text) if w not in _TOPO_WORDS})
     if badkw:
         why.append(f"topology entries use {', '.join(badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL "
-                   "(anything else defines nothing and 4C silently drops the conditions on it)")
+                   "(anything else defines nothing and 4C silently drops the conditions on it); " + _TOPOLOGY_PAIRS)
     topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", text))
     for b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", text, flags=re.M):
         head = b.split(":", 1)[0].strip()

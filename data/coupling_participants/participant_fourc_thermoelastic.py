@@ -191,6 +191,7 @@ atexit.register(_diagnose_at_exit)
 #      TZ        the slab thickness (one well-shaped HEX8 layer)
 #      OUT_T, OUT_U   the two output prefixes;  DECK_U   the file name you wrote deck U to
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+nodes = interior = TZ = OUT_T = OUT_U = DECK_U = None     # your mesh, decks and runs define these six
 raise SystemExit("the mesh-decks-and-runs hole above the recovery is not filled")
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
 

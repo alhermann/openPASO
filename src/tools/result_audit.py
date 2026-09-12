@@ -2700,6 +2700,26 @@ def coupled_ladder(work: Path) -> dict | None:
         sides_f = {_side_of(q) for q in fields if _level_of(q) == k and _side_of(q)}
         sides_i = {_side_of(q) for q in ifaces if _level_of(q) == k}
         if len(sides_f) < 2 or len(sides_i) < 2:
+            # A COUPLED LEVEL WITHOUT ITS PER-LEVEL DUMPS IS RE-RUN, NOT INTERPOLATED FROM NOTHING. Measured
+            # (round 41, C2 7123): level 1's scripts wrote no interface_level1.csv, the deliverables pass skipped
+            # that level's interface files with a warning, and three second-order levels were read as no result.
+            _gap = []
+            for _sd in sorted({q.parent for q in scripts}):
+                try:   # only a side whose script carries the served dump block is expected to leave dumps
+                    if not any("field_level" in q.read_text(errors="ignore") for q in _sd.glob("*.py")):
+                        continue
+                except OSError:
+                    continue
+                for _nm in (f"field_level{k}.csv", f"interface_level{k}.csv"):
+                    if not (_sd / _nm).is_file():
+                        _gap.append(f"{_sd.name}/{_nm}")
+            if _gap:
+                return step(3, f"LEVEL {k} WAS COUPLED BUT ITS PER-LEVEL DUMPS ARE MISSING ({', '.join(_gap[:4])}): the deliverables "
+                               f"cannot be written from them; the participant that ran level {k} did not carry the served dump block.",
+                            f"In {', '.join(sorted({str(q.relative_to(work)) for q in scripts}))}: make sure the served block that writes "
+                            f"field_level<k>.csv and interface_level<k>.csv after exports.json is present and unchanged (it is part of the "
+                            f"contract), then couple() level {k} again with the same participants so its dumps appear; CHECK: both sides' "
+                            f"field_level{k}.csv and interface_level{k}.csv exist next to their exports.json.")
             # LEVELS FIRST, DELIVERABLES ONCE -- the ladder says the same as the couple() lead, or the
             # parent copies the ladder's ready-made spawn call and writes level 1's files (measured
             # 2026-09-12: 4 of 4 parents did exactly that while the lead above asked for couple_levels;

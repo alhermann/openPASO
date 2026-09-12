@@ -5915,6 +5915,29 @@ def register_consolidated_tools(mcp: FastMCP):
             # (the write check) and here (the deliverable findings), so the order that lost
             # rounds 29-33 is safe again: every remaining level in ONE couple_levels call, then
             # one script that writes every level's files from the per-level dumps.
+            # THE PER-LEVEL DUMPS MUST EXIST BEFORE ANY DELIVERABLE IS WRITTEN FROM THEM. Measured (round 41,
+            # C2 7123): level 1 ran with a script version that wrote no interface_level1.csv; the parent
+            # edited the scripts, coupled levels 2 and 3, and the deliverables script skipped level 1's
+            # interface files with a warning -- three second-order levels graded as no result for one
+            # missing pair. The dumps are checked here, the moment the level converged.
+            _dump_gap = []
+            if _lvl_for_log and not _trivial:
+                for _p in parts:
+                    try:   # only a side whose script carries the served dump block is expected to leave dumps
+                        _carries = any("field_level" in q.read_text(errors="ignore") for q in Path(_p.work_dir).glob("*.py"))
+                    except OSError:
+                        _carries = False
+                    if not _carries:
+                        continue
+                    for _nm in (f"field_level{_lvl_for_log}.csv", f"interface_level{_lvl_for_log}.csv"):
+                        if not (Path(_p.work_dir) / _nm).is_file():
+                            _dump_gap.append(f"side {_p.name}: {_nm}")
+            _dump_txt = ("" if not _dump_gap else
+                         f"LEVEL {_lvl_for_log}'S PER-LEVEL DUMPS ARE MISSING ({'; '.join(_dump_gap)}): the served contract writes "
+                         f"field_level<k>.csv and interface_level<k>.csv next to exports.json on every run, so the script that ran this "
+                         f"level did not carry that block (an older version, or a rewrite). Fix the participant, then couple() this "
+                         f"level AGAIN before anything is written from its dumps -- a deliverables pass silently skips a level whose "
+                         f"dump is missing, and a level set with one level missing is no result. ")
             _one_call = (_not_yet if _trivial else
                          (f"LEVEL {_lvl_for_log} CONVERGED. " if _lvl_for_log else "LEVEL CONVERGED. ")
                          + "FIRST, if the task prescribes further mesh levels, run them ALL in ONE call: "
@@ -5930,7 +5953,7 @@ def register_consolidated_tools(mcp: FastMCP):
                          + " -- a run log copied from another level's console reads as an unchanged mesh and sinks "
                            "the whole sequence; the write check names it the moment it is written. A level set with "
                            "one level missing is read as no result at all, so the levels come before any file.")
-            _lead = _one_call + ("\n" + _lead if _lead else "")
+            _lead = _dump_txt + _one_call + ("\n" + _lead if _lead else "")
         if _mesh_note:
             _lead = _mesh_note + ("\n" + _lead if _lead else "")
         # THE LADDER RIDES ON EVERY couple() REPLY: the next unmet step, from

@@ -971,6 +971,47 @@ _IFACE_COORD_NAMES = ("x", "y", "z")
 _IFACE_FLUX_PREFIXES = ("q", "t")      # qn, q, tx, ty, tz, traction_x, ...
 
 
+def _iface_column_diagnosis(path_a, path_b, ga, gb) -> str:
+    """WHICH column disagrees, and whether it is a copy of another column of the same file.
+
+    Measured (round 42, C1 7072): the two interface files agreed in ux and uy to 1e-6 and disagreed in T
+    by a factor 40 -- side A's T column was its own uy column at every row (a wrong column index when the
+    file was written). The finding said 'field jump 6.2e+01' and the parent read it as a physics error,
+    wrote a warning into its summary and stopped with 13 minutes left. Names the column and the copy."""
+    try:
+        ha = [c.strip() for c in path_a.read_text(errors="replace").splitlines()[0].split(",")]
+        hb = [c.strip() for c in path_b.read_text(errors="replace").splitlines()[0].split(",")]
+        va, vb = ga[1], gb[1]
+        n = min(len(va), len(vb))
+        ncol = min(len(va[0]), len(vb[0])) if n else 0
+        if n == 0 or ncol == 0:
+            return ""
+        ncoord = len(ga[0][0]) if ga[0] else 2
+        names_a = ha[ncoord:ncoord + ncol] if len(ha) >= ncoord + ncol else [f"column {c + 1}" for c in range(ncol)]
+        per = []
+        for c in range(ncol):
+            col_a = [va[i][c] for i in range(n)]; col_b = [vb[i][c] for i in range(n)]
+            sc = max(max(abs(v) for v in col_a), max(abs(v) for v in col_b), 1e-300)
+            per.append((names_a[c], max(abs(col_a[i] - col_b[i]) for i in range(n)) / sc))
+        bad = [nm for nm, jp in per if jp > 1e-2]
+        good = [nm for nm, jp in per if jp <= 1e-2]
+        txt = " COLUMN BY COLUMN: " + "; ".join(f"{nm} {jp:.1e}" for nm, jp in per) + "."
+        if bad and good:
+            txt += f" The disagreement is in {', '.join(bad)} alone while {', '.join(good)} agree, so the coupling exchanged the right data and the FILE has the wrong column."
+        # a column that equals another column of the same file, row for row
+        for side, vals, hdr in (("A", va, ha), ("B", vb, hb)):
+            names = hdr[ncoord:ncoord + ncol] if len(hdr) >= ncoord + ncol else [f"column {c + 1}" for c in range(ncol)]
+            for c1 in range(ncol):
+                for c2 in range(c1 + 1, ncol):
+                    if all(abs(vals[i][c1] - vals[i][c2]) <= 1e-12 * max(1.0, abs(vals[i][c1])) for i in range(n)) and \
+                       any(abs(vals[i][c1]) > 1e-300 for i in range(n)):
+                        txt += (f" In side {side}'s file the {names[c1]} column equals its {names[c2]} column at every row: the same "
+                                f"quantity was written twice -- fix the column index in the script that writes this file, not the coupling.")
+        return txt
+    except Exception:                                    # noqa: BLE001
+        return ""
+
+
 def _read_iface_by_header(path):
     """(points, values, fluxes) split by the file's OWN header names.
 
@@ -1431,6 +1472,7 @@ def interface_sign_findings(work: Path) -> list[dict]:
         except Exception:
             continue
     mismatch = []
+    columns: list = []
     for lvl, claimed in sorted(resid_final.items()):
         a, b = ifs.get((lvl, "A")), ifs.get((lvl, "B"))
         if not (a and b) or claimed <= 0:
@@ -1449,11 +1491,13 @@ def interface_sign_findings(work: Path) -> list[dict]:
             jump = max(abs(ua[i] - ub[i]) for i in range(n)) / scale
             if jump > 100.0 * claimed and jump > 1e-3:
                 mismatch.append((lvl, claimed, jump))
+                columns.append(_iface_column_diagnosis(a, b, ga, gb))
         except Exception:
             continue
     if mismatch:
         where = ", ".join(f"level {l}: claimed {c:.2e} vs measured {j:.2e}"
                           for l, c, j in mismatch)
+        col_txt = next((c for c in columns if c), "")
         out.append({"sequence": "residual vs files", "values":
                     [j for _l, _c, j in mismatch], "finding": (
             "THE RESIDUAL YOUR ITERATION CONVERGED IS NOT THE DISAGREEMENT "
@@ -1468,7 +1512,7 @@ def interface_sign_findings(work: Path) -> list[dict]:
             "deliver -- max|uA-uB| over the interface rows, divided by "
             "max|uA| -- and iterate on THAT; if it does not match your "
             "loop's residual, your loop is reading different data than it "
-            "writes.")})
+            "writes." + col_txt)})
     trend = [jumps[l] for l in sorted(jumps)
              if isinstance(jumps.get(l), (int, float))]
     if len(trend) >= 2 and not all(trend[i + 1] < trend[i]

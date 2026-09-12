@@ -246,3 +246,21 @@ def test_the_after_shell_check_pairs_a_console_with_its_own_deck(tmp_path):
     (side / "run_U.log").write_text(STOP)
     out = _fourc_after_shell_check(tmp_path, time.time() - 5, "cd side_A && python3 participant_A.py")
     assert "4C DECK deck_U.4C.yaml:" in out and "test_deck.yaml" not in out, out
+
+
+def _pinned_slab(all_pinned: bool):
+    nodes = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (0, 0, .1), (1, 0, .1), (1, 1, .1), (0, 1, .1)]
+    coords = "NODE COORDS:\n" + "".join(f'  - "NODE {i + 1} COORD {x} {y} {z}"\n' for i, (x, y, z) in enumerate(nodes))
+    surf = [1, 4, 5, 8] + ([2, 3, 6, 7] if all_pinned else [])
+    return ('PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\n' + coords
+            + 'DESIGN SURF DIRICH CONDITIONS:\n  - E: 1\n    NUMDOF: 3\n    ONOFF: [1, 1, 1]\n    VAL: [0, 0, 0]\n    FUNCT: [0, 0, 0]\n'
+            + 'DESIGN VOL DIRICH CONDITIONS:\n  - E: 1\n    NUMDOF: 3\n    ONOFF: [0, 0, 1]\n    VAL: [0, 0, 0]\n    FUNCT: [0, 0, 0]\n'
+            + 'DSURF-NODE TOPOLOGY:\n' + "".join(f'  - "NODE {n} DSURFACE 1"\n' for n in surf)
+            + 'DVOL-NODE TOPOLOGY:\n' + "".join(f'  - "NODE {n} DVOL 1"\n' for n in range(1, 9)))
+
+
+def test_dirichlet_on_every_node_is_named_and_a_plane_strain_pin_is_not():
+    from tools.fourc_deck_lint import lint_deck
+    hits = [f for f in lint_deck(_pinned_slab(True)) if "DIRICHLET PINS EVERY NODE" in f]
+    assert len(hits) == 1 and "displacement field (8 of 8 nodes" in hits[0] and "res-norm 0" in hits[0], lint_deck(_pinned_slab(True))
+    assert not [f for f in lint_deck(_pinned_slab(False)) if "PINS EVERY NODE" in f]       # u_z = 0 everywhere is plane strain

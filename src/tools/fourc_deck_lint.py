@@ -333,6 +333,7 @@ def lint_deck(text: str) -> list[str]:
     why += _lines_without_an_element_edge(text)
     why += _unquoted_table_rows(text)
     why += _elements_with_unknown_nodes(text)
+    why += _dirichlet_pins_every_node(text)
     why += _bad_hex8_slabs(text)
     why += _interior_lines(text)
     why += _double_star_in_functions(text)
@@ -402,6 +403,59 @@ def _double_star_in_functions(text: str) -> list[str]:
         expr = m.group(2)
         out.append(f"function expression '{expr[:70]}' uses `**`: 4C's expression parser has no `**` (it stops with "
                    f"'Token expected'); write `^` for every power in the expression, not only the first")
+    return out
+
+
+def _dirichlet_pins_every_node(text: str) -> list[str]:
+    """Dirichlet conditions that reach EVERY node of a field leave nothing to solve: 4C's predictor prints
+    'res-norm 0', the solver converges at iteration 0 and the field is the prescribed data (zero where the
+    data is zero). Measured (round 45, C1 7172): a TSI deck whose 'outer' surface held 90 of 108 slab nodes and
+    whose interface points held the other 18 -- both fields pinned everywhere, both volume loads gone, 85
+    shell calls spent on a '4C limitation'. Counted per field and per in-plane component (a u_z = 0 pin on
+    the whole slab is plane strain, not a defect), only when the coverage is complete."""
+    nodes = {int(a) for a in re.findall(r'"NODE\s+(\d+)\s+COORD\b', text)}
+    if len(nodes) < 4:
+        return []
+    topo: dict = {}
+    for n, kind, e in re.findall(r'"NODE\s+(\d+)\s+(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)"', text):
+        topo.setdefault((kind, int(e)), set()).add(int(n))
+    kmap = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}
+    covered: dict = {}
+    via: dict = {}
+    for b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", text, flags=re.M):
+        head = b.split(":", 1)[0].strip()
+        if "DIRICH" not in head or not head.endswith("CONDITIONS"):
+            continue
+        kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", head)
+        if not kw:
+            continue
+        fam = "temperature" if "THERMO" in head or "TRANSPORT" in head else "displacement"
+        for entry in re.split(r"^\s*-\s", b, flags=re.M)[1:]:
+            e = re.search(r"\bE:\s*(\d+)", entry)
+            on = re.search(r"ONOFF:\s*\[([^\]]*)\]", entry)
+            flags = [x.strip() for x in on.group(1).split(",")] if on else ["1"]
+            inplane = any(f == "1" for f in flags[:2]) if fam == "displacement" else flags[0] == "1"
+            if not e or not inplane:
+                continue
+            ns = topo.get((kmap[kw.group(1)], int(e.group(1))), set())
+            if ns:
+                covered.setdefault(fam, set()).update(ns)
+                via.setdefault(fam, []).append(f"{kmap[kw.group(1)]} {e.group(1)} ({len(ns)} nodes)")
+    out = []
+    for fam, s_ in covered.items():
+        if s_ >= nodes:
+            # aggregate the entities by kind (a slab has one DNODE per interface node and layer)
+            by_kind: dict = {}
+            for v in dict.fromkeys(via[fam]):
+                kind, rest = v.split(" ", 1)
+                cnt = int(re.search(r"\((\d+) nodes\)", rest).group(1))
+                k = by_kind.setdefault(kind, [0, 0]); k[0] += 1; k[1] += cnt
+            through = ", ".join(f"{n} {kind} entit{'y' if n == 1 else 'ies'} ({c} nodes)" for kind, (n, c) in by_kind.items())
+            out.append(f"DIRICHLET PINS EVERY NODE of the {fam} field ({len(nodes)} of {len(nodes)} nodes, through "
+                       f"{through}): nothing is left to solve -- 4C's predictor prints "
+                       f"'res-norm 0', the solver converges at iteration 0 and the field is the prescribed data. The outer "
+                       f"boundary holds the BOUNDARY nodes only (x = x0, y = y0, y = y1, on both layers of a slab); interior "
+                       f"nodes carry no Dirichlet condition, and the interface points are the interface nodes alone")
     return out
 
 

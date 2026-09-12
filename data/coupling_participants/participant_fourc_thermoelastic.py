@@ -267,6 +267,31 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yam
         raise SystemExit(f"DECK CHECK: {_dk} has {len(_unq)} table row(s) that are not quoted YAML strings (first, in {_unq[0][0]}: "
                          f"`- {_unq[0][1][:60]}`): every NODE COORDS, element and topology row is ONE quoted string, `- \"...\"`. "
                          f"4C's reader stops at the first bare token with 'could not find ':' colon after key'.")
+    # Dirichlet on EVERY node of a field leaves nothing to solve: 4C prints 'res-norm 0' and the field is the prescribed
+    # data (measured, round 45: an 'outer' surface of 90 of 108 slab nodes plus 18 interface points pinned both fields)
+    _nodes = {int(a) for a in re.findall(r'"NODE\s+(\d+)\s+COORD\b', _txt)}
+    _tp = {}
+    for _n, _k, _e in re.findall(r'"NODE\s+(\d+)\s+(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)"', _txt):
+        _tp.setdefault((_k, int(_e)), set()).add(int(_n))
+    _cov = {}
+    for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
+        _head = _b.split(":", 1)[0].strip()
+        _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head) if ("DIRICH" in _head and _head.endswith("CONDITIONS")) else None
+        if not _kw:
+            continue
+        _fam = "temperature" if ("THERMO" in _head or "TRANSPORT" in _head) else "displacement"
+        for _en in re.split(r"^\s*-\s", _b, flags=re.M)[1:]:
+            _e = re.search(r"\bE:\s*(\d+)", _en); _on = re.search(r"ONOFF:\s*\[([^\]]*)\]", _en)
+            _fl = [x.strip() for x in _on.group(1).split(",")] if _on else ["1"]
+            _inpl = any(f == "1" for f in _fl[:2]) if _fam == "displacement" else _fl[0] == "1"
+            if _e and _inpl:
+                _cov.setdefault(_fam, set()).update(_tp.get(({"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)], int(_e.group(1))), set()))
+    for _fam, _s in _cov.items():
+        if len(_nodes) >= 4 and _s >= _nodes:
+            raise SystemExit(f"DECK CHECK: {_dk} pins EVERY node of the {_fam} field with Dirichlet conditions ({len(_nodes)} of {len(_nodes)}): "
+                             f"nothing is left to solve -- 4C prints 'res-norm 0', converges at iteration 0 and the field is the prescribed data. "
+                             f"The outer boundary is the BOUNDARY nodes only (x = x0, y = y0, y = y1 on both layers), the interface points the "
+                             f"interface nodes alone; interior nodes carry no Dirichlet condition.")
     # a section written twice: 4C stops in its reader with 'Section X is defined more than once' (measured, te4c13)
     _heads = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, re.M)
     _dup = sorted({h for h in _heads if _heads.count(h) > 1})

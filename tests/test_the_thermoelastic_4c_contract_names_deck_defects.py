@@ -198,3 +198,13 @@ def test_the_contracts_extractor_reads_the_yaml_readers_stop_without_frames(tmp_
     why = ns["why_4c_did_not_finish"]("run T")
     assert "4C said (run_t.log): ERROR: could not find ':' colon after key | 204:40: 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std" in why, why
     assert "0#" not in why
+
+
+def test_the_served_deck_check_refuses_dirichlet_on_every_node(tmp_path):
+    nodes = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (0, 0, .1), (1, 0, .1), (1, 1, .1), (0, 1, .1)]
+    coords = "NODE COORDS:\n" + "".join(f'  - "NODE {i + 1} COORD {x} {y} {z}"\n' for i, (x, y, z) in enumerate(nodes))
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\n' + coords
+            + 'DESIGN SURF THERMO DIRICH CONDITIONS:\n  - E: 1\n    NUMDOF: 1\n    ONOFF: [1]\n    VAL: [0]\n    FUNCT: [0]\n'
+            + 'DSURF-NODE TOPOLOGY:\n' + "".join(f'  - "NODE {n} DSURFACE 1"\n' for n in range(1, 9)))
+    r = _run_contract_with_deck(tmp_path, deck)
+    assert r.returncode != 0 and "DECK CHECK" in r.stderr and "pins EVERY node of the temperature field" in r.stderr, r.stderr[-600:]

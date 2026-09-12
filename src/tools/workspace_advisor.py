@@ -1048,7 +1048,7 @@ def _fourc_after_shell_check(workdir: Path, started_at: float, command: str = ""
         logs = []
         for lg in root.rglob("*.log"):
             try:
-                if lg.stat().st_mtime >= started_at - 1:
+                if lg.stat().st_mtime >= started_at:      # written by THIS command; an older console is not its doing
                     logs.append(lg)
             except OSError:
                 continue

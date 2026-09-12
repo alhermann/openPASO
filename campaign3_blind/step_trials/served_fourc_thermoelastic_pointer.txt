@@ -8,7 +8,7 @@ THE COUPLED MUST-READ (the couple() call recipe, history_path, the fields-vs-evi
 3. Every load entry is ONOFF[i] * VAL[i] * FUNCT[i](x,t) -- FUNCT SCALES VAL. `VAL: 0` with a function set is an identically zero load that parses and exits 0 (measured: error flat at 1.0000 across all levels, order exactly 0.0000).
 4. STRUCTURE runtime-VTK carries `node_gid`, 0-BASED while NODE COORDS ids are 1-based, and the .vtu holds one point PER ELEMENT CORNER (160 points, 54 distinct gids, for a 40-element mesh). Scatter results by gid: `out[int(gid)] = value`. Zipping instead gives a field with the RIGHT maximum and 67% pointwise error. The SCATRA runtime VTU has NO `node_gid` array at all -- its point_data is only `phi_1` (plus `flux_boundary_phi_1` when requested; measured KeyError on a 240-point scatra VTU) -- so on scatra output collapse the duplicated points BY COORDINATE instead.
 5. A spatially varying interface trace needs one DESIGN POINT DIRICH condition PER NODE -- no fitted FUNCT required.
-6. INVOKE IT AS `stdbuf -oL -eL /path/to/4C deck.4C.yaml out`, OR AS The binary finds its libraries by itself (rpath-linked; measured to run with LD_LIBRARY_PATH unset), so add no prefix -- and if you ever do add one, an assignment must come BEFORE the wrapper: `stdbuf -oL VAR=x prog` makes stdbuf try to execute a file called `VAR=x` and your command never runs. Measured: wrapper-then-assignment recovered 0 diagnostic lines, assignment-first 2, `stdbuf ... env VAR=x prog` 2. OR AS `mpirun -np 1 ...`. 4C's stdout is BLOCK-BUFFERED, and when a deck is rejected MPI_Abort tears the process down before that buffer is flushed, so the line naming the defect is destroyed and all you get back is the MPI boilerplate. Measured on one rejected deck, same deck, three invocations: plain capture 429 bytes with NO reason; `2>&1` merged 429 bytes, still no reason; `stdbuf -oL -eL` 2164 bytes carrying `PROC 0 ERROR in 4C_io_input_file.cpp, line 546: Section 'NOT_A_REAL_SECTION' is not a valid section name.`; `mpirun -np 1` 2164 bytes, the same. A bare `MPI_ABORT ... errorcode 1` with an empty stdout is NOT an MPI or environment problem -- it is your deck, and the reason is one flag away. One run diagnosed it as "the 4C binary requires specific MPI environment configuration" and delivered nothing.
+6. INVOKE IT AS `stdbuf -oL -eL /path/to/4C deck.4C.yaml out` or as `mpirun -np 1 /path/to/4C deck.4C.yaml out`. The binary finds its libraries by itself (rpath-linked; measured to run with LD_LIBRARY_PATH unset), so add no prefix -- and if you ever do add one, an assignment must come BEFORE the wrapper: `stdbuf -oL VAR=x prog` makes stdbuf try to execute a file called `VAR=x` and your command never runs. Measured: wrapper-then-assignment recovered 0 diagnostic lines, assignment-first 2, `stdbuf ... env VAR=x prog` 2. 4C's stdout is BLOCK-BUFFERED, and when a deck is rejected MPI_Abort tears the process down before that buffer is flushed, so the line naming the defect is destroyed and all you get back is the MPI boilerplate. Measured on one rejected deck, same deck, three invocations: plain capture 429 bytes with NO reason; `2>&1` merged 429 bytes, still no reason; `stdbuf -oL -eL` 2164 bytes carrying `PROC 0 ERROR in 4C_io_input_file.cpp, line 546: Section 'NOT_A_REAL_SECTION' is not a valid section name.`; `mpirun -np 1` 2164 bytes, the same. A bare `MPI_ABORT ... errorcode 1` with an empty stdout is NOT an MPI or environment problem -- it is your deck, and the reason is one flag away. One run diagnosed it as "the 4C binary requires specific MPI environment configuration" and delivered nothing.
 7. `No protocol specified` and `Invalid MIT-MAGIC-COOKIE-1 key` on stderr are X11 noise from a headless session. They are not the failure and they appear on successful runs too.
 8. Boundary flux from a scatra solve: set CALCFLUX_BOUNDARY: "diffusive" in SCALAR TRANSPORT DYNAMIC **and** add a `SCATRA FLUX CALC LINE CONDITIONS:` entry (`- E: <line id>`; SURF in 3D) for every boundary line the flux is wanted on. Without that condition section 4C stops: 'Flux output requested without corresponding boundary condition specification!'. The flux lands in the runtime VTU as point array `flux_boundary_phi_1` -- the diffusive flux VECTOR q = -k*grad(phi) at boundary nodes, NOT q.n (measured exact: (-1.6,0,0) on both x-faces of a P1-exact linear field; dot it with YOUR outward normal). THAT DESCRIPTION HOLDS ON DIRICHLET LINES. On a NEUMANN-loaded line the same array carries the consistent-residual echo of the APPLIED load (measured: exactly 0 under zero load while the true boundary gradient of the field was O(1e-3)) plus Dirichlet-corner reactions at the ends -- use it as your exported flux only on the side whose interface is Dirichlet. It agrees with one-sided quadratic differentiation of the field to 2.7% rel-RMS at h=1/8 on a smooth field.
 9. The runtime VTU numbered 00000 is the INITIAL state -- identically zero on a fresh scatra run; the solved field is the LAST step (00001 for stationary). Sampling step 0 yields an all-zero field and all-zero fluxes while the run exits 0 and prints 'finished normally'.
@@ -16,7 +16,8 @@ THE COUPLED MUST-READ (the couple() call recipe, history_path, the fields-vs-evi
 11. P1 triangles in scalar transport are spelled `<id> TRANSP TRI3 <n1> <n2> <n3> MAT <m> TYPE Std` in TRANSPORT ELEMENTS -- the corpus templates show only TRANSP QUAD4, and SOLID TRI3 is a structural element that is rejected against MAT_scatra.
 12. STEADY THERMO-MECHANICS IN ONE 4C RUN: PROBLEMTYPE Thermo_Structure_Interaction with COUPALGO tsi_oneway, Statics in both STRUCTURAL DYNAMIC and THERMAL DYNAMIC, material MAT_Struct_ThermoStVenantK (stress C:(eps - alpha*(T-T0)*I), i.e. sigma_el - beta*T*I with beta=(3*lambda+2*mu)*alpha and T0 from INITTEMP) plus a CLONING MATERIAL MAP entry pairing it with a MAT_Fourier thermal material. A 2D plane-strain problem runs as a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab with u_z=0 pinned on BOTH z-layers (per-node POINT DIRICH) -- that is exact plane strain, not an approximation. Thermal body sources go in as DESIGN VOL THERMO NEUMANN conditions. 4C's VTU carries NO mechanical reaction forces, but its DIRICHLET MONITOR does: `TAG: monitor_reaction` on each interface DESIGN POINT DIRICH entry plus an `IO/MONITOR STRUCTURE DBC` section (INTERVAL_STEPS 1, FILE_TYPE yaml, WRITE_CONDITION_INFORMATION true) writes <out>-<id>_monitor_dbc.yaml per condition with the node gid (ZERO-based: gid 17 is the deck's NODE 18) and the reaction f. At an interior interface node of the slab (f_layer0 + f_layer1)/(h*t_z) IS the traction in the flux convention -(sigma.n_out): measured 1.45e-2, 3.6e-3, 9.0e-4 relative at h = 1/10, 1/20, 1/40 against a manufactured thermo-elastic solution (order 2.0). Thermal DIRICH entries write no reaction file, so the consistent heat flux comes from a Scalar_Transport run with CALCFLUX_BOUNDARY on the same 2-D mesh; knowledge(topic='coupling', solver='fourc', physics='thermoelastic') serves the two-run contract's handshake and recovery; the decks are yours.
 13. WHERE 4C EVALUATES A FUNCT LOAD DIFFERS BY PROBLEM TYPE, and the difference is O(h^2) in the solution: scatra SURF NEUMANN with a FUNCT source assembles the INTERPOLATED load M*f(nodes) (matches that discrete system to 1.7e-15); TSI VOL THERMO NEUMANN evaluates f at the 2x2 GAUSS POINTS (matches to ~1e-15). The two discrete solutions differ by 1.4e-2 at h=1/8, shrinking O(h^2). Consequence: a CALCFLUX boundary flux is the exact reaction of ITS OWN discrete system; compare it only against a re-assembly using the SAME load rule, or the mismatch (5.3e-2 at h=1/8 here) reads as a recovery bug that is not there.
-14. A SAMPLED Neumann profile needs no polynomial fit: `DESIGN POINT NEUMANN CONDITIONS` works for Scalar_Transport with pre-integrated nodal loads -- per interior interface node F_i = h/6*(g_{i-1} + 4*g_i + g_{i+1}), FUNCT [0]. Delivery proven by the zero-vs-real load check (fields differ by 4.1e-3 at N=8) and the field converges at order ~1.95. The LINE NEUMANN + fitted-FUNCT route also works but silently smooths any profile the fit cannot represent.
+14. FIRST-ATTEMPT DECK TRAPS MEASURED ON TWELVE WORKER DECKS (2026-09-11), each one stops 4C in its input reader: (a) ONE topology section per kind -- every DNODE/DLINE/DSURF/DVOL entry of the deck goes into the single `DNODE-NODE TOPOLOGY` (etc.) section; a second section of the same name is 'defined more than once'; (b) the consistent heat flux comes from PROBLEMTYPE Scalar_Transport (SCALAR TRANSPORT DYNAMIC with CALCFLUX_BOUNDARY "diffusive" and a SCATRA FLUX CALC LINE CONDITIONS entry), never PROBLEMTYPE Thermo, which knows no CALCFLUX_BOUNDARY; (c) runtime output sections are exactly `IO/RUNTIME VTK OUTPUT`, `IO/RUNTIME VTK OUTPUT/STRUCTURE` and `THERMAL DYNAMIC/RUNTIME VTK OUTPUT` -- there is no .../SCATRA or .../THERMO variant (the scatra VTU comes from the plain section); (d) SOLIDSCATRA, WALL, SOLID are ELEMENT TYPES on the lines of `STRUCTURE ELEMENTS`, TRANSP of `TRANSPORT ELEMENTS`; a section named after the element type does not exist; (e) MAT_Struct_ThermoStVenantK takes YOUNGNUM 1 and YOUNG as a LIST ([E]), NUE, DENS, THEXPANS, INITTEMP and THERMOMAT <id of the MAT_Fourier>; (f) a temperature value belongs in the `... THERMO DIRICH CONDITIONS` family (NUMDOF 1); the plain `DESIGN POINT/LINE/SURF DIRICH CONDITIONS` family carries the 3 displacement dofs (NUMDOF 3); (g) 2-D element nodes run counter-clockwise: for node id = i + 1 + (NX + 1) j the quad of cell (i, j) is (id, id+1, id+NX+2, id+NX+1) -- a twisted quad has zero area and 4C says only 'determinant ... zero or negative'. check_input(solver='fourc', input_path=<deck>) names every one of these before the binary runs.
+15. A SAMPLED Neumann profile needs no polynomial fit: `DESIGN POINT NEUMANN CONDITIONS` works for Scalar_Transport with pre-integrated nodal loads -- per interior interface node F_i = h/6*(g_{i-1} + 4*g_i + g_{i+1}), FUNCT [0]. Delivery proven by the zero-vs-real load check (fields differ by 4.1e-3 at N=8) and the field converges at order ~1.95. The LINE NEUMANN + fitted-FUNCT route also works but silently smooths any profile the fit cannot represent.
 
 * READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST NODE. Measured against an independent reference: one solve exported two ways gave order 1.9796 by interpolation and 0.9815 by nearest-node sampling of nearest node. Free self-check: nearest-node sampling can only return (N-1)^2+1 distinct values, so 1936 probes collapse to 50/226/962 at N=8/16/32.
 * GATE BEFORE YOU HAND IN, at EVERY level: the solver REPORTED convergence (not merely that nothing raised), peak|u| > 0, and your load is not constant. Then compute log2(|L1-L2|/|L2-L3|) yourself.
@@ -175,54 +176,8 @@ def why_4c_did_not_finish(tag=""):
             _dup = sorted({x for x in _secs if _secs.count(x) > 1})
             if _dup:
                 _why.append(f"{_deck}: section(s) written twice: " + ", ".join(_dup))
-            try:   # the grammar judgement stands on its own: no binary, no judgement, other findings kept
-                # section names judged by the BINARY's own grammar (`4C -p`, read once); the closest known
-                # names ride along (measured: invented names like IO/RUNTIME VTK OUTPUT/THERMO stop 4C first)
-                if not globals().get("_VALID"):
-                    _dump = subprocess.run([str(CFG.get("fourc_bin") or os.environ.get("FOURC_BIN", "4C")), "-p"],
-                                           capture_output=True, text=True, timeout=180,
-                                           env=dict(os.environ, LD_LIBRARY_PATH=f"{CFG.get('fourc_ld') or ''}:{os.environ.get('LD_LIBRARY_PATH', '')}")).stdout
-                    globals()["_VALID"] = set(re.findall(r"^    - name: (.+?)\s*$", _dump, re.M)) | set(
-                        re.findall(r"^  - ([A-Z][A-Z0-9 _/.:-]*?)\s*$", _dump.split("legacy_string_sections:", 1)[-1], re.M)) | {"TITLE"}
-                    globals()["_ELEM"] = set(re.findall(r"^  ([A-Z][A-Z0-9_]*):\s*$",
-                                                        _dump.split("legacy_element_specs:", 1)[-1].split("legacy_particle_specs:", 1)[0], re.M))
-                if len(_VALID) > 100:
-                    import difflib, math
-                    from collections import Counter
-                    _tok = lambda nm: [w for w in re.split(r"[ /_-]+", nm.upper()) if w]
-                    _tk = {c: _tok(c) for c in _VALID}
-                    _fq = Counter(w for ct in _tk.values() for w in set(ct))
-                    _wt = lambda w: 1.0 / (1.0 + math.log(_fq.get(w, 0) + 1))
-                    _best = lambda a, bs: max((difflib.SequenceMatcher(None, a, b).ratio() for b in bs), default=0.0)
-                    for _s in dict.fromkeys(_secs):
-                        if _s not in _VALID and not re.fullmatch(r"FUNCT\d+", _s):
-                            _msg = f"{_deck}: section '{_s}' is not in the binary's grammar (`4C -p`)"
-                            if _s.endswith(" ELEMENTS") and _s.split()[0] in _ELEM:   # an element TYPE used as a section name
-                                _msg += (f"; '{_s.split()[0]}' is an ELEMENT TYPE for the element lines inside one of: "
-                                         + ", ".join(sorted(n for n in _VALID if n.endswith(" ELEMENTS"))))
-                            else:   # word-wise similarity both ways, rare words weigh more (THERMO finds THERMAL);
-                                    # a known word that is the initials of a run of your words is exact (TSI <- THERMO STRUCTURE INTERACTION)
-                                _u = _tok(_s)
-                                def _acr(ct):
-                                    a, cov = set(), set()
-                                    for y in ct:
-                                        if 3 <= len(y) <= 5 and y.isalpha():   # two letters match by accident (LS <- LINE STRUCTURE)
-                                            for k in range(len(_u) - len(y) + 1):
-                                                if "".join(w[0] for w in _u[k:k + len(y)]) == y:
-                                                    a.add(y); cov |= set(range(k, k + len(y)))
-                                    return a, cov
-                                def _score(ct):
-                                    a, cov = _acr(ct)
-                                    return ((sum(_wt(x) * (1.0 if i in cov else _best(x, ct)) for i, x in enumerate(_u))
-                                             + sum(_wt(y) * (1.0 if y in a else _best(y, _u)) for y in ct))
-                                            / (sum(_wt(x) for x in _u) + sum(_wt(y) for y in ct)))
-                                _sc = sorted((_score(ct), c) for c, ct in _tk.items() if ct)
-                                _close = [c for v, c in _sc[::-1][:5] if v >= 0.45]
-                                if _close:
-                                    _msg += f"; closest known: {', '.join(repr(c) for c in _close)}"
-                            _why.append(_msg)
-            except Exception:                # noqa: BLE001
-                pass
+            # section names, materials and their parameters are judged by the binary's own grammar in
+            # check_input(solver='fourc', input_path=<deck>); run it before the binary -- this check stays short
             if "Thermo_Structure_Interaction" in _txt:
                 if "CLONING MATERIAL MAP" not in _txt:
                     _why.append(f"{_deck}: TSI needs a CLONING MATERIAL MAP pairing the structure material with the MAT_Fourier thermal material")
@@ -234,6 +189,14 @@ def why_4c_did_not_finish(tag=""):
                     _why.append(f"{_deck}: TAG: monitor_reaction writes nothing without an IO/MONITOR STRUCTURE DBC section")
                 if "DESIGN VOL THERMO DIRICH" in _txt:
                     _why.append(f"{_deck}: DESIGN VOL THERMO DIRICH imposes the temperature volume-wide; use SURF (outer) and POINT (interface) THERMO DIRICH")
+                if "IO/RUNTIME VTK OUTPUT/STRUCTURE" not in _txt or not re.search(r"DISPLACEMENT:\s*true", _txt, re.I):
+                    _why.append(f"{_deck}: no structure VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1) and `IO/RUNTIME VTK OUTPUT/STRUCTURE` (OUTPUT_STRUCTURE true, DISPLACEMENT true) -- the run finishes 'normally' with nothing for the recovery to read")
+                if "THERMAL DYNAMIC/RUNTIME VTK OUTPUT" not in _txt or not re.search(r"TEMPERATURE:\s*true", _txt, re.I):
+                    _why.append(f"{_deck}: no thermo VTU without `THERMAL DYNAMIC/RUNTIME VTK OUTPUT` (OUTPUT_THERMO true, TEMPERATURE true)")
+                for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):   # a T value in the structural family: '1 DOFs given but 3 expected'
+                    _hd = _b.split(":", 1)[0].strip()
+                    if re.fullmatch(r"DESIGN (POINT|LINE|SURF|VOL) DIRICH CONDITIONS", _hd) and re.search(r"\bNUMDOF:\s*1\b", _b):
+                        _why.append(f"{_deck}: {_hd} has an entry with NUMDOF 1 -- that family carries the slab's 3 displacement dofs; a temperature value belongs in DESIGN {_hd.split()[1]} THERMO DIRICH CONDITIONS")
             if "Scalar_Transport" in _txt:
                 if "THERMAL DYNAMIC:" in _txt and "SCALAR TRANSPORT DYNAMIC:" not in _txt:
                     _why.append(f"{_deck}: Scalar_Transport needs `SCALAR TRANSPORT DYNAMIC`, not `THERMAL DYNAMIC`")
@@ -241,26 +204,17 @@ def why_4c_did_not_finish(tag=""):
                     _why.append(f"{_deck}: needs CALCFLUX_BOUNDARY \"diffusive\" AND a `SCATRA FLUX CALC LINE CONDITIONS` entry (E 2) for the flux recovery")
                 if re.search(r"^IO:\s*$", _txt, re.M):
                     _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck is rejected; the VTU appears without it")
-            # a DLINE whose nodes share no element edge is a zero-length boundary (measured: flux table -> FPE)
-            _edges = set()
-            for _q in re.findall(r'"\s*\d+\s+\w+\s+(?:QUAD4|TRI3)\s+((?:\d+\s+)+)', _txt):
-                _ids = [int(x) for x in _q.split()][:4]
-                _edges |= {(min(a, b), max(a, b)) for a, b in zip(_ids, _ids[1:] + _ids[:1])}
-            _dl = {}
-            for _n, _d in re.findall(r'"NODE\s+(\d+)\s+DLINE\s+(\d+)"', _txt):
-                _dl.setdefault(_d, set()).add(int(_n))
-            for _d, _ns in _dl.items():
-                if _edges and len(_ns) >= 2 and not any((min(a, b), max(a, b)) in _edges for a in _ns for b in _ns if a < b):
-                    _why.append(f"{_deck}: DLINE {_d} ({len(_ns)} nodes) shares no edge with any element -- its node ids do not match the element numbering, so a condition on it is a zero-length boundary")
+                if "IO/RUNTIME VTK OUTPUT" not in _txt:
+                    _why.append(f"{_deck}: no VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1); the run finishes 'normally' with nothing to read")
             _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt) if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
             if _badkw:
                 _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL (anything else defines nothing and the conditions on it are silently dropped)")
             _topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", _txt))
             for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
                 _head = _b.split(":", 1)[0].strip()
-                if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
-                    _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head)
-                    _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+                _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head) if _head.endswith("CONDITIONS") else None
+                if _kw:   # every condition family with a geometry word (SCATRA FLUX CALC LINE CONDITIONS too)
+                    _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)]
                     _missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", _b) if (_kind, x) not in _topo}, key=int)
                     if _missing:
                         _why.append(f"{_deck}: {_head} names E id(s) {', '.join(_missing[:6])} that no *-NODE TOPOLOGY section defines")
@@ -268,6 +222,7 @@ def why_4c_did_not_finish(tag=""):
         _why.append(f"(diagnosis failed: {_e!r})")
     if not _why:
         _why.append("no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck")
+    _why.append("check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, condition ids, element geometry) in one call")
     return f"4C DID NOT FINISH{(' (' + tag + ')') if tag else ''} -- " + "; ".join(_why)
 
 
@@ -320,6 +275,23 @@ atexit.register(_diagnose_at_exit)
 # ── RECOVERY FROM 4C's OWN OUTPUTS (served): boundary flux VTU, displacement VTU, reaction yaml ──
 import meshio  # noqa: E402
 
+# ── 4C's OWN CONSOLE, ECHOED (served): the coupling tool captures THIS script's stdout as the
+#    level's run log, and a run log is credited to 4C only by 4C's own lines (its step and
+#    time-integration output), never by the NDOF line alone. Measured: a cell whose run logs held
+#    only the driver header and the NDOF line was graded as no per-code execution evidence.
+for _lg in sorted(glob.glob("*.log")):
+    if _lg.startswith("participant_output") or "level" in _lg:      # the coupling tool's own captures, never re-echoed
+        continue
+    try:
+        _txt = Path(_lg).read_text(errors="ignore")
+    except OSError:
+        continue
+    if "── 4C console" in _txt:                                      # an earlier echo, not a deck console
+        continue
+    if "4C" in _txt[:4000] or "PROC 0" in _txt or "Finalised step" in _txt:
+        print(f"── 4C console {_lg} ──")
+        print(_txt if len(_txt) < 60000 else _txt[-60000:])
+
 # ── YOUR DECKS, CHECKED BEFORE ANYTHING IS READ (served): 4C drops a condition whose E id no
 #    topology section defines and RUNS THE WRONG PROBLEM to 'finished normally' (measured on a
 #    worker deck: every boundary condition and the source gone, rc 0). A run like that is refused here.
@@ -329,14 +301,27 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yam
     _lost = []
     for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
         _head = _b.split(":", 1)[0].strip()
-        if _head.startswith("DESIGN") and _head.endswith("CONDITIONS"):
-            _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head)
-            _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)] if _kw else ""
+        _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head) if _head.endswith("CONDITIONS") else None
+        if _kw:   # every condition family with a geometry word (SCATRA FLUX CALC LINE CONDITIONS too)
+            _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)]
             _lost += [f"{_head} E {x}" for x in re.findall(r"\bE:\s*(\d+)", _b) if (_kind, x) not in _topo]
     if _lost:
         raise SystemExit(f"DECK CHECK: {_dk} puts conditions on E ids that no *-NODE TOPOLOGY section defines "
                          f"({'; '.join(_lost[:6])}): 4C dropped them silently, so the run solved a different "
                          f"problem. Add the DNODE/DLINE/DSURF/DVOL-NODE TOPOLOGY entries for those ids.")
+    # twisted or clockwise 2-D elements (zero/negative area from the deck's own coordinates) solve nothing
+    _cxy = {int(n): (float(x), float(y)) for n, x, y in re.findall(r'"NODE\s+(\d+)\s+COORD\s+(\S+)\s+(\S+)\s+\S+"', _txt)}
+    _twist = []
+    for _e, _k, _ids in re.findall(r'"\s*(\d+)\s+\w+\s+(QUAD4|TRI3)\s+((?:\d+\s+)+)', _txt):
+        _nn = [int(i) for i in _ids.split()][:4 if _k == "QUAD4" else 3]
+        if len(_nn) >= 3 and all(i in _cxy for i in _nn):
+            _p = [_cxy[i] for i in _nn]
+            if 0.5 * sum(_p[q][0] * _p[(q + 1) % len(_p)][1] - _p[(q + 1) % len(_p)][0] * _p[q][1] for q in range(len(_p))) <= 1e-14:
+                _twist.append((_e, _nn))
+    if _twist:
+        raise SystemExit(f"DECK CHECK: {_dk} has {len(_twist)} element(s) with zero or negative area (first: element {_twist[0][0]} "
+                         f"nodes {' '.join(map(str, _twist[0][1]))}). Every element's nodes must run counter-clockwise: for node "
+                         f"id = i + 1 + (NX + 1) * j the quad of cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1).")
 
 
 def _latest(pattern):
@@ -495,9 +480,9 @@ print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
 
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 46,523 further characters exist and are NOT lost.
+THIS PAYLOAD IS TRUNCATED HERE. 48,658 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 30,567 of 76,724 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 29,526 of 77,818 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
 
@@ -596,18 +581,9 @@ complete three-level study from the same binary.
 WHICH PROBLEM TYPE YOU PICK DECIDES WHETHER YOU CAN READ YOUR OWN ANSWER.
 Measured on this build:
 FOUR MEASURED WAYS THIS DIES, all of them silently:
-(a) THE LEGACY BLOCKS ARE YAML SEQUENCES. `NODE COORDS`, `TRANSPORT
-    ELEMENTS` and `D*-NODE TOPOLOGY` entries each need `- ` and quotes.
-    Written bare, YAML reads them as mapping keys and 4C dies with
-      ERROR: could not find ':' colon after key
-    BEFORE its own banner appears.
-(b) `**` IS NOT EXPONENTIATION in SYMBOLIC_FUNCTION_OF_SPACE_TIME. Use `^`.
-    And the constant is lowercase `pi`: `PI` aborts the run with "Missing
-    variables PI to evaluate expression" (measured on a trial deck).
-    The task states its source term in Python notation; rewrite every term.
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,153 OF 51,471 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,161 OF 52,064 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 ────────────────────────────────────────

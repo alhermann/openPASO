@@ -307,6 +307,7 @@ def lint_deck(text: str) -> list[str]:
         why.append("FUNCT blocks are defined but no condition references one (FUNCT: [0,...] everywhere): the sources never reach the load")
     why += _degenerate_elements(text)
     why += _lines_without_an_element_edge(text)
+    why += _bad_hex8_slabs(text)
     why += _interior_lines(text)
     why += _double_star_in_functions(text)
     why += _missing_runtime_output(text)
@@ -375,6 +376,50 @@ def _double_star_in_functions(text: str) -> list[str]:
         expr = m.group(2)
         out.append(f"function expression '{expr[:70]}' uses `**`: 4C's expression parser has no `**` (it stops with "
                    f"'Token expected'); write `^` for every power in the expression, not only the first")
+    return out
+
+
+def _bad_hex8_slabs(text: str) -> list[str]:
+    """A one-element-thick HEX8 slab whose element node order is not (bottom quad counter-clockwise, then
+    the same four nodes on the top layer). Judged only when the deck's z coordinates take exactly two
+    values (the slab route). Measured (te4c13, 2026-09-12): a worker numbered nodes layer-interleaved and
+    wrote "1 2 11 10 100 101 110 109": 4C parsed it and stopped in the thermo element with 'ZERO OR NEGATIVE
+    JACOBIAN DETERMINANT' -- a runtime message that names no node."""
+    coords = {int(a): (float(x), float(y), float(z)) for a, x, y, z in
+              re.findall(r'"NODE\s+(\d+)\s+COORD\s+([-\d.eE+]+)\s+([-\d.eE+]+)\s+([-\d.eE+]+)"', text)}
+    if not coords:
+        return []
+    zs = sorted({round(c[2], 9) for c in coords.values()})
+    if len(zs) != 2:
+        return []
+    out = []
+    bad = 0
+    first = None
+    for e, ids in re.findall(r'"\s*(\d+)\s+\w+\s+HEX8\s+((?:\d+\s+){8})', text):
+        nn = [int(i) for i in ids.split()]
+        if not all(i in coords for i in nn):
+            continue
+        p = [coords[i] for i in nn]
+        bottom_z = {round(q[2], 9) for q in p[:4]}
+        top_z = {round(q[2], 9) for q in p[4:]}
+        same_xy = all(abs(p[i][0] - p[i + 4][0]) < 1e-9 and abs(p[i][1] - p[i + 4][1]) < 1e-9 for i in range(4))
+        area = 0.5 * sum(p[q][0] * p[(q + 1) % 4][1] - p[(q + 1) % 4][0] * p[q][1] for q in range(4))
+        ok = (len(bottom_z) == 1 and len(top_z) == 1 and bottom_z != top_z and same_xy
+              and (area > 1e-14 if next(iter(top_z)) > next(iter(bottom_z)) else area < -1e-14))
+        if not ok:
+            bad += 1
+            first = first or (e, nn, sorted(bottom_z | top_z), same_xy, area)
+    if bad:
+        e, nn, zz, same_xy, area = first
+        why = ("its first four nodes do not lie on one layer" if len({round(coords[i][2], 9) for i in nn[:4]}) != 1 else
+               "nodes 5-8 are not the same (x, y) as nodes 1-4" if not same_xy else
+               f"the bottom quad runs clockwise (signed area {area:.3g})")
+        out.append(f"{bad} HEX8 element(s) of the slab are not a well-formed one-layer hex (first: element {e} nodes "
+                   f"{' '.join(map(str, nn))}: {why}): the node order is the bottom quad counter-clockwise seen from +z, "
+                   f"then the SAME four nodes on the top layer in the same order -- for node id = i + 1 + (NX + 1) * j "
+                   f"and N2 2-D nodes, cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1, id + N2, id + 1 + N2, "
+                   f"id + NX + 2 + N2, id + NX + 1 + N2); 4C parses any order and stops later with 'ZERO OR NEGATIVE "
+                   f"JACOBIAN DETERMINANT' naming no node")
     return out
 
 

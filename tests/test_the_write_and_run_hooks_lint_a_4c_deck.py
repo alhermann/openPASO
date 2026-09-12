@@ -169,3 +169,20 @@ def test_a_finished_run_whose_field_dwarfs_its_data_is_named(tmp_path):
     meshio.write(tmp_path / "out-vtk-files" / "scatra-00001-0.vtu", meshio.Mesh(pts, cells, point_data={"phi_1": np.full(4, 8.5e13)}))
     out = _fourc_run_check("stdbuf -oL /home/alexander/4C/build/4C slab.4C.yaml out", "... processor 0 finished normally\n", tmp_path)
     assert "[run check] 4C FIELD SCALE: phi_1 peaks at 8.5e+13" in out, out
+
+
+def _slab(order):
+    nodes = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (0, 0, .1), (1, 0, .1), (1, 1, .1), (0, 1, .1)]
+    coords = "NODE COORDS:\n" + "".join(f'  - "NODE {i + 1} COORD {x} {y} {z}"\n' for i, (x, y, z) in enumerate(nodes))
+    return ('PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\n' + coords
+            + 'STRUCTURE ELEMENTS:\n  - "1 SOLIDSCATRA HEX8 ' + " ".join(map(str, order)) + ' MAT 1 KINEM linear TYPE Undefined"\n')
+
+
+def test_a_scrambled_slab_hex_is_named_and_a_proper_one_is_not():
+    from tools.fourc_deck_lint import _bad_hex8_slabs
+    assert _bad_hex8_slabs(_slab([1, 2, 3, 4, 5, 6, 7, 8])) == []                      # bottom CCW, then the top layer
+    scrambled = _bad_hex8_slabs(_slab([1, 5, 2, 6, 3, 7, 4, 8]))                        # layer-interleaved, the te4c13 shape
+    assert len(scrambled) == 1 and "first four nodes do not lie on one layer" in scrambled[0], scrambled
+    clockwise = _bad_hex8_slabs(_slab([1, 4, 3, 2, 5, 8, 7, 6]))
+    assert clockwise and "runs clockwise" in clockwise[0], clockwise
+    assert "ZERO OR NEGATIVE JACOBIAN" in clockwise[0]

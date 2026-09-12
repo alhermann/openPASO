@@ -98,6 +98,8 @@ FOUR MEASURED WAYS THIS DIES, all of them silently:
       ERROR: could not find ':' colon after key
     BEFORE its own banner appears.
 (b) `**` IS NOT EXPONENTIATION in SYMBOLIC_FUNCTION_OF_SPACE_TIME. Use `^`.
+    And the constant is lowercase `pi`: `PI` aborts the run with "Missing
+    variables PI to evaluate expression" (measured on a trial deck).
     The task states its source term in Python notation; rewrite every term.
 (c) ONOFF / VAL / FUNCT must each have EXACTLY `NUMDOF` entries, or
       [!] Candidate parameter 'VAL' has incorrect size
@@ -172,13 +174,22 @@ It never explains a failure.
     whatever else the deck says.
 
     For a two-dimensional thermoelastic subdomain, do NOT keep repairing the
-    TSI deck. Either solve the two fields as separate 4C problem types —
-    `Structure` with WALL elements and `Thermo` with THERMO elements, exchanging
-    temperature and thermal strain yourself — or build a three-dimensional slab
-    one element thick with SOLIDSCATRA and constrain the out-of-plane
-    displacement on both faces. Runs have lost their whole budget rewriting
-    section names against this, because the message names an element type and
-    not the dimension.
+    TSI deck, and do NOT conclude the problem cannot be solved (one run gave
+    up at this sentence with 26 minutes left). THE MEASURED ROUTE: a
+    three-dimensional slab one element thick -- SOLIDSCATRA HEX8, u_z fixed
+    on every node, plane strain by construction -- and it is served ready to
+    run: `prepare_simulation(solver='fourc', physics='tsi')` hands over the
+    `plane_strain_2d` variant (executed on this binary to 'processor 0
+    finished normally'); put the task's thermal sources and boundary
+    conditions on that slab in place of its volume-wide temperature, keep the
+    thermal expansion from THEXPANS/INITTEMP (alpha = beta/(3*lambda+2*mu)
+    for a task that states beta), and exchange [T, ux, uy] / [q_n, t_x, t_y]
+    per interface point as the coupling contract says. The alternative of two
+    separate problem types (`Structure` with WALL elements and `Thermo` with
+    THERMO elements, exchanging the thermal strain yourself) has no served
+    recipe. Runs have
+    lost their whole budget rewriting section names against this, because
+    the message names an element type and not the dimension.
 
   * DESIGN ENTITY IDS START AT 1, AND A 0 IS A SEGMENTATION FAULT WITH NO
     MESSAGE. `E:` in a condition block and the `DLINE`/`DNODE`/`DSURF` number
@@ -215,3 +226,169 @@ Choose the route by what you must DELIVER, not only by what the physics is
 called: a conduction problem whose field you have to probe is easier to read
 back through Thermo.
 
+
+THE TSI SLAB DECK GRAMMAR — steady thermo-elasticity in ONE 4C run, plane
+strain as a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab (u_z = 0 on every node
+of both layers is exact plane strain). The same rule as above: every NUMBER
+is an ARBITRARY PLACEHOLDER, every coordinate and condition value is yours;
+the sections and their syntax are what the input reader accepts. Measured
+first-attempt traps (2026-09-11/12, twelve worker decks and two rounds): a
+temperature filed under DESIGN ... DIRICH (that family carries the 3
+displacement dofs; temperature goes to ... THERMO DIRICH, NUMDOF 1), the
+CLONING MATERIAL MAP or COUPVARIABLE "Temperature" missing, the entry word
+DSURFACE inside the section named DSURF-NODE TOPOLOGY, `**` in a FUNCT (write
+`^`), and MAT_Fourier written with CONDUCTIVITY (its parameters are CAPA and
+CONDUCT). check_input(solver='fourc', input_path=<deck>) names all of these
+in one call.
+
+  TITLE:
+    - "anything"
+  PROBLEM SIZE:
+    DIM: 3
+  IO:
+    STRUCT_STRESS: "No"
+    STRUCT_STRAIN: "No"
+  IO/MONITOR STRUCTURE DBC:
+    INTERVAL_STEPS: 1
+    FILE_TYPE: yaml
+    WRITE_CONDITION_INFORMATION: true
+  PROBLEM TYPE:
+    PROBLEMTYPE: "Thermo_Structure_Interaction"
+  STRUCTURAL DYNAMIC:
+    DYNAMICTYPE: "Statics"
+    TIMESTEP: 1
+    NUMSTEP: 1
+    MAXTIME: 1
+    LINEAR_SOLVER: 2
+  THERMAL DYNAMIC:
+    DYNAMICTYPE: Statics
+    TIMESTEP: 1
+    NUMSTEP: 1
+    MAXTIME: 1
+    LINEAR_SOLVER: 1
+  TSI DYNAMIC:
+    COUPALGO: "tsi_oneway"
+    NUMSTEP: 1
+    MAXTIME: 1
+    TIMESTEP: 1
+    ITEMAX: 1
+  TSI DYNAMIC/PARTITIONED:
+    COUPVARIABLE: "Temperature"
+  IO/RUNTIME VTK OUTPUT:
+    INTERVAL_STEPS: 1
+    OUTPUT_DATA_FORMAT: "ascii"
+  IO/RUNTIME VTK OUTPUT/STRUCTURE:
+    OUTPUT_STRUCTURE: true
+    DISPLACEMENT: true
+  THERMAL DYNAMIC/RUNTIME VTK OUTPUT:
+    OUTPUT_THERMO: true
+    TEMPERATURE: true
+  SOLVER 1:
+    SOLVER: "UMFPACK"
+    NAME: "Thermal_Solver"
+  SOLVER 2:
+    SOLVER: "UMFPACK"
+    NAME: "Structure_Solver"
+  MATERIALS:
+    - MAT: 1
+      MAT_Struct_ThermoStVenantK:
+        YOUNGNUM: 1
+        YOUNG: [1000.0]          # a LIST even for one value
+        NUE: 0.25
+        DENS: 1
+        THEXPANS: 0.001          # alpha = beta / (3*lambda + 2*mu) for a stress -beta*T*I
+        INITTEMP: 0
+        THERMOMAT: 2
+    - MAT: 2
+      MAT_Fourier:
+        CAPA: 1
+        CONDUCT:
+          constant: [1.0]
+  CLONING MATERIAL MAP:
+    - SRC_FIELD: "structure"
+      SRC_MAT: 1
+      TAR_FIELD: "thermo"
+      TAR_MAT: 2
+  FUNCT1:
+    - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "x*y"         # powers as ^, never **
+  FUNCT2:
+    - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "x^2"
+  FUNCT3:
+    - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "y^2"
+  DESIGN VOL NEUMANN CONDITIONS:            # mechanical body force per component: VAL * FUNCT(x,y)
+    - E: 1
+      NUMDOF: 3
+      ONOFF: [1, 1, 0]
+      VAL: [1.0, 1.0, 0.0]
+      FUNCT: [1, 2, 0]
+  DESIGN VOL THERMO NEUMANN CONDITIONS:     # the heat source
+    - E: 1
+      NUMDOF: 1
+      ONOFF: [1]
+      VAL: [1.0]
+      FUNCT: [3]
+  DESIGN VOL DIRICH CONDITIONS:             # u_z = 0 on the whole slab
+    - E: 1
+      NUMDOF: 3
+      ONOFF: [0, 0, 1]
+      VAL: [0, 0, 0]
+      FUNCT: [0, 0, 0]
+  DESIGN SURF DIRICH CONDITIONS:            # outer boundary, displacement (NUMDOF 3)
+    - E: 1
+      NUMDOF: 3
+      ONOFF: [1, 1, 1]
+      VAL: [0, 0, 0]
+      FUNCT: [0, 0, 0]
+  DESIGN SURF THERMO DIRICH CONDITIONS:     # outer boundary, temperature (NUMDOF 1)
+    - E: 1
+      NUMDOF: 1
+      ONOFF: [1]
+      VAL: [0]
+      FUNCT: [0]
+  DESIGN POINT DIRICH CONDITIONS:           # one entry per interface node AND layer; the reaction is monitored
+    - E: 1
+      NUMDOF: 3
+      ONOFF: [1, 1, 1]
+      VAL: [0.01, 0.02, 0.0]
+      FUNCT: [0, 0, 0]
+      TAG: monitor_reaction
+  DESIGN POINT THERMO DIRICH CONDITIONS:    # the same node and layer, temperature
+    - E: 1
+      NUMDOF: 1
+      ONOFF: [1]
+      VAL: [0.5]
+      FUNCT: [0]
+  NODE COORDS:                              # layer 0 at z = 0, layer 1 at z = thickness; id(layer 1) = id + number of 2-D nodes
+    - "NODE 1 COORD 0.0 0.0 0.0"
+    - "NODE 2 COORD 1.0 0.0 0.0"
+    - "NODE 3 COORD 1.0 1.0 0.0"
+    - "NODE 4 COORD 0.0 1.0 0.0"
+    - "NODE 5 COORD 0.0 0.0 0.1"
+    - "NODE 6 COORD 1.0 0.0 0.1"
+    - "NODE 7 COORD 1.0 1.0 0.1"
+    - "NODE 8 COORD 0.0 1.0 0.1"
+  STRUCTURE ELEMENTS:                       # bottom quad counter-clockwise, then the same four nodes on the top layer
+    - "1 SOLIDSCATRA HEX8 1 2 3 4 5 6 7 8 MAT 1 KINEM linear TYPE Undefined"
+  DNODE-NODE TOPOLOGY:                      # one DNODE per interface node and layer, ids matching the E ids above
+    - "NODE 2 DNODE 1"
+  DSURF-NODE TOPOLOGY:                      # the section says DSURF, the entries say DSURFACE
+    - "NODE 1 DSURFACE 1"
+    - "NODE 4 DSURFACE 1"
+    - "NODE 5 DSURFACE 1"
+    - "NODE 8 DSURFACE 1"
+  DVOL-NODE TOPOLOGY:                       # every node of both layers
+    - "NODE 1 DVOL 1"
+    - "NODE 2 DVOL 1"
+    - "NODE 3 DVOL 1"
+    - "NODE 4 DVOL 1"
+    - "NODE 5 DVOL 1"
+    - "NODE 6 DVOL 1"
+    - "NODE 7 DVOL 1"
+    - "NODE 8 DVOL 1"
+
+  Run it as `stdbuf -oL -eL <4C> deck.4C.yaml out`; it leaves out-vtk-files/
+  (structure-*.vtu with the displacement, thermo-*.vtu with the temperature)
+  and one out-<id>_monitor_dbc.yaml per monitored point condition with the
+  reaction force. The thermal DIRICH entries write no reaction, so a
+  consistent heat flux comes from a Scalar_Transport run of the same 2-D
+  mesh with CALCFLUX_BOUNDARY (the grammar above).

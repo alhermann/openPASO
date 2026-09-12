@@ -681,17 +681,94 @@ called: a conduction problem whose field you have to probe is easier to read
 back through Thermo.
 
 
-# WHAT DECIDES THIS RUN — fourc/coupled side
-# (read this before the corpus below; each line was measured by execution)
+THE TSI SLAB DECK GRAMMAR — steady thermo-elasticity in ONE 4C run, plane
+strain as a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab (u_z = 0 on every node
+of both layers is exact plane strain). The same rule as above: every NUMBER
+is an ARBITRARY PLACEHOLDER, every coordinate and condition value is yours;
+the sections and their syntax are what the input reader accepts. Measured
+first-attempt traps (2026-09-11/12, twelve worker decks and two rounds): a
+temperature filed under DESIGN ... DIRICH (that family carries the 3
+displacement dofs; temperature goes to ... THERMO DIRICH, NUMDOF 1), the
+CLONING MATERIAL MAP or COUPVARIABLE "Temperature" missing, the entry word
+DSURFACE inside the section named DSURF-NODE TOPOLOGY, `**` in a FUNCT (write
+`^`), and MAT_Fourier written with CONDUCTIVITY (its parameters are CAPA and
+CONDUCT). check_input(solver='fourc', input_path=<deck>) names all of these
+in one call.
 
-1. A standalone `Thermo` problem SILENTLY IGNORES every `DESIGN ... THERMO ...` Dirichlet/Neumann section: it parses, prints 'processor 0 finished normally', exits 0, and the field is IDENTICALLY ZERO (measured max|T| = 0.000000000e+00). Use the PLAIN sections -- DESIGN SURF/LINE/POINT DIRICH, DESIGN VOL/SURF/LINE NEUMANN. With those the same deck matches an independent assembly to 1.08e-15.
-2. The body source lives on the condition whose GEOMETRY TYPE MATCHES THE ELEMENT DIMENSION: LINE in 1D, SURF in 2D, VOL in 3D. The wrong one attaches to no element and contributes nothing, silently.
-3. Every load entry is ONOFF[i] * VAL[i] * FUNCT[i](x,t) -- FUNCT SCALES VAL. `VAL: 0` with a function set is an identically zero load that parses and exits 0 (measured: error flat at 1.0000 across all levels, order exactly 0.0000).
-4. STRUCTURE runtime-VTK carries `node_gid`, 0-BASED while NODE COORDS ids are 1-based, and the .vtu holds one point PER ELEMENT CORNER (160 points, 54 distinct gids, for a 40-element mesh). Scatter results by gid: `out[int(gid)] = value`. Zipping instead gives a field with the RIGHT maximum and 67% pointwise error. The SCATRA runtime VTU has NO `node_gid` array at all -- its point_data is only `phi_1` (plus `flux_boundary_phi_1` when requested; measured KeyError on a 240-point scatra VTU) -- so on scatra output collapse the duplicated points BY COORDINATE instead.
-5. A spatially varying interface trace needs one DESIGN POINT DIRICH condition PER NODE -- no fitted FUNCT required.
+  TITLE:
+    - "anything"
+  PROBLEM SIZE:
+    DIM: 3
+  IO:
+    STRUCT_STRESS: "No"
+    STRUCT_STRAIN: "No"
+  IO/MONITOR STRUCTURE DBC:
+    INTERVAL_STEPS: 1
+    FILE_TYPE: yaml
+    WRITE_CONDITION_INFORMATION: true
+  PROBLEM TYPE:
+    PROBLEMTYPE: "Thermo_Structure_Interaction"
+  STRUCTURAL DYNAMIC:
+    DYNAMICTYPE: "Statics"
+    TIMESTEP: 1
+    NUMSTEP: 1
+    MAXTIME: 1
+    LINEAR_SOLVER: 2
+  THERMAL DYNAMIC:
+    DYNAMICTYPE: Statics
+    TIMESTEP: 1
+    NUMSTEP: 1
+    MAXTIME: 1
+    LINEAR_SOLVER: 1
+  TSI DYNAMIC:
+    COUPALGO: "tsi_oneway"
+    NUMSTEP: 1
+    MAXTIME: 1
+    TIMESTEP: 1
+    ITEMAX: 1
+  TSI DYNAMIC/PARTITIONED:
+    COUPVARIABLE: "Temperature"
+  IO/RUNTIME VTK OUTPUT:
+    INTERVAL_STEPS: 1
+    OUTPUT_DATA_FORMAT: "ascii"
+  IO/RUNTIME VTK OUTPUT/STRUCTURE:
+    OUTPUT_STRUCTURE: true
+    DISPLACEMENT: true
+  THERMAL DYNAMIC/RUNTIME VTK OUTPUT:
+    OUTPUT_THERMO: true
+    TEMPERATURE: true
+  SOLVER 1:
+    SOLVER: "UMFPACK"
+    NAME: "Thermal_Solver"
+  SOLVER 2:
+    SOLVER: "UMFPACK"
+    NAME: "Structure_Solver"
+  MATERIALS:
+    - MAT: 1
+      MAT_Struct_ThermoStVenantK:
+        YOUNGNUM: 1
+        YOUNG: [1000.0]          # a LIST even for one value
+        NUE: 0.25
+        DENS: 1
+        THEXPANS: 0.001          # alpha = beta / (3*lambda + 2*mu) for a stress -beta*T*I
+        INITTEMP: 0
+        THERMOMAT: 2
+    - MAT: 2
+      MAT_Fourier:
+        CAPA: 1
+        CONDUCT:
+          constant: [1.0]
+  CLONING MATERIAL MAP:
+    - SRC_FIELD: "structure"
+      SRC_MAT: 1
+      TAR_FIELD: "thermo"
+      TAR_MAT: 2
+  FUNCT1:
+    - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "x*y"         # powers as ^, never **
+  FUNCT2:
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 43,281 OF 51,835 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,202 OF 57,342 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 ────────────────────────────────────────

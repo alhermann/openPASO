@@ -494,9 +494,9 @@ print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
 
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 48,658 further characters exist and are NOT lost.
+THIS PAYLOAD IS TRUNCATED HERE. 54,497 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 29,974 of 78,266 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 29,974 of 84,105 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
 
@@ -589,7 +589,7 @@ unless there is no alternative. A fit converges to a slightly DIFFERENT
 boundary-value problem, so the refinement study measures the fit rather than the
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,189 OF 52,512 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,189 OF 58,019 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 ────────────────────────────────────────

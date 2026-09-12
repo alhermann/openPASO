@@ -1,0 +1,20 @@
+{
+ "failed": "participant_te4c13_1.py",
+ "ok": true,
+ "rounds": [
+  {
+   "round": 1,
+   "ok": false,
+   "info": "rc=1 exports=False 4C_runs_finished=0 :: ts&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C | 5# main in /home/alexander/4C/build/4C; deck_t.4C.yaml: DESIGN LINE DIRICH CONDITIONS names E id(s) 100, 101, 102, 103, 104, 105 that no *-NODE TOPOLOGY section defines; deck_u.4C.yaml: DESIGN SURF THERMO DIRICH CONDITIONS names E id(s) 200, 201, 202, 203, 204, 205 that no *-NODE TOPOLOGY section defines; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, cond",
+   "what": "4C stopped (run_t.log); 4C stopped (run_u.log); deck_t.4C.yaml: 2 defect(s); deck_u.4C.yaml: 1 defect(s).",
+   "secs": 211
+  },
+  {
+   "round": 2,
+   "ok": true,
+   "info": "exports n=9 qn_err=3.71e-03 qx_err=1.45e-02 qy_err=1.43e-02 4C_runs=4 NDOF_line=True values_n=0",
+   "what": "4C stopped (run_t.log); 4C stopped (run_u.log); deck_t.4C.yaml: 1 defect(s); deck_u.4C.yaml: 1 defect(s).",
+   "secs": 359
+  }
+ ]
+}

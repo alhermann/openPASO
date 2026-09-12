@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_runs_finished=0 :: terList&, FourC::Core::FE::Discretization&, FourC::Core::Elements::LocationArray&, FourC::Core::LinAlg::SerialDenseMatrix&, FourC::Core::LinAlg::SerialDenseMatrix&, FourC::Core::LinAlg::SerialDenseVector&, FourC::Core::LinAlg::SerialDenseVector&, FourC::Core::LinAlg::SerialDenseVector&) in /home/alexander/4C/build/lib4C.so; deck_T.4C.yaml: section(s) written twice: DSURF-NODE TOPOLOGY; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, condition ids, element geometry) in one call\n",
+  "kept_selfcheck": true,
+  "attempts": 1,
+  "finish": "stop",
+  "secs": 394.8,
+  "lines": 823
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_runs_finished=0 :: section names with the closest known, materials and their parameters, condition ids, element geometry) in one call\n4C DID NOT FINISH -- deck_t.4C.yaml: DESIGN LINE DIRICH CONDITIONS names E id(s) 9, 18, 27, 36, 45, 54 that no *-NODE TOPOLOGY section defines; deck_u.4C.yaml: DESIGN SURF THERMO DIRICH CONDITIONS names E id(s) 9, 18, 27, 36, 45, 54 that no *-NODE TOPOLOGY section defines; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, condition ids, element geometry) in one call\n",
+  "kept_selfcheck": true,
+  "attempts": 1,
+  "finish": "stop",
+  "secs": 202.1,
+  "lines": 849
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_runs_finished=0 :: neArguments const&, FourC::Core::Communication::Communicators const&) in /home/alexander/4C/build/4C | 4# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C | 5# main in /home/alexander/4C/build/4C; deck_u.4C.yaml: DESIGN POINT THERMO DIRICH CONDITIONS names E id(s) 23, 24, 25, 26, 27, 28 that no *-NODE TOPOLOGY section defines; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, condition ids, element geometry) in one call\n",
+  "kept_selfcheck": true,
+  "attempts": 1,
+  "finish": "stop",
+  "secs": 191.4,
+  "lines": 785
+ }
+]

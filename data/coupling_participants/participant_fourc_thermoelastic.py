@@ -155,7 +155,7 @@ def why_4c_did_not_finish(tag=""):
                     _kind = {"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)]
                     _missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", _b) if (_kind, x) not in _topo}, key=int)
                     if _missing:
-                        _why.append(f"{_deck}: {_head} names E id(s) {', '.join(_missing[:6])} that no *-NODE TOPOLOGY section defines")
+                        _why.append(f"{_deck}: {_head} names E id(s) {', '.join(_missing[:6])} that no *-NODE TOPOLOGY section defines -- E is the design-entity id of a topology line (`NODE <n> DNODE <E>`), never a node number")
     except Exception as _e:                # noqa: BLE001
         _why.append(f"(diagnosis failed: {_e!r})")
     if not _why:
@@ -232,7 +232,10 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yam
     if _lost:
         raise SystemExit(f"DECK CHECK: {_dk} puts conditions on E ids that no *-NODE TOPOLOGY section defines "
                          f"({'; '.join(_lost[:6])}): 4C dropped them silently, so the run solved a different "
-                         f"problem. Add the DNODE/DLINE/DSURF/DVOL-NODE TOPOLOGY entries for those ids.")
+                         f"problem. E is the DESIGN-ENTITY id (the number after DNODE/DLINE/DSURFACE/DVOL in a topology "
+                         f"line), never a node number: a node joins entity E through `NODE <n> DNODE <E>`. Add the "
+                         f"DNODE/DLINE/DSURF/DVOL-NODE TOPOLOGY entries for those ids (measured: a worker wrote its "
+                         f"interface NODE numbers as E ids and every interface condition was dropped).")
     # twisted or clockwise 2-D elements (zero/negative area from the deck's own coordinates) solve nothing
     _cxy = {int(n): (float(x), float(y)) for n, x, y in re.findall(r'"NODE\s+(\d+)\s+COORD\s+(\S+)\s+(\S+)\s+\S+"', _txt)}
     _twist = []

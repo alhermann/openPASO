@@ -18,6 +18,7 @@ import subprocess
 from pathlib import Path
 
 _TOPO_WORDS = ("DNODE", "DLINE", "DSURFACE", "DVOL")
+_E_IS_A_DESIGN_ID = (' -- E is the DESIGN-ENTITY id of the topology section (the number after DNODE/DLINE/DSURFACE/DVOL), never a node number: a node joins entity E through a topology line `NODE <n> DNODE <E>`, so a condition on E 9 needs a `"NODE 9 DNODE 9"`-style entry, not a node 9')
 _TOPOLOGY_PAIRS = ('the pairs are section `DNODE-NODE TOPOLOGY` with entries `NODE <n> DNODE <id>`, `DLINE-NODE TOPOLOGY` with `DLINE`, `DSURF-NODE TOPOLOGY` with entries `NODE <n> DSURFACE <id>` (section word DSURF, entry word DSURFACE), `DVOL-NODE TOPOLOGY` with `DVOL`')
 _VALID_CACHE: dict[str, set] = {}
 
@@ -301,7 +302,7 @@ def lint_deck(text: str) -> list[str]:
                 why.append(f"{len(noid)} entr{'y' if len(noid) == 1 else 'ies'} in {head} without `E: <id>`")
             missing = sorted({x for x in re.findall(r"\bE:\s*(\d+)", b) if (kind, x) not in topo}, key=int)
             if missing:
-                why.append(f"{head} names E id(s) {', '.join(missing[:6])} that no *-NODE TOPOLOGY section defines")
+                why.append(f"{head} names E id(s) {', '.join(missing[:6])} that no *-NODE TOPOLOGY section defines" + _E_IS_A_DESIGN_ID)
     if re.search(r"FUNCT\d+:", text) and re.search(r"\bFUNCT:\s*\[\s*0(\s*,\s*0)*\s*\]", text) \
             and not re.search(r"\bFUNCT:\s*\[[^\]]*[1-9]", text):
         why.append("FUNCT blocks are defined but no condition references one (FUNCT: [0,...] everywhere): the sources never reach the load")

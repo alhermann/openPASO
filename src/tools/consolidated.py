@@ -5875,18 +5875,30 @@ def register_consolidated_tools(mcp: FastMCP):
                           "exports.json left by a standalone test run is re-read as this iteration's answer -- delete it "
                           "before coupling. Then couple() again. Do not write this level's deliverables from this run: a "
                           "history under 3 rows shows no coupling to anyone who reads it.")
+            # LEVELS FIRST, DELIVERABLES ONCE. Measured (round 40, C3 6041): after level 1 the
+            # parent spent ~30 calls on that level's deliverables (a worker, eleven read_file
+            # calls into the dumps, six write-and-run scripts), coupled level 2 with couple()
+            # again, and the wall fell at 1 min left on the level-3 call -- two proven levels,
+            # no result. Partial levels are worth nothing to the reader of the result; a
+            # deliverable written from the wrong level's console is now caught at write time
+            # (the write check) and here (the deliverable findings), so the order that lost
+            # rounds 29-33 is safe again: every remaining level in ONE couple_levels call, then
+            # one script that writes every level's files from the per-level dumps.
             _one_call = (_not_yet if _trivial else
                          (f"LEVEL {_lvl_for_log} CONVERGED. " if _lvl_for_log else "LEVEL CONVERGED. ")
-                         + "FIRST, this level's deliverables: its field and interface files per side from the per-level "
-                           "dumps, and its run log per side as a VERBATIM COPY of that side's captured console for THIS "
-                           "level" + (f" ({_logs})" if _logs else " (participant_output_level<k>.log next to its exports.json)")
-                         + " -- a run log copied from another level's console reads as an unchanged mesh and sinks the "
-                           "whole sequence. THEN, if the task prescribes further mesh levels, run them all in one call: "
+                         + "FIRST, if the task prescribes further mesh levels, run them ALL in ONE call: "
                            "couple_levels(participants=<the same list you passed here>, levels=[<next level>, ...every "
                            "further level], history_pattern='<the task's per-level history file name with {k} in place "
                            "of the level number>') -- each level warm-starts from the last, every cell count is doubled "
-                           "per level, and each level's history and participant_output_level<k>.log are written; then "
-                           "write those levels' deliverables the same way.")
+                           "per level, and every level keeps its own dumps and console (field_level<k>.csv, "
+                           "interface_level<k>.csv, participant_output_level<k>.log next to each exports.json). "
+                           "THEN write ALL levels' deliverables in ONE pass -- one script that loops over the levels: "
+                           "each level's field and interface files per side from that level's dumps, and its run log "
+                           "per side as a VERBATIM COPY of that level's captured console"
+                         + (f" (this level: {_logs})" if _logs else " (participant_output_level<k>.log)")
+                         + " -- a run log copied from another level's console reads as an unchanged mesh and sinks "
+                           "the whole sequence; the write check names it the moment it is written. A level set with "
+                           "one level missing is read as no result at all, so the levels come before any file.")
             _lead = _one_call + ("\n" + _lead if _lead else "")
         if _mesh_note:
             _lead = _mesh_note + ("\n" + _lead if _lead else "")

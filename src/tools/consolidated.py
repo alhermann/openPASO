@@ -7843,7 +7843,8 @@ YOU ARE THE ORCHESTRATOR OF THIS COUPLING, NOT ITS AUTHOR. Participant scripts
 are written by role='worker' sub-agents, one ladder step each, never by you in
 your own turn. Your NEXT action after reading this reply -- before any plan,
 estimate, critic or file of your own -- is spawn_subagent(role='worker',
-task=<the brief under "YOUR FIRST SUB-AGENT, NOW" below, verbatim>).
+task=<the brief under "YOUR FIRST SUB-AGENT, NOW" below, with its <...>
+block replaced by your task's data>).
 
 START HERE -- THE WHOLE COUPLING IS ONE TOOL CALL. Write one script per
 side that reads ./imports.json, runs its own solver once, writes
@@ -7890,7 +7891,10 @@ with the closest known names, a condition on an undefined id, the
 participant's own Python stop -- so the next worker starts from the defect,
 not from the whole job again.
 
-YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict:
+YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict. Copy the
+call below and REPLACE the <...> block with your task's own words; the worker
+sees nothing but this task= string (measured: a worker whose brief kept
+"from the task" and no data wrote placeholder source terms):
     spawn_subagent(role='worker', task="Write side A's participant script in
     ./side_A: call knowledge(topic='coupling', solver='<side A's code>')
     (add physics='thermoelastic' when the interface carries temperature AND
@@ -7899,12 +7903,11 @@ YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict:
     ./side_A/participant_A.py unchanged (the imports.json handshake, sign
     convention, flux recovery, exports schema and export self-check); fill
     only its marked hole(s) with the mesh, form, material, source and solve
-    for subdomain A from the task. THE WORKER SEES ONLY THIS BRIEF, NOT YOUR
-    TASK: paste subdomain A's data from your task into it verbatim --
-    geometry and interface position, equations and coefficients, source
-    terms as written, boundary values, the level-1 mesh, and the file names
-    your task prescribes for this side (measured: a worker briefed without
-    them wrote placeholder source terms). Write ./side_A/config.json for
+    for subdomain A from THIS DATA, which is all you know of the task:
+    <SUBDOMAIN A, COPIED FROM YOUR TASK WORD FOR WORD: geometry and interface
+    position; equations and coefficients; source terms as written; boundary
+    values; the level-1 mesh; the file names the task prescribes for this
+    side>. Write ./side_A/config.json for
     level 1 and a synthetic ./side_A/imports.json; if the code takes an input deck, run
     check_input(solver='<side A's code>', input_path=<the deck>) until it
     names no defect before the binary runs; run the script with that code's

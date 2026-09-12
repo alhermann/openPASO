@@ -2535,7 +2535,8 @@ def wrong_level_run_log_findings(work: Path) -> list[dict]:
     return out
 
 
-_WORKER_SEES_ONLY_THE_BRIEF = ("THE WORKER SEES ONLY THIS BRIEF, NOT YOUR TASK: paste that subdomain's data from your task into it verbatim -- geometry and interface position, equations and coefficients, source terms as written, boundary values, the level-1 mesh, and the file names your task prescribes for this side. ")
+_WORKER_SEES_ONLY_THE_BRIEF = (  # kept for reference; the briefs now carry a <...> block instead
+    "THE WORKER SEES ONLY THIS BRIEF, NOT YOUR TASK: paste that subdomain's data from your task into it verbatim -- geometry and interface position, equations and coefficients, source terms as written, boundary values, the level-1 mesh, and the file names your task prescribes for this side. ")
 
 
 def coupled_ladder(work: Path) -> dict | None:
@@ -2594,8 +2595,8 @@ def coupled_ladder(work: Path) -> dict | None:
 
     def step(n, what, brief, as_is=True):
         hand = ("HAND THIS STEP TO A SUB-AGENT AS IS" if as_is else
-                "HAND THIS STEP TO A SUB-AGENT WITH YOUR TASK'S DATA FOR THAT SUBDOMAIN PASTED INTO THE BRIEF "
-                "(measured: a worker briefed without it wrote placeholder source terms)")
+                "HAND THIS STEP TO A SUB-AGENT WITH THE <...> BLOCK REPLACED BY YOUR TASK'S OWN WORDS -- the worker "
+                "sees nothing else (measured: a worker briefed without them wrote placeholder source terms)")
         return {"step": n, "text": (
             f"LADDER STEP {n} OF 6 -- {what}\n"
             f"{hand}: spawn_subagent(role='worker', "
@@ -2611,7 +2612,10 @@ def coupled_ladder(work: Path) -> dict | None:
                     "call knowledge(topic='coupling', solver=<that code>) and copy the served CONTRACT into "
                     "the file unchanged (imports.json handshake, sign convention, flux recovery, exports "
                     "schema, export self-check); fill only its marked hole(s) with the mesh, form, material, "
-                    "source and solve for this subdomain from the task. " + _WORKER_SEES_ONLY_THE_BRIEF + "Write ./config.json for level 1 and a "
+                    "source and solve for this subdomain from THIS DATA, which is all you know of the task: "
+                    "<THAT SUBDOMAIN, COPIED FROM YOUR TASK WORD FOR WORD: geometry and interface position; equations and "
+                    "coefficients; source terms as written; boundary values; the level-1 mesh; the file names the task "
+                    "prescribes for this side>. Write ./config.json for level 1 and a "
                     "synthetic ./imports.json; if the code takes an input deck, run check_input(solver=<that code>, "
                     "input_path=<the deck>) until it names no defect before the binary runs; run the script with "
                     "that code's own interpreter until ./exports.json appears with finite values. CHECK: "

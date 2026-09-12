@@ -77,3 +77,16 @@ def test_the_harness_calls_both_hooks_and_carries_no_check_body():
     assert "_fourc_deck_write_check(p, content)" in src
     assert "_fourc_run_check(command, out, workdir)" in src
     assert "def _fourc_deck_write_check" not in src and "def _fourc_run_check" not in src
+
+
+def test_a_console_redirected_to_a_file_is_read_from_that_file(tmp_path):
+    (tmp_path / "side_A").mkdir()
+    (tmp_path / "side_A" / "slab.4C.yaml").write_text(BAD)
+    (tmp_path / "side_A" / "run_4C.log").write_text(STOP)
+    cmd = "cd side_A && stdbuf -oL -eL /home/alexander/4C/build/4C slab.4C.yaml out > run_4C.log 2>&1"
+    out = _fourc_run_check(cmd, "", tmp_path)                       # the shell reply carried nothing
+    assert "4C's own stop: Section DVOLUME-NODE TOPOLOGY is unknown" in out, out
+    (tmp_path / "side_A" / "run_4C.log").write_text("... processor 0 finished normally\n")
+    (tmp_path / "side_A" / "slab.4C.yaml").write_text(CLEAN)
+    if FOURC.is_file():
+        assert _fourc_run_check(cmd, "", tmp_path) == ""               # finished, clean: nothing to add

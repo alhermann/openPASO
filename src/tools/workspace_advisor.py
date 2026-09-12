@@ -1002,16 +1002,27 @@ def _fourc_run_check(command: str, output: str, workdir: Path) -> str:
     every deck defect at once (4C reports one), and, when 4C died or MPI_Abort ate the message, the
     PROC 0 error block or the signal with the last printed lines.
     """
+    import re as _re
     try:
         from tools.fourc_deck_lint import deck_judgement, fourc_error_lines, run_command_deck   # noqa: PLC0415
         deck = run_command_deck(command, Path(workdir))
         if deck is None:
             return ""
         findings = deck_judgement(deck.read_text(errors="ignore"))
-        err = fourc_error_lines(output or "")
+        console = output or ""
+        # `4C deck out > run.log 2>&1`: the console went to the file, the reply carries nothing. Read
+        # the file the command named, resolved beside the deck and under the working directory.
+        red = _re.search(r">\s*([^\s;&|]+)", command or "")
+        if red and ("PROC 0 ERROR" not in console and "finished normally" not in console):
+            for base in (deck.parent, Path(workdir)):
+                f = base / red.group(1).strip("'\"")
+                if f.is_file():
+                    console = console + "\n" + f.read_text(errors="ignore")[-20000:]
+                    break
+        err = fourc_error_lines(console)
     except Exception:                                    # noqa: BLE001
         return ""
-    finished = "finished normally" in (output or "")
+    finished = "finished normally" in console
     out = ""
     real = [f for f in findings if not str(f).startswith("(section names not judged")]
     if real or not finished:

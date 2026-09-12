@@ -2700,10 +2700,23 @@ def coupled_ladder(work: Path) -> dict | None:
         sides_f = {_side_of(q) for q in fields if _level_of(q) == k and _side_of(q)}
         sides_i = {_side_of(q) for q in ifaces if _level_of(q) == k}
         if len(sides_f) < 2 or len(sides_i) < 2:
-            return step(4, f"WRITE LEVEL {k}'S DELIVERABLES: the coupling converged but level {k} has field "
-                           f"files for {sorted(sides_f) or 'no'} side(s) and interface files for "
-                           f"{sorted(sides_i) or 'no'} side(s).",
-                        f"For level {k}, for EACH side: read that side's converged field (its per-level dumps "
+            # LEVELS FIRST, DELIVERABLES ONCE -- the ladder says the same as the couple() lead, or the
+            # parent copies the ladder's ready-made spawn call and writes level 1's files (measured
+            # 2026-09-12: 4 of 4 parents did exactly that while the lead above asked for couple_levels;
+            # round 40's C3 6041 lost its third level to the same order). The step carries a <...>
+            # block for the levels the task prescribes: the worker sees only the brief.
+            nxt = max(done_levels) + 1
+            return step(4, f"LEVEL {k}'S DELIVERABLES ARE NOT WRITTEN (coupled so far: levels {done_levels}; field files for "
+                           f"{sorted(sides_f) or 'no'} side(s), interface files for {sorted(sides_i) or 'no'} side(s)). If your task "
+                           f"prescribes levels beyond {max(done_levels)}, they come FIRST in ONE couple_levels call -- a level set with "
+                           f"one level missing is no result at all -- and the deliverables of ALL levels follow in ONE pass.",
+                        f"<IF THE TASK PRESCRIBES LEVELS BEYOND {max(done_levels)}, START WITH THIS ONE CALL: "
+                        f"couple_levels(participants=<the same list passed to couple>, levels=[{nxt}, ...every further level the "
+                        f"task prescribes], history_pattern='<the task's per-level history file name with {{k}} in place of the level "
+                        f"number>') -- every level keeps field_level<k>.csv, interface_level<k>.csv and participant_output_level<k>.log "
+                        f"next to each exports.json; replace this block with the levels and file name, or delete it if level "
+                        f"{max(done_levels)} is the last.> THEN, for EVERY coupled level k and EACH side, in ONE script that loops over "
+                        "the levels: read that side's converged field (its per-level dumps "
                         "field_level<k>.csv, columns x,y,<field> nodal values, and interface_level<k>.csv, "
                         "columns x,y,<trace>,<flux> at its interface nodes -- NEVER exports.json, which the next "
                         "level overwrites: measured, a run that rebuilt level 1 from exports.json after level 2 "
@@ -2720,9 +2733,10 @@ def coupled_ladder(work: Path) -> dict | None:
                         "(n, 2) probe points -- one such call per value column (a[:, 2], a[:, 3], ... for a "
                         "field with several components, T then ux, uy for a thermo-elastic one); a NaN in v "
                         "is a probe outside this side's subdomain (leave it to the other side); write x, y "
-                        "and the value columns in the task's order. "
-                        "CHECK: both sides' field files and interface files for this level exist and "
-                        "audit_results(work_dir) reports no missing-fields finding for it.")
+                        "and the value columns in the task's order. Then each level's run log per side: a VERBATIM "
+                        "copy of participant_output_level<k>.log next to that side's exports.json (never a summary). "
+                        "CHECK: every coupled level has both sides' field files, interface files and run logs, and "
+                        "audit_results(work_dir) reports no missing-fields and no run-log finding.", as_is=False)
         sides_l = set()
         for q in logs:
             if _level_of(q) != k or not _side_of(q):

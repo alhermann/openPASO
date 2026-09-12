@@ -307,6 +307,7 @@ def lint_deck(text: str) -> list[str]:
     why += _degenerate_elements(text)
     why += _lines_without_an_element_edge(text)
     why += _interior_lines(text)
+    why += _double_star_in_functions(text)
     why += _missing_runtime_output(text)
     return why
 
@@ -362,6 +363,18 @@ def _degenerate_elements(text: str) -> list[str]:
             "run counter-clockwise -- for a structured grid with NX cells per row and node id = i + 1 + (NX + 1) * j the "
             "quad of cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1). 4C reports this only as a zero or negative "
             "determinant or a floating point exception in the element evaluation"]
+
+
+def _double_star_in_functions(text: str) -> list[str]:
+    """`**` inside a 4C function expression: the parser has no such operator (measured: `-12*x**3*y/5`
+    rejected from 4C_utils_symbolic_expression.cpp with 'Token expected'); the task texts write their
+    source terms in Python notation, so a copied expression carries it. Every occurrence, not the first."""
+    out = []
+    for m in re.finditer(r'(SYMBOLIC_FUNCTION_OF_SPACE_TIME|SYMBOLIC_FUNCTION_OF_TIME|VARFUNCTION|COMPONENT\s+\d+\s+SYMBOLIC_FUNCTION_OF_SPACE_TIME)[^\n]*?["\']([^"\'\n]*\*\*[^"\'\n]*)["\']', text):
+        expr = m.group(2)
+        out.append(f"function expression '{expr[:70]}' uses `**`: 4C's expression parser has no `**` (it stops with "
+                   f"'Token expected'); write `^` for every power in the expression, not only the first")
+    return out
 
 
 def _interior_lines(text: str) -> list[str]:

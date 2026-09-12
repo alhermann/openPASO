@@ -143,18 +143,18 @@ class TestTheServedKnowledgeSaysIt(unittest.TestCase):
     def test_the_universal_block_warns_about_the_cookie_line(self):
         import tools.knowledge as K
         for phrase in ("MIT-MAGIC-COOKIE", "X11", "4C -p"):
-            self.assertIn(phrase, K._UNIVERSAL,
+            self.assertIn(phrase, K._UNIVERSAL_FULL,
                           f"the served text does not mention {phrase!r}")
 
     def test_it_says_to_read_the_log_from_the_top(self):
         import tools.knowledge as K
-        self.assertIn("FROM THE TOP", K._UNIVERSAL.upper())
-        self.assertIn("tail", K._UNIVERSAL)
+        self.assertIn("FROM THE TOP", K._UNIVERSAL_FULL.upper())
+        self.assertIn("tail", K._UNIVERSAL_FULL)
 
     def test_it_tells_the_agent_to_self_test_before_blaming_the_tool(self):
         import tools.knowledge as K
-        self.assertIn("--help", K._UNIVERSAL)
-        self.assertIn("could-not-finish", K._UNIVERSAL)
+        self.assertIn("--help", K._UNIVERSAL_FULL)
+        self.assertIn("could-not-finish", K._UNIVERSAL_FULL)
 
 
 @unittest.skipUnless(FOURC.is_file(), "4C binary not present on this machine")
@@ -215,14 +215,18 @@ class TestTheDeckSyntaxPrimitivesAreServed(unittest.TestCase):
 
     def test_the_double_star_trap_is_served(self):
         import tools.knowledge as K
-        self.assertIn("`**` IS NOT EXPONENTIATION", K._UNIVERSAL)
-        self.assertIn("USE `^`", K._UNIVERSAL)
+        self.assertIn("`**` IS NOT EXPONENTIATION", K._UNIVERSAL_FULL)
+        self.assertIn("USE `^`", K._UNIVERSAL_FULL)
+        # the block appended to every door was cut to its core (6b97b721; the tail is
+        # knowledge(topic='universal_full')); a 4C agent meets the rule on the deck-grammar door
+        from backends.fourc import deck_grammar as G
+        self.assertIn("`**` IS NOT EXPONENTIATION", Path(G.__file__).read_text())
 
     def test_it_names_both_solvers_that_reject_it(self):
         """Stated for one code it reads as a quirk; for two it is a rule."""
         import tools.knowledge as K
-        i = K._UNIVERSAL.index("`**` IS NOT EXPONENTIATION")
-        block = K._UNIVERSAL[i:i + 1200]
+        i = K._UNIVERSAL_FULL.index("`**` IS NOT EXPONENTIATION")
+        block = K._UNIVERSAL_FULL[i:i + 1200]
         self.assertIn("SYMBOLIC_FUNCTION_OF_SPACE_TIME", block)
         self.assertIn("FEBio", block)
         self.assertIn("Token expected", block)
@@ -230,18 +234,18 @@ class TestTheDeckSyntaxPrimitivesAreServed(unittest.TestCase):
     def test_it_says_to_rewrite_the_whole_expression(self):
         """One surviving `**` fails the parse just as completely."""
         import tools.knowledge as K
-        self.assertIn("not the first term", K._UNIVERSAL)
+        self.assertIn("not the first term", K._UNIVERSAL_FULL)
 
     def test_the_yaml_sequence_rule_is_served_with_both_forms(self):
         import tools.knowledge as K
-        self.assertIn('- "NODE 1 DLINE 1"', K._UNIVERSAL)
-        self.assertIn("could not find ':' colon after key", K._UNIVERSAL)
+        self.assertIn('- "NODE 1 DLINE 1"', K._UNIVERSAL_FULL)
+        self.assertIn("could not find ':' colon after key", K._UNIVERSAL_FULL)
 
     def test_it_warns_the_abort_precedes_the_banner(self):
         """This is what made the agents conclude the binary was broken."""
         import tools.knowledge as K
-        self.assertIn("BEFORE PRINTING ITS OWN BANNER", K._UNIVERSAL)
-        self.assertIn("broken binary", K._UNIVERSAL)
+        self.assertIn("BEFORE PRINTING ITS OWN BANNER", K._UNIVERSAL_FULL)
+        self.assertIn("broken binary", K._UNIVERSAL_FULL)
 
     def test_the_diagnostic_extractor_finds_a_yaml_parse_error(self):
         """The extractor initially knew only `PROC n ERROR` and missed exactly

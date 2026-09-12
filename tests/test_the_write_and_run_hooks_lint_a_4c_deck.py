@@ -138,3 +138,12 @@ def test_4cs_stop_keeps_the_offending_snippet_after_the_blank_line():
     said = fourc_error_lines(log)
     assert said.startswith("Could not match this input | IO: | VERBOSITY: \"Standard\" | RUNTIME VTK OUTPUT:"), said
     assert "0#" not in said
+
+
+def test_a_python_power_inside_a_4c_function_is_named_for_every_occurrence():
+    from tools.fourc_deck_lint import lint_deck
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nFUNCT1:\n  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "2*pi**2*x*sin(pi*y)"\n'
+            'FUNCT2:\n  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "0.01*pi**2*x**2*sin(pi*y)"\nFUNCT3:\n  - SYMBOLIC_FUNCTION_OF_SPACE_TIME: "2*pi^2*x*sin(pi*y)"\n')
+    hits = [f for f in lint_deck(deck) if "uses `**`" in f]
+    assert len(hits) == 2, lint_deck(deck)
+    assert "2*pi**2*x*sin(pi*y)" in hits[0] and "write `^`" in hits[0]

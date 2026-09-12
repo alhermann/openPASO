@@ -70,6 +70,9 @@ def test_each_side_keeps_its_console_for_the_named_level(tmp_path, couple_tool, 
     # (round 25: six proven couplings ran couple() per level and the wall cut them; 0 audit_results calls)
     lead = out.get("what_to_fix_next") or ""
     assert "couple_levels(" in lead[:900] and "{k}" in lead, lead[:600]
+    # the participants list is echoed verbatim (the worker sees only the brief; a placeholder got bare names)
+    assert "participants='[{\"name\": \"A\"" in lead and str(tmp_path / "side_A") in lead, lead[:1200]
+    assert "<the same list" not in lead
     assert (out.get("relaxation") or {}).get("mode") == "aitken", out.get("relaxation")      # a single-field exchange keeps Aitken
     for name in ("A", "B"):
         per_level = tmp_path / f"side_{name}" / "participant_output_level2.log"

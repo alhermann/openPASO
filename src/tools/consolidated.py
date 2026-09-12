@@ -5889,6 +5889,15 @@ def register_consolidated_tools(mcp: FastMCP):
             _n_hist = len(getattr(r, "history", None) or [])
             _trivial = bool(_unresp or _probe_hits) or _n_hist < 3
             _lvl_txt = f"LEVEL {_lvl_for_log}" if _lvl_for_log else "THIS LEVEL"
+            # THE PARTICIPANTS LIST, VERBATIM. Measured (parent test 2026-09-12): with "<the same list you
+            # passed>" as the placeholder, 2 of 4 parents handed their worker bare names; the worker sees
+            # only the brief. This reply ran with the list -- it is echoed, so the next call is a paste.
+            try:
+                _pjson = json.dumps([{"name": _p.name, "command": list(_p.command), "work_dir": str(_p.work_dir),
+                                      "imports_from": list(getattr(_p, "imports_from", []) or [])} for _p in parts])
+            except Exception:                                # noqa: BLE001
+                _pjson = ""
+            _plist = f"participants='{_pjson}'" if _pjson else "participants=<the same list you passed here>"
             _not_yet = (f"{_lvl_txt} IS NOT A COUPLED RESULT YET: the iteration stopped after {_n_hist} step(s)"
                         + (f"; participant(s) {', '.join(_unresp)} exported byte-identical data while their imports changed" if _unresp else "")
                         + (f"; {_probe_hits[0][:220]}" if _probe_hits else "")
@@ -5909,7 +5918,7 @@ def register_consolidated_tools(mcp: FastMCP):
             _one_call = (_not_yet if _trivial else
                          (f"LEVEL {_lvl_for_log} CONVERGED. " if _lvl_for_log else "LEVEL CONVERGED. ")
                          + "FIRST, if the task prescribes further mesh levels, run them ALL in ONE call: "
-                           "couple_levels(participants=<the same list you passed here>, levels=[<next level>, ...every "
+                           f"couple_levels({_plist}, levels=[<next level>, ...every "
                            "further level], history_pattern='<the task's per-level history file name with {k} in place "
                            "of the level number>') -- each level warm-starts from the last, every cell count is doubled "
                            "per level, and every level keeps its own dumps and console (field_level<k>.csv, "
@@ -5931,6 +5940,10 @@ def register_consolidated_tools(mcp: FastMCP):
         try:
             if _root:
                 _next = (_ra.coupled_ladder(Path(_root)) or {}).get("text")
+                if _next and _pjson:
+                    # the ladder reads files and cannot know the list; this reply does
+                    _next = _next.replace("participants=<the same list passed to couple>", f"participants='{_pjson}'") \
+                                 .replace("participants=<the same list you passed to couple>", f"participants='{_pjson}'")
         except Exception:                                # advisory only
             _next = None
         # THE DELIVERABLE DEFECTS THE AUDIT NAMES RIDE ON couple() TOO. Measured (rounds 29-31):

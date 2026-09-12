@@ -97,8 +97,17 @@ def why_4c_did_not_finish(tag=""):
                 continue
             _hit = False
             for _i, _ln in enumerate(_lines):
-                if "PROC 0 ERROR" in _ln:
-                    _said = [l.strip() for l in _lines[_i + 1:_i + 12] if l.strip() and not l.startswith("---") and "MPI_ABORT" not in l]
+                # 4C's own stop: the PROC 0 ERROR block, or the YAML reader's `ERROR:` line with the offending row and
+                # its line:column (measured: an unquoted element row); the message ends where the stack frames begin
+                if "PROC 0 ERROR" in _ln or _ln.startswith("ERROR:"):
+                    _said = [_ln.strip()] if _ln.startswith("ERROR:") else []
+                    for l in _lines[_i + 1:_i + 16]:
+                        if not l.strip():
+                            continue
+                        if re.match(r"\s*\d+#\s", l) or set(l.strip()) <= set("=-"):
+                            break
+                        if "MPI_ABORT" not in l:
+                            _said.append(l.strip())
                     _why.append(f"4C said ({_lg}): " + " | ".join(_said[:8]))
                     _hit = True
                     break

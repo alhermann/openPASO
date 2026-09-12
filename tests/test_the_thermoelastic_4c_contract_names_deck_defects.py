@@ -183,3 +183,18 @@ def test_the_served_deck_check_refuses_unquoted_table_rows(tmp_path):
     deck = 'PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nTRANSPORT ELEMENTS:\n  - 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std\n'
     r = _run_contract_with_deck(tmp_path, deck)
     assert r.returncode != 0 and "DECK CHECK" in r.stderr and "not quoted YAML strings" in r.stderr, r.stderr[-600:]
+
+
+def test_the_contracts_extractor_reads_the_yaml_readers_stop_without_frames(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "run_t.log").write_text("Trilinos Version: f4d (git SHA1)\n\n=================\nERROR: could not find ':' colon after key\n"
+                                        "204:40: 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std  (size=39)\n"
+                                        " 0# FourC::(anonymous namespace)::throw_on_yaml_parse_error(char const*) in lib4C.so\n"
+                                        "=================\nMPI_ABORT was invoked on rank 0\n")
+    (tmp_path / "deck_t.4C.yaml").write_text('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\n')
+    a = SRC.index("def why_4c_did_not_finish("); b = SRC.index("def _diagnose_at_exit(")
+    ns = {"CFG": {}, "glob": __import__("glob"), "re": re, "sys": __import__("sys"), "Path": Path}
+    exec("import glob, re, sys\nfrom pathlib import Path\n" + SRC[a:b], ns)
+    why = ns["why_4c_did_not_finish"]("run T")
+    assert "4C said (run_t.log): ERROR: could not find ':' colon after key | 204:40: 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std" in why, why
+    assert "0#" not in why

@@ -131,7 +131,7 @@ def _couple(parts, *, reviewed=True, **kw):
     if reviewed:
         setup = _coupling_setup_text(
             participants=args["participants"], max_iter=args["max_iter"],
-            tol=args["tol"], accelerator=args.get("accelerator", "aitken"),
+            tol=args["tol"], accelerator=args.get("accelerator", "auto"),
             theta=args.get("theta", 0.5), monolithic=args.get("monolithic", ""),
             probe=args.get("probe", True))
         _CRITIC_REGISTRY.submit_review(

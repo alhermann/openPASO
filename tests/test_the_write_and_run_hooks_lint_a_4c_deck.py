@@ -90,3 +90,20 @@ def test_a_console_redirected_to_a_file_is_read_from_that_file(tmp_path):
     (tmp_path / "side_A" / "slab.4C.yaml").write_text(CLEAN)
     if FOURC.is_file():
         assert _fourc_run_check(cmd, "", tmp_path) == ""               # finished, clean: nothing to add
+
+
+GRID = "NODE COORDS:\n" + "".join(f'  - "NODE {1 + 3 * j + i} COORD {0.5 * i:.1f} {0.5 * j:.1f} 0.0"\n' for j in range(3) for i in range(3))
+
+
+def test_a_condition_on_a_line_inside_the_mesh_is_named_and_a_boundary_line_is_not():
+    from tools.fourc_deck_lint import lint_deck
+    cond = 'DESIGN LINE DIRICH CONDITIONS:\n  - E: 1\n    NUMDOF: 1\n'
+    inside = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\n' + GRID + cond
+              + 'DLINE-NODE TOPOLOGY:\n  - "NODE 2 DLINE 1"\n  - "NODE 5 DLINE 1"\n  - "NODE 8 DLINE 1"\n')
+    hits = [f for f in lint_deck(inside) if "INSIDE the mesh" in f]
+    assert hits and hits[0].startswith("DLINE 1 (3 nodes) lies on x = 0.5, INSIDE the mesh (x spans 0..1)"), lint_deck(inside)
+    on_boundary = inside.replace('"NODE 2 DLINE 1"', '"NODE 1 DLINE 1"').replace('"NODE 5 DLINE 1"', '"NODE 4 DLINE 1"') \
+                        .replace('"NODE 8 DLINE 1"', '"NODE 7 DLINE 1"')
+    assert not [f for f in lint_deck(on_boundary) if "INSIDE the mesh" in f]
+    unused = inside.replace(cond, "")                        # an interior line nothing is filed on is not a defect
+    assert not [f for f in lint_deck(unused) if "INSIDE the mesh" in f]

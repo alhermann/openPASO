@@ -300,6 +300,7 @@ def lint_deck(text: str) -> list[str]:
         why.append("FUNCT blocks are defined but no condition references one (FUNCT: [0,...] everywhere): the sources never reach the load")
     why += _degenerate_elements(text)
     why += _lines_without_an_element_edge(text)
+    why += _interior_lines(text)
     why += _missing_runtime_output(text)
     return why
 
@@ -355,6 +356,45 @@ def _degenerate_elements(text: str) -> list[str]:
             "run counter-clockwise -- for a structured grid with NX cells per row and node id = i + 1 + (NX + 1) * j the "
             "quad of cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1). 4C reports this only as a zero or negative "
             "determinant or a floating point exception in the element evaluation"]
+
+
+def _interior_lines(text: str) -> list[str]:
+    """A DLINE whose nodes all lie on one coordinate line strictly INSIDE the mesh, with a condition filed on it.
+
+    Measured (deck step trial, 2026-09-12): a worker's 'x = 0' line landed on the nodes at x = 0.7 by an index
+    slip; 4C finished normally, imposed T = 0 across the interior and the field was wrong by 87% -- nothing in
+    the console says so. Only axis-aligned lines are judged, and only lines some LINE condition names."""
+    coords = {int(a): (float(x), float(y)) for a, x, y in
+              re.findall(r'"NODE\s+(\d+)\s+COORD\s+([-\d.eE+]+)\s+([-\d.eE+]+)', text)}
+    if len(coords) < 4:
+        return []
+    xs = [c[0] for c in coords.values()]
+    ys = [c[1] for c in coords.values()]
+    ext = {0: (min(xs), max(xs)), 1: (min(ys), max(ys))}
+    tol = 1e-6 * max(1.0, ext[0][1] - ext[0][0], ext[1][1] - ext[1][0])
+    lines: dict[int, list] = {}
+    for n, d in re.findall(r'"NODE\s+(\d+)\s+DLINE\s+(\d+)"', text):
+        lines.setdefault(int(d), []).append(int(n))
+    used: set[int] = set()
+    for b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", text, flags=re.M):
+        head = b.split(":", 1)[0].strip()
+        if head.endswith("CONDITIONS") and re.search(r"\bLINE\b", head):
+            used |= {int(x) for x in re.findall(r"\bE:\s*(\d+)", b)}
+    out = []
+    for d, nodes in sorted(lines.items()):
+        pts = [coords[n] for n in nodes if n in coords]
+        if len(pts) < 2 or d not in used:
+            continue
+        for ax, name in ((0, "x"), (1, "y")):
+            vals = {round(p[ax], 9) for p in pts}
+            if len(vals) == 1:
+                v = next(iter(vals))
+                lo, hi = ext[ax]
+                if lo + tol < v < hi - tol:
+                    out.append(f"DLINE {d} ({len(pts)} nodes) lies on {name} = {v:g}, INSIDE the mesh ({name} spans "
+                               f"{lo:g}..{hi:g}), and a condition is filed on it -- a boundary line placed on interior "
+                               f"nodes (measured: 4C finishes normally and imposes the value across the interior)")
+    return out
 
 
 def _lines_without_an_element_edge(text: str) -> list[str]:

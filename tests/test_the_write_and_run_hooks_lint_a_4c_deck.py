@@ -186,3 +186,14 @@ def test_a_scrambled_slab_hex_is_named_and_a_proper_one_is_not():
     clockwise = _bad_hex8_slabs(_slab([1, 4, 3, 2, 5, 8, 7, 6]))
     assert clockwise and "runs clockwise" in clockwise[0], clockwise
     assert "ZERO OR NEGATIVE JACOBIAN" in clockwise[0]
+
+
+def test_a_parameter_written_at_the_top_level_is_named_as_not_a_section():
+    if not FOURC.is_file():
+        pytest.skip("4C binary not on this host")
+    from tools.fourc_deck_lint import deck_judgement
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nSCALAR TRANSPORT DYNAMIC:\n  TIMEINTEGR: "Stationary"\n'
+            'CALCFLUX_BOUNDARY: "diffusive"\nIO/RUNTIME VTK OUTPUT:\n  INTERVAL_STEPS: 1\n')
+    hits = [f for f in deck_judgement(deck) if "top-level key `CALCFLUX_BOUNDARY" in f]
+    assert hits and "belongs INSIDE its section" in hits[0], deck_judgement(deck)
+    assert not [f for f in deck_judgement(CLEAN) if "top-level key" in f]

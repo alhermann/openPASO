@@ -159,6 +159,16 @@ def unknown_sections(text: str, valid: set, elements: set | None = None) -> list
             if close:
                 msg += f"; closest known: {', '.join(repr(c) for c in close)}"
         out.append(msg)
+    # a PARAMETER written at the top level: `CALCFLUX_BOUNDARY: "diffusive"` at column 0 is a section to 4C
+    # ('Section CALCFLUX_BOUNDARY is not a valid section name', measured te4c13); a key WITH a value on its
+    # line is not a section head, so the loop above never saw it
+    for key, val in dict.fromkeys(re.findall(r"^([A-Z][A-Z0-9_]*):[ \t]+(\S.*)$", text, re.M)):
+        if key in valid or re.fullmatch(r"FUNCT\d+", key):
+            continue
+        close = closest_sections(key, names)
+        out.append(f"top-level key `{key}: {val[:30]}` is not a section name (`4C -p`); a parameter belongs INSIDE its "
+                   f"section, indented under the section head (a key at column 0 is read as a section)"
+                   + (f"; the sections whose names come closest: {', '.join(repr(c) for c in close[:3])}" if close else ""))
     return out
 
 

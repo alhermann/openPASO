@@ -1071,8 +1071,20 @@ def _fourc_after_shell_check(workdir: Path, started_at: float, command: str = ""
             if stem.is_file() and stem.name.lower().endswith((".yaml", ".yml", ".dat")):
                 deck = stem
             else:
+                # THE DECK THIS CONSOLE BELONGS TO, not the newest yaml in the directory. Measured
+                # (round 42, C1 7073): run_U.log's stop was paired with test_deck.yaml, an older probe
+                # deck, while deck_U.4C.yaml sat beside it. Prefer a deck written by this command whose
+                # stem shares the log's suffix (run_U <-> deck_U), then any deck written by this command.
                 cands = [q for q in lg.parent.glob("*.yaml") if "monitor" not in q.name]
-                deck = max(cands, key=lambda q: q.stat().st_mtime) if cands else None
+                fresh = [q for q in cands if q.stat().st_mtime >= started_at] or cands
+                def _shared_suffix(q):
+                    a, b = lg.stem.lower(), q.name.lower().split(".")[0]
+                    n = 0
+                    while n < min(len(a), len(b)) and a[-1 - n] == b[-1 - n]:
+                        n += 1
+                    return n
+                if fresh:
+                    deck = max(fresh, key=lambda q: (_shared_suffix(q), q.stat().st_mtime))
             if direct is not None and deck is not None and deck.resolve() == direct.resolve():
                 continue
             line = f"\n[run check] 4C stopped in {lg.relative_to(root)}: {err}"

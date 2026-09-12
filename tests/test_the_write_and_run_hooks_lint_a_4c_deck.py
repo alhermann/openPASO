@@ -215,3 +215,34 @@ def test_the_yaml_readers_stop_is_extracted_and_the_unquoted_row_named():
     hits = [f for f in lint_deck(deck) if "not quoted YAML strings" in f]
     assert len(hits) == 1 and "2 table row(s)" in hits[0] and "first, in NODE COORDS: `- NODE 2 COORD 1 0 0`" in hits[0], lint_deck(deck)
     assert not [f for f in lint_deck(CLEAN) if "not quoted" in f]
+
+
+def test_an_element_naming_an_undefined_node_is_named():
+    from tools.fourc_deck_lint import lint_deck
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nNODE COORDS:\n  - "NODE 1 COORD 0 0 0"\n  - "NODE 2 COORD 1 0 0"\n'
+            '  - "NODE 3 COORD 1 1 0"\n  - "NODE 4 COORD 0 1 0"\nTRANSPORT ELEMENTS:\n  - "1 TRANSP QUAD4 1 2 3 4 MAT 1 TYPE Std"\n'
+            '  - "17 TRANSP QUAD4 2 27 28 3 MAT 1 TYPE Std"\n')
+    hits = [f for f in lint_deck(deck) if "NODE COORDS does not define" in f]
+    assert len(hits) == 1 and "element 17 -> node(s) 27 28" in hits[0] and "cannot find node 27" in hits[0], lint_deck(deck)
+    assert not [f for f in lint_deck(CLEAN) if "does not define" in f and "element" in f]
+
+
+def test_a_yaml_structure_slip_is_named_with_its_line_before_any_run():
+    from tools.fourc_deck_lint import lint_deck
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\nDESIGN POINT DIRICH CONDITIONS:\n  - E: 1\n   NUMDOF: 3\n'
+            '    ONOFF: [1, 1, 1]\n')
+    hits = [f for f in lint_deck(deck) if "not valid YAML" in f]
+    assert len(hits) == 1 and "line 5" in hits[0] and "NUMDOF: 3" in hits[0] and "ERROR: parse error 5:" in hits[0], lint_deck(deck)
+    assert not [f for f in lint_deck(CLEAN) if "not valid YAML" in f]
+    assert not [f for f in lint_deck(BAD) if "not valid YAML" in f]
+
+
+def test_the_after_shell_check_pairs_a_console_with_its_own_deck(tmp_path):
+    import os, time
+    side = tmp_path / "side_A"; side.mkdir()
+    (side / "test_deck.yaml").write_text(CLEAN)                       # an older probe deck
+    old = time.time() - 600; os.utime(side / "test_deck.yaml", (old, old))
+    (side / "deck_U.4C.yaml").write_text(BAD)                          # the deck run_U.log belongs to
+    (side / "run_U.log").write_text(STOP)
+    out = _fourc_after_shell_check(tmp_path, time.time() - 5, "cd side_A && python3 participant_A.py")
+    assert "4C DECK deck_U.4C.yaml:" in out and "test_deck.yaml" not in out, out

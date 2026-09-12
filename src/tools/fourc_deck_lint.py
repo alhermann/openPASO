@@ -269,6 +269,7 @@ def python_stop_lines(log_text: str) -> str:
 def lint_deck(text: str) -> list[str]:
     """Deck defects measured on worker decks (each one made 4C stop or solve the wrong problem)."""
     why: list[str] = []
+    why += _yaml_parse_error(text)
     secs = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", text, re.M)
     dup = sorted({x for x in secs if secs.count(x) > 1})
     if dup:
@@ -331,6 +332,7 @@ def lint_deck(text: str) -> list[str]:
     why += _degenerate_elements(text)
     why += _lines_without_an_element_edge(text)
     why += _unquoted_table_rows(text)
+    why += _elements_with_unknown_nodes(text)
     why += _bad_hex8_slabs(text)
     why += _interior_lines(text)
     why += _double_star_in_functions(text)
@@ -401,6 +403,50 @@ def _double_star_in_functions(text: str) -> list[str]:
         out.append(f"function expression '{expr[:70]}' uses `**`: 4C's expression parser has no `**` (it stops with "
                    f"'Token expected'); write `^` for every power in the expression, not only the first")
     return out
+
+
+def _yaml_parse_error(text: str) -> list[str]:
+    """The deck as YAML: 4C's reader is a YAML parser, and a structural slip (an entry's keys indented
+    unevenly, a bare token where a mapping was open) stops it with 'ERROR: parse error <line>:<col>'
+    (measured, round 42 C1 7073: `NUMDOF: 3` at 109:13 under a DESIGN POINT DIRICH entry). PyYAML names
+    the same place before any run; the offending line is quoted."""
+    try:
+        import yaml  # noqa: PLC0415
+    except Exception:                                   # noqa: BLE001
+        return []
+    try:
+        yaml.safe_load(text)
+        return []
+    except yaml.YAMLError as e:                         # noqa: BLE001
+        mark = getattr(e, "problem_mark", None) or getattr(e, "context_mark", None)
+        if mark is None:
+            return [f"the deck is not valid YAML: {str(e).splitlines()[0][:120]}"]
+        lines = text.splitlines()
+        row = lines[mark.line] if 0 <= mark.line < len(lines) else ""
+        prob = getattr(e, "problem", None) or str(e).splitlines()[0]
+        return [f"the deck is not valid YAML at line {mark.line + 1}, column {mark.column + 1}: {prob} -- the line reads "
+                f"`{row.strip()[:80]}`; 4C's reader stops there with 'ERROR: parse error {mark.line + 1}:{mark.column + 1}'. "
+                f"Inside a `- E: <id>` entry every further key (NUMDOF, ONOFF, VAL, FUNCT, TAG) is indented to the same column as E"]
+
+
+def _elements_with_unknown_nodes(text: str) -> list[str]:
+    """Element rows naming node ids that NODE COORDS does not define (measured, round 42 C1 7073: 'Element 17
+    cannot find node 27' -- 4C stops in its element reader; a lint sees it before the run)."""
+    ids = {int(a) for a in re.findall(r'"NODE\s+(\d+)\s+COORD\b', text)}
+    if not ids:
+        return []
+    bad = []
+    for e, ids_txt in re.findall(r'"\s*(\d+)\s+\w+\s+(?:QUAD4|TRI3|HEX8|TET4|LINE2)\s+((?:\d+\s+)+)', text):
+        missing = [int(i) for i in ids_txt.split() if int(i) not in ids]
+        if missing:
+            bad.append((e, missing))
+    if not bad:
+        return []
+    e, missing = bad[0]
+    return [f"{len(bad)} element row(s) name node ids that NODE COORDS does not define (first: element {e} -> node(s) "
+            f"{' '.join(map(str, missing[:4]))}; {len(ids)} nodes are defined, ids {min(ids)}..{max(ids)}): 4C stops with 'Element "
+            f"{e} cannot find node {missing[0]}'. Node ids in element rows are the NODE numbers of NODE COORDS, 1-based, and the "
+            f"top layer of a slab is id + (number of 2-D nodes)"]
 
 
 def _unquoted_table_rows(text: str) -> list[str]:

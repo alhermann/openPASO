@@ -1,0 +1,34 @@
+{
+ "failed": "participant_te4c13_1.py",
+ "ok": false,
+ "rounds": [
+  {
+   "round": 1,
+   "ok": false,
+   "info": "rc=1 exports=False 4C_runs_finished=0 :: section names with the closest known, materials and their parameters, condition ids, element geometry) in one call\n4C DID NOT FINISH -- deck_t.4C.yaml: DESIGN LINE DIRICH CONDITIONS names E id(s) 9, 18, 27, 36, 45, 54 that no *-NODE TOPOLOGY section defines; deck_u.4C.yaml: DESIGN SURF THERMO DIRICH CONDITIONS names E id(s) 9, 18, 27, 36, 45, 54 that no *-NODE TOPOLOGY section defines; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, cond",
+   "what": "deck_t.4C.yaml: 2 defect(s); deck_u.4C.yaml: 1 defect(s); 4C's console run_t.log ends without a finish; 4C's console run_u.log ends without a finish.",
+   "secs": 351
+  },
+  {
+   "round": 2,
+   "ok": false,
+   "info": "rc=1 exports=False 4C_runs_finished=0 :: e in a log next to the deck; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, condition ids, element geometry) in one call\n4C DID NOT FINISH -- no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, cond",
+   "what": "deck_t.4C.yaml: 1 defect(s); deck_u.4C.yaml: 1 defect(s); 4C's console run_t.log ends without a finish; 4C's console run_u.log ends without a finish.",
+   "secs": 173
+  },
+  {
+   "round": 3,
+   "ok": false,
+   "info": "rc=1 exports=False 4C_runs_finished=0 :: e in a log next to the deck; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, condition ids, element geometry) in one call\n4C DID NOT FINISH -- no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, cond",
+   "what": "4C's console run_t.log ends without a finish; 4C's console run_u.log ends without a finish.",
+   "secs": 452
+  },
+  {
+   "round": 4,
+   "ok": false,
+   "info": "rc=1 exports=False 4C_runs_finished=0 :: 4C run T failed with code 1\n4C DID NOT FINISH -- no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck; check_input(solver='fourc', input_path=<deck>) names every defect the binary's grammar can see (section names with the closest known, materials and their parameters, condition ids, element geometry) in one call\n",
+   "what": "4C's console run_t.log ends without a finish; 4C's console run_u.log ends without a finish.",
+   "secs": 530
+  }
+ ]
+}

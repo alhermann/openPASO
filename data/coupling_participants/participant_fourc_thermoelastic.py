@@ -246,6 +246,31 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yam
         raise SystemExit(f"DECK CHECK: {_dk} has {len(_twist)} element(s) with zero or negative area (first: element {_twist[0][0]} "
                          f"nodes {' '.join(map(str, _twist[0][1]))}). Every element's nodes must run counter-clockwise: for node "
                          f"id = i + 1 + (NX + 1) * j the quad of cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1).")
+    # a section written twice: 4C stops in its reader with 'Section X is defined more than once' (measured, te4c13)
+    _heads = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, re.M)
+    _dup = sorted({h for h in _heads if _heads.count(h) > 1})
+    if _dup:
+        raise SystemExit(f"DECK CHECK: {_dk} defines section(s) {', '.join(_dup)} more than once; 4C stops with "
+                         f"'Section ... is defined more than once'. Merge each into ONE section with all its entries.")
+    # the slab's HEX8 node order: bottom quad counter-clockwise, then the SAME four nodes on the top layer. Any other
+    # order parses and stops later in the element with 'ZERO OR NEGATIVE JACOBIAN DETERMINANT' naming no node
+    # (measured, te4c13: layer-interleaved numbering)
+    _cxyz = {int(n): (float(x), float(y), float(z)) for n, x, y, z in re.findall(r'"NODE\s+(\d+)\s+COORD\s+(\S+)\s+(\S+)\s+(\S+)"', _txt)}
+    if len({round(c[2], 9) for c in _cxyz.values()}) == 2:
+        for _e, _ids in re.findall(r'"\s*(\d+)\s+\w+\s+HEX8\s+((?:\d+\s+){8})', _txt):
+            _nn = [int(i) for i in _ids.split()]
+            if not all(i in _cxyz for i in _nn):
+                continue
+            _p = [_cxyz[i] for i in _nn]
+            _bz, _tz = {round(q[2], 9) for q in _p[:4]}, {round(q[2], 9) for q in _p[4:]}
+            _xy = all(abs(_p[i][0] - _p[i + 4][0]) < 1e-9 and abs(_p[i][1] - _p[i + 4][1]) < 1e-9 for i in range(4))
+            _ar = 0.5 * sum(_p[q][0] * _p[(q + 1) % 4][1] - _p[(q + 1) % 4][0] * _p[q][1] for q in range(4))
+            if not (len(_bz) == 1 and len(_tz) == 1 and _bz != _tz and _xy and (_ar > 1e-14 if max(_tz) > max(_bz) else _ar < -1e-14)):
+                raise SystemExit(f"DECK CHECK: {_dk} element {_e} (nodes {' '.join(map(str, _nn))}) is not a well-formed one-layer HEX8: "
+                                 f"the order is the bottom quad counter-clockwise seen from +z, then the SAME four nodes on the top "
+                                 f"layer -- for node id = i + 1 + (NX + 1) * j and N2 2-D nodes, cell (i, j) is (id, id + 1, id + NX + 2, "
+                                 f"id + NX + 1, id + N2, id + 1 + N2, id + NX + 2 + N2, id + NX + 1 + N2). 4C would parse it and stop "
+                                 f"later with 'ZERO OR NEGATIVE JACOBIAN DETERMINANT', naming no node.")
 
 
 def _latest(pattern):

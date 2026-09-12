@@ -142,3 +142,38 @@ def test_the_served_deck_check_refuses_twisted_elements(tmp_path):
     r = subprocess.run([sys.executable, "participant_A.py"], cwd=tmp_path, capture_output=True, text=True, timeout=120,
                        env=dict(os.environ, MPLBACKEND="Agg"))
     assert r.returncode != 0 and "DECK CHECK" in r.stderr and "zero or negative area" in r.stderr and "element 1" in r.stderr, r.stderr[-800:]
+
+
+def _run_contract_with_deck(tmp_path, deck_lines: str):
+    import json, os, subprocess, sys
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "data" / "coupling_participants" / "participant_fourc_thermoelastic.py").read_text()
+    BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+    a = src.index(BEGIN); b = src.index(END, a) + len(END)
+    fill = ('hx, hy = (X1 - X0) / NX, (Y1 - Y0) / NY\n'
+            'nodes = [(X0 + i * hx, Y0 + j * hy) for j in range(NY + 1) for i in range(NX + 1)]\n'
+            'interior = [j * (NX + 1) + NX + 1 for j in range(1, NY)]\nTZ = hx\n'
+            'Path("deck_U.4C.yaml").write_text(' + repr(deck_lines) + ')\n'
+            'OUT_T, OUT_U, DECK_U = "out_T", "out_U", "deck_U.4C.yaml"\n')
+    (tmp_path / "participant_A.py").write_text(src[:a] + fill + src[b:])
+    (tmp_path / "config.json").write_text(json.dumps({"level": 1, "nx": 4, "ny": 4, "x0": 0.0, "x1": 1.0, "y0": 0.0, "y1": 1.0,
+                                                       "k": 1.0, "lam": 1.0, "mu": 1.0, "beta": 1.0, "iface": "right"}))
+    (tmp_path / "imports.json").write_text("{}")
+    return subprocess.run([sys.executable, "participant_A.py"], cwd=tmp_path, capture_output=True, text=True, timeout=120,
+                          env=dict(os.environ, MPLBACKEND="Agg"))
+
+
+def test_the_served_deck_check_refuses_a_section_written_twice(tmp_path):
+    deck = 'PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\nDSURF-NODE TOPOLOGY:\n  - "NODE 1 DSURFACE 1"\nDSURF-NODE TOPOLOGY:\n  - "NODE 2 DSURFACE 1"\n'
+    r = _run_contract_with_deck(tmp_path, deck)
+    assert r.returncode != 0 and "DECK CHECK" in r.stderr and "DSURF-NODE TOPOLOGY more than once" in r.stderr, r.stderr[-600:]
+
+
+def test_the_served_deck_check_refuses_a_layer_interleaved_slab_hex(tmp_path):
+    nodes = [(0, 0, 0), (0, 0, .1), (1, 0, 0), (1, 0, .1), (1, 1, 0), (1, 1, .1), (0, 1, 0), (0, 1, .1)]   # te4c13 numbering
+    coords = "NODE COORDS:\n" + "".join(f'  - "NODE {i + 1} COORD {x} {y} {z}"\n' for i, (x, y, z) in enumerate(nodes))
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\n' + coords
+            + 'STRUCTURE ELEMENTS:\n  - "1 SOLIDSCATRA HEX8 1 2 3 4 5 6 7 8 MAT 1 KINEM linear TYPE Undefined"\n')
+    r = _run_contract_with_deck(tmp_path, deck)
+    assert r.returncode != 0 and "DECK CHECK" in r.stderr and "not a well-formed one-layer HEX8" in r.stderr, r.stderr[-600:]
+    assert "ZERO OR NEGATIVE JACOBIAN" in r.stderr

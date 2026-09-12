@@ -206,7 +206,7 @@ def why_4c_did_not_finish(tag=""):
                     _why.append(f"{_deck}: an `IO:` section in a Scalar_Transport deck is rejected; the VTU appears without it")
             _badkw = sorted({w for w in re.findall(r'"NODE\s+\d+\s+(D[A-Z]+)\s+\d+"', _txt) if w not in ("DNODE", "DLINE", "DSURFACE", "DVOL")})
             if _badkw:
-                _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL (anything else defines nothing and the conditions on it are silently dropped)")
+                _why.append(f"{_deck}: topology entries use {', '.join(_badkw)} -- the entity words are DNODE, DLINE, DSURFACE, DVOL (anything else defines nothing and the conditions on it are silently dropped); section `DSURF-NODE TOPOLOGY` takes entries `NODE <n> DSURFACE <id>` (section word DSURF, entry word DSURFACE)")
             _topo = set(re.findall(r"\b(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)", _txt))
             for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
                 _head = _b.split(":", 1)[0].strip()
@@ -473,6 +473,22 @@ print(f"NDOF = {3 * len(nodes)}")
 print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
       f"T=[{T2d.min():.6g},{T2d.max():.6g}] u=[{U2d.min():.6g},{U2d.max():.6g}]  "
       f"scatra-vs-tsi T mismatch {_dT:.2e}")
+
+# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ─────────────────────────
+# The code above and below the elided block uses these names. Your
+# block has to define every one of them, or the rest will not run:
+#
+#     DECK_U
+#     OUT_T
+#     OUT_U
+#     TZ
+#     interior
+#     nodes
+#
+# That is the whole contract. Read the surviving lines to see the
+# shape each one has to have -- they are already indexed, assembled
+# or written out there. OASiS does not serve the solve itself, but
+# it will not make you guess which variables the hole was filling.
 ```
 
 
@@ -480,7 +496,7 @@ print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
 ──────────────────────────────────────────────────────────────────────
 THIS PAYLOAD IS TRUNCATED HERE. 48,658 further characters exist and are NOT lost.
 ──────────────────────────────────────────────────────────────────────
-You are reading the first 29,317 of 77,609 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+You are reading the first 29,974 of 78,266 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='fourc', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
 WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
 WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
 
@@ -571,21 +587,9 @@ values above are verbatim from a real deck that ran to completion.
 DO NOT least-squares-fit the profile into a SYMBOLIC_FUNCTION_OF_SPACE_TIME
 unless there is no alternative. A fit converges to a slightly DIFFERENT
 boundary-value problem, so the refinement study measures the fit rather than the
-method and the error does not fall at the expected rate. Measured: one agent
-concluded "4C cannot impose per-node Dirichlet values" and wrote a
-could-not-finish report, while another used point conditions and produced a
-complete three-level study from the same binary.
-
-WHICH PROBLEM TYPE YOU PICK DECIDES WHETHER YOU CAN READ YOUR OWN ANSWER.
-Measured on this build:
-FOUR MEASURED WAYS THIS DIES, all of them silently:
-(a) THE LEGACY BLOCKS ARE YAML SEQUENCES. `NODE COORDS`, `TRANSPORT
-    ELEMENTS` and `D*-NODE TOPOLOGY` entries each need `- ` and quotes.
-    Written bare, YAML reads them as mapping keys and 4C dies with
-      ERROR: could not find ':' colon after key
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,207 OF 51,855 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,189 OF 52,512 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 ────────────────────────────────────────

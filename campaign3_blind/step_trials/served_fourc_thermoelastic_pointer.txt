@@ -157,8 +157,17 @@ def why_4c_did_not_finish(tag=""):
                 continue
             _hit = False
             for _i, _ln in enumerate(_lines):
-                if "PROC 0 ERROR" in _ln:
-                    _said = [l.strip() for l in _lines[_i + 1:_i + 12] if l.strip() and not l.startswith("---") and "MPI_ABORT" not in l]
+                # 4C's own stop: the PROC 0 ERROR block, or the YAML reader's `ERROR:` line with the offending row and
+                # its line:column (measured: an unquoted element row); the message ends where the stack frames begin
+                if "PROC 0 ERROR" in _ln or _ln.startswith("ERROR:"):
+                    _said = [_ln.strip()] if _ln.startswith("ERROR:") else []
+                    for l in _lines[_i + 1:_i + 16]:
+                        if not l.strip():
+                            continue
+                        if re.match(r"\s*\d+#\s", l) or set(l.strip()) <= set("=-"):
+                            break
+                        if "MPI_ABORT" not in l:
+                            _said.append(l.strip())
                     _why.append(f"4C said ({_lg}): " + " | ".join(_said[:8]))
                     _hit = True
                     break
@@ -520,22 +529,9 @@ print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
 #     OUT_U
 #     TZ
 #     interior
-#     nodes
-#
-# That is the whole contract. Read the surviving lines to see the
-# shape each one has to have -- they are already indexed, assembled
-# or written out there. OASiS does not serve the solve itself, but
-# it will not make you guess which variables the hole was filling.
-```
-
-
 
 ──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 54,497 further characters exist and are NOT lost.
-──────────────────────────────────────────────────────────────────────
-
-──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,157 OF 45,054 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,200 OF 45,610 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 THE 4C DECK GRAMMAR — you cannot guess it, and 4C is a BINARY, so the deck is

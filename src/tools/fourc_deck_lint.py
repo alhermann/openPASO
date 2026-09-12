@@ -236,6 +236,18 @@ def fourc_error_lines(log_text: str, n: int = 8) -> str:
                     said.append(l.strip())
             return " | ".join(said[:n])
     for i, ln in enumerate(lines):
+        if ln.startswith("ERROR:"):
+            # the YAML reader's own stop (no PROC 0 block): the message, then the offending line with its
+            # position marker, up to the first stack frame (measured: 'ERROR: could not find ':' colon after
+            # key' / '204:40: 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std' -- an unquoted table row)
+            said = [ln.strip()]
+            for l in lines[i + 1:i + 6]:
+                if re.match(r"\s*\d+#\s", l) or set(l.strip()) <= set("=-"):
+                    break
+                if l.strip():
+                    said.append(l.strip())
+            return " | ".join(said[:n])
+    for i, ln in enumerate(lines):
         if "*** Process received signal ***" in ln:
             sig = next((l.split("Signal:", 1)[1].strip() for l in lines[i:i + 4] if "Signal:" in l), "signal")
             code = next((l.split("Signal code:", 1)[1].strip() for l in lines[i:i + 5] if "Signal code:" in l), "")
@@ -318,6 +330,7 @@ def lint_deck(text: str) -> list[str]:
         why.append("FUNCT blocks are defined but no condition references one (FUNCT: [0,...] everywhere): the sources never reach the load")
     why += _degenerate_elements(text)
     why += _lines_without_an_element_edge(text)
+    why += _unquoted_table_rows(text)
     why += _bad_hex8_slabs(text)
     why += _interior_lines(text)
     why += _double_star_in_functions(text)
@@ -387,6 +400,28 @@ def _double_star_in_functions(text: str) -> list[str]:
         expr = m.group(2)
         out.append(f"function expression '{expr[:70]}' uses `**`: 4C's expression parser has no `**` (it stops with "
                    f"'Token expected'); write `^` for every power in the expression, not only the first")
+    return out
+
+
+def _unquoted_table_rows(text: str) -> list[str]:
+    """Rows of NODE COORDS, the element sections and the topology sections that are not quoted YAML strings.
+    4C's YAML reader stops at the first such row with 'could not find ':' colon after key' and the position of
+    the token (measured, te4c13 repair loop: `- 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std`)."""
+    out = []
+    bad, first = 0, None
+    for b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", text, flags=re.M):
+        head = b.split(":", 1)[0].strip()
+        if not (head.endswith(" ELEMENTS") or head == "NODE COORDS" or head.endswith("-NODE TOPOLOGY")):
+            continue
+        for row in re.findall(r"^\s*-\s+([^\"'\n][^\n]*)$", b, re.M):
+            if re.match(r"(\d+\s+\w|NODE\s+\d+)", row):
+                bad += 1
+                first = first or (head, row.strip())
+    if bad:
+        head, row = first
+        out.append(f"{bad} table row(s) are not quoted YAML strings (first, in {head}: `- {row[:60]}`): every NODE COORDS, "
+                   f"element and topology row is ONE quoted string, `- \"{row[:40]}\"`; unquoted, the YAML reader stops at the "
+                   f"first bare token with 'could not find ':' colon after key' and a line:column position")
     return out
 
 

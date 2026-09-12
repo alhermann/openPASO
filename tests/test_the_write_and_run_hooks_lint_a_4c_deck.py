@@ -197,3 +197,21 @@ def test_a_parameter_written_at_the_top_level_is_named_as_not_a_section():
     hits = [f for f in deck_judgement(deck) if "top-level key `CALCFLUX_BOUNDARY" in f]
     assert hits and "belongs INSIDE its section" in hits[0], deck_judgement(deck)
     assert not [f for f in deck_judgement(CLEAN) if "top-level key" in f]
+
+
+YAML_STOP = ("Trilinos Version: f4d64271518 (git SHA1)\nTotal number of MPI ranks: 1\n\n\n=================\nERROR: could not find ':' colon after key\n"
+             "204:40: 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std  (size=39)\n                                               ^  (cols 40-40)\n"
+             " 0# FourC::(anonymous namespace)::throw_on_yaml_parse_error(char const*) in lib4C.so\n\n=================\n\n"
+             "--------------------------------------------------------------------------\nMPI_ABORT was invoked on rank 0\n")
+
+
+def test_the_yaml_readers_stop_is_extracted_and_the_unquoted_row_named():
+    from tools.fourc_deck_lint import fourc_error_lines, lint_deck
+    said = fourc_error_lines(YAML_STOP)
+    assert said.startswith("ERROR: could not find ':' colon after key | 204:40: 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std"), said
+    assert "0#" not in said
+    deck = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nNODE COORDS:\n  - "NODE 1 COORD 0 0 0"\n  - NODE 2 COORD 1 0 0\n'
+            'TRANSPORT ELEMENTS:\n  - 1 TRANSP QUAD4 1 2 3 4 MAT 1 TYPE Std\n  - "2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std"\n')
+    hits = [f for f in lint_deck(deck) if "not quoted YAML strings" in f]
+    assert len(hits) == 1 and "2 table row(s)" in hits[0] and "first, in NODE COORDS: `- NODE 2 COORD 1 0 0`" in hits[0], lint_deck(deck)
+    assert not [f for f in lint_deck(CLEAN) if "not quoted" in f]

@@ -177,3 +177,9 @@ def test_the_served_deck_check_refuses_a_layer_interleaved_slab_hex(tmp_path):
     r = _run_contract_with_deck(tmp_path, deck)
     assert r.returncode != 0 and "DECK CHECK" in r.stderr and "not a well-formed one-layer HEX8" in r.stderr, r.stderr[-600:]
     assert "ZERO OR NEGATIVE JACOBIAN" in r.stderr
+
+
+def test_the_served_deck_check_refuses_unquoted_table_rows(tmp_path):
+    deck = 'PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nTRANSPORT ELEMENTS:\n  - 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std\n'
+    r = _run_contract_with_deck(tmp_path, deck)
+    assert r.returncode != 0 and "DECK CHECK" in r.stderr and "not quoted YAML strings" in r.stderr, r.stderr[-600:]

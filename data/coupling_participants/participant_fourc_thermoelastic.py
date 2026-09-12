@@ -249,6 +249,15 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yam
         raise SystemExit(f"DECK CHECK: {_dk} has {len(_twist)} element(s) with zero or negative area (first: element {_twist[0][0]} "
                          f"nodes {' '.join(map(str, _twist[0][1]))}). Every element's nodes must run counter-clockwise: for node "
                          f"id = i + 1 + (NX + 1) * j the quad of cell (i, j) is (id, id + 1, id + NX + 2, id + NX + 1).")
+    # table rows that are not quoted strings: the YAML reader stops with 'could not find ':' colon after key'
+    # at the first bare token (measured, te4c13 repair loop: `- 2 TRANSP QUAD4 2 3 12 11 MAT 1 TYPE Std`)
+    _unq = [(_b.split(":", 1)[0].strip(), _r.strip()) for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M)
+            if (_b.split(":", 1)[0].strip().endswith((" ELEMENTS", "-NODE TOPOLOGY")) or _b.split(":", 1)[0].strip() == "NODE COORDS")
+            for _r in re.findall(r"^\s*-\s+([^\"'\n][^\n]*)$", _b, re.M) if re.match(r"(\d+\s+\w|NODE\s+\d+)", _r)]
+    if _unq:
+        raise SystemExit(f"DECK CHECK: {_dk} has {len(_unq)} table row(s) that are not quoted YAML strings (first, in {_unq[0][0]}: "
+                         f"`- {_unq[0][1][:60]}`): every NODE COORDS, element and topology row is ONE quoted string, `- \"...\"`. "
+                         f"4C's reader stops at the first bare token with 'could not find ':' colon after key'.")
     # a section written twice: 4C stops in its reader with 'Section X is defined more than once' (measured, te4c13)
     _heads = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, re.M)
     _dup = sorted({h for h in _heads if _heads.count(h) > 1})

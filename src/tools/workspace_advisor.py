@@ -1030,3 +1030,53 @@ def _fourc_run_check(command: str, output: str, workdir: Path) -> str:
     if err and not finished:
         out += "\n[run check] 4C's own stop: " + err.strip()
     return out
+
+
+def _fourc_after_shell_check(workdir: Path, started_at: float, command: str = "") -> str:
+    """4C consoles this shell command wrote anywhere under the working directory: 4C's own stop line
+    and the defects of the deck beside it, in the reply the parent is reading.
+
+    Covers the run the parent does not launch by hand: `python side_A/participant_A.py`, whose script
+    runs 4C itself with the console redirected to a file (measured: 20 shell calls per run, most of them
+    exactly this, and the shell reply showed only the script's own last line). A console the command that
+    ran 4C directly already answered for (_fourc_run_check) is skipped; at most two consoles are named.
+    """
+    try:
+        from tools.fourc_deck_lint import deck_judgement, fourc_error_lines, run_command_deck   # noqa: PLC0415
+        root = Path(workdir)
+        direct = run_command_deck(command, root) if command else None
+        logs = []
+        for lg in root.rglob("*.log"):
+            try:
+                if lg.stat().st_mtime >= started_at - 1:
+                    logs.append(lg)
+            except OSError:
+                continue
+        out, said_before = [], set()
+        for lg in sorted(logs, key=lambda q: q.stat().st_mtime, reverse=True):
+            txt = lg.read_text(errors="ignore")[-60000:]
+            err = fourc_error_lines(txt)
+            if not err or err in said_before:
+                continue
+            said_before.add(err)
+            deck = None
+            stem = lg.with_suffix("")                          # slab.4C.yaml.log -> slab.4C.yaml
+            if stem.is_file() and stem.name.lower().endswith((".yaml", ".yml", ".dat")):
+                deck = stem
+            else:
+                cands = [q for q in lg.parent.glob("*.yaml") if "monitor" not in q.name]
+                deck = max(cands, key=lambda q: q.stat().st_mtime) if cands else None
+            if direct is not None and deck is not None and deck.resolve() == direct.resolve():
+                continue
+            line = f"\n[run check] 4C stopped in {lg.relative_to(root)}: {err}"
+            if deck is not None:
+                findings = deck_judgement(deck.read_text(errors="ignore"))
+                real = [f for f in findings if not str(f).startswith("(section names not judged")]
+                if real:
+                    line += _deck_findings_text("[run check]", deck.name, findings, "in this deck")
+            out.append(line)
+            if len(out) >= 2:
+                break
+        return "".join(out)
+    except Exception:                                    # noqa: BLE001
+        return ""

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from tools.workspace_advisor import _fourc_deck_write_check, _fourc_run_check   # noqa: E402
+from tools.workspace_advisor import _fourc_deck_write_check, _fourc_run_check, _fourc_after_shell_check   # noqa: E402
 from tools.fourc_deck_lint import run_command_deck, looks_like_deck             # noqa: E402
 
 FOURC = Path("/home/alexander/4C/build/4C")
@@ -76,6 +76,7 @@ def test_the_harness_calls_both_hooks_and_carries_no_check_body():
     src = (ROOT / "langgraph_eval" / "agent.py").read_text()
     assert "_fourc_deck_write_check(p, content)" in src
     assert "_fourc_run_check(command, out, workdir)" in src
+    assert "_fourc_after_shell_check(workdir, _started_at, command)" in src and "def _fourc_after_shell_check" not in src
     assert "def _fourc_deck_write_check" not in src and "def _fourc_run_check" not in src
 
 
@@ -107,3 +108,22 @@ def test_a_condition_on_a_line_inside_the_mesh_is_named_and_a_boundary_line_is_n
     assert not [f for f in lint_deck(on_boundary) if "INSIDE the mesh" in f]
     unused = inside.replace(cond, "")                        # an interior line nothing is filed on is not a defect
     assert not [f for f in lint_deck(unused) if "INSIDE the mesh" in f]
+
+
+def test_a_console_a_participant_script_wrote_during_the_command_is_named_after_the_shell(tmp_path):
+    import os, time
+    (tmp_path / "side_A").mkdir()
+    (tmp_path / "side_A" / "slab.4C.yaml").write_text(BAD)
+    (tmp_path / "side_A" / "slab.4C.yaml.log").write_text(STOP)
+    t0 = time.time() - 5                                          # the command started five seconds ago
+    out = _fourc_after_shell_check(tmp_path, t0, "python side_A/participant_A.py")
+    assert out.startswith("\n[run check] 4C stopped in side_A/slab.4C.yaml.log: Section DVOLUME-NODE TOPOLOGY is unknown"), out
+    assert "4C DECK slab.4C.yaml:" in out and "topology entries use DVOLUME" in out, out
+    # a console older than the command is not this command's doing
+    old = time.time() - 600
+    os.utime(tmp_path / "side_A" / "slab.4C.yaml.log", (old, old))
+    assert _fourc_after_shell_check(tmp_path, time.time() - 5, "python side_A/participant_A.py") == ""
+    # the console of a deck the command ran directly is the run check's, not this one's
+    os.utime(tmp_path / "side_A" / "slab.4C.yaml.log", None)
+    assert _fourc_after_shell_check(tmp_path, time.time() - 5,
+                                    "cd side_A && /home/alexander/4C/build/4C slab.4C.yaml out > slab.4C.yaml.log 2>&1") == ""

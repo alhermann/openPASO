@@ -1,0 +1,92 @@
+[
+ {
+  "seed": 7100,
+  "ok": true,
+  "rounds": [
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 3,
+    "why": "4C did not finish",
+    "feedback": "[run check] 4C DECK slab_T.4C.yaml: 3 defect(s) named by the deck lint in this deck -- the binary stops at the first, these are all of them; fix every one, then run:\n  - PROBLEMTYPE Thermo writes no scatra flux output and knows no CALCFLUX_BOUNDARY; a consistent heat flux comes from Scalar_Transport\n  - MAT_Fourier is missing required parameter(s) CAPA, CONDUCT; its parameters are CAPA, CONDUCT (4",
+    "deck_lines": 438,
+    "round": 1,
+    "secs": 145,
+    "provider": "AtlasCloud"
+   },
+   {
+    "stage": "run",
+    "ok": true,
+    "finished": true,
+    "lint_defects": 1,
+    "why": "phi_1: max rel err 2.065e-03 over 320 points",
+    "feedback": "[run check] 4C DECK slab_T.4C.yaml: 1 defect(s) named by the deck lint in this deck -- the binary stops at the first, these are all of them; fix every one, then run:\n  - a Scalar_Transport deck writes no VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1); the run finishes 'normally' with nothing to read",
+    "deck_lines": 452,
+    "round": 2,
+    "secs": 101,
+    "provider": "Novita"
+   }
+  ]
+ },
+ {
+  "seed": 7101,
+  "ok": true,
+  "rounds": [
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 2,
+    "why": "4C did not finish",
+    "feedback": "[run check] 4C DECK slab_T.4C.yaml: 2 defect(s) named by the deck lint in this deck -- the binary stops at the first, these are all of them; fix every one, then run:\n  - PROBLEMTYPE Thermo writes no scatra flux output and knows no CALCFLUX_BOUNDARY; a consistent heat flux comes from Scalar_Transport\n  - material 'MAT_thermo' is not in the binary's grammar (`4C -p`); closest known: MAT_sutherland, ",
+    "deck_lines": 458,
+    "round": 1,
+    "secs": 87,
+    "provider": "Alibaba"
+   },
+   {
+    "stage": "run",
+    "ok": true,
+    "finished": true,
+    "lint_defects": 1,
+    "why": "phi_1: max rel err 2.065e-03 over 320 points",
+    "feedback": "[run check] 4C DECK slab_T.4C.yaml: 1 defect(s) named by the deck lint in this deck -- the binary stops at the first, these are all of them; fix every one, then run:\n  - a Scalar_Transport deck writes no VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1); the run finishes 'normally' with nothing to read",
+    "deck_lines": 453,
+    "round": 2,
+    "secs": 63,
+    "provider": "Alibaba"
+   }
+  ]
+ },
+ {
+  "seed": 7102,
+  "ok": true,
+  "rounds": [
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 2,
+    "why": "4C did not finish",
+    "feedback": "[run check] 4C DECK slab_T.4C.yaml: 2 defect(s) named by the deck lint in this deck -- the binary stops at the first, these are all of them; fix every one, then run:\n  - PROBLEMTYPE Thermo writes no scatra flux output and knows no CALCFLUX_BOUNDARY; a consistent heat flux comes from Scalar_Transport\n  - material 'MAT_thermo' is not in the binary's grammar (`4C -p`); closest known: MAT_sutherland, ",
+    "deck_lines": 457,
+    "round": 1,
+    "secs": 729,
+    "provider": "Alibaba"
+   },
+   {
+    "stage": "run",
+    "ok": true,
+    "finished": true,
+    "lint_defects": 1,
+    "why": "phi_1: max rel err 2.065e-03 over 320 points",
+    "feedback": "[run check] 4C DECK slab_T.4C.yaml: 1 defect(s) named by the deck lint in this deck -- the binary stops at the first, these are all of them; fix every one, then run:\n  - a Scalar_Transport deck writes no VTU without `IO/RUNTIME VTK OUTPUT` (INTERVAL_STEPS 1); the run finishes 'normally' with nothing to read",
+    "deck_lines": 453,
+    "round": 2,
+    "secs": 34,
+    "provider": "Alibaba"
+   }
+  ]
+ }
+]

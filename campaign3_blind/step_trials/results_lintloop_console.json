@@ -1,0 +1,140 @@
+[
+ {
+  "seed": 7100,
+  "ok": true,
+  "rounds": [
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 4,
+    "why": "4C did not finish",
+    "feedback": "4C stopped: Section 'THERMO FLUX CALC LINE CONDITIONS' is not a valid section name. | 0# void FourC::Core::Internal::format_and_throw_error<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(std::source_location const&, std::basic_format_string<char, std::type_identity<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>::type",
+    "deck_lines": 662,
+    "round": 1,
+    "secs": 92,
+    "provider": "Alibaba"
+   },
+   {
+    "stage": "run",
+    "ok": true,
+    "finished": true,
+    "lint_defects": 1,
+    "why": "phi_1: max rel err 2.065e-03 over 320 points",
+    "feedback": "4C's console ended with:\nSCATRA:    + output of solution                            0.003015 (2)               \nSCATRA:    + prepare time step                             0.0001472 (1)              \nSCATRA:  + time loop                                       0.006301 (1)               \n======================================================================================\n\nTotal wall time for CALCUL",
+    "deck_lines": 658,
+    "round": 2,
+    "secs": 63,
+    "provider": "Alibaba"
+   }
+  ]
+ },
+ {
+  "seed": 7101,
+  "ok": false,
+  "rounds": [
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": true,
+    "lint_defects": 2,
+    "why": "phi_1: max rel err 8.750e-01 over 320 points",
+    "feedback": "4C's console ended with:\nSCATRA:    + output of solution                            0.001659 (2)               \nSCATRA:    + prepare time step                             0.0001834 (1)              \nSCATRA:  + time loop                                       0.004518 (1)               \n======================================================================================\n\nTotal wall time for CALCUL",
+    "deck_lines": 759,
+    "round": 1,
+    "secs": 95,
+    "provider": "AtlasCloud"
+   },
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 3,
+    "why": "4C did not finish",
+    "feedback": "4C stopped: Could not match this input | IO: | VERBOSITY: \"Standard\" | RUNTIME VTK OUTPUT: | OUTPUT_DATA_FORMAT: ascii | THERMO: | OUTPUT_SCALAR: phi_1 | against the given input specification. This was the best attempt to match the input:",
+    "deck_lines": 766,
+    "round": 2,
+    "secs": 77,
+    "provider": "Alibaba"
+   },
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 2,
+    "why": "4C did not finish",
+    "feedback": "4C stopped: Could not match this input | SCALAR TRANSPORT DYNAMIC: | TIMEINTEGR: \"Stationary\" | SOLVERTYPE: \"linear_full\" | NUMSTEP: 1 | TIMESTEP: 1.0 | MAXTIME: 1.0 | LINEAR_SOLVER: 1",
+    "deck_lines": 757,
+    "round": 3,
+    "secs": 794,
+    "provider": "Alibaba"
+   },
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 3,
+    "why": "4C did not finish",
+    "feedback": "4C stopped: Could not match this input | IO: | VERBOSITY: \"Standard\" | RUNTIME VTK OUTPUT: | OUTPUT_DATA_FORMAT: ascii | against the given input specification. This was the best attempt to match the input: | [!] Candidate group 'IO' | {",
+    "deck_lines": 761,
+    "round": 4,
+    "secs": 356,
+    "provider": "Phala"
+   }
+  ]
+ },
+ {
+  "seed": 7102,
+  "ok": false,
+  "rounds": [
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 3,
+    "why": "4C did not finish",
+    "feedback": "4C stopped: Could not match this input | IO: | VERBOSITY: \"Standard\" | IO/RUNTIME VTK OUTPUT: | OUTPUT_DATA_FORMAT: ascii | against the given input specification. This was the best attempt to match the input: | [!] Candidate group 'IO' | {",
+    "deck_lines": 428,
+    "round": 1,
+    "secs": 263,
+    "provider": "DeepInfra"
+   },
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 3,
+    "why": "4C did not finish",
+    "feedback": "4C stopped: Could not match this input | THERMAL DYNAMIC: | TIMEINTEGR: \"Stationary\" | SOLVERTYPE: \"linear_full\" | NUMSTEP: 1 | TIMESTEP: 1.0 | MAXTIME: 1.0 | LINEAR_SOLVER: 1",
+    "deck_lines": 424,
+    "round": 2,
+    "secs": 33,
+    "provider": "Alibaba"
+   },
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 4,
+    "why": "4C did not finish",
+    "feedback": "4C stopped: Section 'THERMO DYNAMIC' is not a valid section name. | 0# void FourC::Core::Internal::format_and_throw_error<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(std::source_location const&, std::basic_format_string<char, std::type_identity<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>::type>, std::__cxx11::b",
+    "deck_lines": 424,
+    "round": 3,
+    "secs": 32,
+    "provider": "Alibaba"
+   },
+   {
+    "stage": "run",
+    "ok": false,
+    "finished": false,
+    "lint_defects": 3,
+    "why": "4C did not finish",
+    "feedback": "4C stopped: Could not match this input | IO: | VERBOSITY: \"Standard\" | IO/RUNTIME VTK OUTPUT: | OUTPUT_DATA_FORMAT: ascii | against the given input specification. This was the best attempt to match the input: | [!] Candidate group 'IO' | {",
+    "deck_lines": 428,
+    "round": 4,
+    "secs": 289,
+    "provider": "Phala"
+   }
+  ]
+ }
+]

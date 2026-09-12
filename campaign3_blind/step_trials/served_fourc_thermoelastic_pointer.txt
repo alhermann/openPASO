@@ -341,6 +341,31 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yam
         raise SystemExit(f"DECK CHECK: {_dk} has {len(_unq)} table row(s) that are not quoted YAML strings (first, in {_unq[0][0]}: "
                          f"`- {_unq[0][1][:60]}`): every NODE COORDS, element and topology row is ONE quoted string, `- \"...\"`. "
                          f"4C's reader stops at the first bare token with 'could not find ':' colon after key'.")
+    # Dirichlet on EVERY node of a field leaves nothing to solve: 4C prints 'res-norm 0' and the field is the prescribed
+    # data (measured, round 45: an 'outer' surface of 90 of 108 slab nodes plus 18 interface points pinned both fields)
+    _nodes = {int(a) for a in re.findall(r'"NODE\s+(\d+)\s+COORD\b', _txt)}
+    _tp = {}
+    for _n, _k, _e in re.findall(r'"NODE\s+(\d+)\s+(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)"', _txt):
+        _tp.setdefault((_k, int(_e)), set()).add(int(_n))
+    _cov = {}
+    for _b in re.split(r"^(?=[A-Z][A-Z0-9 _/.:-]*?:\s*$)", _txt, flags=re.M):
+        _head = _b.split(":", 1)[0].strip()
+        _kw = re.search(r"\b(POINT|LINE|SURF|VOL)\b", _head) if ("DIRICH" in _head and _head.endswith("CONDITIONS")) else None
+        if not _kw:
+            continue
+        _fam = "temperature" if ("THERMO" in _head or "TRANSPORT" in _head) else "displacement"
+        for _en in re.split(r"^\s*-\s", _b, flags=re.M)[1:]:
+            _e = re.search(r"\bE:\s*(\d+)", _en); _on = re.search(r"ONOFF:\s*\[([^\]]*)\]", _en)
+            _fl = [x.strip() for x in _on.group(1).split(",")] if _on else ["1"]
+            _inpl = any(f == "1" for f in _fl[:2]) if _fam == "displacement" else _fl[0] == "1"
+            if _e and _inpl:
+                _cov.setdefault(_fam, set()).update(_tp.get(({"POINT": "DNODE", "LINE": "DLINE", "SURF": "DSURFACE", "VOL": "DVOL"}[_kw.group(1)], int(_e.group(1))), set()))
+    for _fam, _s in _cov.items():
+        if len(_nodes) >= 4 and _s >= _nodes:
+            raise SystemExit(f"DECK CHECK: {_dk} pins EVERY node of the {_fam} field with Dirichlet conditions ({len(_nodes)} of {len(_nodes)}): "
+                             f"nothing is left to solve -- 4C prints 'res-norm 0', converges at iteration 0 and the field is the prescribed data. "
+                             f"The outer boundary is the BOUNDARY nodes only (x = x0, y = y0, y = y1 on both layers), the interface points the "
+                             f"interface nodes alone; interior nodes carry no Dirichlet condition.")
     # a section written twice: 4C stops in its reader with 'Section X is defined more than once' (measured, te4c13)
     _heads = re.findall(r"^([A-Z][A-Z0-9 _/.:-]*?):\s*$", _txt, re.M)
     _dup = sorted({h for h in _heads if _heads.count(h) > 1})
@@ -493,45 +518,9 @@ if _chk_qin.size == _chk.size and _chk.size and np.array_equal(_chk.ravel(), -_c
     raise SystemExit("EXPORT SELF-CHECK: the exported fluxes are the partner's array negated, bit for "
                      "bit: a copy, not a recovery from this side's own runs")
 if np.abs(_chk[:, 1:]).max() == 0.0 and np.abs(U2d).max() > 0:
-    raise SystemExit("EXPORT SELF-CHECK: a zero traction against a nonzero displacement field: the "
-                     "reaction files carried nothing -- check TAG: monitor_reaction on the interface "
-                     "POINT DIRICH entries of BOTH layers")
-# exports.json LAST (the driver takes its existence as proof of success): the
-# Dirichlet side imposed the trace, it does not own one -> values = [].
-json.dump({"field_name": "thermoelastic", "coordinates": co, "values": [],
-           "normal_fluxes": Q, "n_points": len(co)}, open("exports.json", "w"))
-# PER-LEVEL PERSISTENCE: this level's field, named by the config level, never
-# overwritten by the next level. Build the task's per-level files from these.
-_LVL = CFG.get("level", "X")
-with open(f"field_level{_LVL}.csv", "w") as _f:
-    _f.write("x,y,T,ux,uy\n")
-    for (_px, _py), _t, (_ux, _uy) in zip(nodes, T2d, U2d):
-        _f.write(f"{_px:.11e},{_py:.11e},{float(_t):.11e},{float(_ux):.11e},{float(_uy):.11e}\n")
-with open(f"interface_level{_LVL}.csv", "w") as _f:
-    # the task's OUTWARD traction sigma_tot.n_out is MINUS the exported (qx, qy)
-    _f.write("x,y,T,ux,uy,qn,tx,ty\n")
-    for (_px, _py), n, (_qn, _qx, _qy) in zip(co, interior, Q):
-        _f.write(f"{_px:.11e},{_py:.11e},{float(T2d[n-1]):.11e},{float(U2d[n-1,0]):.11e},"
-                 f"{float(U2d[n-1,1]):.11e},{_qn:.11e},{-_qx:.11e},{-_qy:.11e}\n")
-# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its own (T, ux, uy
-# per node of the 2-D discretisation), then the descriptive line.
-print(f"NDOF = {3 * len(nodes)}")
-print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
-      f"T=[{T2d.min():.6g},{T2d.max():.6g}] u=[{U2d.min():.6g},{U2d.max():.6g}]  "
-      f"scatra-vs-tsi T mismatch {_dT:.2e}")
-
-# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ─────────────────────────
-# The code above and below the elided block uses these names. Your
-# block has to define every one of them, or the rest will not run:
-#
-#     DECK_U
-#     OUT_T
-#     OUT_U
-#     TZ
-#     interior
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,200 OF 45,610 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 44,197 OF 47,654 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 THE 4C DECK GRAMMAR — you cannot guess it, and 4C is a BINARY, so the deck is

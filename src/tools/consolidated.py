@@ -5921,20 +5921,26 @@ def register_consolidated_tools(mcp: FastMCP):
             # interface files with a warning -- three second-order levels graded as no result for one
             # missing pair. The dumps are checked here, the moment the level converged.
             _dump_gap = []
+            _no_tag = []
             if _lvl_for_log and not _trivial:
                 for _p in parts:
-                    try:   # only a side whose script carries the served dump block is expected to leave dumps
-                        _carries = any("field_level" in q.read_text(errors="ignore") for q in Path(_p.work_dir).glob("*.py"))
+                    _wd = Path(_p.work_dir)
+                    try:
+                        _carries = any("field_level" in q.read_text(errors="ignore") for q in _wd.glob("*.py"))
+                        _tagged = [q.name for q in _wd.glob(f"*level{_lvl_for_log}*") if not q.name.startswith("participant_output")]
                     except OSError:
-                        _carries = False
-                    if not _carries:
-                        continue
-                    # any file the level's dumps could be named: field_level<k>.csv, or a suffixed variant of the
-                    # agent's own (measured, round 44 C2 7163: field_level1_A.csv -- the exact-name check fired six
-                    # times on dumps that were there, and the parent spent its calls listing them)
-                    for _stem in (f"field_level{_lvl_for_log}", f"interface_level{_lvl_for_log}"):
-                        if not any(Path(_p.work_dir).glob(f"{_stem}*.csv")):
-                            _dump_gap.append(f"side {_p.name}: {_stem}*.csv")
+                        _carries, _tagged = False, ["?"]
+                    if _carries:
+                        # the served dump block, or the agent's suffixed variant (round 44 C2 7163: field_level1_A.csv)
+                        for _stem in (f"field_level{_lvl_for_log}", f"interface_level{_lvl_for_log}"):
+                            if not any(_wd.glob(f"{_stem}*.csv")):
+                                _dump_gap.append(f"side {_p.name}: {_stem}*.csv")
+                    elif not _tagged:
+                        # A HAND-WRITTEN SIDE THAT KEEPS NO LEVEL-TAGGED OUTPUT. Measured (round 46, C1 7191): side A's
+                        # 4C runs reused one output prefix, level 2 overwrote level 1's VTUs, side A's three solution
+                        # files came out identical and no interface file could be written for it -- on the first C1
+                        # cell whose fields were right. Named here, while this level's outputs are still on disk.
+                        _no_tag.append(_p.name)
             _dump_txt = ("" if not _dump_gap else
                          f"LEVEL {_lvl_for_log}'S PER-LEVEL DUMPS ARE MISSING ({'; '.join(_dump_gap)}): the served contract writes "
                          f"field_level<k>.csv and interface_level<k>.csv next to exports.json on every run, and no file of either name (with "
@@ -5942,6 +5948,14 @@ def register_consolidated_tools(mcp: FastMCP):
                          f"rewrite). Fix the participant, then couple() this "
                          f"level AGAIN before anything is written from its dumps -- a deliverables pass silently skips a level whose "
                          f"dump is missing, and a level set with one level missing is no result. ")
+            _tag_txt = ""
+            if _no_tag:
+                _tag_txt = (f" SIDE {' AND '.join(_no_tag)} KEEPS NO LEVEL-TAGGED OUTPUT (no file named with 'level{_lvl_for_log}' beside its "
+                              f"exports.json other than the driver's console copy): the next level's run reuses the same names and OVERWRITES this "
+                              f"level's field, VTUs and interface data -- measured, a side whose runs shared one output prefix handed in three "
+                              f"identical solution files and no interface file. Before the next level, copy this level's field and interface "
+                              f"output to level-tagged names (or add the served contract's dump block, which writes field_level<k>.csv and "
+                              f"interface_level<k>.csv after exports.json). If your script already keeps them under another name, ignore this. ")
             _one_call = (_not_yet if _trivial else
                          (f"LEVEL {_lvl_for_log} CONVERGED. " if _lvl_for_log else "LEVEL CONVERGED. ")
                          + "FIRST, if the task prescribes further mesh levels, run them ALL in ONE call: "
@@ -5957,7 +5971,7 @@ def register_consolidated_tools(mcp: FastMCP):
                          + " -- a run log copied from another level's console reads as an unchanged mesh and sinks "
                            "the whole sequence; the write check names it the moment it is written. A level set with "
                            "one level missing is read as no result at all, so the levels come before any file.")
-            _lead = _dump_txt + _one_call + ("\n" + _lead if _lead else "")
+            _lead = _dump_txt + _one_call + (_tag_txt if not _trivial else "") + ("\n" + _lead if _lead else "")
         if _mesh_note:
             _lead = _mesh_note + ("\n" + _lead if _lead else "")
         # THE LADDER RIDES ON EVERY couple() REPLY: the next unmet step, from

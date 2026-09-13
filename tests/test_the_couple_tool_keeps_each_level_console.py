@@ -73,6 +73,7 @@ def test_each_side_keeps_its_console_for_the_named_level(tmp_path, couple_tool, 
     # the participants list is echoed verbatim (the worker sees only the brief; a placeholder got bare names)
     assert "participants='[{\"name\": \"A\"" in lead and str(tmp_path / "side_A") in lead, lead[:1200]
     assert "<the same list" not in lead
+    assert "MEASURED COST: this level's iteration took" in lead and "4x and 16x the cells" in lead     # the next levels' cost, in seconds
     assert (out.get("relaxation") or {}).get("mode") == "aitken", out.get("relaxation")      # a single-field exchange keeps Aitken
     for name in ("A", "B"):
         per_level = tmp_path / f"side_{name}" / "participant_output_level2.log"

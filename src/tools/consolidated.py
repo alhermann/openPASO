@@ -5218,11 +5218,14 @@ def register_consolidated_tools(mcp: FastMCP):
                         "script first, then call couple again.")},
                 indent=2)
         try:
+            _level_secs = None
+            _t_level = __import__('time').perf_counter()
             r = run_coupling(parts, max_iter=max_iter, tol=tol,
                              accelerator=accelerator, theta0=theta, probe=probe,
                              noise_replicates=int(noise_replicates),
                              noise_floor=(float(noise_floor) or None),
                              noise_block=int(noise_block))
+            _level_secs = __import__('time').perf_counter() - _t_level
         except Exception as exc:                      # never raise out of a tool
             return json.dumps({"converged": False,
                                "error": f"coupling driver failed: "
@@ -5970,7 +5973,11 @@ def register_consolidated_tools(mcp: FastMCP):
                          + (f" (this level: {_logs})" if _logs else " (participant_output_level<k>.log)")
                          + " -- a run log copied from another level's console reads as an unchanged mesh and sinks "
                            "the whole sequence; the write check names it the moment it is written. A level set with "
-                           "one level missing is read as no result at all, so the levels come before any file.")
+                           "one level missing is read as no result at all, so the levels come before any file."
+                         + (f" MEASURED COST: this level's iteration took {_level_secs:.0f} s of solver wall time; the next two "
+                            f"levels have 4x and 16x the cells, so their iterations cost roughly {4 * _level_secs:.0f} s and "
+                            f"{16 * _level_secs:.0f} s inside that one call (measured: parents stopped at 26-27 min left calling "
+                            f"the remaining levels a 'time constraint')." if _level_secs is not None else ""))
             _lead = _dump_txt + _one_call + (_tag_txt if not _trivial else "") + ("\n" + _lead if _lead else "")
         if _mesh_note:
             _lead = _mesh_note + ("\n" + _lead if _lead else "")

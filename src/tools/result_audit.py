@@ -2985,6 +2985,22 @@ def run_log_identity_findings(work: Path) -> list[dict]:
         if any(_re.search(p, text, _re.IGNORECASE | _re.MULTILINE)
                for p in pats):
             continue
+        # THE COPY SOURCE, BY PATH. Measured (round 46, C1 7191): three such logs were named at
+        # submission and the parent called them unfixable with 9 minutes left, while the driver's
+        # per-level console copies sat in the side directories. Name the file to copy.
+        _src = ""
+        try:
+            _k = _level_of(f); _sd = _side_of(f)
+            if _k and _sd:
+                for cand in sorted(work.rglob(f"participant_output_level{_k}.log")):
+                    if cand.parent.name.lower().endswith(_sd.lower()) or cand.parent.name.lower().endswith(f"_{_sd.lower()}"):
+                        _t = strip_terminal_noise(cand.read_text(errors="replace"))
+                        if any(re.search(pp, _t, re.IGNORECASE | re.MULTILINE) for pp in pats) or re.search(r"^\s*NDOF\s*=\s*\d+\s*$", _t, re.M):
+                            _src = (f" The coupling tool kept that side's console for level {_k} at {cand} ({len(_t)} bytes, with the "
+                                    f"solver's own lines): copy that file over this one -- one command -- and keep its NDOF line.")
+                        break
+        except Exception:                                # noqa: BLE001
+            _src = ""
         out.append({"sequence": f"run log {f.name}", "finding": (
             f"{f.name}: THIS LOG CARRIES NO LINE ANY SOLVER EMITS "
             f"({len(text)} bytes of your own summary). The task wants that "
@@ -2994,7 +3010,7 @@ def run_log_identity_findings(work: Path) -> list[dict]:
             "cannot be credited to that code however right its numbers are. "
             "If you ran it through subprocess you already have the bytes: "
             "write result.stdout (and stderr) into this file, plus the NDOF "
-            "line.")})
+            "line." + _src)})
     return out
 
 

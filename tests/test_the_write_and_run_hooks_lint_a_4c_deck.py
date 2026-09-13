@@ -264,3 +264,9 @@ def test_dirichlet_on_every_node_is_named_and_a_plane_strain_pin_is_not():
     hits = [f for f in lint_deck(_pinned_slab(True)) if "DIRICHLET PINS EVERY NODE" in f]
     assert len(hits) == 1 and "displacement field (8 of 8 nodes" in hits[0] and "res-norm 0" in hits[0], lint_deck(_pinned_slab(True))
     assert not [f for f in lint_deck(_pinned_slab(False)) if "PINS EVERY NODE" in f]       # u_z = 0 everywhere is plane strain
+
+
+def test_the_harness_surfaces_a_workers_submission_audit_to_the_parent():
+    src = (ROOT / "langgraph_eval" / "agent.py").read_text()
+    assert "the worker wrote RESULT.txt; the write check on it reported" in src
+    assert src.index("_rt_before = ") < src.index('config={"recursion_limit": 40}')      # measured before the worker runs

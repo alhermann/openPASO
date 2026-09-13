@@ -882,12 +882,33 @@ def _make_spawn_subagent_tool(
             sub_llm, tools=sub_tools, prompt=sys,
         )
         msg = f"Task: {task}\n\nContext provided by parent:\n{context}"
+        # THE SUBMISSION'S WRITE CHECK REACHES THE PARENT EVEN WHEN A WORKER WROTE IT. Measured
+        # (round 46, C2 7211): a worker wrote RESULT.txt, the audit named the missing level-1
+        # run logs in the worker's write reply, the worker's report to the parent carried none
+        # of it, and the parent stopped at 21 min left. Plumbing only: the finding text is the
+        # same OASiS audit the write hook calls.
+        _rt = None
+        try:
+            _rt = next(iter(sorted(workdir.rglob("RESULT.txt"))), None)
+        except Exception:                              # noqa: BLE001
+            _rt = None
+        _rt_before = _rt.stat().st_mtime if _rt is not None and _rt.exists() else None
         try:
             out = await sub_agent.ainvoke(
                 {"messages": [("user", msg)]},
                 config={"recursion_limit": 40},
             )
-            return out["messages"][-1].content
+            report = out["messages"][-1].content
+            try:
+                _rt2 = next(iter(sorted(workdir.rglob("RESULT.txt"))), None)
+                if _rt2 is not None and _rt2.exists() and (_rt_before is None or _rt2.stat().st_mtime > _rt_before):
+                    _f = _audit_submission(_rt2, _rt2.read_text(errors="replace"))
+                    if _f:
+                        report = (str(report) + "\n\n[the worker wrote RESULT.txt; the write check on it reported:]\n"
+                                  + str(_f))
+            except Exception:                          # noqa: BLE001
+                pass
+            return report
         except Exception as e:
             # Still returned as text so one bad sub-agent cannot kill the run,
             # but marked loudly enough that a transcript sweep finds it: a

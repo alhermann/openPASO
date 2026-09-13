@@ -3228,6 +3228,12 @@ def register_consolidated_tools(mcp: FastMCP):
                 after = out[i + len(_G):] if out.startswith(_G, i) else ""
                 body = out[:i].rstrip("\n")
                 room = _KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE) - len(after)
+                # THE FIRST CONTRACT BLOCK RIDES WHOLE TOO. Measured 2026-09-13: the 4C thermo-elastic
+                # contract grew to 32k with the pre-run deck checks, its block ended past the body's
+                # budget, and this cap cut its last lines -- the derived leave-behind block and the
+                # closing fence -- out of the worker's reply (the front loader had kept it whole;
+                # the cap here cut it again). A block the worker copies is reference, not instruction.
+                room = max(room, _contract_block_end(body, 0))
                 body = _cap_knowledge_reply(body, topic, solver, physics, signal, limit=max(8000, room))
                 gram = _G if len(body) + len(after) + len(_G) <= _KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE) else _GS
                 return body + "\n\n" + gram + after + _UNIVERSAL_CORE

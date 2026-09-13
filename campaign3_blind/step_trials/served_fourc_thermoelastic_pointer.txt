@@ -518,9 +518,57 @@ if _chk_qin.size == _chk.size and _chk.size and np.array_equal(_chk.ravel(), -_c
     raise SystemExit("EXPORT SELF-CHECK: the exported fluxes are the partner's array negated, bit for "
                      "bit: a copy, not a recovery from this side's own runs")
 if np.abs(_chk[:, 1:]).max() == 0.0 and np.abs(U2d).max() > 0:
+    raise SystemExit("EXPORT SELF-CHECK: a zero traction against a nonzero displacement field: the "
+                     "reaction files carried nothing -- check TAG: monitor_reaction on the interface "
+                     "POINT DIRICH entries of BOTH layers")
+# exports.json LAST (the driver takes its existence as proof of success): the
+# Dirichlet side imposed the trace, it does not own one -> values = [].
+json.dump({"field_name": "thermoelastic", "coordinates": co, "values": [],
+           "normal_fluxes": Q, "n_points": len(co)}, open("exports.json", "w"))
+# PER-LEVEL PERSISTENCE: this level's field, named by the config level, never
+# overwritten by the next level. Build the task's per-level files from these.
+_LVL = CFG.get("level", "X")
+with open(f"field_level{_LVL}.csv", "w") as _f:
+    _f.write("x,y,T,ux,uy\n")
+    for (_px, _py), _t, (_ux, _uy) in zip(nodes, T2d, U2d):
+        _f.write(f"{_px:.11e},{_py:.11e},{float(_t):.11e},{float(_ux):.11e},{float(_uy):.11e}\n")
+with open(f"interface_level{_LVL}.csv", "w") as _f:
+    # the task's OUTWARD traction sigma_tot.n_out is MINUS the exported (qx, qy)
+    _f.write("x,y,T,ux,uy,qn,tx,ty\n")
+    for (_px, _py), n, (_qn, _qx, _qy) in zip(co, interior, Q):
+        _f.write(f"{_px:.11e},{_py:.11e},{float(T2d[n-1]):.11e},{float(U2d[n-1,0]):.11e},"
+                 f"{float(U2d[n-1,1]):.11e},{_qn:.11e},{-_qx:.11e},{-_qy:.11e}\n")
+# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its own (T, ux, uy
+# per node of the 2-D discretisation), then the descriptive line.
+print(f"NDOF = {3 * len(nodes)}")
+print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
+      f"T=[{T2d.min():.6g},{T2d.max():.6g}] u=[{U2d.min():.6g},{U2d.max():.6g}]  "
+      f"scatra-vs-tsi T mismatch {_dT:.2e}")
+
+# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ─────────────────────────
+# The code above and below the elided block uses these names. Your
+# block has to define every one of them, or the rest will not run:
+#
+#     DECK_U
+#     OUT_T
+#     OUT_U
+#     TZ
+#     interior
+#     nodes
+#
+# That is the whole contract. Read the surviving lines to see the
+# shape each one has to have -- they are already indexed, assembled
+# or written out there. OASiS does not serve the solve itself, but
+# it will not make you guess which variables the hole was filling.
+```
+
+
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,197 OF 47,654 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS PAYLOAD IS TRUNCATED HERE. 54,497 further characters exist and are NOT lost.
+
+──────────────────────────────────────────────────────────────────────
+THIS REPLY IS CUT AT 46,686 OF 47,654 CHARACTERS (topic='coupling', solver='fourc', physics='thermoelastic'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 THE 4C DECK GRAMMAR — you cannot guess it, and 4C is a BINARY, so the deck is

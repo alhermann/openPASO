@@ -6016,7 +6016,7 @@ def register_consolidated_tools(mcp: FastMCP):
         except Exception:                                # noqa: BLE001
             _deliv = []
         if _deliv:
-            _dtxt = ("YOUR DELIVERABLES ON DISK HAVE DEFECTS THE GRADER WILL SEE -- fix them before the next level: "
+            _dtxt = ("YOUR DELIVERABLES ON DISK HAVE DEFECTS ANY READER OF THE RESULT WILL SEE -- fix them before the next level: "
                      + " | ".join(str(_f.get("finding", ""))[:600] for _f in _deliv[:3]))
             _lead = _dtxt + ("\n" + _lead if _lead else "")
         if _next:

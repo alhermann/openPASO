@@ -2791,7 +2791,7 @@ def coupled_ladder(work: Path) -> dict | None:
                         "points -- BOTH from its interface_level<k>.csv (a Dirichlet side's trace there is the "
                         "value it imposed, identical to the partner's export; measured: a cell that re-sampled "
                         "its field file at the boundary instead handed in a trace 2x off while its field was "
-                        "right, and was graded unphysical). The interpolation is four lines (measured on a served per-level dump): "
+                        "right, and was read as unphysical). The interpolation is four lines (measured on a served per-level dump): "
                         "a = numpy.loadtxt('field_level<k>.csv', delimiter=',', skiprows=1); "
                         "v = scipy.interpolate.griddata(a[:, :2], a[:, 2], P, method='linear') with P the "
                         "(n, 2) probe points -- one such call per value column (a[:, 2], a[:, 3], ... for a "

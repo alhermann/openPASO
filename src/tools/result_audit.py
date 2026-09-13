@@ -2770,11 +2770,28 @@ def coupled_ladder(work: Path) -> dict | None:
             # round 40's C3 6041 lost its third level to the same order). The step carries a <...>
             # block for the levels the task prescribes: the worker sees only the brief.
             nxt = max(done_levels) + 1
+            # A SIDE WITHOUT LEVEL-TAGGED OUTPUT IS PRESERVED FIRST, INSIDE THE READY-MADE CALL. Measured
+            # (round 46, C1 7191; parent test 2026-09-13, 2 of 4): a warning after the one-call text did
+            # not move the parent; the spawn call it copies must carry the copy step itself.
+            _untagged = []
+            for _sd in sorted({q.parent for q in scripts}):
+                try:
+                    _has = [q.name for q in _sd.glob(f"*level{max(done_levels)}*") if not q.name.startswith("participant_output")]
+                except OSError:
+                    _has = ["?"]
+                if not _has:
+                    _untagged.append(_sd.name)
+            _preserve = ("" if not _untagged else
+                         f"FIRST, in {' and '.join(_untagged)}: this level's outputs carry no level tag (no file named with 'level{max(done_levels)}' "
+                         f"beside exports.json), and the next level's run reuses the same names and overwrites them -- copy this level's field "
+                         f"file(s), VTU folder and interface data to names containing 'level{max(done_levels)}' NOW (or add the served contract's dump "
+                         f"block, which writes field_level<k>.csv and interface_level<k>.csv after exports.json); measured: a side whose runs shared "
+                         f"one output prefix handed in identical solution files for every level and no interface file. THEN: ")
             return step(4, f"LEVEL {k}'S DELIVERABLES ARE NOT WRITTEN (coupled so far: levels {done_levels}; field files for "
                            f"{sorted(sides_f) or 'no'} side(s), interface files for {sorted(sides_i) or 'no'} side(s)). If your task "
                            f"prescribes levels beyond {max(done_levels)}, they come FIRST in ONE couple_levels call -- a level set with "
                            f"one level missing is no result at all -- and the deliverables of ALL levels follow in ONE pass.",
-                        f"<IF THE TASK PRESCRIBES LEVELS BEYOND {max(done_levels)}, START WITH THIS ONE CALL: "
+                        _preserve + f"<IF THE TASK PRESCRIBES LEVELS BEYOND {max(done_levels)}, START WITH THIS ONE CALL: "
                         f"couple_levels(participants=<the same list passed to couple>, levels=[{nxt}, ...every further level the "
                         f"task prescribes], history_pattern='<the task's per-level history file name with {{k}} in place of the level "
                         f"number>') -- every level keeps field_level<k>.csv, interface_level<k>.csv and participant_output_level<k>.log "

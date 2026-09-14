@@ -7929,8 +7929,26 @@ def _get_coupling_knowledge(solver: str = "", signal: str = "", physics: str = "
                     if _named in _which else "")
                  + " The scalar contract for that code is still one call away: ask again without "
                    "physics='fsi'.]\n\n")
-        return _with_facts(_front_load_coupling(_lead + _capture_knowledge_fn(
-            "get_coupling_knowledge", "fsi", signal), solver, must_read=not _MUST_READ_STATE["served"]))
+        _fsi_payload = _capture_knowledge_fn("get_coupling_knowledge", "fsi", signal)
+        # AND LEAD WITH THE ONE THAT RUNS UNDER THE CODE THAT WAS ASKED FOR. The payload leads with the
+        # fluid participant and carries ONE structure contract; a 4C structure side was therefore handed
+        # the scikit-fem structure contract and a sentence saying a 4C one exists. Serve it instead.
+        _own = {"fourc": "fsi_solid_fourc", "4c": "fsi_solid_fourc",
+                "skfem": "fsi_solid_skfem", "scikit-fem": "fsi_solid_skfem"}.get(_named, "")
+        if _own:
+            try:
+                from .coupling_knowledge import _script as _fsi_script     # noqa: PLC0415
+                _own_block = _fsi_script(_own)
+                if _own_block and _own_block[:400] not in _fsi_payload:
+                    _fsi_payload = (f"## THE STRUCTURE PARTICIPANT THAT RUNS UNDER {solver.upper()} "
+                                    f"— contract, solve elided; edit the marked block and write the "
+                                    f"solve\n\n```python\n{_own_block}```\n\n" + _fsi_payload)
+            except Exception:                                  # noqa: BLE001
+                pass
+        _fsi_first = not _MUST_READ_STATE["served"]
+        _MUST_READ_STATE["served"] = True        # or every FSI call looks like the first reply, and
+                                                 # the contract block is never repeated to the worker
+        return _with_facts(_front_load_coupling(_lead + _fsi_payload, solver, must_read=_fsi_first))
     # THE ESCAPE HATCH HAD TO BE MADE REAL.
     #
     # The truncation notice tells the agent, verbatim, that "the rest is

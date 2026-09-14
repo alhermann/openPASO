@@ -198,7 +198,8 @@ def test_a_fluid_structure_task_reaches_the_fsi_contracts(solver):
     actually calls -- served the scalar heat contract with nothing saying an FSI contract exists. One
     development problem is exactly a 4C structure against a FEniCSx fluid."""
     K = _knowledge()
-    out = K(topic="coupling", solver=solver, physics="fsi")
+    K(topic="coupling", solver=solver, physics="fsi")            # the session's first reply
+    out = K(topic="coupling", solver=solver, physics="fsi")      # what the WORKER's own call returns
     assert "THE FLUID PARTICIPANT" in out and "THE STRUCTURE PARTICIPANT" in out
     assert "YOU ASKED FOR A FLUID-STRUCTURE COUPLING" in out
     long_word = K(topic="coupling", solver=solver, physics="fluid_structure_interaction")
@@ -210,7 +211,13 @@ def test_a_fluid_structure_task_reaches_the_fsi_contracts(solver):
 
 def test_the_fsi_reply_names_the_participant_that_runs_under_the_asked_code():
     K = _knowledge()
+    K(topic="coupling", solver="fourc", physics="fsi")
     out = K(topic="coupling", solver="fourc", physics="fsi")
     assert "participant_fsi_solid_fourc.py" in out
+    # and the reply LEADS with the participant that runs under the code that asked
+    import re
+    m = re.search(r"```python\n(.*?)```", out, re.S)
+    assert m and "4C STRUCTURE participant" in m.group(1)[:400], \
+        "the 4C side is still handed another code's structure contract first"
     out2 = K(topic="coupling", solver="skfem", physics="fsi")
     assert "participant_fsi_solid_skfem.py" in out2

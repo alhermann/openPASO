@@ -18,7 +18,8 @@ FAMILY_TO_PHYSICS = {
     "transient_diffusion": "transient",
     "elasticity": "elasticity",
     "thermal_structural": "thermoelastic",
-    "fluid_structure_interaction": "",
+    "thermo_mechanical": "thermoelastic",
+    "fluid_structure_interaction": "fsi",
 }
 
 
@@ -67,6 +68,11 @@ def main() -> int:
             if d:
                 lead = d.group(1)[:52]
             elided = "OASiS DOES NOT SERVE THIS" in block or "THE SOLVE ITSELF IS YOURS" in block
+            want = {"thermoelastic": ("THERMO",), "elasticity": ("VECTOR",),
+                    "transient": ("TRANSIENT",), "3d": ("3-D",),
+                    "fsi": ("FLUID", "STRUCTURE")}.get(phys, ())
+            if want and not any(w in (block[:400] + out[:2000]).upper() for w in want):
+                elided = False          # served, but not the contract this problem needs
             if not whole or not elided:
                 bad += 1
             flag = "ok " if (whole and elided) else "BAD"

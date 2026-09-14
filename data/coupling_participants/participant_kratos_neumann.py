@@ -313,7 +313,7 @@ def main():
     # gradient, defended as "acceptable here and only here, because a Dirichlet
     # partner reads this participant's values, never its normal_fluxes".
     #
-    # The grader reads them. The two-sided interface jump is a GATE on a
+    # Any reader of the result reads them. The two-sided interface jump is a GATE on a
     # coupled cell, and this side's export is half of it.
     #
     # MEASURED on the 3-D sibling, which had the identical construction, by
@@ -321,7 +321,7 @@ def main():
     #     gradient averaging  1.27e+00, 8.37e-01, 3.95e-01   order 0.60, 1.08
     #     assembled conditions 5.16e-01, 1.77e-01, 4.77e-02  order 1.55, 1.89
     # The projection is O(h) where the field is O(h^2), so it, and not the
-    # physics, sets the graded interface order.
+    # physics, sets the interface order any reader will measure.
     #
     # AN ECHO OF q_in WOULD NOT DO EITHER, though it is algebraically the exact
     # answer here: FluxCondition2D2N enforces K grad T . n = FACE_HEAT_FLUX and

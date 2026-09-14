@@ -2988,7 +2988,7 @@ import meshio
 # ── 4C's OWN CONSOLE, ECHOED (served): the coupling tool captures THIS script's stdout as the
 #    level's run log, and a run log is credited to 4C only by 4C's own lines (its time-integration
 #    output), never by the NDOF line alone (measured: run logs holding only the driver header and the
-#    NDOF line were graded as no per-code execution evidence).
+#    NDOF line carried no evidence that this code ran at all).
 for _lg in sorted(glob.glob("*.log")):
     if _lg.startswith("participant_output") or "level" in _lg:      # the coupling tool's own captures, never re-echoed
         continue

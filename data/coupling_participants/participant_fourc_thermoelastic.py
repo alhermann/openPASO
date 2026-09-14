@@ -211,7 +211,7 @@ import meshio  # noqa: E402
 # ── 4C's OWN CONSOLE, ECHOED (served): the coupling tool captures THIS script's stdout as the
 #    level's run log, and a run log is credited to 4C only by 4C's own lines (its step and
 #    time-integration output), never by the NDOF line alone. Measured: a cell whose run logs held
-#    only the driver header and the NDOF line was graded as no per-code execution evidence.
+#    only the driver header and the NDOF line carried no evidence that this code ran at all.
 for _lg in sorted(glob.glob("*.log")):
     if _lg.startswith("participant_output") or "level" in _lg:      # the coupling tool's own captures, never re-echoed
         continue
@@ -268,7 +268,7 @@ for _dk in sorted(glob.glob("*.4C.yaml")) or [p for p in sorted(glob.glob("*.yam
                          f"`- {_unq[0][1][:60]}`): every NODE COORDS, element and topology row is ONE quoted string, `- \"...\"`. "
                          f"4C's reader stops at the first bare token with 'could not find ':' colon after key'.")
     # Dirichlet on EVERY node of a field leaves nothing to solve: 4C prints 'res-norm 0' and the field is the prescribed
-    # data (measured, round 45: an 'outer' surface of 90 of 108 slab nodes plus 18 interface points pinned both fields)
+    # data (measured: an 'outer' surface of 90 of 108 slab nodes plus 18 interface points pinned both fields)
     _nodes = {int(a) for a in re.findall(r'"NODE\s+(\d+)\s+COORD\b', _txt)}
     _tp = {}
     for _n, _k, _e in re.findall(r'"NODE\s+(\d+)\s+(DNODE|DLINE|DSURFACE|DVOL)\s+(\d+)"', _txt):

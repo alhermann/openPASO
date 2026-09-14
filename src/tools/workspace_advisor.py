@@ -763,7 +763,7 @@ def _wrong_level_run_log_check(workdir: Path, written: Path) -> str:
 
     MEASURED (rounds 29-33 of the honest coupled campaign): six three-level couplings with refined
     meshes (consoles 54, 187, 693 dofs) handed in run logs copied from one level at every level, and
-    were graded as an unchanged mesh. The audit names it, but the parents wrote the logs last and
+    read as an unchanged mesh. The audit names it, but the parents wrote the logs last and
     called the audit 0-1 times; the write is the moment the finding can still be acted on.
     """
     import re as _re

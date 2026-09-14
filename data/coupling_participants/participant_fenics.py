@@ -344,7 +344,7 @@ print(f"[fenics {SIDE}] interface n={len(T)} "
 # agree because they are one array with a sign flip.
 #
 # It is detected exactly. Two independently assembled systems do not cancel to
-# the last bit, so the grader treats a bit-exact zero jump as no evidence of
+# the last bit, so a bit-exact zero jump is no evidence of
 # two solves at all. A real converged pair leaves a small residual mismatch —
 # about the size of your interface tolerance — and that mismatch is what shows
 # the coupling happened.

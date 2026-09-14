@@ -674,7 +674,7 @@ def main():
         # branch's route is closed here — the interface dofs are free and read
         # back as zero.  This branch used to answer that by averaging the
         # surrounding constant P1 tet gradients, an O(h) reconstruction that
-        # sets the graded interface order all by itself.
+        # sets the interface order any reader will measure all by itself.
         #
         # THE ECHO WOULD BE WRONG, even though it is algebraically right.
         # FluxCondition3D3N enforces  K grad T . n = FACE_HEAT_FLUX  and

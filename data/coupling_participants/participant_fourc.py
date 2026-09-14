@@ -268,7 +268,7 @@ if FOURC_LD:
 # stdbuf IS NOT OPTIONAL. 4C buffers stdout and then calls MPI_Abort, which
 # kills the process before the buffer flushes — so its real error ("Inconsistency
 # is detected at LINE DBC 2", "could not find ':' colon after key") is LOST and
-# all you see is an MPI failure. Five coupled runs in one campaign concluded from
+# all you see is an MPI failure. Five coupled runs concluded from
 # that silence that "4C cannot run under subprocess" and gave up; re-running
 # their decks with stdbuf printed an ordinary deck bug every time. OASiS's own
 # run_simulation path already does this.

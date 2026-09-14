@@ -733,6 +733,7 @@ def _read_write_tools_for(workdir: Path, *, audit_on_submit: bool = False):
                 reply += _registry_attribute_check(p, content)
                 reply += _extra_script_checks(p, content)
                 reply += _fourc_deck_write_check(p, content)
+                reply += _participant_write_check(p, content)
                 reply += _early_artefact_check(workdir, p)
             if audit_on_submit and p.name == "RESULT.txt":
                 # A GIVE-UP FILED OVER FINISHED WORK, caught structurally.
@@ -1078,7 +1079,7 @@ from tools.workspace_advisor import (          # noqa: E402
     _looks_like_captured_output, _registry_error_check, _script_noop_check,
     _work_on_disk_contradicting_a_give_up,
     _wrong_level_run_log_check, _fourc_deck_write_check, _fourc_run_check,
-    _fourc_after_shell_check)
+    _fourc_after_shell_check, _participant_write_check)
 
 
 

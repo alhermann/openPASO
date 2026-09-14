@@ -981,6 +981,32 @@ def _fourc_deck_write_check(written: Path, content: str) -> str:
     return _deck_findings_text("[write check]", written.name, findings, "before any run")
 
 
+def _participant_write_check(written: Path, content: str) -> str:
+    """A participant script is judged the moment it is written, before the run that would teach it.
+
+    MEASURED. Round 49 was lost to wall clock, not to knowledge: nine cells, 35-73 s per action, 37-75
+    actions each, one reached couple() at all. The sink is the write-run-error-rewrite loop. All 58
+    saved step-trial fills were then re-executed: 46 never wrote an export and every one of those died
+    on an invented API call. This names the measured ones at write time -- it catches a trap in 23 of
+    those 46 and fires on none of the 32 served participants. Names defects only, writes nothing; the
+    mesh, the form, the material, the source and the solve are the agent's and are not judged here.
+    """
+    if not written.name.lower().endswith(".py"):
+        return ""
+    try:
+        from tools.participant_lint import participant_findings   # noqa: PLC0415
+        findings = participant_findings(content)
+    except Exception:                                    # noqa: BLE001
+        return ""
+    if not findings:
+        return ""
+    shown = findings[:8]
+    more = f"\n  ... and {len(findings) - 8} more" if len(findings) > 8 else ""
+    return (f"\n[write check] {written.name}: {len(findings)} call(s) in this script are known to stop "
+            f"the run, each measured on this install -- fix them before you spend a run learning them:\n"
+            + "\n".join(f"  - {f}" for f in shown) + more)
+
+
 def _deck_findings_text(tag: str, name: str, findings: list, when: str) -> str:
     real = [f for f in findings if not str(f).startswith("(section names not judged")]
     note = [f for f in findings if str(f).startswith("(section names not judged")]

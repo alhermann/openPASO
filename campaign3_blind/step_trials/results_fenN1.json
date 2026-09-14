@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpo9b4ruf9/participant_B.py\", line 24, in <module>\n    dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO)\n    ^^^^^^^\nNameError: name 'dolfinx' is not defined\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "length",
+  "secs": 636.6,
+  "lines": 345
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False :: rder='C', writable=False], V: dolfinx.cpp.fem.FunctionSpace_float64) -> None\n    2. __init__(self, g: dolfinx.cpp.fem.Constant_float64, dofs: ndarray[dtype=int32, shape=(*), order='C', writable=False], V: dolfinx.cpp.fem.FunctionSpace_float64) -> None\n    3. __init__(self, g: dolfinx.cpp.fem.Function_float64, dofs: ndarray[dtype=int32, shape=(*), order='C', writable=False]) -> None\n    4. __init__(self, g: dolfinx.cpp.fem.Function_float64, dofs: collections.abc.Sequence[ndarray[dtype=int32, shape=(*), order='C', writable=False]], V: dolfinx.cpp.fem.FunctionSpace_float64) -> None\n\nInvoked with types: dolfinx.cpp.fem.DirichletBC_float64, ndarray, ndarray, dolfinx.cpp.fem.FunctionSpace_float64\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 440.3,
+  "lines": 227
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpanqbon21/participant_B.py\", line 186, in <module>\n    iface_dofs = V.subset_dofs(ifacet_tags.find(1))\n                 ^^^^^^^^^^^^^\nAttributeError: 'FunctionSpace' object has no attribute 'subset_dofs'\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 171.5,
+  "lines": 343
+ }
+]

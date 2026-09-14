@@ -73,7 +73,14 @@ def run_participant(code: str) -> tuple[bool, str]:
         try:
             e = json.loads(ex.read_text())
             co = e.get("coordinates") or []; q = [float(v) for v in (e.get("normal_fluxes") or [])]; vals = [float(v) for v in (e.get("values") or [])]
-            eq = max(abs(qq - q_ref(c[1])) for c, qq in zip(co, q)) if q else float("inf")
+            # THE INTERFACE ENDS ARE NOT GRADED, HERE AS IN THE CAMPAIGN'S OWN TASKS: where the
+            # interface meets the outer boundary the split problem has a Dirichlet-Neumann corner,
+            # that node carries the outer boundary's reaction too, and the recovered flux there does
+            # not converge under refinement. Measured 2026-09-14: a scikit-fem fill whose trace was
+            # exact to 1.7e-16 and whose interior flux was fine failed this trial on the end nodes
+            # alone. The trace IS graded everywhere: those nodes are pinned by the outer condition.
+            interior = [i for i, c in enumerate(co) if 1e-9 < c[1] < 1.0 - 1e-9]
+            eq = max(abs(q[i] - q_ref(co[i][1])) for i in interior) if q and interior else float("inf")
             ev = max(abs(vv - u_ref(c[1])) for c, vv in zip(co, vals)) if vals else float("inf")
             xs_ok = all(abs(float(c[0]) - X_IF) < 1e-9 for c in co)
             ok = len(q) > 0 and xs_ok and eq < QTOL and ev < UTOL

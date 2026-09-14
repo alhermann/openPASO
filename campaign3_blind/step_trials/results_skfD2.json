@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False ::  ignore\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/alexander/Schreibtisch/open-fem-agent/.venv/lib/python3.12/site-packages/skfem/assembly/form/linear_form.py\", line 44, in _assemble\n    data[ixs] = self._kernel(vbasis.basis[i], w, dx)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/alexander/Schreibtisch/open-fem-agent/.venv/lib/python3.12/site-packages/skfem/assembly/form/linear_form.py\", line 49, in _kernel\n    return np.sum(self.form(*v, w) * dx, axis=1)\n                  ^^^^^^^^^^^^^^^^\n  File \"/tmp/tmp6jeayk2h/participant_A.py\", line 88, in source_load\n    return F_SRC(w['x'][0], w['y'][0]) * v\n                            ~^^^^^\nKeyError: 'y'\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 309.4,
+  "lines": 182
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "exports n=11 values=11 x_ok=True flux_err=3.26e-01 trace_err=1.67e-16",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 563.2,
+  "lines": 189
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpdoziqomn/participant_A.py\", line 130, in <module>\n    A_c, b_c = condense(A, b, D=D, x=x0)\n    ^^^^^^^^\nValueError: too many values to unpack (expected 2)\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 706.4,
+  "lines": 184
+ }
+]

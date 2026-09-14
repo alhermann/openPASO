@@ -1,0 +1,292 @@
+[
+ [
+  "participant_skfD1_0.py",
+  "NO EXPORTS",
+  "AttributeError: 'FacetBasis' object has no attribute 'find_dofs'"
+ ],
+ [
+  "participant_skfD1_0_fix1.py",
+  "NO EXPORTS",
+  "TypeError: 'Dofs' object is not callable"
+ ],
+ [
+  "participant_skfD1_1.py",
+  "NO EXPORTS",
+  "TypeError: CellBasis.__init__() got an unexpected keyword argument 'doforder'"
+ ],
+ [
+  "participant_skfD1_1_fix1.py",
+  "NO EXPORTS",
+  "TypeError: BilinearForm._assemble() missing 1 required positional argument: 'ubasis'"
+ ],
+ [
+  "participant_skfD1_2.py",
+  "NO EXPORTS",
+  "TypeError: BilinearForm._assemble() missing 1 required positional argument: 'ubasis'"
+ ],
+ [
+  "participant_skfD1_2_fix1.py",
+  "NO EXPORTS",
+  "ValueError: The given type '<class 'skfem.assembly.basis.cell_basis.CellBasis'>' for the list of extra form parameters w"
+ ],
+ [
+  "participant_skfD2_0.py",
+  "NO EXPORTS",
+  "AttributeError: type object 'MeshTri1' has no attribute 'init_rect'"
+ ],
+ [
+  "participant_skfD2_0_fix1.py",
+  "NO EXPORTS",
+  "KeyError: 'y'"
+ ],
+ [
+  "participant_skfD2_1.py",
+  "NO EXPORTS",
+  "AttributeError: Attribute 'y' not found in 'w'."
+ ],
+ [
+  "participant_skfD2_1_fix1.py",
+  "PASS",
+  "n=11 flux_interior=1.95e-02 trace=1.67e-16"
+ ],
+ [
+  "participant_skfD2_2.py",
+  "NO EXPORTS",
+  "AttributeError: Attribute 'y' not found in 'w'."
+ ],
+ [
+  "participant_skfD2_2_fix1.py",
+  "NO EXPORTS",
+  "ValueError: too many values to unpack (expected 2)"
+ ],
+ [
+  "participant_ngsD1_0.py",
+  "NO EXPORTS",
+  "NameError: name 'CF' is not defined"
+ ],
+ [
+  "participant_ngsD1_0_fix1.py",
+  "NO EXPORTS",
+  "ValueError: Cannot make CoefficientFunction from <function F_SRC at 0x7f00f6246480> of type <class 'function'>"
+ ],
+ [
+  "participant_ngsD1_1.py",
+  "NO EXPORTS",
+  "AttributeError: 'netgen.libngpy._geom2d.SplineGeometry' object has no attribute 'AddRect'"
+ ],
+ [
+  "participant_ngsD1_1_fix1.py",
+  "NO EXPORTS",
+  "TypeError: <lambda>() takes 3 positional arguments but 5 were given"
+ ],
+ [
+  "participant_ngsD1_2.py",
+  "NO EXPORTS",
+  "ImportError: cannot import name 'SetCoefficient' from 'ngsolve' (/home/alexander/Schreibtisch/open-fem-agent/.venv/lib/p"
+ ],
+ [
+  "participant_ngsD1_2_fix1.py",
+  "NO EXPORTS",
+  "AttributeError: 'ngsolve.comp.ProxyFunction' object has no attribute 'Dot'"
+ ],
+ [
+  "participant_ngsD2_0.py",
+  "NO EXPORTS",
+  "Invoked with: <netgen.libngpy._geom2d.SplineGeometry object at 0x7fb436906f90>, ['line', 0, 1]; kwargs: bc=['outer', 'ou"
+ ],
+ [
+  "participant_ngsD2_0_fix1.py",
+  "NO EXPORTS",
+  "Invoked with: <netgen.libngpy._geom2d.SplineGeometry object at 0x7f984136af90>, (0.0, 0.0)"
+ ],
+ [
+  "participant_ngsD2_1.py",
+  "NO EXPORTS",
+  "AttributeError: 'netgen.libngpy._geom2d.SplineGeometry' object has no attribute 'AddRect'"
+ ],
+ [
+  "participant_ngsD2_1_fix1.py",
+  "NO EXPORTS",
+  "AttributeError: 'netgen.libngpy._geom2d.SplineGeometry' object has no attribute 'AddVertex'"
+ ],
+ [
+  "participant_ngsD2_2.py",
+  "NO EXPORTS",
+  "Invoked with: <netgen.libngpy._geom2d.SplineGeometry object at 0x7fafbe6eb1d0>, [0.0, 0.0]"
+ ],
+ [
+  "participant_ngsD2_2_fix1.py",
+  "NO EXPORTS",
+  "Invoked with: <netgen.libngpy._geom2d.SplineGeometry object at 0x7fe0e53bf1d0>, 'spline {0, 1, 2, 3}'; kwargs: bc='domai"
+ ],
+ [
+  "participant_ngsD3_0.py",
+  "NO EXPORTS",
+  "netgen.libngpy._meshing.NgException: In MakeLinearFormIntegrator: must not have TrialFunction"
+ ],
+ [
+  "participant_ngsD3_0_fix1.py",
+  "NO EXPORTS",
+  "AttributeError: 'ngsolve.comp.MeshNode' object has no attribute 'ndof'"
+ ],
+ [
+  "participant_ngsD3_1.py",
+  "NO EXPORTS",
+  "AttributeError: 'ngsolve.comp.MeshNode' object has no attribute 'x'"
+ ],
+ [
+  "participant_ngsD3_1_fix1.py",
+  "NO EXPORTS",
+  "ImportError: cannot import name 'inverse' from 'ngsolve' (/home/alexander/Schreibtisch/open-fem-agent/.venv/lib/python3."
+ ],
+ [
+  "participant_ngsD3_2.py",
+  "NO EXPORTS",
+  "TypeError: 'ngsolve.comp.Region' object is not iterable"
+ ],
+ [
+  "participant_ngsD3_2_fix1.py",
+  "NO EXPORTS",
+  "AttributeError: 'ngsolve.comp.Mesh' object has no attribute 'Faces'. Did you mean: 'faces'?"
+ ],
+ [
+  "participant_ngsN1_0.py",
+  "NO EXPORTS",
+  "NameError: name 'x' is not defined. Did you mean: 'dx'?"
+ ],
+ [
+  "participant_ngsN1_0_fix1.py",
+  "NO EXPORTS",
+  "Invoked with: <function <lambda> at 0x7fcfaad0d9e0>; kwargs: dim=2"
+ ],
+ [
+  "participant_ngsN1_1.py",
+  "NO EXPORTS",
+  "AttributeError: 'ngsolve.comp.Mesh' object has no attribute 'x'"
+ ],
+ [
+  "participant_ngsN1_1_fix1.py",
+  "NO EXPORTS",
+  "AttributeError: 'ngsolve.comp.Mesh' object has no attribute 'Vertices'. Did you mean: 'vertices'?"
+ ],
+ [
+  "participant_ngsN1_2.py",
+  "NO EXPORTS",
+  "AttributeError: 'netgen.libngpy._geom2d.SplineGeometry' object has no attribute 'AddRect'"
+ ],
+ [
+  "participant_ngsN1_2_fix1.py",
+  "NO EXPORTS",
+  "TypeError: <lambda>() takes 3 positional arguments but 5 were given"
+ ],
+ [
+  "participant_kratosN5_0.py",
+  "FAIL",
+  "n=11 flux_interior=8.16e-02 trace=1.66e+00"
+ ],
+ [
+  "participant_kratosN5_0_fix1.py",
+  "FAIL",
+  "n=11 flux_interior=8.16e-02 trace=1.66e+00"
+ ],
+ [
+  "participant_kratosN5_1.py",
+  "FAIL",
+  "n=17 flux_interior=7.63e-02 trace=8.00e-01"
+ ],
+ [
+  "participant_kratosN5_1_fix1.py",
+  "FAIL",
+  "n=11 flux_interior=8.16e-02 trace=8.00e-01"
+ ],
+ [
+  "participant_kratosN5_2.py",
+  "NO EXPORTS",
+  "EXPORT SELF-CHECK: 17 of 17 nodes read as the interface column sit at x=1.4, not x=0.6"
+ ],
+ [
+  "participant_kratosN5_2_fix1.py",
+  "FAIL",
+  "n=17 flux_interior=7.63e-02 trace=4.43e-01"
+ ],
+ [
+  "participant_kratosN6_0.py",
+  "NO EXPORTS",
+  "EXPORT SELF-CHECK: 17 of 17 nodes read as the interface column sit at x=1.4, not x=0.6: i_if names the wrong column. The"
+ ],
+ [
+  "participant_kratosN6_0_fix1.py",
+  "FAIL",
+  "n=17 flux_interior=7.63e-02 trace=1.78e-01"
+ ],
+ [
+  "participant_kratosN6_1.py",
+  "NO EXPORTS",
+  "EXPORT SELF-CHECK: 11 of 11 nodes read as the interface column sit at x=1.4, not x=0.6: i_if names the wrong column. The"
+ ],
+ [
+  "participant_kratosN6_1_fix1.py",
+  "FAIL",
+  "n=11 flux_interior=8.16e-02 trace=1.60e-01"
+ ],
+ [
+  "participant_kratosN6_2.py",
+  "PASS",
+  "n=11 flux_interior=8.16e-02 trace=1.84e-02"
+ ],
+ [
+  "participant_kratosN7_0.py",
+  "PASS",
+  "n=17 flux_interior=7.63e-02 trace=1.39e-02"
+ ],
+ [
+  "participant_kratosN7_1.py",
+  "NO EXPORTS",
+  "Invoked with: <Kratos.ModelPart object at 0x7fe9608c33b0>, 1, [0.6, 0.0, 0.0]"
+ ],
+ [
+  "participant_kratosN7_1_fix1.py",
+  "FAIL",
+  "n=11 flux_interior=8.16e-02 trace=1.43e+00"
+ ],
+ [
+  "participant_kratosN7_2.py",
+  "NO EXPORTS",
+  "EXPORT SELF-CHECK: 17 of 17 nodes read as the interface column sit at x=1.4, not x=0.6: i_if names the wrong column. The"
+ ],
+ [
+  "participant_kratosN7_2_fix1.py",
+  "FAIL",
+  "n=17 flux_interior=7.63e-02 trace=1.43e+00"
+ ],
+ [
+  "participant_fenN1_0.py",
+  "NO EXPORTS",
+  "rc=0"
+ ],
+ [
+  "participant_fenN1_0_fix1.py",
+  "NO EXPORTS",
+  "NameError: name 'dolfinx' is not defined"
+ ],
+ [
+  "participant_fenN1_1.py",
+  "NO EXPORTS",
+  "RuntimeError: Missing IndexMap in Topology. Maybe you need to create_entities(1)."
+ ],
+ [
+  "participant_fenN1_1_fix1.py",
+  "NO EXPORTS",
+  "Invoked with types: dolfinx.cpp.fem.DirichletBC_float64, ndarray, ndarray, dolfinx.cpp.fem.FunctionSpace_float64"
+ ],
+ [
+  "participant_fenN1_2.py",
+  "NO EXPORTS",
+  "NameError: name 'dolfinx' is not defined"
+ ],
+ [
+  "participant_fenN1_2_fix1.py",
+  "NO EXPORTS",
+  "AttributeError: 'FunctionSpace' object has no attribute 'subset_dofs'"
+ ]
+]

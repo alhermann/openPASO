@@ -59,3 +59,43 @@ def test_a_coupled_skfem_reply_carries_them():
     pointer = C._get_coupling_knowledge("scikit-fem", "", "")
     for out in (first, pointer):
         assert "'Dofs' object is not callable" in out
+
+
+# Every trap below was measured on this install after a step-trial worker died on it while writing
+# ONE side of a coupling from exactly what OASiS serves. 58 saved fills, re-run and graded the way
+# the campaign's tasks grade (interface interior for the recovered flux): 46 never wrote exports at
+# all, and every one of those died on an invented API call. A fact names each of these.
+MEASURED_TRAPS = [
+    ("skfem", "'Dofs' object is not callable"),
+    ("skfem", "get_dofs("),
+    ("skfem", "'ubasis'"),
+    ("skfem", "w.x[0]"),                      # there is no w.y
+    ("skfem", "init_tensor"),                 # there is no MeshTri.init_rect
+    ("skfem", "init_rect"),
+    ("skfem", "doforder"),
+    ("skfem", "find_dofs"),
+    ("skfem", "boundaries_only=False"),
+    ("ngsolve", "AddVertex"),
+    ("ngsolve", "AddRect"),
+    ("ngsolve", "AddRectangle"),
+    ("ngsolve", "mesh.Faces()"),
+    ("ngsolve", "Vertices()"),
+    ("ngsolve", "v.point"),
+    ("ngsolve", "NOT ITERABLE"),              # a Region is not iterable
+    ("ngsolve", "GetDofNrs"),
+    ("ngsolve", "must not have TrialFunction"),
+    ("ngsolve", "cannot import name 'inverse'"),
+    ("ngsolve", "CoefficientFunction(f) for a def/lambda is a TypeError"),
+    ("fenics", "V.subset_dofs"),
+    ("fenics", "locate_dofs_topological"),
+    ("fenics", "petsc_options_prefix"),
+    ("sparta", "does not compute per-surf array"),
+    ("sparta", "surf/temp"),
+]
+
+
+@pytest.mark.parametrize("code,trap", MEASURED_TRAPS)
+def test_the_facts_name_the_trap_a_worker_actually_died_on(code, trap):
+    from tools.consolidated import _DECIDING_FACTS
+    assert trap in _DECIDING_FACTS[code], (
+        f"{code}: the served facts no longer name {trap!r}, which a step-trial worker died on")

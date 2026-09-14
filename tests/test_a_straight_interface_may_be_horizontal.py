@@ -1,4 +1,4 @@
-"""A served participant expresses a straight interface on EITHER axis, not only the vertical one.
+"""A served participant expresses a straight interface on EITHER axis, and one that BENDS.
 
 Every contract in the corpus hard-coded the split as the line x = IFACE_X: the outward-normal selector,
 the partner-sample column and the exported coordinates all assumed it. One development problem's
@@ -93,3 +93,72 @@ outer_n = np.where((np.abs(_fix - OUTER_X) < TOL) |
     vals = np.asarray(e["values"], float)
     assert vals.shape == (len(co), 2), "a vector side exports two components per point"
     assert np.isfinite(vals).all() and np.isfinite(np.asarray(e["normal_fluxes"], float)).all()
+
+
+@pytest.mark.skipif(not VENV.is_file(), reason="the scikit-fem interpreter is not on this machine")
+def test_the_contract_runs_on_an_interface_that_bends(tmp_path):
+    """One development problem's interface is a two-leg polyline: a square corner cut out of the other
+    subdomain, so the interface runs up one edge and along the next. No contract could express that --
+    every one of them matched the partner by a single coordinate, which is not monotone along two legs.
+
+    IFACE_SEGMENTS lists the legs in order and the exchange is matched by distance ALONG them. The case
+    below is exactly that problem's side B: the square (1/2, 1) x (0, 1/2), whose left and top edges are
+    the interface and whose bottom and right edges are the outer boundary. The fill is the test's own."""
+    import json
+    import numpy as np
+    s = (PARTICIPANTS / "participant_skfem.py").read_text()
+    for old, new in (("X0, X1    = 0.0, 0.6", "X0, X1    = 0.5, 1.0"),
+                     ("Y0, Y1    = 0.0, 0.4", "Y0, Y1    = 0.0, 0.5"),
+                     ("IFACE_SEGMENTS = ()",
+                      'IFACE_SEGMENTS = (("x", 0.5, 0.0, 0.5), ("y", 0.5, 0.5, 1.0))'),
+                     ("K         = 0.8", "K         = 2.5"),
+                     ("T_OUTER   = 320.0", "T_OUTER   = 0.0"),
+                     ("T_INIT    = 310.0", "T_INIT    = 0.0"),
+                     ("NX, NY    = 24, 16", "NX, NY    = 16, 16")):
+        assert s.count(old) == 1, old
+        s = s.replace(old, new)
+    old_hole = """px, py = mesh.p[0], mesh.p[1]
+iface_n = np.where(np.abs(px - IFACE_X) < TOL)[0]
+iface_n = iface_n[np.argsort(py[iface_n])]             # sorted by y
+y_if = py[iface_n]
+iface_dofs = n2d[iface_n]
+outer_dofs = n2d[np.where(np.abs(px - OUTER_X) < TOL)[0]]"""
+    new_hole = """px, py = mesh.p[0], mesh.p[1]
+iface_n = np.where((np.abs(px - 0.5) < TOL) | (np.abs(py - 0.5) < TOL))[0]
+iface_n = iface_n[np.argsort(arc_length(np.column_stack([px[iface_n], py[iface_n]])))]
+y_if = np.column_stack([px[iface_n], py[iface_n]])
+iface_dofs = n2d[iface_n]
+outer_dofs = n2d[np.where((np.abs(py - 0.0) < TOL) | (np.abs(px - 1.0) < TOL))[0]]"""
+    assert s.count(old_hole) == 1
+    s = s.replace(old_hole, new_hole)
+    old_fb = """fbasis = FacetBasis(mesh, elem,
+                    facets=mesh.facets_satisfying(
+                        lambda p: np.abs(p[0] - IFACE_X) < TOL))"""
+    new_fb = """fbasis = FacetBasis(mesh, elem,
+                    facets=mesh.facets_satisfying(
+                        lambda p: (np.abs(p[0] - 0.5) < TOL) | (np.abs(p[1] - 0.5) < TOL)))"""
+    assert s.count(old_fb) == 1
+    s = s.replace(old_fb, new_fb)
+    (tmp_path / "p.py").write_text(s)
+    pts, vals = [], []
+    for t in np.linspace(0, 0.5, 11):
+        pts.append([0.5, float(t)]); vals.append(float(np.sin(np.pi * t)))
+    for t in np.linspace(0.5, 1.0, 11):
+        pts.append([float(t), 0.5]); vals.append(float(np.sin(np.pi * t)))
+    (tmp_path / "imports.json").write_text(json.dumps({"right": {
+        "field_name": "temperature", "n_points": len(pts), "coordinates": pts,
+        "values": vals, "normal_fluxes": [0.0] * len(pts)}}))
+    r = subprocess.run([str(VENV), "p.py"], cwd=tmp_path, capture_output=True, text=True, timeout=900)
+    assert r.returncode == 0, f"the bent side did not run:\n{(r.stderr or r.stdout)[-1500:]}"
+    e = json.loads((tmp_path / "exports.json").read_text())
+    co = np.asarray(e["coordinates"], float)
+    q = np.asarray(e["normal_fluxes"], float).ravel()
+    on_leg1 = np.isclose(co[:, 0], 0.5)
+    on_leg2 = np.isclose(co[:, 1], 0.5)
+    assert on_leg1.sum() > 5 and on_leg2.sum() > 5, "the export covers only one leg"
+    assert (on_leg1 | on_leg2).all(), "a point sits on neither leg"
+    assert np.all(np.abs(q) > 1e-12), "the recovered flux is zero somewhere: the interface weights "\
+                                      "did not cover both legs"
+    # the corner (1/2, 1/2) lies on both legs; the first leg owns it, as arc_length does
+    s_of = np.where(on_leg1, co[:, 1], 0.5 + (co[:, 0] - 0.5))
+    assert np.all(np.diff(s_of) > -1e-12), "the exported points are not ordered along the polyline"

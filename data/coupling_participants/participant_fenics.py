@@ -36,6 +36,13 @@ IFACE_AXIS = "x"          # WHICH straight line the interface is: "x" -> the lin
                           # (the subdomains sit side by side) | "y" -> the line y = IFACE_X
                           # (they are stacked). Everything below follows from it.
 IFACE_X   = 0.6           # the shared interface; X0/X1 for axis "x", Y0/Y1 for axis "y"
+IFACE_SEGMENTS = ()       # EMPTY: the interface is the single straight line named above. For an
+                          # interface that BENDS -- one subdomain's corner cut out of the other --
+                          # list its legs in order instead, each ("x"|"y", position, from, to):
+                          #     IFACE_SEGMENTS = (("x", 0.5, 0.0, 0.5), ("y", 0.5, 0.5, 1.0))
+                          # is the vertical leg x = 1/2 from y = 0 to 1/2, then the horizontal leg
+                          # y = 1/2 from x = 1/2 to 1. Both sides must list the SAME legs in the
+                          # SAME order: the exchange is matched by distance along them.
 K         = 0.8           # conductivity
 
 
@@ -110,17 +117,50 @@ def read_imports():
         return None
 
 
-def sample(imp, key, fallback, y):
+TOL_IF = 1e-9 * max(X1 - X0, Y1 - Y0)
+
+
+def arc_length(pts):
+    """Distance along the interface, from its start, for each point of `pts` (an (n, 2) array).
+
+    This is what makes a BENT interface exchangeable: the two sides meet on a curve, and a single
+    coordinate is not monotone along two legs. With IFACE_SEGMENTS empty this is the coordinate along
+    the single straight line, so the usual case is unchanged."""
+    pts = np.atleast_2d(np.asarray(pts, float))
+    if not IFACE_SEGMENTS:
+        return pts[:, AL]
+    s_out = np.full(len(pts), np.nan)
+    base = 0.0
+    for axis, pos, a, b in IFACE_SEGMENTS:
+        ax = 0 if axis == "x" else 1
+        al = 1 - ax
+        lo, hi = (a, b) if a <= b else (b, a)
+        on = ((np.abs(pts[:, ax] - pos) < TOL_IF) & (pts[:, al] >= lo - TOL_IF)
+              & (pts[:, al] <= hi + TOL_IF) & np.isnan(s_out))
+        s_out[on] = base + np.abs(pts[on, al] - a)
+        base += abs(b - a)
+    return np.where(np.isnan(s_out), 0.0, s_out)
+
+
+def sample(imp, key, fallback, where):
     """Map the partner's samples onto THIS participant's interface points.
-    The driver does no interpolation — non-matching meshes are handled here."""
+    The driver does no interpolation — non-matching meshes are handled here.
+
+    `where` is this side's coordinate along a straight interface, or its (n, 2) interface POINTS for
+    a bent one, in which case both sides are matched by distance along IFACE_SEGMENTS."""
+    where = np.asarray(where, float)
+    bent = where.ndim == 2
+    n = len(where)
     if not imp or not imp.get("coordinates"):
-        return np.full(len(y), float(fallback))
-    ys = np.array([c[AL] for c in imp["coordinates"]], float)   # the coordinate ALONG the interface
+        return np.full(n, float(fallback))
+    pc = np.atleast_2d(np.asarray(imp["coordinates"], float))
+    ys = arc_length(pc) if bent else pc[:, AL]
+    target = arc_length(where) if bent else where
     vs = np.asarray(imp.get(key, []), float).ravel()
     if vs.size != ys.size:
-        return np.full(len(y), float(fallback))
+        return np.full(n, float(fallback))
     o = np.argsort(ys)
-    return np.interp(y, ys[o], vs[o])
+    return np.interp(target, ys[o], vs[o])
 
 
 imp = read_imports()
@@ -363,8 +403,10 @@ with open(f"interface_level{LEVEL}.csv", "w") as _f:
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",
     "n_points": int(len(iface_dofs)),
-    "coordinates": [([float(IFACE_X), float(y)] if AX == 0 else [float(y), float(IFACE_X)])
-                    for y in y_if],
+    "coordinates": (np.atleast_2d(np.asarray(y_if, float)).tolist()
+                    if np.asarray(y_if).ndim == 2 else
+                    [([float(IFACE_X), float(y)] if AX == 0 else [float(y), float(IFACE_X)])
+                     for y in y_if]),
     "values": [float(t) for t in T],
     "normal_fluxes": [float(q) for q in Q],
 }, indent=2))

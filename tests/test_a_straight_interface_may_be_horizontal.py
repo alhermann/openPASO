@@ -162,3 +162,71 @@ outer_dofs = n2d[np.where((np.abs(py - 0.0) < TOL) | (np.abs(px - 1.0) < TOL))[0
     # the corner (1/2, 1/2) lies on both legs; the first leg owns it, as arc_length does
     s_of = np.where(on_leg1, co[:, 1], 0.5 + (co[:, 0] - 0.5))
     assert np.all(np.diff(s_of) > -1e-12), "the exported points are not ordered along the polyline"
+
+
+FENICS = Path("/home/alexander/miniconda3/envs/fenics/bin/python")
+
+
+@pytest.mark.skipif(not FENICS.is_file(), reason="the FEniCSx interpreter is not on this machine")
+def test_the_fenics_contract_runs_on_the_bent_interface_too(tmp_path):
+    """The bent problem's side B is FEniCSx, so the bent path has to work there as well.
+
+    This also pins the served interface DUMP, which wrote `IFACE_X` as the x of every row and so
+    could not describe a bent interface at all -- it takes the point's own coordinates now."""
+    import json
+    import numpy as np
+    s = (PARTICIPANTS / "participant_fenics.py").read_text()
+    for old, new in (("X0, X1    = 0.0, 0.6", "X0, X1    = 0.5, 1.0"),
+                     ("Y0, Y1    = 0.0, 0.4", "Y0, Y1    = 0.0, 0.5"),
+                     ("IFACE_SEGMENTS = ()",
+                      'IFACE_SEGMENTS = (("x", 0.5, 0.0, 0.5), ("y", 0.5, 0.5, 1.0))'),
+                     ("IFACE_X   = 0.6", "IFACE_X   = 0.5"),
+                     ('SIDE      = "dirichlet"', 'SIDE      = "neumann"'),
+                     ('PARTNER   = "right"', 'PARTNER   = "left"'),
+                     ("K         = 0.8", "K         = 2.5"),
+                     ("T_OUTER   = 320.0", "T_OUTER   = 0.0"),
+                     ("T_INIT    = 310.0", "T_INIT    = 0.0"),
+                     ("NX, NY    = 24, 16", "NX, NY    = 16, 16")):
+        assert s.count(old) == 1, old
+        s = s.replace(old, new)
+    old_sel = """iface_dofs = np.where(np.abs(xy[:, 0] - IFACE_X) < 1e-10)[0]
+iface_dofs = iface_dofs[np.argsort(xy[iface_dofs, 1])]   # constant order, always
+y_if = xy[iface_dofs, 1]"""
+    new_sel = """iface_dofs = np.where((np.abs(xy[:, 0] - 0.5) < 1e-10) | (np.abs(xy[:, 1] - 0.5) < 1e-10))[0]
+iface_dofs = iface_dofs[np.argsort(arc_length(xy[iface_dofs, :2]))]
+y_if = xy[iface_dofs, :2]"""
+    assert s.count(old_sel) == 1
+    s = s.replace(old_sel, new_sel)
+    old_fac = """facets_if = dmesh.locate_entities_boundary(domain, fdim,
+                                           lambda x: np.isclose(x[0], IFACE_X))"""
+    new_fac = """facets_if = dmesh.locate_entities_boundary(
+    domain, fdim, lambda x: np.isclose(x[0], 0.5) | np.isclose(x[1], 0.5))"""
+    assert s.count(old_fac) == 1
+    s = s.replace(old_fac, new_fac)
+    old_out = """outer = dmesh.locate_entities_boundary(domain, fdim,
+                                       lambda x: np.isclose(x[0], OUTER_X))"""
+    new_out = """outer = dmesh.locate_entities_boundary(
+    domain, fdim, lambda x: np.isclose(x[1], 0.0) | np.isclose(x[0], 1.0))"""
+    assert s.count(old_out) == 1
+    s = s.replace(old_out, new_out)
+    (tmp_path / "p.py").write_text(s)
+    pts, q = [], []
+    for t in np.linspace(0, 0.5, 11):
+        pts.append([0.5, float(t)]); q.append(float(2.0 * np.sin(np.pi * t)))
+    for t in np.linspace(0.5, 1.0, 11):
+        pts.append([float(t), 0.5]); q.append(float(2.0 * np.sin(np.pi * t)))
+    (tmp_path / "imports.json").write_text(json.dumps({"left": {
+        "field_name": "temperature", "n_points": len(pts), "coordinates": pts,
+        "values": [0.0] * len(pts), "normal_fluxes": q}}))
+    r = subprocess.run([str(FENICS), "p.py"], cwd=tmp_path, capture_output=True, text=True, timeout=900)
+    assert r.returncode == 0, f"the bent FEniCSx side did not run:\n{(r.stderr or r.stdout)[-1500:]}"
+    e = json.loads((tmp_path / "exports.json").read_text())
+    co = np.asarray(e["coordinates"], float)
+    q_out = np.asarray(e["normal_fluxes"], float).ravel()
+    assert np.isclose(co[:, 0], 0.5).sum() > 5 and np.isclose(co[:, 1], 0.5).sum() > 5
+    assert np.abs(q_out).max() > 1e-3, "the imported load never entered the system"
+    dump = next(tmp_path.glob("interface_level*.csv"))
+    rows = [l.split(",") for l in dump.read_text().strip().splitlines()[1:]]
+    assert len(rows) == len(co)
+    xs = {round(float(r[0]), 6) for r in rows}
+    assert len(xs) > 2, "the interface dump still writes one x for every row"

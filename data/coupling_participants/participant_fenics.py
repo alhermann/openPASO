@@ -398,8 +398,12 @@ with open(f"field_level{LEVEL}.csv", "w") as _f:
         _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(_u):.11e}\n")
 with open(f"interface_level{LEVEL}.csv", "w") as _f:
     _f.write("x,y,u,qn\n")
-    for _y, _t, _q in zip(y_if, T, Q):
-        _f.write(f"{float(IFACE_X):.11e},{float(_y):.11e},{float(_t):.11e},{float(_q):.11e}\n")
+    _pts_if = (np.atleast_2d(np.asarray(y_if, float)) if np.asarray(y_if).ndim == 2 else
+               np.column_stack([np.full(len(y_if), float(IFACE_X)), np.asarray(y_if, float)])
+               if AX == 0 else
+               np.column_stack([np.asarray(y_if, float), np.full(len(y_if), float(IFACE_X))]))
+    for (_px, _py), _t, _q in zip(_pts_if, T, Q):
+        _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(_t):.11e},{float(_q):.11e}\n")
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",
     "n_points": int(len(iface_dofs)),

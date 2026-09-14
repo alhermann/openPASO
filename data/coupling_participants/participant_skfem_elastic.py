@@ -49,6 +49,8 @@ half.
 import json
 from pathlib import Path
 
+import logging                # scikit-fem logs through it (logging.basicConfig(level=logging.INFO)),
+                              # and its output goes to STDERR -- redirect with 2>&1 or lose it
 import numpy as np
 from skfem import (Basis, BilinearForm, ElementTriP1, ElementVector,
                    FacetBasis, LinearForm, MeshTri, asm, condense, solve)

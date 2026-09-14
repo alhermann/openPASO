@@ -36,6 +36,9 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import dolfinx                # the MODULE, so dolfinx.log.set_log_level(...) resolves:
+                              # a run log that must carry this code's own output needs it,
+                              # and `from dolfinx import fem` alone leaves `dolfinx` undefined
 import ufl
 from dolfinx import default_scalar_type, fem, mesh as dmesh
 from dolfinx.fem import petsc as _fp

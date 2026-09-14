@@ -8,6 +8,9 @@ exports.json LAST.
 import json
 from pathlib import Path
 
+import ngsolve                # the MODULE, so ngsolve.ngsglobals.msg_level = 3 resolves:
+                              # a run log that must carry this code's own output needs it,
+                              # and `from ngsolve import ...` alone leaves `ngsolve` undefined
 import numpy as np
 from netgen.geom2d import SplineGeometry
 from ngsolve import (VERTEX, BilinearForm, GridFunction, H1, LinearForm, Mesh,

@@ -55,6 +55,29 @@ def _branches(src: str, varname: str) -> set[str]:
     return set(pattern.findall(src))
 
 
+def _serve_knowledge(**kwargs) -> str:
+    """Call the real knowledge tool and return what an agent would receive."""
+    import sys
+    from pathlib import Path as _Path
+    sys.path.insert(0, str(_Path(__file__).resolve().parents[1] / "src"))
+    from core.registry import load_all_backends
+    from tools.consolidated import register_consolidated_tools
+
+    load_all_backends()
+    captured = {}
+
+    class _Recorder:
+        def tool(self, *a, **k):
+            def deco(fn):
+                captured[fn.__name__] = fn
+                return fn
+            return deco
+
+    register_consolidated_tools(_Recorder())
+    out = captured["knowledge"](**kwargs)
+    return out if isinstance(out, str) else str(out)
+
+
 class TestMcpToolUsageAlignment(unittest.TestCase):
     """Docstring/usage/dispatch must agree for each tool's
     action/topic enumeration."""
@@ -162,35 +185,41 @@ class TestMcpToolUsageAlignment(unittest.TestCase):
             f"references in the Args:/Options block.")
 
     def test_knowledge(self) -> None:
+        """Every topic the dispatch handles must be named in the usage hint.
+
+        An agent that guesses a topic wrong gets the hint back, and if a real
+        topic is missing from it the agent never learns the topic exists --
+        this file records exactly that for 'postmortems', implemented and
+        undocumented.
+
+        Both halves used to be read out of the source by slicing
+        `src.split("def knowledge")[1]`. The implementation then moved into
+        `_knowledge_body` and the slice kept only the thin wrapper, so the test
+        reported "knowledge has no 'Topics:' usage block" when the block was
+        three functions away and working. Read the hint the way an agent gets
+        it -- by asking for a topic that does not exist -- and take the
+        branches from wherever the dispatch actually lives.
+        """
         src = _read_consolidated()
-        body = src.split("def knowledge")[1].split("# 2. DISCOVER")[0]
+        body = ""
+        for marker in ("def _knowledge_body", "def knowledge"):
+            if marker in src:
+                body += src.split(marker, 1)[1].split("# 2. DISCOVER")[0]
         branches = _branches(body, "topic")
-        # The usage-hint Topics list is split across multiple
-        # adjacent string literals for line length. Find the
-        # "Topics: ..." block by grabbing everything from
-        # "Topics:" until the closing ).
-        usage_block_match = re.search(
-            r'Topics:[\s\S]+?\)', body)
-        self.assertIsNotNone(
-            usage_block_match,
-            "knowledge has no 'Topics:' usage block.")
-        usage_block = usage_block_match.group(0)
-        # Strip the Python string-concat noise: each adjacent
-        # string ends with `"\n` and the next starts with `"`.
-        # The pattern '"\s+"' collapses that boundary; then
-        # remove the remaining quotes / newlines / backslashes.
-        flat = re.sub(r'"\s+"', "", usage_block)
-        flat = flat.replace('"', "").replace("\\n", "")
-        flat = flat.replace("\n", " ")
-        topic_csv = flat.split("Topics:", 1)[1].split(")")[0]
-        usage_topics = set(
-            t.strip() for t in topic_csv.split(",")
-            if t.strip())
+        self.assertTrue(branches, "found no topic dispatch branches to check")
+
+        served = _serve_knowledge(topic="not_a_real_topic_at_all")
+        self.assertIn("Topics:", served,
+                      "an invalid topic no longer returns the usage hint, so "
+                      "an agent that guesses wrong learns nothing")
+        listed = served.split("Topics:", 1)[1].splitlines()[0]
+        usage_topics = {t.strip() for t in listed.split(",") if t.strip()}
+
         missing = branches - usage_topics
         self.assertFalse(
             missing,
             f"knowledge dispatch branches {sorted(branches)} "
-            f"include {sorted(missing)} not in usage hint "
+            f"include {sorted(missing)} not in the usage hint "
             f"{sorted(usage_topics)}.")
 
 

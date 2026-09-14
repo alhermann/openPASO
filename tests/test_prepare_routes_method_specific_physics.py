@@ -52,5 +52,16 @@ def test_agent_is_told_not_to_erase_method_qualifiers():
                    "steady SIPG advection-diffusion",
                    "Crank-Nicolson transient heat"):
         assert phrase in INSTRUCTIONS
-    assert "history_path" in _COUPLING_MUST_READ[:1500]
-    assert "never retype" in _COUPLING_MUST_READ[:1500]
+    # THE TWO MUST ARRIVE TOGETHER, NEAR THE TOP -- NOT WITHIN AN EXACT
+    # CHARACTER COUNT. This read _COUPLING_MUST_READ[:1500] for both. The text
+    # grew by a character or two and "never retype" came to start at 1,499, so
+    # the slice cut the phrase in half and the test failed while the
+    # instruction was exactly where it belongs, one line under history_path.
+    # The property is that the instruction accompanies the argument it is
+    # about, early in the must-read; assert that instead of a byte offset.
+    opening = _COUPLING_MUST_READ[:3000]
+    at = opening.find("history_path")
+    assert at >= 0, "history_path is no longer named in the opening must-read"
+    assert "never retype" in opening[at:at + 400], (
+        "the instruction not to retype the measured history no longer "
+        "accompanies the history_path argument it is about")

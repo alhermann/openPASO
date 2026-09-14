@@ -1,7 +1,8 @@
 """FEBio 4 VECTOR participant for the OASiS `couple` driver.
 
 Plane-strain linear elasticity  -div(sigma(u)) = b  on ONE rectangular
-subdomain of a domain split by a straight interface at x = IFACE_X, with the
+subdomain of a domain split by a straight interface at x = IFACE_X (or
+y = IFACE_X when IFACE_AXIS is "y"), with the
 body force b given by B_SRC in the edit block. Like the
 other *_elastic participants (and unlike the scalar ones), the exchanged
 interface state is a VECTOR on BOTH channels:
@@ -338,7 +339,10 @@ PARTNER   = "right"       # the partner's `name` in your couple(...) call
 X0, X1    = 0.0, 0.5      # this subdomain's x-extent
 Y0, Y1    = 0.0, 1.0      # this subdomain's y-extent
 ZTHICK    = 0.05          # slab thickness; ANY positive value, plane strain
-IFACE_X   = 0.5           # the shared interface; must equal X0 or X1
+IFACE_AXIS = "x"          # WHICH straight line the interface is: "x" -> the line x = IFACE_X
+                          # (the subdomains sit side by side) | "y" -> the line y = IFACE_X
+                          # (they are stacked). Everything below follows from it.
+IFACE_X   = 0.5           # the shared interface: X0/X1 for axis "x", Y0/Y1 for axis "y"
 E_MOD     = 1040.0        # Young's modulus
 NU        = 0.3           # Poisson ratio (PLANE STRAIN)
 # Prescribed displacement on this subdomain's WHOLE non-interface boundary
@@ -388,9 +392,13 @@ LINSOLVE  = "skyline"     # NOT "pardiso": many builds ship without it (see abov
 LAM = E_MOD * NU / ((1.0 + NU) * (1.0 - 2.0 * NU))   # plane strain
 MU = E_MOD / (2.0 * (1.0 + NU))
 
-ON_RIGHT = abs(IFACE_X - X1) < abs(IFACE_X - X0)   # interface is this side's x-max?
-OUTER_X = X0 if ON_RIGHT else X1
-S = 1.0 if ON_RIGHT else -1.0              # outward normal at interface = S * e_x
+AX = 0 if IFACE_AXIS == "x" else 1         # the coordinate the interface FIXES
+AL = 1 - AX                                # the coordinate that RUNS ALONG it
+LO, HI = (X0, X1) if AX == 0 else (Y0, Y1)         # this subdomain, across the interface
+ALO, AHI = (Y0, Y1) if AX == 0 else (X0, X1)       # this subdomain, along it
+ON_RIGHT = abs(IFACE_X - HI) < abs(IFACE_X - LO)   # interface at this side's MAX of that axis?
+OUTER_X = LO if ON_RIGHT else HI           # the opposite face, on the same axis
+S = 1.0 if ON_RIGHT else -1.0              # outward normal at interface = S * e_AX
 TOL = 1e-9 * max(X1 - X0, Y1 - Y0)
 
 DECK = "cpl.feb"
@@ -434,7 +442,7 @@ def sample(imp, key, fallback, y):
     fb = np.asarray(fallback, float).ravel()
     if not imp or not imp.get("coordinates"):
         return np.tile(fb, (len(y), 1))
-    ys = np.array([c[1] for c in imp["coordinates"]], float)
+    ys = np.array([c[AL] for c in imp["coordinates"]], float)   # the coordinate ALONG the interface
     vs = np.asarray(imp.get(key) or [], float)
     if vs.ndim == 1:
         vs = vs.reshape(-1, 1)
@@ -966,7 +974,8 @@ print(f"[febio {SIDE}] interface n={len(U)} "
 Path("exports.json").write_text(json.dumps({
     "field_name": "displacement",
     "n_points": int(len(y_if)),
-    "coordinates": [[float(IFACE_X), float(y)] for y in y_if],
+    "coordinates": [([float(IFACE_X), float(y)] if AX == 0 else [float(y), float(IFACE_X)])
+                    for y in y_if],
     "values": [[float(a_), float(b_)] for a_, b_ in U],
     "normal_fluxes": [[float(a_), float(b_)] for a_, b_ in Q],
 }, indent=2))

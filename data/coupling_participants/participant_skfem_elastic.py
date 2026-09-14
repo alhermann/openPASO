@@ -1,7 +1,8 @@
 """scikit-fem VECTOR participant for the OASiS `couple` driver.
 
 Plane-strain linear elasticity  -div(sigma(u)) = 0  on ONE rectangular
-subdomain of a domain split by a straight interface at x = IFACE_X. Unlike the
+subdomain of a domain split by a straight interface at x = IFACE_X (or
+y = IFACE_X when IFACE_AXIS is "y"). Unlike the
 scalar (heat) participants, the exchanged interface state is a VECTOR on BOTH
 channels:
 
@@ -63,7 +64,11 @@ SIDE      = "dirichlet"   # "dirichlet" (import u, export traction) | "neumann"
 PARTNER   = "right"       # name of the partner participant in couple(...)
 X0, X1    = 0.0, 0.55     # this subdomain
 Y0, Y1    = 0.0, 0.4
-IFACE_X   = 0.55          # shared interface (must be X0 or X1)
+IFACE_AXIS = "x"          # WHICH straight line the interface is: "x" -> the line x = IFACE_X
+                          # (the subdomains sit side by side) | "y" -> the line y = IFACE_X
+                          # (they are stacked). Everything below follows from it.
+IFACE_X   = 0.55          # WHERE that line sits: equal to X0 or X1 for axis "x",
+                          # to Y0 or Y1 for axis "y"
 E_MOD     = 1000.0        # Young's modulus
 NU        = 0.3           # Poisson ratio (PLANE STRAIN)
 # Prescribed displacement on this subdomain's WHOLE non-interface boundary
@@ -100,9 +105,13 @@ TI_X, TI_Y = 0.0, 0.0     # iteration-1 fallback interface traction export
 LAM = E_MOD * NU / ((1.0 + NU) * (1.0 - 2.0 * NU))   # plane strain
 MU = E_MOD / (2.0 * (1.0 + NU))
 
-ON_RIGHT = abs(IFACE_X - X1) < abs(IFACE_X - X0)   # interface is this side's x-max?
-OUTER_X = X0 if ON_RIGHT else X1
-S = 1.0 if ON_RIGHT else -1.0              # outward normal at interface = S * e_x
+AX = 0 if IFACE_AXIS == "x" else 1         # the coordinate the interface FIXES
+AL = 1 - AX                                # the coordinate that RUNS ALONG it
+LO, HI = (X0, X1) if AX == 0 else (Y0, Y1)         # this subdomain, across the interface
+ALO, AHI = (Y0, Y1) if AX == 0 else (X0, X1)       # this subdomain, along it
+ON_RIGHT = abs(IFACE_X - HI) < abs(IFACE_X - LO)   # interface at this side's MAX of that axis?
+OUTER_X = LO if ON_RIGHT else HI           # the opposite face, on the same axis
+S = 1.0 if ON_RIGHT else -1.0              # outward normal at interface = S * e_AX
 TOL = 1e-9 * max(X1 - X0, Y1 - Y0)
 
 
@@ -133,7 +142,7 @@ def sample(imp, key, fallback, y):
     fb = np.asarray(fallback, float).ravel()
     if not imp or not imp.get("coordinates"):
         return np.tile(fb, (len(y), 1))
-    ys = np.array([c[1] for c in imp["coordinates"]], float)
+    ys = np.array([c[AL] for c in imp["coordinates"]], float)   # the coordinate ALONG the interface
     vs = np.asarray(imp.get(key) or [], float)
     if vs.ndim == 1:
         vs = vs.reshape(-1, 1)
@@ -235,7 +244,7 @@ D = outer_dofs
 
 if SIDE == "dirichlet":
     u_if = sample(imp, "values", (UI_X, UI_Y), y_if)
-    keep = (np.abs(y_if - Y0) > TOL) & (np.abs(y_if - Y1) > TOL)
+    keep = (np.abs(y_if - ALO) > TOL) & (np.abs(y_if - AHI) > TOL)   # the interface's own ends
     sol[nd[0, iface_bc_n]] = u_if[keep, 0]
     sol[nd[1, iface_bc_n]] = u_if[keep, 1]
     D = np.unique(np.concatenate([outer_dofs, iface_bc_dofs]))
@@ -338,7 +347,8 @@ if len(good):
 Path("exports.json").write_text(json.dumps({
     "field_name": "displacement",
     "n_points": int(len(iface_n)),
-    "coordinates": [[float(IFACE_X), float(yy)] for yy in y_if],
+    "coordinates": [([float(IFACE_X), float(yy)] if AX == 0 else [float(yy), float(IFACE_X)])
+                    for yy in y_if],
     "values": [[float(sol[nd[0, i]]), float(sol[nd[1, i]])] for i in iface_n],
     "normal_fluxes": [[float(q0), float(q1)] for q0, q1 in Q],
 }, indent=2))

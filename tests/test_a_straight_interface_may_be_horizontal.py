@@ -230,3 +230,57 @@ y_if = xy[iface_dofs, :2]"""
     assert len(rows) == len(co)
     xs = {round(float(r[0]), 6) for r in rows}
     assert len(xs) > 2, "the interface dump still writes one x for every row"
+
+
+@pytest.mark.skipif(not VENV.is_file(), reason="the NGSolve interpreter is not on this machine")
+def test_the_ngsolve_vector_contract_runs_on_a_horizontal_interface(tmp_path):
+    """The vector problem with a horizontal interface puts NGSolve on the side whose TOP edge is the
+    interface. That path -- vector exchange, axis 'y', Neumann role -- is the one a round would use, so
+    it is executed here rather than inferred from the axis knob being present."""
+    import json
+    import numpy as np
+    s = (PARTICIPANTS / "participant_ngsolve_elastic.py").read_text()
+    for old, new in (('IFACE_AXIS = "x"', 'IFACE_AXIS = "y"'),
+                     ("X0, X1    = 0.0, 0.55", "X0, X1    = 0.0, 1.0"),
+                     ("Y0, Y1    = 0.0, 0.4", "Y0, Y1    = 0.0, 0.625"),
+                     ("IFACE_X   = 0.55", "IFACE_X   = 0.625"),
+                     ('SIDE      = "dirichlet"', 'SIDE      = "neumann"'),
+                     ('PARTNER   = "right"', 'PARTNER   = "top"'),
+                     ("NX, NY    = 24, 16", "NX, NY    = 16, 10")):
+        assert s.count(old) == 1, old
+        s = s.replace(old, new)
+    old_geo = """geo.AddRectangle((X0, Y0), (X1, Y1),
+                 bcs=(("outer", "interface", "outer", "outer") if ON_RIGHT else
+                      ("outer", "outer", "outer", "interface")))"""
+    new_geo = """geo.AddRectangle((X0, Y0), (X1, Y1),
+                 bcs=(("outer", "outer", "interface", "outer") if ON_RIGHT else
+                      ("interface", "outer", "outer", "outer")))"""
+    assert s.count(old_geo) == 1
+    s = s.replace(old_geo, new_geo)
+    old_sel = """iface_v = np.where(np.abs(vxy[:, 0] - IFACE_X) < TOL)[0]
+iface_v = iface_v[np.argsort(vxy[iface_v, 1])]           # sorted by y
+y_if = vxy[iface_v, 1]"""
+    new_sel = """iface_v = np.where(np.abs(vxy[:, AX] - IFACE_X) < TOL)[0]
+iface_v = iface_v[np.argsort(vxy[iface_v, AL])]
+y_if = vxy[iface_v, AL]"""
+    assert s.count(old_sel) == 1
+    s = s.replace(old_sel, new_sel)
+    old_out = "outer_v = np.where((np.abs(vxy[:, 0] - OUTER_X) < TOL) |"
+    assert s.count(old_out) == 1
+    s = s.replace(old_out, "outer_v = np.where((np.abs(vxy[:, AX] - OUTER_X) < TOL) |")
+    (tmp_path / "p.py").write_text(s)
+    xs = np.linspace(0, 1, 17)
+    (tmp_path / "imports.json").write_text(json.dumps({"top": {
+        "field_name": "displacement", "n_points": len(xs),
+        "coordinates": [[float(x), 0.625] for x in xs],
+        "values": [[0.0, 0.0] for _ in xs],
+        "normal_fluxes": [[0.0, float(300.0 * np.sin(np.pi * x))] for x in xs]}}))
+    r = subprocess.run([str(VENV), "p.py"], cwd=tmp_path, capture_output=True, text=True, timeout=900)
+    assert r.returncode == 0, f"the horizontal vector side did not run:\n{(r.stderr or r.stdout)[-1500:]}"
+    e = json.loads((tmp_path / "exports.json").read_text())
+    co = np.asarray(e["coordinates"], float)
+    u = np.asarray(e["values"], float)
+    assert np.allclose(co[:, 1], 0.625), "the exported points are not on the horizontal interface"
+    assert u.shape == (len(co), 2), "a vector side exports two components per point"
+    assert np.abs(u).max() > 1e-4, "the imposed traction produced no displacement"
+    assert np.isfinite(np.asarray(e["normal_fluxes"], float)).all()

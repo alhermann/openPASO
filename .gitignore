@@ -100,3 +100,7 @@ campaign3_blind/
 validation/*/transcript.txt
 data/blind_campaign_commitment.json
 data/blind_key_commitment.json
+
+# Tests of the evaluation campaign. They need campaign3_blind/, which lives on
+# consolidation/v2, and they pass there. Keeping them here would ship a suite that
+# cannot go green on a fresh clone.

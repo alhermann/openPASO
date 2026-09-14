@@ -74,6 +74,10 @@ _TRAPS: tuple[tuple[str, str, str, str], ...] = (
      "sample the function at the vertices into a P1 GridFunction and integrate that; a GridFunction "
      "IS a CoefficientFunction"),
     # ── FEniCSx ───────────────────────────────────────────────────────────
+    ("fenics", r"locate_dofs_(?:topological|geometrical)\s*\((?!\s*\[)[^)]*\)\s*\[\s*0\s*\]",
+     "every dof but the first silently disappears (no error at that line)",
+     "fem.locate_dofs_topological returns the ARRAY for a single space -- drop the [0]; it returns a "
+     "pair only when you pass a LIST of two spaces"),
     ("fenics", r"\.subset_dofs\s*\(",
      "AttributeError: 'FunctionSpace' object has no attribute 'subset_dofs'",
      "fem.locate_dofs_topological(V, fdim, facets) or fem.locate_dofs_geometrical(V, marker)"),

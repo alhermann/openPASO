@@ -229,3 +229,17 @@ def test_the_run_check_is_silent_on_what_the_rounds_actually_printed():
         assert findings_from_output(text) == [], f"the run check fired on ordinary output: {text[:60]}"
     real = "TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'"
     assert findings_from_output(real), "the real message is no longer caught"
+
+
+def test_the_dof_locator_index_trap_is_precise():
+    """A worker wrote fem.locate_dofs_topological(V, fdim, facets)[0] and every dof but the first
+    silently disappeared -- no error at that line, a ValueError three steps later. For a single space
+    the call returns the array itself; only a LIST of two spaces gives a pair, and that form must not
+    be flagged."""
+    import re
+    from tools.participant_lint import _TRAPS
+    pat = next(p for b, p, e, f in _TRAPS if "locate_dofs" in p)
+    assert re.search(pat, "d = fem.locate_dofs_topological(V, fdim, facets)[0]")
+    assert re.search(pat, "d = fem.locate_dofs_geometrical(V, marker)[0]")
+    assert not re.search(pat, "d = fem.locate_dofs_topological(V, fdim, facets)")
+    assert not re.search(pat, "d = fem.locate_dofs_topological([V, W], fdim, facets)[0]")

@@ -166,10 +166,14 @@ KNOWLEDGE = {
             "well-posed form.",
             "[Performance] Build one scheme per polynomial form and reuse it "
             "across mesh resolutions where possible; each unseen DUNE form "
-            "JIT-compiles C++ before the first solve. Signal: stderr prints "
-            "'DUNE-INFO: Compiling Integrands (new)' and the first level takes "
-            "minutes while later resolutions of the same form start without "
-            "another Integrands compile.",
+            "JIT-compiles C++ before the first solve. Signal: DUNE prints "
+            "'Compiling <module> (new)', where <module> is the generated "
+            "module name, and the first level then takes minutes while later "
+            "resolutions of the same form start without another compile. The "
+            "wording is f\"Compiling {pythonName} (new)\" at "
+            "dune/generator/cmakebuilder.py:378, with (updated), (rebuilding) "
+            "and (loading) as its siblings -- so match on 'Compiling' and "
+            "'(new)', not on a fixed module name.",
         ],
     }
 }

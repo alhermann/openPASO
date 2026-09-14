@@ -359,7 +359,7 @@ KNOWLEDGE = {
                 "and the weight is not yours to choose, measure the slope "
                 "and report what you measured rather than what the scheme "
                 "is named.\n"
-                "HOW THIS SITS WITH THE 'CONVERGED IN TIME' PITFALL "
+                "HOW THIS SITS WITH THE TIME-CONVERGENCE PITFALL "
                 "ABOVE, which reports that sweeping the step count over a "
                 "factor of eight moved the final relaxed stress only in "
                 "the seventh digit: both are true, and the difference is "

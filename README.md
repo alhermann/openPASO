@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-FF6B4A?style=flat-square" alt="MIT licence"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10--3.13-64748B?style=flat-square" alt="Python 3.10+"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10--3.13-64748B?style=flat-square" alt="Python 3.10 to 3.13"></a>
   <a href="https://doi.org/10.5281/zenodo.20543501"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20543501-64748B?style=flat-square" alt="DOI"></a>
   <a href="#which-solvers-can-it-use"><img src="https://img.shields.io/badge/solvers-9-FF6B4A?style=flat-square" alt="9 solvers"></a>
 </p>
@@ -66,7 +66,7 @@ Check before you start:
 
 ```bash
 python3 --version    # 3.10, 3.11 or 3.12 → go straight on. 3.13 → read the box below.
-cc --version         # only matters on 3.13. "not found" → install a compiler first.
+cc --version         # Linux/macOS only, and only for 3.13. "not found" → see the box.
 ```
 
 > [!IMPORTANT]
@@ -78,11 +78,22 @@ cc --version         # only matters on 3.13. "not found" → install a compiler 
 > - Debian or Ubuntu: `sudo apt install build-essential`
 > - macOS: `xcode-select --install`
 > - Fedora or RHEL: `sudo dnf install gcc gcc-c++ make`
+> - Windows: there is no `cc`. Either install
+>   [Build Tools for Visual Studio](https://visualstudio.microsoft.com/visual-cpp-build-tools/),
+>   choosing the "Desktop development with C++" workload, and open a new terminal —
+>   **or, much simpler, install Python 3.12** from
+>   <https://www.python.org/downloads/> and ignore this box.
 >
 > Without a compiler the install stops on numpy with `Unknown compiler(s)` and
 > `metadata-generation-failed`.
 >
 > Python 3.14 and newer are untested. Use 3.12 if you can choose.
+>
+> **If your Python is older than 3.10 or newer than 3.13**, install a supported one
+> beside it — they live side by side without conflict. Get it from
+> <https://www.python.org/downloads/>, or with conda:
+> `conda create -n paso python=3.12 && conda activate paso`. Then use that `python3`
+> for the `venv` step below.
 
 ```bash
 git clone https://github.com/alhermann/openPASO.git
@@ -147,7 +158,7 @@ If you instead see `ModuleNotFoundError`, your virtual environment is not active
 | **SPARTA** | rarefied gas, particle method, experimental | build from source (hours) |
 
 <details>
-<summary><b>Install commands for each solver</b></summary>
+<summary><b>Install commands, solver by solver</b></summary>
 
 Install the `pip` ones into the **same** virtual environment you made above
 (`.venv`, the one you activated).
@@ -175,8 +186,9 @@ pip install KratosMultiphysics-all
 pip install dune-fem mpi4py
 ```
 
-FEniCSx is the one solver that does **not** go into `.venv`. It needs its own conda
-environment, and openPASO finds it there by itself:
+FEniCSx does **not** go into `.venv`. It needs its own conda environment, and openPASO
+finds it there by itself. (deal.II, FEBio, 4C and SPARTA live outside `.venv` too — they
+are not Python packages at all.)
 
 ```bash
 # needs conda: https://docs.conda.io/projects/miniconda/
@@ -396,6 +408,25 @@ These are full paths for the same reason as above: the app starts openPASO from 
 folder. `VIRTUAL_ENV` is needed because some solvers build helper code at run time and
 pick their Python from the environment; without it they can pick the wrong one.
 
+> [!IMPORTANT]
+> **If you set any solver variable with `export`, it must also go inside the `env`
+> block.** Your AI app does not start openPASO from your terminal, so it never sees your
+> `export` line or your `~/.bashrc`. Add each one as another `"NAME": "value"` line:
+>
+> ```json
+>       "env": {
+>         "PYTHONPATH": "/path/to/openPASO/src",
+>         "VIRTUAL_ENV": "/path/to/openPASO/.venv",
+>         "PYVISTA_OFF_SCREEN": "true",
+>         "FEBIO_BINARY": "/path/to/febio4",
+>         "FENICS_PYTHON": "/path/to/fenics-env/bin/python"
+>       }
+> ```
+>
+> Without this the solver installs correctly, works in your terminal, and openPASO still
+> reports it as missing. The same applies to `FOURC_BINARY`, `SPARTA_BINARY` and
+> `DUNE_PYTHON`.
+
 **Cursor, Windsurf, or any other MCP app** — use the command
 `/path/to/openPASO/.venv/bin/python`, the arguments `-m server`, and **all three**
 settings from the `env` block above. Then quit the app completely and start it again.
@@ -565,6 +596,9 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 | **verification** | checking that the numbers are computed correctly |
 | **validation** | checking that the model matches the real world — **not** done here |
 | **MCP** | the standard plug that connects tools to AI apps |
+| **git** | the tool that downloads this project's files (`git clone`) |
+| **pip** | the tool that installs Python packages |
+| **compiler** | a program that turns source code into something your machine can run. Some packages need one |
 | **venv** | a private Python folder for one project's packages |
 | **`pip install -e .`** | install the project in this folder (`.`) so your edits take effect straight away (`-e`) |
 | **PYTHONPATH** | tells Python which folder to find openPASO's code in |
@@ -583,7 +617,7 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 | **interpreter** | the `python` program itself; several can be installed side by side |
 | **prompt** (terminal) | the text your terminal shows before you type, such as `$`. Not the same as the question you ask an AI |
 | **fork** | a copy of a project developed separately. This repository is one; install from here, cite the original |
-| **conda** | another such tool, needed for FEniCSx |
+| **conda** | another tool for private Python folders, like venv. FEniCSx needs it |
 | **agent** | an AI model that can use tools by itself, not only write text |
 | **server** | the background program the AI app talks to; openPASO is one |
 | **environment variable** | a setting your terminal passes to a program. `export NAME=value` sets one, and it is forgotten when you close the terminal |

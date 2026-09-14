@@ -42,13 +42,13 @@ import pytest
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 
-FOURC = Path(os.environ.get("FOURC_BINARY", "/home/alexander/4C/build/4C"))
+FOURC = Path(os.environ.get("FOURC_BINARY", "/home/user/4C/build/4C"))
 # The SOURCE directories, not the checkout root: `.git` is compressed objects
 # that a text grep would read as noise, and a junk token scraped out of a
 # packfile would land in the "real key" set and reject a legitimate stopword.
-KRATOS_SRC = Path("/home/alexander/Kratos/kratos")
-KRATOS_APPS = Path("/home/alexander/Kratos/applications")
-FEBIO_SRC = Path("/home/alexander/Schreibtisch/febio-src")
+KRATOS_SRC = Path("/home/user/Kratos/kratos")
+KRATOS_APPS = Path("/home/user/Kratos/applications")
+FEBIO_SRC = Path("/home/user/Schreibtisch/febio-src")
 
 # A name whose presence proves the extractor worked. If the control is missing,
 # the grammar was not really read and the result is not evidence of anything.

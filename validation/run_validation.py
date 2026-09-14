@@ -22,8 +22,8 @@ is read from the env only (source qwen_uplift_test/.env first) and is never
 written to any artifact.
 
 Usage:
-  set -a && source /home/alexander/Schreibtisch/qwen_uplift_test/.env && set +a
-  /home/alexander/Schreibtisch/open-fem-agent/.venv-lg/bin/python \
+  set -a && source /home/user/Schreibtisch/qwen_uplift_test/.env && set +a
+  /home/user/Schreibtisch/open-fem-agent/.venv-lg/bin/python \
       validation/run_validation.py [--scenarios S1 S2 S3 S4] [--seed 0]
 
 Prerequisite: the harness spawns the MCP server with `<repo>/.venv/bin/python`;
@@ -68,7 +68,7 @@ def _or_llm(size, *, temperature, seed):
 
 _agent._llm = _or_llm  # route the harness's LLM factory through OpenRouter
 
-FEPY = "/home/alexander/miniconda3/envs/fenics/bin/python"
+FEPY = "/home/user/miniconda3/envs/fenics/bin/python"
 ENVIRON = (
     "\nENVIRONMENT NOTES: FEniCSx/dolfinx python -> " + FEPY + " ; "
     "scikit-fem is importable in the openPASO server's own python (just use "

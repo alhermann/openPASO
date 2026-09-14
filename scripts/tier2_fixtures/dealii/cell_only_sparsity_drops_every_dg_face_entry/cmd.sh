@@ -36,10 +36,10 @@ SHARED="$HERE/../_shared"
 
 echo -n "phantom_add_message_files="
 grep -rl "requires row/col to be in pattern" \
-  /home/alexander/dealii/include /home/alexander/dealii/source 2>/dev/null | wc -l
+  /home/user/dealii/include /home/user/dealii/source 2>/dev/null | wc -l
 echo -n "phantom_excmessage_files="
 grep -rl "matrix entry at i,j does not exist in sparsity pattern" \
-  /home/alexander/dealii/include /home/alexander/dealii/source 2>/dev/null | wc -l
+  /home/user/dealii/include /home/user/dealii/source 2>/dev/null | wc -l
 
 for variant in release debug; do
   echo "=== variant=$variant"

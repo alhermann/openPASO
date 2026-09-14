@@ -37,7 +37,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 FIX = ROOT / "tests" / "fixtures" / "fourc_failure_logs"
-FOURC = Path("/home/alexander/4C/build/4C")
+FOURC = Path("/home/user/4C/build/4C")
 
 
 def test_the_diagnostic_names_the_cause_of_the_real_crash():

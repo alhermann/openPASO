@@ -297,7 +297,7 @@ def test_the_real_seed1202_side_a_fires_and_side_b_does_not():
 # cell: both participants really ran, the partitioned iteration converged
 # 1.3901141511 -> 4.3834e-07 in eight iterations at level 1, and the graded
 # order came out 1.9367. Its participant_A.py invoked the binary correctly --
-# `['stdbuf', '-oL', '-eL', '/home/.../4C', deck, prefix]` with
+# `['stdbuf', '-oL', '-eL', '/home/user/4C', deck, prefix]` with
 # capture_output=True -- and then wrote its own three-line summary into the log
 # instead of result.stdout. 56 bytes of prose. On the same cell with the same
 # two codes, a real capture is 2947 and 1476 bytes.
@@ -389,7 +389,7 @@ def test_an_env_assignment_after_a_wrapper_is_named(tmp_path):
     """
     from langgraph_eval.agent import _env_after_wrapper_check as C
     real = ("stdbuf -oL -eL LD_LIBRARY_PATH=/opt/4C-dependencies/lib "
-            "/home/alexander/4C/build/4C deck.4C.yaml out")
+            "/home/user/4C/build/4C deck.4C.yaml out")
     got = C(real)
     assert "RUNS `LD_LIBRARY_PATH=...` AS THE PROGRAM" in got
     assert "already exports" in got.lower()

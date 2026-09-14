@@ -162,37 +162,37 @@
   },
   "skfem": {
     "backend": "skfem",
-    "interpreter": "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python",
+    "interpreter": "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python",
     "importable": true,
     "error": ""
   },
   "ngsolve": {
     "backend": "ngsolve",
-    "interpreter": "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python",
+    "interpreter": "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python",
     "importable": true,
     "error": ""
   },
   "fenics": {
     "backend": "fenics",
-    "interpreter": "/home/alexander/miniconda3/envs/fenics/bin/python",
+    "interpreter": "/home/user/miniconda3/envs/fenics/bin/python",
     "importable": true,
     "error": ""
   },
   "dune": {
     "backend": "dune",
-    "interpreter": "/home/alexander/miniconda3/envs/dune-fem-env/bin/python",
+    "interpreter": "/home/user/miniconda3/envs/dune-fem-env/bin/python",
     "importable": true,
     "error": ""
   },
   "dealii": {
     "backend": "dealii",
-    "target": "/home/alexander/dealii/build/lib/libdeal_II.so",
+    "target": "/home/user/dealii/build/lib/libdeal_II.so",
     "available": true,
     "error": ""
   },
   "fourc": {
     "backend": "fourc",
-    "target": "/home/alexander/4C/build/4C",
+    "target": "/home/user/4C/build/4C",
     "available": true,
     "error": ""
   },

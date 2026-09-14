@@ -15,7 +15,7 @@ import sys
 import numpy as np
 
 SD = "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi"
-FOURC = "/home/alexander/4C/build/4C"
+FOURC = "/home/user/4C/build/4C"
 ENV = dict(os.environ, LD_LIBRARY_PATH="/opt/4C-dependencies/lib")
 
 L, Y0, Y1 = 1.0, 0.2, 0.25

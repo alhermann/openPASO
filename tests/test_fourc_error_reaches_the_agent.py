@@ -4,7 +4,7 @@ WHAT IT COST, MEASURED. Both openPASO-arm runs of coupled cell C2 (seeds 70 and 
 wrote COULD_NOT_COMPLETE with ZERO deliverables and stopped at 30 and 37 tool
 calls, having used 22-27% of their wall budget. Their stated root cause:
 
-    "The 4C binary (/home/alexander/4C/build/4C) fails to execute:
+    "The 4C binary (/home/user/4C/build/4C) fails to execute:
      'Invalid MIT-MAGIC-COOKIE-1 key' followed by 'MPI_ABORT was invoked on
      rank 0' ... This occurs even when using openPASO's run_with_generator tool"
 
@@ -46,7 +46,7 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from backends.fourc.backend import _fourc_diagnostic  # noqa: E402
 
-FOURC = Path("/home/alexander/4C/build/4C")
+FOURC = Path("/home/user/4C/build/4C")
 
 # Recorded verbatim from a real failing run.
 REAL_STDOUT = """Invalid MIT-MAGIC-COOKIE-1 key
@@ -59,7 +59,7 @@ Trilinos Version: f4d64271518 (git SHA1)
 Total number of MPI ranks: 1
 
 =========================================================================
-PROC 0 ERROR in /home/alexander/4C/src/core/io/src/4C_io_input_spec_builders.cpp, line 633:
+PROC 0 ERROR in /home/user/4C/src/core/io/src/4C_io_input_spec_builders.cpp, line 633:
 Could not match this input
 
 STRUCTURAL DYNAMIC:

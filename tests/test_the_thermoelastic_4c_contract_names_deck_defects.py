@@ -102,7 +102,7 @@ def test_the_served_lint_names_the_closest_real_section(tmp_path):
     import json, os, subprocess, sys
     from pathlib import Path
     import pytest
-    binp = Path("/home/alexander/4C/build/4C")
+    binp = Path("/home/user/4C/build/4C")
     if not binp.is_file():
         pytest.skip("4C binary not on this host")
     src = (Path(__file__).resolve().parents[1] / "data" / "coupling_participants" / "participant_fourc_thermoelastic.py").read_text()

@@ -40,7 +40,7 @@ from pathlib import Path
 
 import sympy as sp
 
-CAMPAIGN = Path("/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind")
+CAMPAIGN = Path("/home/user/Schreibtisch/qwen_uplift_test/campaign3_blind")
 REPO_SRC = Path(__file__).resolve().parents[1] / "src"
 sys.path.insert(0, str(REPO_SRC))
 sys.path.insert(0, str(CAMPAIGN))

@@ -48,18 +48,18 @@ Total wall time for INPUT:        4.900e-02 sec
 
 
 =========================================================================
-PROC 0 ERROR in /home/alexander/4C/src/core/fem/src/discretization/4C_fem_discretization_conditions.cpp, line 55:
+PROC 0 ERROR in /home/user/4C/src/core/fem/src/discretization/4C_fem_discretization_conditions.cpp, line 55:
 Dimension of condition is larger than the problem dimension.
 ------------------
- 0# void FourC::Core::Internal::format_and_throw_error<>(std::source_location const&, std::basic_format_string<char>) in /home/alexander/4C/build/4C
- 1# FourC::Core::FE::Discretization::boundary_conditions_geometry() in /home/alexander/4C/build/lib4C.so
- 2# FourC::Core::FE::Discretization::fill_complete(FourC::Core::FE::OptionsFillComplete) in /home/alexander/4C/build/lib4C.so
- 3# FourC::scatra_dyn(int) in /home/alexander/4C/build/lib4C.so
- 4# entrypoint_switch() in /home/alexander/4C/build/4C
- 5# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C
- 6# main in /home/alexander/4C/build/4C
+ 0# void FourC::Core::Internal::format_and_throw_error<>(std::source_location const&, std::basic_format_string<char>) in /home/user/4C/build/4C
+ 1# FourC::Core::FE::Discretization::boundary_conditions_geometry() in /home/user/4C/build/lib4C.so
+ 2# FourC::Core::FE::Discretization::fill_complete(FourC::Core::FE::OptionsFillComplete) in /home/user/4C/build/lib4C.so
+ 3# FourC::scatra_dyn(int) in /home/user/4C/build/lib4C.so
+ 4# entrypoint_switch() in /home/user/4C/build/4C
+ 5# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/user/4C/build/4C
+ 6# main in /home/user/4C/build/4C
  7# __libc_start_main at ../csu/libc-start.c:342
- 8# _start in /home/alexander/4C/build/4C
+ 8# _start in /home/user/4C/build/4C
 
 =========================================================================
 

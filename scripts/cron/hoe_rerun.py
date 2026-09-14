@@ -25,8 +25,8 @@ is restored. The user has those files; this script's contract is
 
 Wire-up:
   # weekly Sunday 04:00
-  0 4 * * 0 cd /home/hermann/Schreibtisch/Open-FEM-agent && \
-    /home/hermann/miniconda3/bin/python3 scripts/cron/hoe_rerun.py
+  0 4 * * 0 cd /home/user/Schreibtisch/Open-FEM-agent && \
+    /home/user/miniconda3/bin/python3 scripts/cron/hoe_rerun.py
 """
 from __future__ import annotations
 import argparse

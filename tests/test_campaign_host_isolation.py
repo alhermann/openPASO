@@ -63,7 +63,7 @@ def test_shell_cannot_read_an_adjacent_cell(tmp_path):
 
     run_bash = A._bash_tool_for(work)
     runtime_python = (
-        "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python")
+        "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python")
     pair_params = json.loads((
         ROOT / "benchmarks/coupling_pairs/fourc_kratos_cht/params.json"
     ).read_text())

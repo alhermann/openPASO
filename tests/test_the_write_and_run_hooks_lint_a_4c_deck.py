@@ -10,7 +10,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from tools.workspace_advisor import _fourc_deck_write_check, _fourc_run_check, _fourc_after_shell_check   # noqa: E402
 from tools.fourc_deck_lint import run_command_deck, looks_like_deck             # noqa: E402
 
-FOURC = Path("/home/alexander/4C/build/4C")
+FOURC = Path("/home/user/4C/build/4C")
 BAD = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\nIO/RUNTIME VTK OUTPUT/THERMO:\n  OUTPUT_THERMO: true\n'
        'SOLIDSCATRA ELEMENTS:\n  - "1 SOLIDSCATRA HEX8 1 2 3 4 5 6 7 8 MAT 1 KINEM linear TYPE Undefined"\n'
        'MATERIALS:\n  - MAT: 1\n    MAT_Struct_ThermoStVenantK:\n      YOUNGNUM: 1\n'
@@ -53,14 +53,14 @@ def test_non_decks_and_non_yaml_files_get_nothing(tmp_path):
 def test_the_shell_command_that_runs_4c_gets_the_decks_defects_and_4cs_own_stop(tmp_path):
     (tmp_path / "side_A").mkdir()
     (tmp_path / "side_A" / "slab.4C.yaml").write_text(BAD)
-    cmd = "cd side_A && stdbuf -oL -eL /home/alexander/4C/build/4C slab.4C.yaml out > run.log 2>&1; tail -20 run.log"
+    cmd = "cd side_A && stdbuf -oL -eL /home/user/4C/build/4C slab.4C.yaml out > run.log 2>&1; tail -20 run.log"
     assert run_command_deck(cmd, tmp_path) == tmp_path / "side_A" / "slab.4C.yaml"
     out = _fourc_run_check(cmd, STOP, tmp_path)
     assert "[run check] 4C DECK slab.4C.yaml:" in out and "topology entries use DVOLUME" in out, out
     assert "[run check] 4C's own stop: Section DVOLUME-NODE TOPOLOGY is unknown" in out, out
     # mpirun in front, absolute deck path, finished run: the console said it all, the lint adds nothing
     (tmp_path / "ok.yaml").write_text(CLEAN)
-    quiet = _fourc_run_check(f"mpirun -np 2 /home/alexander/4C/build/4C {tmp_path}/ok.yaml out",
+    quiet = _fourc_run_check(f"mpirun -np 2 /home/user/4C/build/4C {tmp_path}/ok.yaml out",
                              "... 4C finished normally\n", tmp_path)
     if FOURC.is_file():
         assert quiet == "", quiet
@@ -84,7 +84,7 @@ def test_a_console_redirected_to_a_file_is_read_from_that_file(tmp_path):
     (tmp_path / "side_A").mkdir()
     (tmp_path / "side_A" / "slab.4C.yaml").write_text(BAD)
     (tmp_path / "side_A" / "run_4C.log").write_text(STOP)
-    cmd = "cd side_A && stdbuf -oL -eL /home/alexander/4C/build/4C slab.4C.yaml out > run_4C.log 2>&1"
+    cmd = "cd side_A && stdbuf -oL -eL /home/user/4C/build/4C slab.4C.yaml out > run_4C.log 2>&1"
     out = _fourc_run_check(cmd, "", tmp_path)                       # the shell reply carried nothing
     assert "4C's own stop: Section DVOLUME-NODE TOPOLOGY is unknown" in out, out
     (tmp_path / "side_A" / "run_4C.log").write_text("... processor 0 finished normally\n")
@@ -126,7 +126,7 @@ def test_a_console_a_participant_script_wrote_during_the_command_is_named_after_
     # the console of a deck the command ran directly is the run check's, not this one's
     os.utime(tmp_path / "side_A" / "slab.4C.yaml.log", None)
     assert _fourc_after_shell_check(tmp_path, time.time() - 5,
-                                    "cd side_A && /home/alexander/4C/build/4C slab.4C.yaml out > slab.4C.yaml.log 2>&1") == ""
+                                    "cd side_A && /home/user/4C/build/4C slab.4C.yaml out > slab.4C.yaml.log 2>&1") == ""
 
 
 def test_4cs_stop_keeps_the_offending_snippet_after_the_blank_line():
@@ -167,7 +167,7 @@ def test_a_finished_run_whose_field_dwarfs_its_data_is_named(tmp_path):
     # the run hook carries it for a finished run
     (tmp_path / "slab.4C.yaml").write_text(deck)
     meshio.write(tmp_path / "out-vtk-files" / "scatra-00001-0.vtu", meshio.Mesh(pts, cells, point_data={"phi_1": np.full(4, 8.5e13)}))
-    out = _fourc_run_check("stdbuf -oL /home/alexander/4C/build/4C slab.4C.yaml out", "... processor 0 finished normally\n", tmp_path)
+    out = _fourc_run_check("stdbuf -oL /home/user/4C/build/4C slab.4C.yaml out", "... processor 0 finished normally\n", tmp_path)
     assert "[run check] 4C FIELD SCALE: phi_1 peaks at 8.5e+13" in out, out
 
 

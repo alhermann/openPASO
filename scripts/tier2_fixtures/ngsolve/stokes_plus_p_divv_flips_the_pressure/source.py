@@ -144,7 +144,7 @@ def main() -> int:
           f"{duv < 1e-10 and negatives < 1e-9}")
 
     # What does the shipped generator actually write?
-    sys.path.insert(0, "/home/alexander/Schreibtisch/ofa-verify-ngs/src")
+    sys.path.insert(0, "/home/user/Schreibtisch/ofa-verify-ngs/src")
     import backends.ngsolve.backend as ngb          # noqa: E402
     try:
         ngb.register()

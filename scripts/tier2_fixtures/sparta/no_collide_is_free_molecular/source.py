@@ -35,7 +35,7 @@ CANDIDATES = [
     os.environ.get("SPARTA_BINARY"),
     shutil.which("spa_serial"),
     shutil.which("spa_mpi"),
-    "/home/alexander/Schreibtisch/sparta/src/spa_serial",
+    "/home/user/Schreibtisch/sparta/src/spa_serial",
     str(Path.home() / "sparta" / "src" / "spa_serial"),
 ]
 MUTATE = os.environ.get("T2_MUTATE") == "1"

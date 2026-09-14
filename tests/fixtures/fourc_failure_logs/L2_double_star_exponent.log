@@ -15,36 +15,36 @@ Total number of MPI ranks: 1
 
 
 =========================================================================
-PROC 0 ERROR in /home/alexander/4C/src/core/utils/src/functions/4C_utils_symbolic_expression.cpp, line 604:
+PROC 0 ERROR in /home/user/4C/src/core/utils/src/functions/4C_utils_symbolic_expression.cpp, line 604:
 Error while parsing:
 -12*x**3*y/5 + 14*x**3/5 - 8979*x**2*y/2000 - 5147*x**2/12000 - 12*x*y**3/5 + 42*x*y**2/5 - 1779*x*y/800 - 1007*x/1200 - 2993*y**3/2000 - 5147*y**2/12000 + 4621*y/2400
       ^
       Expected a primary expression.
 ------------------
- 0# FourC::Core::Utils::SymbolicExpressionDetails::Parser::throw_syntax_error(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long) const in /home/alexander/4C/build/lib4C.so
- 1# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_primary() [clone .localalias] in /home/alexander/4C/build/lib4C.so
- 2# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_pow() in /home/alexander/4C/build/lib4C.so
- 3# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_factor() in /home/alexander/4C/build/lib4C.so
- 4# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_term() in /home/alexander/4C/build/lib4C.so
- 5# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_comparison() in /home/alexander/4C/build/lib4C.so
- 6# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_equality() in /home/alexander/4C/build/lib4C.so
- 7# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_logical_and() in /home/alexander/4C/build/lib4C.so
- 8# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_logical_or() in /home/alexander/4C/build/lib4C.so
- 9# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse() in /home/alexander/4C/build/lib4C.so
-10# FourC::Core::Utils::SymbolicExpressionDetails::Parser::Parser(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > > const&) in /home/alexander/4C/build/lib4C.so
-11# FourC::Core::Utils::SymbolicExpressionDetails::Impl<double>::init() in /home/alexander/4C/build/lib4C.so
-12# FourC::Core::Utils::SymbolicExpression<double>::SymbolicExpression(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) in /home/alexander/4C/build/lib4C.so
-13# FourC::Core::Utils::SymbolicFunctionOfSpaceTime::SymbolicFunctionOfSpaceTime(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, std::vector<std::shared_ptr<FourC::Core::Utils::FunctionVariable>, std::allocator<std::shared_ptr<FourC::Core::Utils::FunctionVariable> > >) in /home/alexander/4C/build/lib4C.so
-14# FourC::Core::Utils::try_create_symbolic_function_of_space_time(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&) in /home/alexander/4C/build/lib4C.so
-15# std::_Function_handler<std::any (std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&), FourC::(anonymous namespace)::wrap_function<FourC::Core::Utils::FunctionOfSpaceTime>(std::shared_ptr<FourC::Core::Utils::FunctionOfSpaceTime> (*)(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&))::{lambda(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&)#1}>::_M_invoke(std::_Any_data const&, std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&) in /home/alexander/4C/build/lib4C.so
-16# FourC::(anonymous namespace)::create_builtin_function(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&) in /home/alexander/4C/build/lib4C.so
-17# std::_Function_handler<std::any (std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&), std::any (*)(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&)>::_M_invoke(std::_Any_data const&, std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&) in /home/alexander/4C/build/lib4C.so
-18# FourC::Core::Utils::FunctionManager::read_input(FourC::Core::IO::InputFile&) in /home/alexander/4C/build/lib4C.so
-19# FourC::setup_global_problem(FourC::Core::IO::InputFile&, FourC::CommandlineArguments const&, FourC::Core::Communication::Communicators const&) in /home/alexander/4C/build/4C
-20# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C
-21# main in /home/alexander/4C/build/4C
+ 0# FourC::Core::Utils::SymbolicExpressionDetails::Parser::throw_syntax_error(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long) const in /home/user/4C/build/lib4C.so
+ 1# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_primary() [clone .localalias] in /home/user/4C/build/lib4C.so
+ 2# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_pow() in /home/user/4C/build/lib4C.so
+ 3# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_factor() in /home/user/4C/build/lib4C.so
+ 4# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_term() in /home/user/4C/build/lib4C.so
+ 5# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_comparison() in /home/user/4C/build/lib4C.so
+ 6# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_equality() in /home/user/4C/build/lib4C.so
+ 7# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_logical_and() in /home/user/4C/build/lib4C.so
+ 8# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse_logical_or() in /home/user/4C/build/lib4C.so
+ 9# FourC::Core::Utils::SymbolicExpressionDetails::Parser::parse() in /home/user/4C/build/lib4C.so
+10# FourC::Core::Utils::SymbolicExpressionDetails::Parser::Parser(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > > const&) in /home/user/4C/build/lib4C.so
+11# FourC::Core::Utils::SymbolicExpressionDetails::Impl<double>::init() in /home/user/4C/build/lib4C.so
+12# FourC::Core::Utils::SymbolicExpression<double>::SymbolicExpression(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) in /home/user/4C/build/lib4C.so
+13# FourC::Core::Utils::SymbolicFunctionOfSpaceTime::SymbolicFunctionOfSpaceTime(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, std::vector<std::shared_ptr<FourC::Core::Utils::FunctionVariable>, std::allocator<std::shared_ptr<FourC::Core::Utils::FunctionVariable> > >) in /home/user/4C/build/lib4C.so
+14# FourC::Core::Utils::try_create_symbolic_function_of_space_time(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&) in /home/user/4C/build/lib4C.so
+15# std::_Function_handler<std::any (std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&), FourC::(anonymous namespace)::wrap_function<FourC::Core::Utils::FunctionOfSpaceTime>(std::shared_ptr<FourC::Core::Utils::FunctionOfSpaceTime> (*)(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&))::{lambda(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&)#1}>::_M_invoke(std::_Any_data const&, std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&) in /home/user/4C/build/lib4C.so
+16# FourC::(anonymous namespace)::create_builtin_function(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&) in /home/user/4C/build/lib4C.so
+17# std::_Function_handler<std::any (std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&), std::any (*)(std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&)>::_M_invoke(std::_Any_data const&, std::vector<FourC::Core::IO::InputParameterContainer, std::allocator<FourC::Core::IO::InputParameterContainer> > const&) in /home/user/4C/build/lib4C.so
+18# FourC::Core::Utils::FunctionManager::read_input(FourC::Core::IO::InputFile&) in /home/user/4C/build/lib4C.so
+19# FourC::setup_global_problem(FourC::Core::IO::InputFile&, FourC::CommandlineArguments const&, FourC::Core::Communication::Communicators const&) in /home/user/4C/build/4C
+20# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/user/4C/build/4C
+21# main in /home/user/4C/build/4C
 22# __libc_start_main at ../csu/libc-start.c:342
-23# _start in /home/alexander/4C/build/4C
+23# _start in /home/user/4C/build/4C
 
 =========================================================================
 

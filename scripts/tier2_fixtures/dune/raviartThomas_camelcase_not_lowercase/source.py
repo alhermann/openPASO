@@ -21,7 +21,7 @@ camelCase.
 
 PORTABILITY FIX (2026-08-03). The first version of this
 fixture hard-coded an absolute path into one developer's
-DUNE source checkout (/home/hermann/Schreibtisch/
+DUNE source checkout (/home/user/Schreibtisch/
 dune-src/...) plus an absolute path to the catalog. On
 any other machine it printed "FAIL: <path> not found"
 and counted as failed, even though the claim it verifies

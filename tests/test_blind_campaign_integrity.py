@@ -24,7 +24,7 @@ import pytest
 from blind_eval import keyvault
 from blind_eval.leakgate import scan
 
-CAMPAIGN = Path("/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind")
+CAMPAIGN = Path("/home/user/Schreibtisch/qwen_uplift_test/campaign3_blind")
 KEYS = CAMPAIGN / "keys"
 PROBLEMS = CAMPAIGN / "problems"
 MANIFEST = Path(__file__).resolve().parents[1] / "data" / "blind_key_commitment.json"
@@ -255,7 +255,7 @@ def test_no_live_draw_seed_appears_in_any_tracked_file():
     import subprocess as _sp
     from pathlib import Path as _P
     repo = _P(__file__).resolve().parents[1]
-    keys = _P("/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys")
+    keys = _P("/home/user/Schreibtisch/qwen_uplift_test/campaign3_blind/keys")
     if not keys.is_dir():
         pytest.skip("no key directory on this machine")
     seeds = []

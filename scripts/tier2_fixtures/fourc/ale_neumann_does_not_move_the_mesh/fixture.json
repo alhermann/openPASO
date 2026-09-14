@@ -1,5 +1,5 @@
 {
-  "_comment": "Tier-2 for fourc::ale#1 — a DESIGN POINT NEUMANN CONDITIONS block on a stand-alone ALE problem parses, runs and moves nothing. Both halves of the claim are observed: NEUMANN_WARNINGS=0 (4C never says the condition is inert) and the node the load acts on ends at exactly 0.0 in both components, against -6.30e-2 / 0.25 for the same node under the Dirichlet drive it replaced. The Dirichlet arm is the control and must exit 0. Verified by execution 2026-08-06 against 4C at /home/alexander/4C/build/4C on upstream deck ale2d_solid.4C.yaml.",
+  "_comment": "Tier-2 for fourc::ale#1 — a DESIGN POINT NEUMANN CONDITIONS block on a stand-alone ALE problem parses, runs and moves nothing. Both halves of the claim are observed: NEUMANN_WARNINGS=0 (4C never says the condition is inert) and the node the load acts on ends at exactly 0.0 in both components, against -6.30e-2 / 0.25 for the same node under the Dirichlet drive it replaced. The Dirichlet arm is the control and must exit 0. Verified by execution 2026-08-06 against 4C at /home/user/4C/build/4C on upstream deck ale2d_solid.4C.yaml.",
   "backend": "fourc",
   "physics": "ale",
   "pitfall_index": 1,

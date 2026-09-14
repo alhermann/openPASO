@@ -35,7 +35,7 @@ BAD = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\nIO/RUNTIME
 
 
 def test_a_defective_4c_deck_gets_every_defect_named_in_one_call(tmp_path):
-    if not Path("/home/alexander/4C/build/4C").is_file():
+    if not Path("/home/user/4C/build/4C").is_file():
         pytest.skip("4C binary not on this host")
     t = _tools()
     (tmp_path / "deck_U.4C.yaml").write_text(BAD)
@@ -49,7 +49,7 @@ def test_a_defective_4c_deck_gets_every_defect_named_in_one_call(tmp_path):
 
 
 def test_a_clean_scalar_transport_deck_gets_no_finding(tmp_path):
-    if not Path("/home/alexander/4C/build/4C").is_file():
+    if not Path("/home/user/4C/build/4C").is_file():
         pytest.skip("4C binary not on this host")
     t = _tools()
     clean = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Scalar_Transport"\nSCALAR TRANSPORT DYNAMIC:\n  CALCFLUX_BOUNDARY: "diffusive"\n'

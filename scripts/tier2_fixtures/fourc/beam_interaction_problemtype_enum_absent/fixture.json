@@ -1,5 +1,5 @@
 {
-  "_comment": "Tier-2 for fourc::beam_interaction#7. The rule is right — there is no PROBLEMTYPE 'BeamInteraction' — but the Signal was fabricated: 4C emits no 'unknown problem type'. It emits 'Could not match this input' and prints the whole allowed enum, and the fixture reads membership straight out of it: BeamInteraction absent, Polymer_Network and Fluid_Beam_Interaction present. 'BEAM INTERACTION' appears 25 times in the binary's own --parameters schema, so the section is real and belongs under a Structure run. Verified by execution 2026-08-06 against 4C 2026.2.0-dev at /home/alexander/4C/build/4C.",
+  "_comment": "Tier-2 for fourc::beam_interaction#7. The rule is right — there is no PROBLEMTYPE 'BeamInteraction' — but the Signal was fabricated: 4C emits no 'unknown problem type'. It emits 'Could not match this input' and prints the whole allowed enum, and the fixture reads membership straight out of it: BeamInteraction absent, Polymer_Network and Fluid_Beam_Interaction present. 'BEAM INTERACTION' appears 25 times in the binary's own --parameters schema, so the section is real and belongs under a Structure run. Verified by execution 2026-08-06 against 4C 2026.2.0-dev at /home/user/4C/build/4C.",
   "backend": "fourc",
   "physics": "beam_interaction",
   "pitfall_index": 7,

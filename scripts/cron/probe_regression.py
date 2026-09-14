@@ -24,8 +24,8 @@ decides which pitfalls to update based on the report.
 
 Wire-up:
   # nightly at 03:30
-  30 3 * * * cd /home/hermann/Schreibtisch/Open-FEM-agent && \
-    /home/hermann/miniconda3/bin/python3 scripts/cron/probe_regression.py
+  30 3 * * * cd /home/user/Schreibtisch/Open-FEM-agent && \
+    /home/user/miniconda3/bin/python3 scripts/cron/probe_regression.py
 
 The script is idempotent (re-runs produce the same baseline if no
 state changed) and safe to invoke from any cwd.

@@ -72,18 +72,18 @@ FIXTURES = REPO / "scripts" / "tier2_fixtures"
 # DUNE_PYTHON unset, every DUNE fixture skips silently.
 INTERPRETERS = {
     "skfem": os.environ.get("SKFEM_PYTHON",
-                            "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                            "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
     "ngsolve": os.environ.get("NGSOLVE_PYTHON",
-                              "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                              "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
     "kratos": os.environ.get("KRATOS_PYTHON", "/usr/bin/python3"),
     "dune": os.environ.get("DUNE_PYTHON", ""),
     "fenics": os.environ.get("FENICS_PYTHON", ""),
     "sparta": os.environ.get("SPARTA_PYTHON",
-                             "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                             "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
     "febio": os.environ.get("FEBIO_PYTHON",
-                            "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                            "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
     "coupling": os.environ.get("COUPLING_PYTHON",
-                               "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                               "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
 }
 
 

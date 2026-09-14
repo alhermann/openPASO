@@ -8,7 +8,7 @@
 set -u
 # Resolve the 4C binary: explicit override first, then the paths this
 # repo has been verified against (2026-08-03 verification host runs
-# 4C 2026.2.0-dev at /home/alexander/4C/build/4C).
+# 4C 2026.2.0-dev at /home/user/4C/build/4C).
 for _c in "${FOURC_BINARY:-}" "$HOME/4C/build/4C" "$HOME/Schreibtisch/4C-src/4C/build/4C"; do
   [ -x "$_c" ] && BIN="$_c" && break
 done

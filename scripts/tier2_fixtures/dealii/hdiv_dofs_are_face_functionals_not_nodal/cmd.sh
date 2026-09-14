@@ -35,11 +35,11 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 SHARED="$HERE/../_shared"
 
 echo -n "phantom_vertex_data_enumerator_files="
-grep -rl "DataOutBase::vertex_data" /home/alexander/dealii/include \
-  /home/alexander/dealii/source 2>/dev/null | wc -l
+grep -rl "DataOutBase::vertex_data" /home/user/dealii/include \
+  /home/user/dealii/source 2>/dev/null | wc -l
 echo -n "real_datavectortype_enumerators="
 grep -c "type_dof_data,\|type_cell_data,\|type_automatic" \
-  /home/alexander/dealii/include/deal.II/numerics/data_out_dof_data.h
+  /home/user/dealii/include/deal.II/numerics/data_out_dof_data.h
 
 for spec in "release rt_map_support_points" "debug rt_map_support_points" \
             "release rt_vertex_dof_index" "debug rt_vertex_dof_index"; do

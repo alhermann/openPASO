@@ -8,7 +8,7 @@
     "maxwell::2"
   ],
   "env": {
-    "FENICS_PYTHON": "/home/alexander/miniconda3/envs/fenicsc/bin/python"
+    "FENICS_PYTHON": "/home/user/miniconda3/envs/fenicsc/bin/python"
   },
   "expect_in_output": [
     "scalar_type=complex128",

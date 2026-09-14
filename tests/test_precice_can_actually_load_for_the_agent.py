@@ -42,7 +42,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = ("/opt/4C-dependencies/lib", "/opt/precice/lib")
-VENV_PY = Path("/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python")
+VENV_PY = Path("/home/user/Schreibtisch/open-fem-agent/.venv/bin/python")
 
 
 def _composed() -> list[str]:
@@ -97,7 +97,7 @@ def test_the_other_solvers_still_load_under_the_same_path():
     r = subprocess.run([str(VENV_PY), "-c", "import KratosMultiphysics"],
                        capture_output=True, text=True, timeout=300, env=env)
     assert r.returncode == 0, r.stderr[-400:]
-    fourc = Path("/home/alexander/4C/build/4C")
+    fourc = Path("/home/user/4C/build/4C")
     if not fourc.is_file():
         pytest.skip("4C binary absent")
     r = subprocess.run([str(fourc), "-p"], capture_output=True, text=True,

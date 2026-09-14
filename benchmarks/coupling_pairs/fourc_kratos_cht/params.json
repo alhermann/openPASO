@@ -10,7 +10,7 @@
   "nx": 10,
   "ny": 2,
   "T_if_initial_guess": 300.0,
-  "fourc_binary": "/home/alexander/4C/build/4C",
+  "fourc_binary": "/home/user/4C/build/4C",
   "fourc_ld_library_path": "/opt/4C-dependencies/lib",
-  "kratos_python": "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python"
+  "kratos_python": "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"
 }

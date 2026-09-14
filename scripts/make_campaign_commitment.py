@@ -101,7 +101,7 @@ def _pinning() -> dict:
     run = (REPO / "campaign3_blind" / "run_blind.py").read_text()
     models = sorted(set(re.findall(r'"(qwen/[a-z0-9.\-]+)"', run)))
     agent_paths = [REPO / "langgraph_eval" / "agent.py",
-                   Path("/home/alexander/Schreibtisch/open-fem-agent/"
+                   Path("/home/user/Schreibtisch/open-fem-agent/"
                         "langgraph_eval/agent.py")]
     temps = []
     for ap in agent_paths:

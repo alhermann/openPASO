@@ -28,9 +28,9 @@ Redistributing using hypergraph .........
 Read/generate conditions                          in....
 
 =========================================================================
-PROC 0 ERROR in /home/alexander/4C/src/core/fem/src/condition/4C_fem_condition_definition.cpp, line 79:
+PROC 0 ERROR in /home/user/4C/src/core/fem/src/condition/4C_fem_condition_definition.cpp, line 79:
 Failed to match condition specification in section 'DESIGN LINE DIRICH CONDITIONS'. The error was:
-PROC 0 ERROR in /home/alexander/4C/src/core/io/src/4C_io_input_spec_builders.cpp, line 633:
+PROC 0 ERROR in /home/user/4C/src/core/io/src/4C_io_input_spec_builders.cpp, line 633:
 Could not match this input
 
 DESIGN LINE DIRICH CONDITIONS:
@@ -74,13 +74,13 @@ against the given input specification. This was the best attempt to match the in
 ------------------
 .
 ------------------
- 0# FourC::Core::Conditions::ConditionDefinition::read(FourC::Core::IO::InputFile&, std::vector<FourC::Core::Conditions::ConditionSpec, std::allocator<FourC::Core::Conditions::ConditionSpec> >&) const [clone .cold] in /home/alexander/4C/build/lib4C.so
- 1# FourC::Global::read_conditions(FourC::Global::Problem&, FourC::Core::IO::InputFile&, FourC::Core::IO::MeshReader const&) in /home/alexander/4C/build/lib4C.so
- 2# FourC::setup_global_problem(FourC::Core::IO::InputFile&, FourC::CommandlineArguments const&, FourC::Core::Communication::Communicators const&) in /home/alexander/4C/build/4C
- 3# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C
- 4# main in /home/alexander/4C/build/4C
+ 0# FourC::Core::Conditions::ConditionDefinition::read(FourC::Core::IO::InputFile&, std::vector<FourC::Core::Conditions::ConditionSpec, std::allocator<FourC::Core::Conditions::ConditionSpec> >&) const [clone .cold] in /home/user/4C/build/lib4C.so
+ 1# FourC::Global::read_conditions(FourC::Global::Problem&, FourC::Core::IO::InputFile&, FourC::Core::IO::MeshReader const&) in /home/user/4C/build/lib4C.so
+ 2# FourC::setup_global_problem(FourC::Core::IO::InputFile&, FourC::CommandlineArguments const&, FourC::Core::Communication::Communicators const&) in /home/user/4C/build/4C
+ 3# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/user/4C/build/4C
+ 4# main in /home/user/4C/build/4C
  5# __libc_start_main at ../csu/libc-start.c:342
- 6# _start in /home/alexander/4C/build/4C
+ 6# _start in /home/user/4C/build/4C
 
 =========================================================================
 

@@ -408,7 +408,7 @@ def _discarded_proof_check(written: Path, content: str) -> str:
     the order, checked against an independent reference, came out 1.9367. Its
     participant_A.py line 151 is
 
-        cmd = ['stdbuf', '-oL', '-eL', '/home/.../4C', deck_path, prefix]
+        cmd = ['stdbuf', '-oL', '-eL', '/home/user/4C', deck_path, prefix]
         result = subprocess.run(cmd, cwd=work_dir, capture_output=True, ...)
 
     so it invoked the binary correctly AND captured what the binary said. Line

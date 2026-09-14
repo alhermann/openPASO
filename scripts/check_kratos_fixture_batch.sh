@@ -27,7 +27,7 @@
 set -uo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTEST_PY="${PYTEST_PY:-/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python}"
+PYTEST_PY="${PYTEST_PY:-/home/user/Schreibtisch/open-fem-agent/.venv/bin/python}"
 
 # These two scan a hard-coded KratosMultiphysics/.libs path under a checkout
 # that does not exist on every host. They are host-path-dependent, not wrong.

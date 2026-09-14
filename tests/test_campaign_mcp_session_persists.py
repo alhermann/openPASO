@@ -138,7 +138,7 @@ def test_mcp_couple_persists_native_participant_output(tmp_path):
     import agent
 
     runtime_python = (
-        "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python")
+        "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python")
     participants = []
     for name, marker in (("A", "NATIVE_A_SIGNATURE = 17"),
                          ("B", "NATIVE_B_SIGNATURE = 23")):

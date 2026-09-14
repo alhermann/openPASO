@@ -18,17 +18,17 @@ Total number of MPI ranks: 1
 ERROR: could not find ':' colon after key
 53:17: "NODE 7 DLINE 1"  (size=16)
                        ^  (cols 17-17)
- 0# FourC::(anonymous namespace)::throw_on_yaml_parse_error(char const*, unsigned long, c4::yml::Location, void*) in /home/alexander/4C/build/lib4C.so
- 1# void c4::yml::ParseEngine<c4::yml::EventHandlerTree>::_err<>(c4::basic_substring<char const>) const in /home/alexander/4C/build/_deps/ryml-build/libryml.so.0.9.0
- 2# c4::yml::ParseEngine<c4::yml::EventHandlerTree>::_handle_map_block() in /home/alexander/4C/build/_deps/ryml-build/libryml.so.0.9.0
- 3# c4::yml::ParseEngine<c4::yml::EventHandlerTree>::parse_in_place_ev(c4::basic_substring<char const>, c4::basic_substring<char>) in /home/alexander/4C/build/_deps/ryml-build/libryml.so.0.9.0
- 4# c4::yml::parse_in_place(c4::basic_substring<char>, c4::yml::Tree*) in /home/alexander/4C/build/_deps/ryml-build/libryml.so.0.9.0
- 5# FourC::Core::IO::(anonymous namespace)::read_yaml_content(std::filesystem::__cxx11::path const&, FourC::Core::IO::Internal::InputFileImpl&) in /home/alexander/4C/build/lib4C.so
- 6# FourC::Core::IO::InputFile::read(std::filesystem::__cxx11::path const&) in /home/alexander/4C/build/lib4C.so
- 7# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C
- 8# main in /home/alexander/4C/build/4C
+ 0# FourC::(anonymous namespace)::throw_on_yaml_parse_error(char const*, unsigned long, c4::yml::Location, void*) in /home/user/4C/build/lib4C.so
+ 1# void c4::yml::ParseEngine<c4::yml::EventHandlerTree>::_err<>(c4::basic_substring<char const>) const in /home/user/4C/build/_deps/ryml-build/libryml.so.0.9.0
+ 2# c4::yml::ParseEngine<c4::yml::EventHandlerTree>::_handle_map_block() in /home/user/4C/build/_deps/ryml-build/libryml.so.0.9.0
+ 3# c4::yml::ParseEngine<c4::yml::EventHandlerTree>::parse_in_place_ev(c4::basic_substring<char const>, c4::basic_substring<char>) in /home/user/4C/build/_deps/ryml-build/libryml.so.0.9.0
+ 4# c4::yml::parse_in_place(c4::basic_substring<char>, c4::yml::Tree*) in /home/user/4C/build/_deps/ryml-build/libryml.so.0.9.0
+ 5# FourC::Core::IO::(anonymous namespace)::read_yaml_content(std::filesystem::__cxx11::path const&, FourC::Core::IO::Internal::InputFileImpl&) in /home/user/4C/build/lib4C.so
+ 6# FourC::Core::IO::InputFile::read(std::filesystem::__cxx11::path const&) in /home/user/4C/build/lib4C.so
+ 7# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/user/4C/build/4C
+ 8# main in /home/user/4C/build/4C
  9# __libc_start_main at ../csu/libc-start.c:342
-10# _start in /home/alexander/4C/build/4C
+10# _start in /home/user/4C/build/4C
 
 =========================================================================
 

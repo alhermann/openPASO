@@ -169,7 +169,7 @@ class TestTheLiveVaultRightNow(unittest.TestCase):
         import os
         live = os.environ.get(
             "OPENPASO_BLIND_KEYS",
-            "/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys")
+            "/home/user/Schreibtisch/qwen_uplift_test/campaign3_blind/keys")
         p = Path(live)
         if not p.parent.is_dir():
             self.skipTest(f"{p.parent} not present on this machine")

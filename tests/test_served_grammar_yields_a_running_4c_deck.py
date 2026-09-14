@@ -55,7 +55,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 DECK = (Path(__file__).parent / "fixtures" / "fourc_running_deck"
         / "C2_sideA_from_served_grammar.4C.yaml")
-FOURC = Path("/home/alexander/4C/build/4C")
+FOURC = Path("/home/user/4C/build/4C")
 
 
 def _served():

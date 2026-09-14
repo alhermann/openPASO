@@ -21,7 +21,7 @@ _CANDIDATES = [
     shutil.which("spa_serial"),
     shutil.which("spa_mpi"),
     str(Path.home() / "sparta" / "src" / "spa_serial"),
-    "/home/alexander/Schreibtisch/sparta/src/spa_serial",
+    "/home/user/Schreibtisch/sparta/src/spa_serial",
 ]
 
 # SPARTA_BINARY is AUTHORITATIVE when set: if it names something that is not a

@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-FOURC = Path("/home/alexander/4C/build/4C")
+FOURC = Path("/home/user/4C/build/4C")
 
 FAILING_4C_SIDE = '''import subprocess, sys
 from pathlib import Path
@@ -17,7 +17,7 @@ deck = ('PROBLEM TYPE:\\n  PROBLEMTYPE: "Scalar_Transport"\\nSCALAR TRANSPORT DY
         'THERMO FLUX CALC LINE CONDITIONS:\\n  - E: 2\\nDESIGN LINE DIRICH CONDITIONS:\\n  - E: 1\\n    NUMDOF: 1\\n'
         'DLINE-NODE TOPOLOGY:\\n  - "NODE 1 DLINE 1"\\n')
 Path("slab.4C.yaml").write_text(deck)
-subprocess.run("stdbuf -oL -eL /home/alexander/4C/build/4C slab.4C.yaml out > slab.4C.yaml.log 2>&1", shell=True)
+subprocess.run("stdbuf -oL -eL /home/user/4C/build/4C slab.4C.yaml out > slab.4C.yaml.log 2>&1", shell=True)
 print("NDOF = 9")
 sys.exit(1)
 '''

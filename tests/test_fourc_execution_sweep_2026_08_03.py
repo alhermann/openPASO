@@ -1,7 +1,7 @@
 """Regression: the 2026-08-03 4C execution sweep.
 
 Every claim pinned here was produced by writing a minimal .4C.yaml,
-running the deployed binary ``/home/alexander/4C/build/4C``
+running the deployed binary ``/home/user/4C/build/4C``
 (4C 2026.2.0-dev, git 89519cf) and recording what actually happened.
 The full probe log lives in the Tier-2 fixtures under
 ``scripts/tier2_fixtures/fourc/``:

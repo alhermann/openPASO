@@ -39,7 +39,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CAMPAIGN_SRC = REPO / "campaign3_blind"
-CAMPAIGN_LIVE = Path("/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind")
+CAMPAIGN_LIVE = Path("/home/user/Schreibtisch/qwen_uplift_test/campaign3_blind")
 MANIFEST = REPO / "data" / "blind_campaign_commitment.json"
 
 # Tracked: everything that decides how a run is produced or graded.

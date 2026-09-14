@@ -58,7 +58,7 @@ def extract_v1_prompts():
     prompts = {}
     for task in ORIGINAL_TASKS:
         cell = f"{task}_MCP_FULL_seed0"
-        old_path = (f"/home/alexander/Schreibtisch/open-fem-agent/"
+        old_path = (f"/home/user/Schreibtisch/open-fem-agent/"
                     f"eval_interactive/{cell}/work/result.txt")
         # locate cell header
         idx = next(i for i, l in enumerate(lines)

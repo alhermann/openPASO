@@ -665,7 +665,7 @@ def corpus_completeness(backend: str) -> str:
                  if d.is_dir() and d.name.lower().endswith("application")])
         if n >= 20:
             return ""
-    sp = glob.glob("/home/alexander/Schreibtisch/open-fem-agent/.venv/lib/"
+    sp = glob.glob("/home/user/Schreibtisch/open-fem-agent/.venv/lib/"
                    "python*/site-packages")
     if not sp:
         return ""
@@ -684,8 +684,8 @@ def selftest() -> int:
 
     Pre-fix tree must flag SOUNDSPEED; post-fix tree must stay quiet about it.
     """
-    pre = Path("/home/alexander/Schreibtisch/ofa-verify-ngs")
-    post = Path("/home/alexander/Schreibtisch/ofa-know-4c")
+    pre = Path("/home/user/Schreibtisch/ofa-verify-ngs")
+    post = Path("/home/user/Schreibtisch/ofa-know-4c")
     print("SELFTEST — the gate must flag the known fabrication and only it\n")
     ok = True
     for label, tree, expect in (("pre-fix ", pre, True), ("post-fix", post, False)):

@@ -136,7 +136,7 @@ class TestItStaysQuietOnHarmlessThings(unittest.TestCase):
             self.assertIsNone(_mat(d))
 
     def test_solver_output_alone_is_not_flagged(self):
-        """A backend's own build or example tree — /home/alexander/dealii has
+        """A backend's own build or example tree — /home/user/dealii has
         37,445 files and is a REQUIRED dependency. Flagging it is how I broke
         the toolchain once already."""
         with TemporaryDirectory() as t:

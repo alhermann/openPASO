@@ -35,7 +35,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts"))
 
-V2_DOCS = Path("/home/alexander/Schreibtisch/open-fem-agent/"
+V2_DOCS = Path("/home/user/Schreibtisch/open-fem-agent/"
                "papers/overleaf-paper/prompts")
 
 CONDITIONS, SEEDS = 3, 3

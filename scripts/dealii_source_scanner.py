@@ -85,7 +85,7 @@ def find_include_dir() -> Path | None:
         if p.is_dir():
             return p
     for cand in (
-        Path("/home/hermann/miniconda3/envs/ofa-dealii"
+        Path("/home/user/miniconda3/envs/ofa-dealii"
              "/include/deal.II"),
         Path("/usr/include/deal.II"),
         Path("/usr/local/include/deal.II"),

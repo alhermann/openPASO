@@ -17,8 +17,8 @@
 # Mutation control: T2_MUTATE=1 compiles the same file without naming any AD
 # class, so it builds and the diagnostic disappears.
 set -u
-REL=/home/alexander/dealii/build
-SRC=/home/alexander/dealii
+REL=/home/user/dealii/build
+SRC=/home/user/dealii
 W="$(mktemp -d)"; trap 'rm -rf "$W"' EXIT
 
 echo "=== config.h is the availability test"

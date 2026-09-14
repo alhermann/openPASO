@@ -5,7 +5,7 @@ recording what worked. That recording necessarily contains absolute paths, and
 for a long time those were the paths of the one machine the reference was made
 on. A caveat was added telling the reader to substitute their own -- but a
 caveat does not help a model, which reads
-``/home/someone/miniconda3/envs/fenics/bin/python`` and uses it verbatim. On
+``/home/user/miniconda3/envs/fenics/bin/python`` and uses it verbatim. On
 anyone else's computer that command cannot run, and the reader has been handed
 a stranger's directory layout as though it were fact.
 

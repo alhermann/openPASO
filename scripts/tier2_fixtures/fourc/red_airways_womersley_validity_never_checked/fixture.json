@@ -1,5 +1,5 @@
 {
-  "_comment": "Tier-2 for fourc::reduced_airways#4. The rule holds but nothing in 4C helps you apply it: driving upstream red_airway_3airway_2acinus_awacinter at 10 Hz instead of 0.01 Hz -- a thousandfold Womersley jump at unchanged geometry and viscosity -- runs all 5000 steps to the result test with WOMERSLEY_MENTIONS=0 and HFOV_VALIDITY_WARNINGS=0. The word 'Womersley' exists in the 4C source only for 3-D fluid inflow profiles, never in red_airways or art_net. The only visible effect is the answer: node 2 pressure 29.868 -> 16.040. Verified by execution 2026-08-06 against 4C at /home/alexander/4C/build/4C.",
+  "_comment": "Tier-2 for fourc::reduced_airways#4. The rule holds but nothing in 4C helps you apply it: driving upstream red_airway_3airway_2acinus_awacinter at 10 Hz instead of 0.01 Hz -- a thousandfold Womersley jump at unchanged geometry and viscosity -- runs all 5000 steps to the result test with WOMERSLEY_MENTIONS=0 and HFOV_VALIDITY_WARNINGS=0. The word 'Womersley' exists in the 4C source only for 3-D fluid inflow profiles, never in red_airways or art_net. The only visible effect is the answer: node 2 pressure 29.868 -> 16.040. Verified by execution 2026-08-06 against 4C at /home/user/4C/build/4C.",
   "backend": "fourc",
   "physics": "reduced_airways",
   "pitfall_index": 4,

@@ -2,7 +2,7 @@
 
 `test_knowledge_not_contaminated.py` greps source files. An adversarial 4C audit
 showed why that is not enough: it measured **240 host absolute paths across
-48 of 48 served payloads** — `/home/alexander/4C/build/4C` 144 times, the venv
+48 of 48 served payloads** — `/home/user/4C/build/4C` 144 times, the venv
 interpreter 48, a host test-file path 48 — while the same sweep over
 `get_knowledge()` returned zero.
 
@@ -17,7 +17,7 @@ check in the repo positioned where the agent stands.
 
 WHY HOST PATHS IN A SERVED PAYLOAD ARE A DEFECT, not untidiness: openPASO is going
 to be cloned and run by people whose machines are not this one. A payload that
-tells an agent the solver is at `/home/alexander/4C/build/4C` is confidently
+tells an agent the solver is at `/home/user/4C/build/4C` is confidently
 wrong everywhere else, and an agent that will not second-guess a served fact
 follows it. The fix is to describe how to LOCATE an install, not to record where
 one happened to be.

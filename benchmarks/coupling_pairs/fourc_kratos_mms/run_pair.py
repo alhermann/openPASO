@@ -27,9 +27,9 @@ from core.coupling_driver import Participant, run_coupling  # noqa: E402
 
 PYTHON = os.environ.get(
     "OPENPASO_SOLVER_PYTHON",
-    "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python",
+    "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python",
 )
-FOURC = os.environ.get("FOURC_BINARY", "/home/alexander/4C/build/4C")
+FOURC = os.environ.get("FOURC_BINARY", "/home/user/4C/build/4C")
 FOURC_LD = os.environ.get("FOURC_LD_LIBRARY_PATH", "/opt/4C-dependencies/lib")
 
 

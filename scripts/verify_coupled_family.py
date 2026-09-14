@@ -200,7 +200,7 @@ def main():
                          "keys, rather than rebuilding from the family")
     a = ap.parse_args()
     if a.from_keys:
-        return main_from_keys(Path("/home/alexander/Schreibtisch/"
+        return main_from_keys(Path("/home/user/Schreibtisch/"
                                    "qwen_uplift_test/campaign3_blind/keys"))
 
     out = {}

@@ -78,10 +78,10 @@ def test_without_a_log_the_check_still_says_what_to_capture(tmp_path):
     assert "stdbuf -oL -eL" in msg and "read that log from the top" in msg
 
 
-@pytest.mark.skipif(not Path("/home/alexander/4C/build/4C").is_file(), reason="no 4C binary here")
+@pytest.mark.skipif(not Path("/home/user/4C/build/4C").is_file(), reason="no 4C binary here")
 def test_with_the_binary_an_invented_section_is_named_from_4c_p(tmp_path):
     deck = DECK.replace("DESIGN POINT DIRICH CONDITIONS", "THERMAL FLUX CALC LINE CONDITIONS")
-    msg = _run_block(tmp_path, deck, "", {"fourc_bin": "/home/alexander/4C/build/4C",
+    msg = _run_block(tmp_path, deck, "", {"fourc_bin": "/home/user/4C/build/4C",
                                           "fourc_ld": "/opt/4C-dependencies/lib"})
     assert "`4C -p`" in msg and "THERMAL FLUX CALC LINE CONDITIONS" in msg
     assert "FUNCT" not in msg                            # FUNCT<n> sections are pattern-named, never flagged

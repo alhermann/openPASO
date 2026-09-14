@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 ROOT = Path(__file__).resolve().parents[1]
 PARTICIPANTS = ROOT / "data" / "coupling_participants"
-VENV = Path("/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python")
+VENV = Path("/home/user/Schreibtisch/open-fem-agent/.venv/bin/python")
 
 AXIS_AWARE = ["participant_skfem.py", "participant_ngsolve.py", "participant_fenics.py",
               "participant_dune.py", "participant_febio.py", "participant_kratos_neumann.py",
@@ -164,7 +164,7 @@ outer_dofs = n2d[np.where((np.abs(py - 0.0) < TOL) | (np.abs(px - 1.0) < TOL))[0
     assert np.all(np.diff(s_of) > -1e-12), "the exported points are not ordered along the polyline"
 
 
-FENICS = Path("/home/alexander/miniconda3/envs/fenics/bin/python")
+FENICS = Path("/home/user/miniconda3/envs/fenics/bin/python")
 
 
 @pytest.mark.skipif(not FENICS.is_file(), reason="the FEniCSx interpreter is not on this machine")

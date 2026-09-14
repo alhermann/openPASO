@@ -29,7 +29,7 @@ HERE = Path(__file__).parent
 DUMP = Path(os.environ.get("FOURC_PARAMS_DUMP",
                            HERE / ".cache" / "fourc_params.yaml"))
 CACHE = DUMP.with_suffix(".index.pkl")
-BINARY = Path(os.environ.get("FOURC_BINARY", "/home/alexander/4C/build/4C"))
+BINARY = Path(os.environ.get("FOURC_BINARY", "/home/user/4C/build/4C"))
 LD = os.environ.get("FOURC_LD_LIBRARY_PATH", "/opt/4C-dependencies/lib")
 
 

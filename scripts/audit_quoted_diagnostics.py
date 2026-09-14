@@ -80,8 +80,8 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # files; the entry point of the shipped binary is not an optional part of
     # 4C's source. `unittests/` is deliberately NOT added: a string that exists
     # only in a test's expected output is not evidence the solver emits it.
-    "fourc": ["/home/alexander/4C/src", "/home/alexander/4C/apps",
-              "/home/alexander/4C/tests"],
+    "fourc": ["/home/user/4C/src", "/home/user/4C/apps",
+              "/home/user/4C/tests"],
     # FEBio is installed as a BINARY with no source tree — `/opt/febio` and
     # `/usr/local/febio` are both absent on this host, so the audit reported
     # UNKNOWN for every FEBio claim. The real install is below, and a binary is
@@ -89,7 +89,7 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # FEBio's XML element names are compiled into it as literal strings. This
     # only works with `grep -a`; without it grep skips the file as binary and
     # answers "not found" for everything in it.
-    # NOT `/home/alexander/FEBio` — that directory holds only `bin/febio4`,
+    # NOT `/home/user/FEBio` — that directory holds only `bin/febio4`,
     # which is a SYMLINK into the tree below, and `grep -r` does not follow
     # symlinks. Pointed there, the corpus was effectively empty: a positive
     # control for the literal string "febio" returned zero files, and the audit
@@ -98,7 +98,7 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # everything is not evidence of fabrication, it is a broken instrument —
     # which is why every backend here needs a positive control before its
     # numbers are quoted.
-    "febio": ["/home/alexander/Schreibtisch/febio-src",
+    "febio": ["/home/user/Schreibtisch/febio-src",
               "/opt/febio", "/usr/local/febio"],
     # deal.II ships as C++ headers and sources, not a Python package, so the
     # module probe could never find it. 7125 headers and sources here.
@@ -121,12 +121,12 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # invented on that basis; it is enumerator 8 of EPSWhich in
     # /usr/include/slepc/slepceps.h:106. The library a wrapper forwards to is
     # not an optional part of the wrapper's grammar.
-    "dealii": ["/home/alexander/dealii", "/usr/include/deal.II",
+    "dealii": ["/home/user/dealii", "/usr/include/deal.II",
                "/usr/include/slepc", "/usr/include/petsc"],
     # SPARTA is a C++ code with its own input-command corpus in doc/ and
     # examples/; both matter, since a command can be documented and exercised
     # without appearing as a literal in the source.
-    "sparta": ["/home/alexander/Schreibtisch/sparta"],
+    "sparta": ["/home/user/Schreibtisch/sparta"],
     # Kratos: prefer the source-built 28-APPLICATION install over the repo
     # venv's wheel, which ships only core plus three applications.
     #
@@ -173,11 +173,11 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # which is what makes those entries' retractions worth something.
     "kratos": ["/mnt/kratos-tier2/kv/lib/python3.12/site-packages/"
                "KratosMultiphysics",
-               "/home/alexander/Kratos/kratos",
-               "/home/alexander/Kratos/applications",
-               "/home/alexander/Kratos/external_libraries",
-               "/home/alexander/Kratos/cmake_modules",
-               "/home/alexander/Kratos/scripts"],
+               "/home/user/Kratos/kratos",
+               "/home/user/Kratos/applications",
+               "/home/user/Kratos/external_libraries",
+               "/home/user/Kratos/cmake_modules",
+               "/home/user/Kratos/scripts"],
 }
 
 # Python backends, PRIMARY MODULE FIRST. The first entry must be importable or
@@ -499,7 +499,7 @@ def static_parts(fragment: str) -> list[str]:
 # imported into this process.
 _CANDIDATE_PYTHONS = [
     sys.executable,
-    "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python",
+    "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python",
     str(Path.home() / "miniconda3" / "envs" / "fenics" / "bin" / "python"),
     str(Path.home() / "miniconda3" / "envs" / "fenicsc" / "bin" / "python"),
     str(Path.home() / "miniconda3" / "envs" / "ofa-dealii" / "bin" / "python"),

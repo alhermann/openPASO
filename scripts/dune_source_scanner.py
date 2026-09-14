@@ -26,13 +26,13 @@ from pathlib import Path
 
 
 DUNE_SRC_ROOTS = (
-    Path("/home/hermann/Schreibtisch/dune-src/dune-fem"
+    Path("/home/user/Schreibtisch/dune-src/dune-fem"
          "/python/dune"),
-    Path("/home/hermann/Schreibtisch/dune-src/dune-common"
+    Path("/home/user/Schreibtisch/dune-src/dune-common"
          "/python/dune"),
-    Path("/home/hermann/Schreibtisch/dune-src/dune-grid"
+    Path("/home/user/Schreibtisch/dune-src/dune-grid"
          "/python/dune"),
-    Path("/home/hermann/Schreibtisch/dune-src/dune-istl"
+    Path("/home/user/Schreibtisch/dune-src/dune-istl"
          "/python/dune"),
 )
 
@@ -92,7 +92,7 @@ def main() -> int:
 
     # Provenance: list a few signature lines for the real
     # ones to confirm we are looking at the right symbol.
-    fem_spaces = (Path("/home/hermann/Schreibtisch/dune-src"
+    fem_spaces = (Path("/home/user/Schreibtisch/dune-src"
                        "/dune-fem/python/dune/fem/space/"
                        "_spaces.py"))
     if fem_spaces.is_file():

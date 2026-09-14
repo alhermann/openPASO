@@ -265,7 +265,7 @@ def _backend_demo_dirs(backend: str) -> list[Path]:
         return []
     elif backend == "fourc":
         # 4C tests live in tests/input_files in the source tree;
-        # build path is /home/hermann/.../4C/tests/input_files.
+        # build path is /home/user/.../4C/tests/input_files.
         # Treat as available if path exists.
         for cand in [
             home / "Schreibtisch" / "4C" / "tests" / "input_files",

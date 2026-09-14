@@ -23,7 +23,7 @@ AND the repo .venv:
 
   # Pass 1: fenics — resolves dolfinx / ufl / basix / petsc4py /
   # slepc4py; skfem / ngsolve modules are unresolvable here.
-  /home/hermann/miniconda3/envs/ofa-fenicsx/bin/python \\
+  /home/user/miniconda3/envs/ofa-fenicsx/bin/python \\
     scripts/audit_phantom_apis.py
 
   # Pass 2: skfem + ngsolve — resolves skfem / ngsolve /

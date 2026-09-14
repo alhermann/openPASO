@@ -19,14 +19,14 @@
 #   library               libdeal_II.so      -> libdeal_II.g.so
 #   NDEBUG                                    -> DEBUG, and -O2 -> -O0 -g
 # The source headers are shared: both builds are the same revision of
-# /home/alexander/dealii (9.8.0-pre, shortrev 87abfb5e).
+# /home/user/dealii (9.8.0-pre, shortrev 87abfb5e).
 set -u
 
 NAME="$1"
 VARIANT="${2:-release}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SRC_TREE=/home/alexander/dealii
-REL=/home/alexander/dealii/build
+SRC_TREE=/home/user/dealii
+REL=/home/user/dealii/build
 DBG=${DEAL_II_DEBUG_DIR:-/media/alexander/PortableSSD/dealii-verify-r2/dbgbuild}
 OUTDIR="$HERE/_build"
 mkdir -p "$OUTDIR"

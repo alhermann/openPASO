@@ -32,12 +32,12 @@ WARNING: PHG_EDGE_SIZE_THRESHOLD is low (0.250000), resulting in only 0 edges
 [kevin:643458] Signal code: Address not mapped (1)
 [kevin:643458] Failing at address: 0xffffffffffffffe8
 [kevin:643458] [ 0] /lib/x86_64-linux-gnu/libpthread.so.0(+0x14420)[0x7fed788ec420]
-[kevin:643458] [ 1] /home/alexander/4C/build/lib4C.so(_ZN5FourC4Core2IO11read_designERNS1_9InputFileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERSt6vectorISC_IiSaIiEESaISE_EERKSt8functionIFRKNS0_2FE14DiscretizationESB_EE+0x2d92)[0x7fed7f97e852]
-[kevin:643458] [ 2] /home/alexander/4C/build/lib4C.so(_ZN5FourC6Global11read_resultERNS0_7ProblemERNS_4Core2IO9InputFileE+0x147)[0x7fed83da3ce7]
-[kevin:643458] [ 3] /home/alexander/4C/build/4C(_ZN5FourC20setup_global_problemERNS_4Core2IO9InputFileERKNS_20CommandlineArgumentsERKNS0_13Communication13CommunicatorsE+0x4f6)[0x562f2c02d016]
-[kevin:643458] [ 4] /home/alexander/4C/build/4C(_Z3runRN5FourC20CommandlineArgumentsERNS_4Core13Communication13CommunicatorsE+0x131)[0x562f2c082eb1]
-[kevin:643458] [ 5] /home/alexander/4C/build/4C(main+0x4b0)[0x562f2c00f3c0]
+[kevin:643458] [ 1] /home/user/4C/build/lib4C.so(_ZN5FourC4Core2IO11read_designERNS1_9InputFileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERSt6vectorISC_IiSaIiEESaISE_EERKSt8functionIFRKNS0_2FE14DiscretizationESB_EE+0x2d92)[0x7fed7f97e852]
+[kevin:643458] [ 2] /home/user/4C/build/lib4C.so(_ZN5FourC6Global11read_resultERNS0_7ProblemERNS_4Core2IO9InputFileE+0x147)[0x7fed83da3ce7]
+[kevin:643458] [ 3] /home/user/4C/build/4C(_ZN5FourC20setup_global_problemERNS_4Core2IO9InputFileERKNS_20CommandlineArgumentsERKNS0_13Communication13CommunicatorsE+0x4f6)[0x562f2c02d016]
+[kevin:643458] [ 4] /home/user/4C/build/4C(_Z3runRN5FourC20CommandlineArgumentsERNS_4Core13Communication13CommunicatorsE+0x131)[0x562f2c082eb1]
+[kevin:643458] [ 5] /home/user/4C/build/4C(main+0x4b0)[0x562f2c00f3c0]
 [kevin:643458] [ 6] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7fed7870a083]
-[kevin:643458] [ 7] /home/alexander/4C/build/4C(_start+0x2e)[0x562f2c00fe1e]
+[kevin:643458] [ 7] /home/user/4C/build/4C(_start+0x2e)[0x562f2c00fe1e]
 [kevin:643458] *** End of error message ***
 timeout: der beobachtete Befehl erzeugte einen Speicherauszug

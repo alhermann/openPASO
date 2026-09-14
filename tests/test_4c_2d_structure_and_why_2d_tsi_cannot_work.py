@@ -39,8 +39,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 FIX = ROOT / "tests" / "fixtures" / "fourc_2d"
-FOURC = Path("/home/alexander/4C/build/4C")
-TSI_SRC = Path("/home/alexander/4C/src/tsi/4C_tsi_utils.cpp")
+FOURC = Path("/home/user/4C/build/4C")
+TSI_SRC = Path("/home/user/4C/src/tsi/4C_tsi_utils.cpp")
 
 
 def _grammar():

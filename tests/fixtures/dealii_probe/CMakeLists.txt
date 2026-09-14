@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-find_package(deal.II 9.0 REQUIRED HINTS /home/alexander/dealii)
+find_package(deal.II 9.0 REQUIRED HINTS /home/user/dealii)
 deal_ii_initialize_cached_variables()
 project(probe)
 add_executable(probe probe.cc)

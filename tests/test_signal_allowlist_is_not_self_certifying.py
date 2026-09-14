@@ -106,12 +106,12 @@ def _evidence_links(backend: str) -> set[str] | None:
     # printing `[0]PETSC ERROR: Caught signal number 15` settled it beyond
     # linkage: PETSc is initialised at runtime.
     roots = {
-        "fenics": ["/home/alexander/miniconda3/envs/fenics/lib"],
-        "dune": ["/home/alexander/miniconda3/envs/dune-fem-env/lib",
-                 "/home/alexander/miniconda3/envs/dune-fem-env/.cache/"
+        "fenics": ["/home/user/miniconda3/envs/fenics/lib"],
+        "dune": ["/home/user/miniconda3/envs/dune-fem-env/lib",
+                 "/home/user/miniconda3/envs/dune-fem-env/.cache/"
                  "dune-py/python/dune/generated"],
-        "febio": ["/home/alexander/Schreibtisch/febio-src/cbuild/lib"],
-        "fourc": ["/home/alexander/4C/build"],
+        "febio": ["/home/user/Schreibtisch/febio-src/cbuild/lib"],
+        "fourc": ["/home/user/4C/build"],
     }.get(backend)
     if not roots:
         return None

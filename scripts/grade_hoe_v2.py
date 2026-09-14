@@ -28,7 +28,7 @@ from collections import defaultdict
 from pathlib import Path
 from statistics import mean, stdev
 
-ROOT = Path("/home/alexander/Schreibtisch/open-fem-agent")
+ROOT = Path("/home/user/Schreibtisch/open-fem-agent")
 EVAL = ROOT / "eval_interactive"
 DATA = ROOT / "papers/overleaf-paper/data"
 

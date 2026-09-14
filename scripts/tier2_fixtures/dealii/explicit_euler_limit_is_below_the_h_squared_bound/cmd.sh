@@ -20,7 +20,7 @@
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
-CONFIG=/home/alexander/dealii/build/include/deal.II/base/config.h
+CONFIG=/home/user/dealii/build/include/deal.II/base/config.h
 if grep -q "^#define DEAL_II_WITH_SUNDIALS" "$CONFIG"; then
   echo "deal_ii_with_sundials=true"
 else

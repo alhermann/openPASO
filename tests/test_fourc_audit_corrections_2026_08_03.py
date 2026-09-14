@@ -1,7 +1,7 @@
 """Regression: adversarial re-audit of the 2026-08-03 4C execution sweep.
 
 Every correction pinned here was produced by RE-RUNNING the deployed
-binary ``/home/alexander/4C/build/4C`` (4C 2026.2.0-dev, git 89519cf)
+binary ``/home/user/4C/build/4C`` (4C 2026.2.0-dev, git 89519cf)
 against the claim as written, and finding that the claim as written did
 not survive.  Each test therefore guards a statement that was measured
 to be FALSE once, so that it cannot quietly come back.

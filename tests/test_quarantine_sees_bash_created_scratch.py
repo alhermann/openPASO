@@ -123,7 +123,7 @@ class TestPrecisionIsFromMateriality(unittest.TestCase):
                 "answer")
 
     def test_a_workspace_is_never_a_candidate(self):
-        """Without the size bound this matched /home/alexander/Schreibtisch --
+        """Without the size bound this matched /home/user/Schreibtisch --
         14,597 native artefacts -- because the walk descends through every
         checkout. That is how a 37,445-file backend build tree once got moved."""
         with TemporaryDirectory() as t:

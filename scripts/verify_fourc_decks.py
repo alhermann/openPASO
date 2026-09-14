@@ -44,7 +44,7 @@ import yaml  # noqa: E402
 
 from backends.fourc import decks as deck_mod  # noqa: E402
 
-BINARY = Path(os.environ.get("FOURC_BINARY", "/home/alexander/4C/build/4C"))
+BINARY = Path(os.environ.get("FOURC_BINARY", "/home/user/4C/build/4C"))
 LD = os.environ.get("FOURC_LD_LIBRARY_PATH", "/opt/4C-dependencies/lib")
 
 # The grammar dump cannot enumerate these: TITLE is free text, FUNCT<n> is

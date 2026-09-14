@@ -17,7 +17,13 @@ classifiers = [
 ]
 
 dependencies = [
-    "mcp[cli]>=1.2.0",
+    # PINNED BELOW 2. mcp 2.x renamed FastMCP to MCPServer and changed other
+    # APIs, so server.py stops at import with "No module named
+    # 'mcp.server.fastmcp'". The old bound was >=1.2.0, which today resolves
+    # to 2.x: every fresh install was broken while existing environments kept
+    # working on an older resolution, so nothing here noticed. Measured on a
+    # clean venv, Python 3.13, which picked mcp 2.2.0.
+    "mcp[cli]>=1.2.0,<2",
     "pyyaml>=6.0",
     # numpy capped <2 because pyprecice pins numpy<2; scipy capped <1.16 because
     # scipy>=1.16 uses numpy-2-only dtypes (np.long) and requires numpy>=2.0,

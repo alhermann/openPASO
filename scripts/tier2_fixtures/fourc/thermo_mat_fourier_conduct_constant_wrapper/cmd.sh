@@ -12,7 +12,7 @@ set -u
 # Resolve the 4C binary: explicit override first, then the paths this
 # repo has been verified against. Updated 2026-08-03 — the previous
 # hard-coded $HOME/Schreibtisch/4C-src path no longer exists on the
-# verification host; the deployed build is /home/alexander/4C/build/4C.
+# verification host; the deployed build is /home/user/4C/build/4C.
 for _c in "${FOURC_BINARY:-}" "$HOME/4C/build/4C" "$HOME/Schreibtisch/4C-src/4C/build/4C"; do
   [ -x "$_c" ] && BIN="$_c" && break
 done

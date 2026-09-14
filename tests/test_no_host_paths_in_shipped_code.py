@@ -3,7 +3,7 @@
 This is a product rule, not a tidiness rule. The installed-version API
 reference is served to the model that is driving the solvers. When it said
 
-    run: /home/someone/miniconda3/envs/fenics/bin/python <script>.py
+    run: /home/user/miniconda3/envs/fenics/bin/python <script>.py
 
 a model on anyone else's computer read that and used it verbatim, and the
 command could not run. The path also published one person's username and
@@ -13,9 +13,11 @@ Paths belong in core.host_paths as tokens, filled in at serve time from the
 reader's own environment. This test fails if a literal home directory comes
 back into the code that ships.
 
-`campaign3_blind/`, captured solver logs and recorded transcripts are exempt:
-they are records of runs that really happened on one machine, and rewriting a
-record to look tidier would misstate it. They are not part of the product.
+Captured solver output kept as a test fixture is anonymised rather than
+exempted: the username is replaced and the path shape is left alone, so the
+fixture still exercises what it was recorded for. The evaluation campaign,
+whose run logs genuinely must record where they ran, is not on this branch at
+all -- it lives on consolidation/v2.
 """
 import re
 import subprocess
@@ -40,13 +42,11 @@ def identifies_a_person(line: str) -> str | None:
             return match.group(0)
     return None
 
-# What the product actually ships and a stranger actually runs.
-SHIPPED = ("src", "data", "langgraph_eval", "webui", "run_agent.py",
-           "pyproject.toml", "README.md", "CONTRIBUTING.md", "CITATION.cff",
-           ".env.example", "mcp_config.json")
-
-# Records, not product: a log says what happened, and what happened had a path.
-EXEMPT_PREFIXES = ("data/blind_",)
+# The whole repository. The evaluation campaign, which is the one thing that
+# legitimately records where its runs happened, lives on consolidation/v2 and
+# not here, so nothing on this branch needs an exemption any more.
+SHIPPED = (".",)
+EXEMPT_PREFIXES: tuple[str, ...] = ()
 
 
 def tracked(paths) -> list[str]:

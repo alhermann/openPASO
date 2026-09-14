@@ -13,5 +13,9 @@
     "FAIL:",
     "not_reproduced",
     "skipped"
-  ]
+  ],
+  "co_defends": [
+    "body_force_math_needs_the_type_attribute"
+  ],
+  "_co_defends_why": "elasticity_mms#2 is one claim with two independent pieces of evidence, and each fixture proves one of them. math_expressions_need_uppercase_coordinates shows the shipped MMS deck being killed when *X)/*Y)/*Z) are lowercased; body_force_math_needs_the_type_attribute shows the cross-cutting body_force_trap, filed against this neighbouring claim because it completes it. Declared so the sharing is deliberate and visible, rather than reading as one fixture keyed to a claim it does not test."
 }

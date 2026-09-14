@@ -2308,6 +2308,28 @@ _DECIDING_FACTS = {
     # deal.II facts measured by execution on the coupled elasticity
     # walk of 2026-09-07 (deal.II 9.8.0-pre, ~/dealii/build).
     "dealii": '1. deal.II prints NOTHING by default: a run whose log must carry the code own output needs BOTH deallog.depth_console(2); AND a SolverControl ctl(max_it, tol, true, true); (log_history, log_result) -- depth_console alone prints nothing. Then the console carries DEAL:cg lines per iteration.\n2. Print the DOF count yourself, on whatever line your task asks for: std::cout << "DOF count = " << dof_handler.n_dofs() << std::endl; -- nothing else emits it.\n3. Evaluate the solution at arbitrary (off-node) points with VectorTools::point_value(dof_handler, solution, Point<2>(x, y)) -- nearest-vertex lookup is the export defect that turns a converged solve into a wrong answer.\n4. Build against the local install with a 6-line CMakeLists (find_package(deal.II) + deal_ii_setup_target) and cmake -DDEAL_II_DIR=$HOME/dealii/build . -- measured: configures and builds first try on this machine; compile ~20 s.',
+    # SPARTA facts measured by execution on this install (SPARTA 24 Sep 2025,
+    # /home/alexander/Schreibtisch/sparta/src/spa_serial) on 2026-09-14, with
+    # the two deck traps re-verified against the installed source. SPARTA also
+    # had no deciding facts while it is one side of a coupled development
+    # problem; a DSMC side is a binary driven by a text deck, so its traps are
+    # deck traps and they stop the run rather than bend the answer.
+    "sparta": "1. IT IS A TEXT-DECK BINARY: `spa_serial -in <deck>` run in the deck's directory. It prints its own banner (`SPARTA (24 Sep 2025)`), the grid/particle setup and the `Step CPU Np` stats table to STDOUT, and writes the same to `log.sparta` in the working directory. `-log none` suppresses the FILE, not the console; `stats N` sets how often the table prints (measured).\n"
+              "2. A `fix ave/surf` WITH ONE VALUE IS A PER-SURF VECTOR, so the dump must reference it as `f_1`, NOT `f_1[1]`. The indexed form stops the run with `Dump surf fix does not compute per-surf array` (src/dump_surf.cpp, the `argindex[i] > 0 && size_per_surf_cols == 0` branch, read on this install).\n"
+              "3. NO surf_collide STYLE TAKES A PRESCRIBED HEAT FLUX. The nine installed styles are adiabatic, cll, diffuse, impulsive, piston, specular, td, transparent and vanish; all four thermal ones prescribe a WALL TEMPERATURE. A flux can only be imposed indirectly, through `fix surf/temp`, which turns a per-surf energy flux into the wall temperature it implies -- and SPARTA's own doc for it states that it `does not check that the specified compute/fix calculates an energy flux`, so it will accept any per-surf quantity you hand it (doc/fix_surf_temp.html on this install).\n"
+              "4. THE OUTPUT IS A MONTE-CARLO ESTIMATE, BUT IT IS REPRODUCIBLE: with the same `seed` and the same deck, repeat runs give the identical particle history (measured: four runs, identical Np at every stats step). A fixed-point iteration against a DSMC side therefore converges on the sampling noise you chose, not on noise that moves under you -- lengthen the averaging window (`fix ave/surf` over more steps) rather than tightening the coupling tolerance.",
+    # scikit-fem facts measured by execution on this install (skfem 12.0.1,
+    # /home/alexander/Schreibtisch/open-fem-agent/.venv) on 2026-09-14, after
+    # two of three step-trial workers died on lines 1 and 2 below. This was the
+    # only backend in the corpus with NO deciding facts at all, and three
+    # coupled development problems put scikit-fem on one side.
+    "skfem": "1. A FORM TAKES ITS BASIS POSITIONALLY. `laplace.assemble(basis)` and `asm(laplace, basis)` both work; `laplace.assemble(basis=basis)` raises TypeError: BilinearForm._assemble() missing 1 required positional argument: 'ubasis' (measured).\n"
+             "2. `basis.dofs` IS AN ATTRIBUTE, NOT A METHOD -- `basis.dofs(facet_indices=...)` raises TypeError: 'Dofs' object is not callable. Select dofs with `basis.get_dofs(facets=<facet indices>)` or `basis.get_dofs(lambda x: np.isclose(x[0], 0.6))`, then `.flatten()` for the index array (or `.nodal['u']`).\n"
+             "3. `mesh.facets_satisfying(pred)` RETURNS BOUNDARY FACETS ONLY. An interface that runs THROUGH one mesh needs `mesh.facets_satisfying(pred, boundaries_only=False)`; without it the selection is silently empty and the condition is applied nowhere.\n"
+             "4. EVALUATE AT OFF-NODE POINTS with `basis.probes(pts) @ x` -- `pts` is (dim, n_points) and `probes` returns the interpolation OPERATOR of shape (n_points, N), not values -- or `basis.interpolator(x)(pts)`. Both measured identical; nearest-vertex lookup is the export defect that turns a converged solve into a wrong answer.\n"
+             "5. FOR P1 THE DOF ORDER IS THE MESH VERTEX ORDER (basis.doflocs == mesh.p, measured), so a nodal array can be indexed by vertex number.\n"
+             "6. Solve with `solve(*condense(A, b, D=dirichlet_dofs))`, or with `x=` to impose non-zero values: `solve(*condense(A, b, x=x0, D=D))`. `enforce(A, b, D=D)` returns the modified pair instead.\n"
+             "7. Verbosity for a captured log: logging.basicConfig(level=logging.INFO) makes skfem print \"Assembling 'laplace'.\" -- TO STDERR. Redirect with 2>&1 or the run log carries none of it.",
     "kratos": (
         "1. `LaplacianElement2D3N` exists; `LaplacianElement2D4N` does NOT "
         "('is not registered'). 2D is P1 TRIANGLES.\n"
@@ -2394,6 +2416,10 @@ _DECIDING_FACTS["dunefem"] = _DECIDING_FACTS["dune"]
 
 _DECIDING_FACTS["fenicsx"] = _DECIDING_FACTS["fenics"]
 _DECIDING_FACTS["dolfinx"] = _DECIDING_FACTS["fenics"]
+_DECIDING_FACTS["scikit-fem"] = _DECIDING_FACTS["skfem"]
+_DECIDING_FACTS["scikitfem"] = _DECIDING_FACTS["skfem"]
+_DECIDING_FACTS["deal.ii"] = _DECIDING_FACTS["dealii"]
+_DECIDING_FACTS["4c"] = _DECIDING_FACTS["fourc"]
 
 _DECIDING_UNIVERSAL = (
     "* READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST "

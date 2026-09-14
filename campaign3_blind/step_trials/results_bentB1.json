@@ -1,0 +1,23 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False :: e \"/tmp/tmpgql22nk6/participant_B.py\", line 194, in <module>\n    bc = fem.dirichletbc(ufl.Constant(0.0), outer_dofs, V)\n                         ^^^^^^^^^^^^^^^^^\n  File \"/home/alexander/miniconda3/envs/fenics/lib/python3.12/site-packages/ufl/constant.py\", line 26, in __init__\n    self._ufl_domain = as_domain(domain)\n                       ^^^^^^^^^^^^^^^^^\n  File \"/home/alexander/miniconda3/envs/fenics/lib/python3.12/site-packages/ufl/domain.py\", line 334, in as_domain\n    domain = domain.ufl_domain()\n             ^^^^^^^^^^^^^^^^^\nAttributeError: 'float' object has no attribute 'ufl_domain'\n",
+  "attempts": 2,
+  "secs": 727.4
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpwnz8t_45/participant_B.py\", line 230, in <module>\n    facets_iface_left = remove_corners(facets_iface_left, facet_coords)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/tmpwnz8t_45/participant_B.py\", line 214, in remove_corners\n    fnode = facet_nodes[fidx]\n            ~~~~~~~~~~~^^^^^^\nTypeError: 'nanobind.nb_bound_method' object is not subscriptable\n",
+  "attempts": 2,
+  "secs": 148.6
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmp7gz18plh/participant_B.py\", line 121, in <module>\n    domain = dmesh.create_rectangle(MPI.COMM_WORLD, \n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/alexander/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/mesh.py\", line 1001, in create_rectangle\n    cell_type.name,\n    ^^^^^^^^^^^^^^\nAttributeError: 'tuple' object has no attribute 'name'\n",
+  "attempts": 2,
+  "secs": 136.1
+ }
+]

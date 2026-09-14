@@ -59,7 +59,8 @@ specific error message really means, and how to check a result.
 
 Do this first, whichever way you choose afterwards.
 
-You need **Python 3.10 or newer** and **at least one** solver. You do not need all nine.
+You need **Python 3.10 or newer** (check with `python3 --version`) and **at least one**
+solver. You do not need all nine.
 openPASO tells you what is missing and how to get it.
 
 ```bash
@@ -134,20 +135,15 @@ pip install ngsolve scikit-fem meshio
 examples use.
 
 ```bash
-# Kratos. First check your system C library version:
-#     ldd --version | head -1
-# It prints one line, for example:
-#     ldd (Ubuntu GLIBC 2.31-0ubuntu9.18) 2.31
-# The number at the END of the line is the one that counts. Here it is 2.31.
-#
-#   2.32 or higher -> pip install KratosMultiphysics
-#   below 2.32     -> pip install KratosMultiphysics-all
-#
-# Why: the 10.4.x "KratosMultiphysics" wheels are labelled for an older system
-# library than they really need. On an older system they install with no error
-# and then fail to import. "-all" resolves to a build that runs, and is safe
-# on both, so use it if you are unsure.
+# Kratos. Use this package. It works on every system.
 pip install KratosMultiphysics-all
+
+# Why not plain "KratosMultiphysics": its 10.4.x builds are labelled for an
+# older system C library than they really need, so on an older system they
+# install without any error and then fail to import. "-all" picks a build that
+# runs. On a new system (ldd --version | head -1 shows 2.32 or higher at the
+# end of the line) plain KratosMultiphysics also works, but there is no reason
+# to prefer it.
 
 # DUNE-fem: from PyPI. mpi4py is a hidden requirement; without it the first
 # import stops with "Please run pip install mpi4py before rerunning your Dune script."
@@ -308,8 +304,25 @@ Then open Settings → Developer → Edit Config and add the block below.
 }
 ```
 
-Before you save, search the block for `/path/to/` — if it still finds anything, you
+**If the file is empty**, paste the whole block above.
+**If the file already has something in it**, do not paste a second `{ ... }` — that makes
+the file invalid and the app ignores it without saying so. Add only the
+`"openpaso": { ... }` part, inside the `"mcpServers": { ... }` that is already there, and
+put a comma after the entry before it.
+
+Before you save, search **this block** for `/path/to/` — if it still finds anything, you
 missed one. That is the most common way this goes wrong, and it fails silently.
+
+**Then quit Claude Desktop completely and start it again.** Closing the window is not
+enough. Until you do this, openPASO is simply not there, with no message.
+
+**Check it worked:** in Claude Desktop, open the tools menu in the message box.
+`openpaso` should be in the list. If it is not:
+
+1. You did not fully quit and restart the app.
+2. The file is not valid JSON. Paste it into any online JSON checker.
+3. The `command` path does not exist. In a terminal run
+   `ls /path/to/openPASO/.venv/bin/python` — if that errors, the path is wrong.
 
 These are full paths for the same reason as above: the app starts openPASO from its own
 folder. `VIRTUAL_ENV` is needed because some solvers build helper code at run time and
@@ -317,7 +330,7 @@ pick their Python from the environment; without it they can pick the wrong one.
 
 **Cursor, Windsurf, or any other MCP app** — use the command
 `/path/to/openPASO/.venv/bin/python`, the arguments `-m server`, and **all three**
-settings from the `env` block above. Restart the app afterwards.
+settings from the `env` block above. Then quit the app completely and start it again.
 
 Then simply ask, inside the app:
 
@@ -383,7 +396,6 @@ do. The most common cases:
 | openpaso is missing when you work in another folder | It was added for one folder only. Remove it and add it again with `-s user` |
 | the app lists it but every tool call fails | The `command` path must point at `.venv/bin/python` inside openPASO, not at your system Python |
 
-After adding the server, restart your AI app so it picks the change up.
 
 ---
 
@@ -425,7 +437,7 @@ reported as a failure. It is never presented as a result.
 
 ## The tools the model gets
 
-The server offers about two dozen tools. These are the ones you will see it use:
+The server offers about two dozen tools. These 14 are the ones you will see it use:
 
 | Tool | What it does |
 |---|---|
@@ -493,6 +505,8 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 | **langgraph** | the library that lets an AI model use tools in a loop; only Option B needs it |
 | **Gmsh** | the program openPASO uses to build meshes |
 | **preCICE** | a separate library for coupling two solvers; an alternative to openPASO's own `couple` |
+| **wheel** | a ready-built Python package that `pip` downloads instead of compiling |
+| **fork** | a copy of a project developed separately. This repository is one; install from here, cite the original |
 | **conda** | another such tool, needed for FEniCSx |
 | **agent** | an AI model that can use tools by itself, not only write text |
 | **server** | the background program the AI app talks to; openPASO is one |

@@ -169,6 +169,59 @@ def _module_findings(body: str, source: str) -> list:
     return out
 
 
+def undefined_names(text: str) -> list:
+    """Names the script USES at module level and never defines anywhere.
+
+    This is the leave-behind contract, checked. The served contract names every variable its surviving
+    lines still use -- iface_dofs, y_if, a, b_vol and the rest -- and says plainly that the hole has to
+    define them. Measured 2026-09-14 on the DUNE 3-D step trial: a worker's script called
+    resample_plane(imp, "normal_fluxes", Q_INIT, pts) with no `pts` anywhere, and the run died with
+    UnboundLocalError after the JIT had already spent minutes compiling. A name that is never assigned
+    cannot be found by any amount of running.
+
+    Deliberately conservative: module level only, and a name bound ANYWHERE in the file counts as
+    defined. It reports what cannot work, not what looks unusual.
+    """
+    import ast
+    import builtins
+    try:
+        tree = ast.parse(text)
+    except SyntaxError as e:
+        return [f"this file does not parse: {e.__class__.__name__} at line {e.lineno} -- {e.msg}"]
+    bound = set(dir(builtins)) | {"__file__", "__name__", "__doc__"}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            bound.add(node.id)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            bound.add(getattr(node, "name", ""))
+            a = getattr(node, "args", None)
+            if a is not None:
+                for arg in list(a.args) + list(a.posonlyargs) + list(a.kwonlyargs):
+                    bound.add(arg.arg)
+                for extra in (a.vararg, a.kwarg):
+                    if extra is not None:
+                        bound.add(extra.arg)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            for al in node.names:
+                bound.add((al.asname or al.name).split(".")[0])
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            bound.add(node.name)
+        elif isinstance(node, ast.Global):
+            bound.update(node.names)
+    # module-level loads only: function bodies may legitimately read module names defined later
+    missing = {}
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            continue
+        for sub in ast.walk(node):
+            if isinstance(sub, ast.Name) and isinstance(sub.ctx, ast.Load) and sub.id not in bound:
+                missing.setdefault(sub.id, sub.lineno)
+    return [f"`{n}` is used at line {ln} and never defined in this file -- the run stops with "
+            f"NameError/UnboundLocalError there. The served contract lists the names its surviving "
+            f"lines need; every one of them has to come out of your solve."
+            for n, ln in sorted(missing.items(), key=lambda kv: kv[1])]
+
+
 def participant_findings(text: str) -> list:
     """Measured API traps present in this script, named with the error and the working call."""
     if not isinstance(text, str) or not text.strip():
@@ -177,7 +230,7 @@ def participant_findings(text: str) -> list:
     if not codes:
         return []
     body = _strip_strings_and_comments(text)
-    out, seen = _module_findings(body, text), set()
+    out, seen = _module_findings(body, text) + undefined_names(text), set()
     for backend, pattern, error, fix in _TRAPS:
         if backend not in codes or (backend, pattern) in seen:
             continue

@@ -62,7 +62,7 @@ def test_it_would_have_named_half_the_fills_that_died_before_exporting():
     dead = [n for n, verdict, _ in rows if verdict == "NO EXPORTS"]
     assert len(dead) >= 40, "the re-graded fill record is missing"
     named = sum(1 for n in dead if participant_findings((FILLS / n).read_text()))
-    assert named >= 20, f"the lint names only {named} of {len(dead)} dead fills; it used to name 23"
+    assert named >= 24, f"the lint names only {named} of {len(dead)} dead fills; it used to name 26"
 
 
 def test_the_harness_surfaces_it_on_a_write():
@@ -127,6 +127,42 @@ from dolfinx.fem.petsc import LinearProblem
 from dolfinx import fem
 import json
 # imports.json exports.json
+a = 1
+L = 2
 p = LinearProblem(a, L, bcs=[], petsc_options_prefix="run")
 """
     assert participant_findings(script) == []
+
+
+def test_it_stays_silent_on_every_fill_that_actually_exported():
+    """The other half of the measurement: of the twelve fills that DID write exports, none is flagged.
+    A gate that fires on working code costs an action and teaches the agent to ignore it."""
+    from tools.participant_lint import participant_findings
+    rows = json.loads((FILLS / "regrade_fills.json").read_text())
+    worked = [n for n, verdict, _ in rows if verdict != "NO EXPORTS"]
+    assert len(worked) >= 10
+    noisy = [n for n in worked if participant_findings((FILLS / n).read_text())]
+    assert not noisy, f"flagged scripts that ran: {noisy}"
+
+
+def test_a_name_that_is_never_defined_is_named_before_the_run():
+    """The leave-behind contract, checked. Measured on the DUNE 3-D trial and on five NGSolve fills:
+    scripts that used CF, InnerProduct or outer_dofs without ever defining them, each dying at that
+    line after the run had already been paid for."""
+    from tools.participant_lint import undefined_names
+    script = """
+from ngsolve import Mesh, H1
+import json
+# imports.json exports.json
+gf = CoefficientFunction(1.0)
+val = InnerProduct(a, b)
+"""
+    f = undefined_names(script)
+    assert any("CoefficientFunction" in x for x in f) and any("InnerProduct" in x for x in f), f
+    assert all("never defined in this file" in x for x in f)
+
+
+def test_a_lambda_parameter_is_not_an_undefined_name():
+    """Six served contracts were flagged by a first version that did not read lambda arguments."""
+    from tools.participant_lint import undefined_names
+    assert undefined_names("f = lambda X: X[0] + X[1]\ny = f((1, 2))\n") == []

@@ -22,6 +22,9 @@ import sys
 from pathlib import Path
 
 import yaml
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[1] / 'scripts'))
+import _host_roots  # noqa: E402
 
 HERE = Path(__file__).parent
 # The dump is 2.8 MB of machine-generated YAML — regenerated on demand rather
@@ -29,7 +32,7 @@ HERE = Path(__file__).parent
 DUMP = Path(os.environ.get("FOURC_PARAMS_DUMP",
                            HERE / ".cache" / "fourc_params.yaml"))
 CACHE = DUMP.with_suffix(".index.pkl")
-BINARY = Path(os.environ.get("FOURC_BINARY", "/home/user/4C/build/4C"))
+BINARY = Path(os.environ.get("FOURC_BINARY", _host_roots.fourc_binary()))
 LD = os.environ.get("FOURC_LD_LIBRARY_PATH", "/opt/4C-dependencies/lib")
 
 

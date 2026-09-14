@@ -16,12 +16,15 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[4] / 'scripts'))
+import _host_roots  # noqa: E402
 
 _CANDIDATES = [
     shutil.which("spa_serial"),
     shutil.which("spa_mpi"),
     str(Path.home() / "sparta" / "src" / "spa_serial"),
-    "/home/user/Schreibtisch/sparta/src/spa_serial",
+    _host_roots.sparta_binary(),
 ]
 
 # SPARTA_BINARY is AUTHORITATIVE when set: if it names something that is not a

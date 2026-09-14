@@ -24,12 +24,15 @@ SPEC = json.loads(SPEC_PATH.read_text())
 
 sys.path.insert(0, str(REPO / "src"))
 from core.coupling_driver import Participant, run_coupling  # noqa: E402
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[3] / 'scripts'))
+import _host_roots  # noqa: E402
 
 PYTHON = os.environ.get(
     "OPENPASO_SOLVER_PYTHON",
-    "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python",
+    _host_roots.openpaso_python(),
 )
-FOURC = os.environ.get("FOURC_BINARY", "/home/user/4C/build/4C")
+FOURC = os.environ.get("FOURC_BINARY", _host_roots.fourc_binary())
 FOURC_LD = os.environ.get("FOURC_LD_LIBRARY_PATH", "/opt/4C-dependencies/lib")
 
 

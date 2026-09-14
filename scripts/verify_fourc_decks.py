@@ -43,8 +43,11 @@ sys.path.insert(0, str(REPO / "scripts"))
 import yaml  # noqa: E402
 
 from backends.fourc import decks as deck_mod  # noqa: E402
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[1] / 'scripts'))
+import _host_roots  # noqa: E402
 
-BINARY = Path(os.environ.get("FOURC_BINARY", "/home/user/4C/build/4C"))
+BINARY = Path(os.environ.get("FOURC_BINARY", _host_roots.fourc_binary()))
 LD = os.environ.get("FOURC_LD_LIBRARY_PATH", "/opt/4C-dependencies/lib")
 
 # The grammar dump cannot enumerate these: TITLE is free text, FUNCT<n> is

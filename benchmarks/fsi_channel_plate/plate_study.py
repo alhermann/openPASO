@@ -13,9 +13,12 @@ import subprocess
 import sys
 
 import numpy as np
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[2] / 'scripts'))
+import _host_roots  # noqa: E402
 
 SD = "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi"
-FOURC = "/home/user/4C/build/4C"
+FOURC = _host_roots.fourc_binary()
 ENV = dict(os.environ, LD_LIBRARY_PATH="/opt/4C-dependencies/lib")
 
 L, Y0, Y1 = 1.0, 0.2, 0.25

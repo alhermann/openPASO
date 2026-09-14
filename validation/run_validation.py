@@ -54,6 +54,9 @@ sys.path.insert(0, str(WORKTREE / "langgraph_eval"))
 import agent as _agent  # noqa: E402  (the standard harness)
 from agent import build_mcp_agent  # noqa: E402
 from langchain_openai import ChatOpenAI  # noqa: E402
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[1] / 'scripts'))
+import _host_roots  # noqa: E402
 
 MODEL = "qwen/qwen3.5-27b"
 
@@ -68,7 +71,7 @@ def _or_llm(size, *, temperature, seed):
 
 _agent._llm = _or_llm  # route the harness's LLM factory through OpenRouter
 
-FEPY = "/home/user/miniconda3/envs/fenics/bin/python"
+FEPY = _host_roots.fenics_python()
 ENVIRON = (
     "\nENVIRONMENT NOTES: FEniCSx/dolfinx python -> " + FEPY + " ; "
     "scikit-fem is importable in the openPASO server's own python (just use "

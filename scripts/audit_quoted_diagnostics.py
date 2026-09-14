@@ -65,8 +65,30 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[1] / 'scripts'))
+import _host_roots  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
+
+
+def _root(env_var: str, *fallback: str) -> str:
+    """A source tree, named by environment variable, else under $HOME.
+
+    These paths are load-bearing, not documentation: they are the corpus the
+    audit greps to decide whether an input key openPASO names is real. They
+    used to be written out with one person's username in them, which both
+    published that username and only worked on that one machine. Writing them
+    as $HOME plus an environment variable override keeps the audit working
+    here and makes it configurable anywhere else -- and the variables are the
+    same ones openPASO already documents (FOURC_ROOT, DEALII_ROOT, ...).
+    """
+    import os
+    named = os.environ.get(env_var, "").strip()
+    if named:
+        return named
+    return str(Path.home().joinpath(*fallback))
+
 
 # Where each backend's implementation actually lives. A missing entry means the
 # audit reports UNKNOWN for that backend rather than guessing.
@@ -80,8 +102,9 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # files; the entry point of the shipped binary is not an optional part of
     # 4C's source. `unittests/` is deliberately NOT added: a string that exists
     # only in a test's expected output is not evidence the solver emits it.
-    "fourc": ["/home/user/4C/src", "/home/user/4C/apps",
-              "/home/user/4C/tests"],
+    "fourc": [_root("FOURC_ROOT", "4C") + "/src",
+              _root("FOURC_ROOT", "4C") + "/apps",
+              _root("FOURC_ROOT", "4C") + "/tests"],
     # FEBio is installed as a BINARY with no source tree — `/opt/febio` and
     # `/usr/local/febio` are both absent on this host, so the audit reported
     # UNKNOWN for every FEBio claim. The real install is below, and a binary is
@@ -89,7 +112,7 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # FEBio's XML element names are compiled into it as literal strings. This
     # only works with `grep -a`; without it grep skips the file as binary and
     # answers "not found" for everything in it.
-    # NOT `/home/user/FEBio` — that directory holds only `bin/febio4`,
+    # NOT `$HOME/FEBio` — that directory holds only `bin/febio4`,
     # which is a SYMLINK into the tree below, and `grep -r` does not follow
     # symlinks. Pointed there, the corpus was effectively empty: a positive
     # control for the literal string "febio" returned zero files, and the audit
@@ -98,7 +121,7 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # everything is not evidence of fabrication, it is a broken instrument —
     # which is why every backend here needs a positive control before its
     # numbers are quoted.
-    "febio": ["/home/user/Schreibtisch/febio-src",
+    "febio": [_root("FEBIO_SRC", "Schreibtisch", "febio-src"),
               "/opt/febio", "/usr/local/febio"],
     # deal.II ships as C++ headers and sources, not a Python package, so the
     # module probe could never find it. 7125 headers and sources here.
@@ -121,12 +144,12 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # invented on that basis; it is enumerator 8 of EPSWhich in
     # /usr/include/slepc/slepceps.h:106. The library a wrapper forwards to is
     # not an optional part of the wrapper's grammar.
-    "dealii": ["/home/user/dealii", "/usr/include/deal.II",
+    "dealii": [_root("DEALII_ROOT", "dealii"), "/usr/include/deal.II",
                "/usr/include/slepc", "/usr/include/petsc"],
     # SPARTA is a C++ code with its own input-command corpus in doc/ and
     # examples/; both matter, since a command can be documented and exercised
     # without appearing as a literal in the source.
-    "sparta": ["/home/user/Schreibtisch/sparta"],
+    "sparta": [_root("SPARTA_ROOT", "Schreibtisch", "sparta")],
     # Kratos: prefer the source-built 28-APPLICATION install over the repo
     # venv's wheel, which ships only core plus three applications.
     #
@@ -173,11 +196,11 @@ SOURCE_HINTS: dict[str, list[str]] = {
     # which is what makes those entries' retractions worth something.
     "kratos": ["/mnt/kratos-tier2/kv/lib/python3.12/site-packages/"
                "KratosMultiphysics",
-               "/home/user/Kratos/kratos",
-               "/home/user/Kratos/applications",
-               "/home/user/Kratos/external_libraries",
-               "/home/user/Kratos/cmake_modules",
-               "/home/user/Kratos/scripts"],
+               _root("KRATOS_ROOT", "Kratos") + "/kratos",
+               _root("KRATOS_ROOT", "Kratos") + "/applications",
+               _root("KRATOS_ROOT", "Kratos") + "/external_libraries",
+               _root("KRATOS_ROOT", "Kratos") + "/cmake_modules",
+               _root("KRATOS_ROOT", "Kratos") + "/scripts"],
 }
 
 # Python backends, PRIMARY MODULE FIRST. The first entry must be importable or
@@ -499,7 +522,7 @@ def static_parts(fragment: str) -> list[str]:
 # imported into this process.
 _CANDIDATE_PYTHONS = [
     sys.executable,
-    "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python",
+    _host_roots.openpaso_python(),
     str(Path.home() / "miniconda3" / "envs" / "fenics" / "bin" / "python"),
     str(Path.home() / "miniconda3" / "envs" / "fenicsc" / "bin" / "python"),
     str(Path.home() / "miniconda3" / "envs" / "ofa-dealii" / "bin" / "python"),

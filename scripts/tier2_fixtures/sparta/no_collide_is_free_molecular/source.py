@@ -29,13 +29,16 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[4] / 'scripts'))
+import _host_roots  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 CANDIDATES = [
     os.environ.get("SPARTA_BINARY"),
     shutil.which("spa_serial"),
     shutil.which("spa_mpi"),
-    "/home/user/Schreibtisch/sparta/src/spa_serial",
+    _host_roots.sparta_binary(),
     str(Path.home() / "sparta" / "src" / "spa_serial"),
 ]
 MUTATE = os.environ.get("T2_MUTATE") == "1"

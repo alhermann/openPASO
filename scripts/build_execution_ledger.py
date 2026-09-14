@@ -62,6 +62,9 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[1] / 'scripts'))
+import _host_roots  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 FIXTURES = REPO / "scripts" / "tier2_fixtures"
@@ -72,18 +75,18 @@ FIXTURES = REPO / "scripts" / "tier2_fixtures"
 # DUNE_PYTHON unset, every DUNE fixture skips silently.
 INTERPRETERS = {
     "skfem": os.environ.get("SKFEM_PYTHON",
-                            "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                            _host_roots.openpaso_python()),
     "ngsolve": os.environ.get("NGSOLVE_PYTHON",
-                              "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                              _host_roots.openpaso_python()),
     "kratos": os.environ.get("KRATOS_PYTHON", "/usr/bin/python3"),
     "dune": os.environ.get("DUNE_PYTHON", ""),
     "fenics": os.environ.get("FENICS_PYTHON", ""),
     "sparta": os.environ.get("SPARTA_PYTHON",
-                             "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                             _host_roots.openpaso_python()),
     "febio": os.environ.get("FEBIO_PYTHON",
-                            "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                            _host_roots.openpaso_python()),
     "coupling": os.environ.get("COUPLING_PYTHON",
-                               "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"),
+                               _host_roots.openpaso_python()),
 }
 
 

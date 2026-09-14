@@ -26,6 +26,9 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parents[4] / 'scripts'))
+import _host_roots  # noqa: E402
 
 # .../scripts/tier2_fixtures/sparta/<id>/source.py -> repo root is parents[4].
 # Insert THIS checkout's src at the very front so an installed copy of the
@@ -39,7 +42,7 @@ CANDIDATES = [
     os.environ.get("SPARTA_BINARY"),
     shutil.which("spa_serial"),
     shutil.which("spa_mpi"),
-    "/home/user/Schreibtisch/sparta/src/spa_serial",
+    _host_roots.sparta_binary(),
     str(Path.home() / "sparta" / "src" / "spa_serial"),
 ]
 BINARY = next((c for c in CANDIDATES if c and Path(c).is_file()), None)

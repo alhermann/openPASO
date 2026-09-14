@@ -222,6 +222,81 @@ def undefined_names(text: str) -> list:
             for n, ln in sorted(missing.items(), key=lambda kv: kv[1])]
 
 
+# The error text a run prints -> the call that works. Same measurements as _TRAPS, keyed the other
+# way round: a run that already failed should not cost a second run to diagnose.
+_ERROR_FIXES: tuple = (
+    ("'Dofs' object is not callable",
+     "scikit-fem: basis.dofs is an ATTRIBUTE. Select with basis.get_dofs(facets=...) or "
+     "basis.get_dofs(lambda x: ...), then .flatten()"),
+    ("missing 1 required positional argument: 'ubasis'",
+     "scikit-fem: a form takes its basis POSITIONALLY -- laplace.assemble(basis), or asm(laplace, basis)"),
+    ("Attribute 'y' not found in 'w'",
+     "scikit-fem: inside a form the coordinates are w.x[0] and w.x[1]; there is no w.y"),
+    ("has no attribute 'init_rect'",
+     "scikit-fem: a rectangle is MeshTri.init_tensor(np.linspace(x0, x1, nx + 1), np.linspace(y0, y1, ny + 1))"),
+    ("unexpected keyword argument 'doforder'",
+     "scikit-fem: Basis(mesh, element) takes no doforder keyword"),
+    ("has no attribute 'find_dofs'",
+     "scikit-fem: every basis has get_dofs, not find_dofs"),
+    ("'MeshTri1' object has no attribute 'f'",
+     "scikit-fem: the facet node table is mesh.facets; mesh.p, mesh.t, mesh.t2f and mesh.f2t are the others"),
+    ("has no attribute 'AddVertex'",
+     "NGSolve: a rectangle is geo.AddRectangle((X0, Y0), (X1, Y1), bcs=(bottom, right, top, left)); "
+     "single points are AddPoint(x, y) with SEPARATE coordinates"),
+    ("has no attribute 'AddRect'",
+     "NGSolve: the call is AddRectangle, spelled in full"),
+    ("object has no attribute 'Faces'",
+     "NGSolve: the mesh iterators are lowercase properties -- mesh.vertices, mesh.faces, mesh.edges"),
+    ("object has no attribute 'Vertices'",
+     "NGSolve: the mesh iterators are lowercase properties -- mesh.vertices, mesh.faces, mesh.edges"),
+    ("MeshNode' object has no attribute",
+     "NGSolve: a MeshNode carries .nr and .point; a vertex's dof is fes.GetDofNrs(NodeId(VERTEX, v.nr))[0]"),
+    ("cannot import name 'inverse' from 'ngsolve'",
+     "NGSolve: `inverse` is a KEYWORD of Inverse, not an import -- "
+     "a.mat.Inverse(fes.FreeDofs(), inverse='sparsecholesky')"),
+    ("BaseVector' object has no attribute 'vec'",
+     "NGSolve: a LinearForm's vector IS f.vec; assign through .data and read numbers with FV().NumPy()"),
+    ("must not have TrialFunction",
+     "NGSolve: a LinearForm carries only the test function; every term with the trial function belongs "
+     "in the BilinearForm"),
+    ("has no attribute 'subset_dofs'",
+     "FEniCSx: fem.locate_dofs_topological(V, fdim, facets) or fem.locate_dofs_geometrical(V, marker)"),
+    ("has no attribute 'FiniteElement'",
+     "FEniCSx: build spaces with fem.functionspace(mesh, ('Lagrange', 1))"),
+    ("has no attribute 'VectorFunctionSpace'",
+     "FEniCSx: fem.functionspace(mesh, ('Lagrange', 1, (mesh.geometry.dim,)))"),
+    ("petsc_options_prefix",
+     "FEniCSx: LinearProblem REQUIRES the keyword petsc_options_prefix on this install"),
+    ("has no attribute 'geometry.point'",
+     "DUNE-fem: a vertex's coordinates are vertex.geometry.center (or .corner(0))"),
+    ("'Geometry' object has no attribute 'point'",
+     "DUNE-fem: a vertex's coordinates are vertex.geometry.center (or .corner(0))"),
+    ("'Form' object has no attribute 'copy'",
+     "DUNE-fem: a UFL form is immutable -- build the second one by writing the expression again"),
+    ("has no attribute 'converged'",
+     "DUNE-fem: scheme.solve returns a DICT -- read info['converged']"),
+    ("is not registered",
+     "Kratos: 2-D conduction is P1 TRIANGLES (LaplacianElement2D3N); 3-D is LaplacianElement3D4N"),
+)
+
+
+def findings_from_output(output: str) -> list:
+    """What a run already told you, with the call that works.
+
+    A failed run has bought the diagnosis; spending a second run to learn it is the loop that ate
+    round 49. Names at most three, because an agent acts on the first."""
+    if not isinstance(output, str) or not output.strip():
+        return []
+    out, seen = [], set()
+    for needle, fix in _ERROR_FIXES:
+        if needle in output and fix not in seen:
+            seen.add(fix)
+            out.append(f"the run printed `{needle}` -- {fix}. Measured on this install.")
+        if len(out) >= 3:
+            break
+    return out
+
+
 def participant_findings(text: str) -> list:
     """Measured API traps present in this script, named with the error and the working call."""
     if not isinstance(text, str) or not text.strip():

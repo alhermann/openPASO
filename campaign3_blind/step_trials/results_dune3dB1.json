@@ -1,0 +1,23 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False :: Invalid MIT-MAGIC-COOKIE-1 keyTraceback (most recent call last):\n  File \"/tmp/tmpzny4ia8e/participant_B.py\", line 821, in <module>\n    main()\n    ~~~~^^\n  File \"/tmp/tmpzny4ia8e/participant_B.py\", line 451, in main\n    xd[:, i] = vert.geometry.point\n               ^^^^^^^^^^^^^^^^^^^\nAttributeError: 'dune.generated.hierarchicalgrid_472c2c2d007bf5604887ab2f16b7eb13.Geometry' object has no attribute 'point'\n",
+  "attempts": 2,
+  "secs": 368.2
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False :: Invalid MIT-MAGIC-COOKIE-1 keyDUNE-INFO: Compiling Dune::YaspGrid< 3, Dune::EquidistantOffsetCoordinates< double, 3 > >::LeafGridView::gf<0> (new)\nDUNE-INFO: Compiling UFLLocalFunction (new)\nTraceback (most recent call last):\n  File \"/tmp/tmpenmmt8lw/participant_B.py\", line 794, in <module>\n    main()\n    ~~~~^^\n  File \"/tmp/tmpenmmt8lw/participant_B.py\", line 457, in main\n    b_form = b_vol.copy()\n             ^^^^^^^^^^\nAttributeError: 'Form' object has no attribute 'copy'\n",
+  "attempts": 2,
+  "secs": 581.1
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False :: Invalid MIT-MAGIC-COOKIE-1 keyDUNE-INFO: Compiling UFLLocalFunction (new)\nDUNE-INFO: Compiling GridViewIndexSet (new)\nDUNE-INFO: Compiling UFLLocalFunction (new)\nTraceback (most recent call last):\n  File \"/tmp/tmp4bzqiztp/participant_B.py\", line 672, in <module>\n    main()\n    ~~~~^^\n  File \"/tmp/tmp4bzqiztp/participant_B.py\", line 489, in main\n    q_in = resample_plane(imp, \"normal_fluxes\", Q_INIT, pts)\n                                                        ^^^\nUnboundLocalError: cannot access local variable 'pts' where it is not associated with a value\n",
+  "attempts": 2,
+  "secs": 1068.6
+ }
+]

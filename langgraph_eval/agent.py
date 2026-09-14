@@ -645,6 +645,7 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
                     + (_registry_error_check(out) + _eaten_error_check(out)
                        + _env_after_wrapper_check(command)
                        + _fourc_run_check(command, out, workdir)
+                       + _participant_run_check(out)
                        + _fourc_after_shell_check(workdir, _started_at, command)
                        if audit_on_submit else "")
                     + _script_check_after_shell(_before_scr)
@@ -1079,7 +1080,7 @@ from tools.workspace_advisor import (          # noqa: E402
     _looks_like_captured_output, _registry_error_check, _script_noop_check,
     _work_on_disk_contradicting_a_give_up,
     _wrong_level_run_log_check, _fourc_deck_write_check, _fourc_run_check,
-    _fourc_after_shell_check, _participant_write_check)
+    _fourc_after_shell_check, _participant_write_check, _participant_run_check)
 
 
 

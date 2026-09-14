@@ -166,3 +166,47 @@ def test_a_lambda_parameter_is_not_an_undefined_name():
     """Six served contracts were flagged by a first version that did not read lambda arguments."""
     from tools.participant_lint import undefined_names
     assert undefined_names("f = lambda X: X[0] + X[1]\ny = f((1, 2))\n") == []
+
+
+def test_a_failed_run_names_its_own_fix():
+    """A failed run has already bought the diagnosis; a second run to learn it is the loop that ate
+    round 49 (12-36 shell calls per cell at 35-73 seconds each)."""
+    from tools.participant_lint import findings_from_output
+    from tools.workspace_advisor import _participant_run_check
+    console = ("Traceback (most recent call last):\n"
+               "  File \"participant_A.py\", line 94, in <module>\n"
+               "TypeError: 'Dofs' object is not callable\n")
+    f = findings_from_output(console)
+    assert f and "get_dofs" in f[0] and "Measured on this install" in f[0]
+    block = _participant_run_check(console)
+    assert block.startswith("\n[run check]") and "known one" in block
+    assert _participant_run_check("all good, wrote exports.json") == ""
+    assert _participant_run_check("") == ""
+
+
+def test_the_error_table_covers_what_the_fills_actually_printed():
+    """Every error the 46 dead fills printed that this project has measured a fix for must be in the
+    table -- the table is the write-time traps, keyed the other way round."""
+    from tools.participant_lint import findings_from_output
+    printed = [
+        "TypeError: 'Dofs' object is not callable",
+        "BilinearForm._assemble() missing 1 required positional argument: 'ubasis'",
+        "AttributeError: Attribute 'y' not found in 'w'.",
+        "AttributeError: type object 'MeshTri1' has no attribute 'init_rect'",
+        "AttributeError: 'SplineGeometry' object has no attribute 'AddVertex'",
+        "AttributeError: 'ngsolve.comp.Mesh' object has no attribute 'Faces'",
+        "AttributeError: 'ngsolve.comp.MeshNode' object has no attribute 'ndof'",
+        "ImportError: cannot import name 'inverse' from 'ngsolve'",
+        "AttributeError: 'ngsolve.la.BaseVector' object has no attribute 'vec'",
+        "AttributeError: 'FunctionSpace' object has no attribute 'subset_dofs'",
+        "AttributeError: 'Geometry' object has no attribute 'point'",
+        "AttributeError: 'Form' object has no attribute 'copy'",
+    ]
+    for line in printed:
+        assert findings_from_output(line), f"no fix named for a failure that was measured: {line}"
+
+
+def test_the_harness_surfaces_the_run_check_too():
+    agent = (ROOT / "langgraph_eval" / "agent.py").read_text()
+    assert "_participant_run_check(out)" in agent
+    assert "_participant_run_check)" in agent or "_participant_run_check," in agent

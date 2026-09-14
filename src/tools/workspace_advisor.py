@@ -1020,6 +1020,24 @@ def _deck_findings_text(tag: str, name: str, findings: list, when: str) -> str:
             + "\n".join(f"  - {f}" for f in shown) + more + ("\n  " + note[0] if note else ""))
 
 
+def _participant_run_check(output: str) -> str:
+    """A run that already failed names its own fix, in the same reply.
+
+    Measured in round 49: 12-36 shell calls per cell and 8-31 file writes, at 35-73 seconds each, and
+    the loop that consumed them was write-run-error-rewrite on the participant. When the console
+    carries one of the errors this project has measured, the call that works goes back with it.
+    """
+    try:
+        from tools.participant_lint import findings_from_output   # noqa: PLC0415
+        findings = findings_from_output(output)
+    except Exception:                                    # noqa: BLE001
+        return ""
+    if not findings:
+        return ""
+    return ("\n[run check] this failure is a known one, measured on this install:\n"
+            + "\n".join(f"  - {f}" for f in findings))
+
+
 def _fourc_run_check(command: str, output: str, workdir: Path) -> str:
     """A shell command that ran the 4C binary on a deck: the deck's defects and 4C's own stop line.
 

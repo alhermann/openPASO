@@ -623,21 +623,33 @@ def contract_findings(work: Path) -> list[dict]:
         if _level_of(f) is not None:
             levels.add(_level_of(f))
     if levels:
+        # PER SIDE, NOT PER LEVEL. This asked whether ANY log at a level carried a dof count, and a
+        # coupled run is graded per side: "the file for side A must carry the output of the code that
+        # solved subdomain A". Measured on a round-48 cell that had both codes PROVEN and the coupling
+        # PROVEN and lost anyway -- side A had no dof line at levels 2 and 3, side B none either, and
+        # this finding stayed silent because level 1's logs had them. A gate that is weaker than the
+        # contract it guards is worth nothing at the moment it matters.
+        sides = sorted({s for _q, _k2, _kk, s in _level_files(work, "log") if s})
         missing = []
         for k in sorted(levels):
             logs = _level_logs(work, k)
-            if not any(_DOF_LINE.search(p.read_text(errors="ignore"))
-                       for p in logs):
-                missing.append(k)
+            if sides:
+                for side in sides:
+                    have = [q for q in logs
+                            if (_LEVEL_FILE.match(q.name).group("side") or "") == side]
+                    if not any(_DOF_LINE.search(q.read_text(errors="ignore")) for q in have):
+                        missing.append(f"{k}{side}")
+            elif not any(_DOF_LINE.search(q.read_text(errors="ignore")) for q in logs):
+                missing.append(str(k))
         if missing:
+            _what = ("level/side " if sides else "level(s) ")
             out.append({"sequence": "run-log contract", "values": [],
                         "finding": (
-                f"NO DOF-COUNT LINE in a captured run log for level(s) "
-                f"{missing}. Every level needs its own run log (per side, if "
-                f"coupled) carrying the solver's own console output and a line "
-                f"stating the number of degrees of freedom (`NDOF = 1234`), "
-                f"written from the solver's own dof count; a level without "
-                f"that log cannot be shown to have run.")})
+                f"NO DOF-COUNT LINE in a captured run log for {_what}"
+                f"{missing}. Every level needs its own run log PER SIDE, each carrying that "
+                f"side's own solver console output and a line stating the number of degrees of "
+                f"freedom (`NDOF = 1234`) from that side's own dof count; a level-and-side "
+                f"without that log cannot be shown to have run, however good its numbers are.")})
 
     # 1b. IS THE DISCRETISATION THE ONE THE TASK ASKED FOR?
     #

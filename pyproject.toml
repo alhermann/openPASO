@@ -24,6 +24,10 @@ dependencies = [
     # working on an older resolution, so nothing here noticed. Measured on a
     # clean venv, Python 3.13, which picked mcp 2.2.0.
     "mcp[cli]>=1.2.0,<2",
+    # src/blind_eval/{derive,leakgate,coupled}.py import it at module level.
+    # It was never declared: a clean install could not even collect the test
+    # suite ("No module named 'sympy'"), and importing those modules failed.
+    "sympy>=1.12",
     "pyyaml>=6.0",
     # numpy capped <2 because pyprecice pins numpy<2; scipy capped <1.16 because
     # scipy>=1.16 uses numpy-2-only dtypes (np.long) and requires numpy>=2.0,
@@ -61,6 +65,8 @@ all-solvers = [
 
 # Development
 dev = ["pytest>=7.0", "pytest-asyncio>=0.20"]
+# Everything the test suite needs on top of the runtime dependencies.
+# `pip install -e ".[dev]"` must be enough to run `pytest tests/`.
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

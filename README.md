@@ -113,7 +113,7 @@ If you instead see `ModuleNotFoundError`, your virtual environment is not active
 |---|---|---|
 | **scikit-fem** | pure Python, full control over the assembly | `pip` — seconds |
 | **NGSolve** | electromagnetics, acoustics, high-order elements | `pip` — seconds |
-| **Kratos Multiphysics** | structures, fluids, coupled problems, particles | `pip`, but see the note below |
+| **Kratos Multiphysics** | structures, fluids, coupled problems, particles | `pip install KratosMultiphysics-all` |
 | **DUNE-fem** | discontinuous Galerkin, adaptive meshes | `pip` — minutes |
 | **FEniCSx (dolfinx)** | fast prototyping, fluid flow | `conda` — minutes |
 | **deal.II** | adaptive refinement, very large parallel runs | system package |
@@ -138,7 +138,7 @@ examples use.
 # Kratos. Use this package. It works on every system.
 pip install KratosMultiphysics-all
 
-# Why not plain "KratosMultiphysics": its 10.4.x builds are labelled for an
+# Why not plain "KratosMultiphysics": its 10.4.x wheels are labelled for an
 # older system C library than they really need, so on an older system they
 # install without any error and then fail to import. "-all" picks a build that
 # runs. On a new system (ldd --version | head -1 shows 2.32 or higher at the
@@ -279,6 +279,8 @@ Check that it worked:
 claude mcp list          # openpaso should be listed, and connected
 ```
 
+If Claude Code was already running, restart it so it picks up the new server.
+
 **Claude Desktop** — first get your full path. In the openPASO folder run:
 
 ```bash
@@ -304,11 +306,39 @@ Then open Settings → Developer → Edit Config and add the block below.
 }
 ```
 
+> [!WARNING]
+> **On Windows two things change, and both fail silently if you skip them.**
+> The Python program is at `.venv\Scripts\python.exe`, not `.venv/bin/python`.
+> And **every backslash must be written twice** inside a JSON file: `C:\Users\...`
+> is not valid JSON and the app will ignore the whole file without a word.
+>
+> ```json
+> {
+>   "mcpServers": {
+>     "openpaso": {
+>       "command": "C:\\Users\\you\\openPASO\\.venv\\Scripts\\python.exe",
+>       "args": ["-m", "server"],
+>       "env": {
+>         "PYTHONPATH": "C:\\Users\\you\\openPASO\\src",
+>         "VIRTUAL_ENV": "C:\\Users\\you\\openPASO\\.venv",
+>         "PYVISTA_OFF_SCREEN": "true"
+>       }
+>     }
+>   }
+> }
+> ```
+>
+> To get your own path, run `cd` in Command Prompt (or `pwd` in PowerShell) inside
+> the openPASO folder, then double every backslash when you paste it.
+
 **If the file is empty**, paste the whole block above.
 **If the file already has something in it**, do not paste a second `{ ... }` — that makes
 the file invalid and the app ignores it without saying so. Add only the
 `"openpaso": { ... }` part, inside the `"mcpServers": { ... }` that is already there, and
 put a comma after the entry before it.
+**If the file has something in it but no `"mcpServers"` at all**, add the whole
+`"mcpServers": { ... }` part as a new entry beside what is already there, and put a
+comma after the entry before it.
 
 Before you save, search **this block** for `/path/to/` — if it still finds anything, you
 missed one. That is the most common way this goes wrong, and it fails silently.
@@ -506,6 +536,10 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 | **Gmsh** | the program openPASO uses to build meshes |
 | **preCICE** | a separate library for coupling two solvers; an alternative to openPASO's own `couple` |
 | **wheel** | a ready-built Python package that `pip` downloads instead of compiling |
+| **JSON** | a text format for settings. Every bracket, quote and comma must match, or the whole file is ignored |
+| **binary** | a program you can run, already compiled — you do not build it yourself |
+| **interpreter** | the `python` program itself; several can be installed side by side |
+| **prompt** (terminal) | the text your terminal shows before you type, such as `$`. Not the same as the question you ask an AI |
 | **fork** | a copy of a project developed separately. This repository is one; install from here, cite the original |
 | **conda** | another such tool, needed for FEniCSx |
 | **agent** | an AI model that can use tools by itself, not only write text |

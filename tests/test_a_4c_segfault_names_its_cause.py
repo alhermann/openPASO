@@ -1,4 +1,4 @@
-"""A signal is not a diagnostic, so OASiS has to name the cause.
+"""A signal is not a diagnostic, so openPASO has to name the cause.
 
 MEASURED on C2_27b_MCP_seed76, which lost its whole run to this. The agent
 wrote a 2-D Scalar_Transport deck with `E: 0` and `NODE n DLINE 0` — zero-based

@@ -1,7 +1,7 @@
 """Development benchmark for the C2 4C/Kratos manufactured diffusion pair.
 
 This is not an evaluation solution path. C2 is a spent development problem;
-the benchmark exercises the general participant templates and the OASiS file
+the benchmark exercises the general participant templates and the openPASO file
 handshake before another model run is paid for.
 """
 from __future__ import annotations
@@ -26,7 +26,7 @@ sys.path.insert(0, str(REPO / "src"))
 from core.coupling_driver import Participant, run_coupling  # noqa: E402
 
 PYTHON = os.environ.get(
-    "OASIS_SOLVER_PYTHON",
+    "OPENPASO_SOLVER_PYTHON",
     "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python",
 )
 FOURC = os.environ.get("FOURC_BINARY", "/home/alexander/4C/build/4C")

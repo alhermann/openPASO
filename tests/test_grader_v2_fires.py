@@ -674,7 +674,7 @@ def test_missing_prescribed_run_log_is_malformed_not_fabricated(tmp_path):
     were invented.
 
     Five real runs sat in that state (C5_MCP_s14, C4_MCP_s15, C12_MCP_s15,
-    C3_BARE_s4, C7_BARE_s9) — three OASiS, two bare — and the campaign reports
+    C3_BARE_s4, C7_BARE_s9) — three openPASO, two bare — and the campaign reports
     a fabrication rate as a headline number. Paperwork was being counted as
     forgery in both arms.
 
@@ -1190,7 +1190,7 @@ def test_spec_key_grade_disagreement_is_a_config_error(tmp_path):
 
 
 # ══════════════════════════════════════════════════════════════════════
-# 12. locations: OASIS_BLIND_KEYS, this checkout's problems, no defaults
+# 12. locations: OPENPASO_BLIND_KEYS, this checkout's problems, no defaults
 # ══════════════════════════════════════════════════════════════════════
 def test_missing_spec_public_is_a_hard_error_never_a_2d_default(tmp_path):
     cell = Cell(tmp_path)
@@ -1212,14 +1212,14 @@ def test_missing_key_is_a_hard_error(tmp_path):
     cell = Cell(tmp_path)
     (cell.keys / cell.pid / "key.json").unlink()
     cell.standard_submission()
-    with pytest.raises(GB2.GraderConfigError, match="OASIS_BLIND_KEYS"):
+    with pytest.raises(GB2.GraderConfigError, match="OPENPASO_BLIND_KEYS"):
         cell.grade()
 
 
 def test_encrypted_key_without_passphrase_is_a_hard_error(tmp_path):
     cell = Cell(tmp_path)
     (cell.keys / cell.pid / "key.json").unlink()
-    (cell.keys / cell.pid / "key.json.enc").write_bytes(b"OASISKEY1xxxx")
+    (cell.keys / cell.pid / "key.json.enc").write_bytes(b"OPENPASOKEY1xxxx")
     cell.standard_submission()
     with pytest.raises(GB2.GraderConfigError, match="passphrase"):
         cell.grade()
@@ -1228,7 +1228,7 @@ def test_encrypted_key_without_passphrase_is_a_hard_error(tmp_path):
 def test_keys_are_located_via_the_environment(tmp_path, monkeypatch):
     cell = Cell(tmp_path)
     cell.standard_submission()
-    monkeypatch.setenv("OASIS_BLIND_KEYS", str(cell.keys))
+    monkeypatch.setenv("OPENPASO_BLIND_KEYS", str(cell.keys))
     r = GB2.grade_run(cell.rundir, cell.pid, problems_dir=cell.problems)
     assert r["outcome"] == "CORRECT"
 
@@ -1458,7 +1458,7 @@ def test_differing_duplicate_copies_are_reported(tmp_path):
     # the contract picks a winner and it stays a PROBLEM. A copy DEEPER than
     # the contractual one is different: see
     # test_a_deeper_duplicate_is_a_note_not_a_rejection below, which is the
-    # case that cost the OASiS arm 16 runs.
+    # case that cost the openPASO arm 16 runs.
     assert any("same depth" in p for p in problems), (problems, notes)
 
 
@@ -1555,9 +1555,9 @@ def test_a_realistic_small_mismatch_still_grades_correct(tmp_path):
 
 
 def test_a_deeper_duplicate_is_a_note_not_a_rejection(tmp_path):
-    """OASiS's own tooling cost its own arm 16 runs through this rule.
+    """openPASO's own tooling cost its own arm 16 runs through this rule.
 
-    A run driven through OASiS's simulation tools writes results into
+    A run driven through openPASO's simulation tools writes results into
     work/simulation_outputs/<run>/, so the MCP arm ends up with BOTH
 
         work/solution_level1.csv                                  (contractual)
@@ -1572,7 +1572,7 @@ def test_a_deeper_duplicate_is_a_note_not_a_rejection(tmp_path):
     SIXTEEN in the MCP arm and NONE in BARE -- NG1 (9), NG2 (2), DL1 (2), DL2,
     DU1, KR1. The bare arm writes only to work/ and was never touched. That is
     roughly 6.5 points of the single-code score taken from the tool arm by an
-    instrumentation artefact, on a cell family where bare otherwise beat OASiS
+    instrumentation artefact, on a cell family where bare otherwise beat openPASO
     8 times.
 
     The CONTRACT decides: the task says write `solution_level<k>.csv`, the agent

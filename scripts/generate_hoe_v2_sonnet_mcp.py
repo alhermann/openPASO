@@ -14,7 +14,7 @@ separated from the Opus 4.7 runs:
 Why manual paste: Sonnet (like Opus) can spawn sub-agents via the Agent
 tool only when running interactively in Claude Code, not in headless
 ``-p`` mode. Manual paste preserves the MANDATORY CRITIC capability that
-the OASiS server prompts for.
+the openPASO server prompts for.
 
 Grading: same gates and amendments as the Opus runs
 (``scripts/grade_hoe_v2.py``). The grader regex was extended to accept
@@ -79,23 +79,23 @@ Repo: `{BASE}` — branch `{branch}`, commit `{commit}`.
 
 **Why this exists.** The v2 campaign so far ran on Opus 4.7. On that
 strong model the 25-task suite is too easy: BARE = 73/75 = 97.3 %,
-MCP_FULL = 73/75 = 97.3 % — statistically tied. To test the OASiS uplift
+MCP_FULL = 73/75 = 97.3 % — statistically tied. To test the openPASO uplift
 claim cleanly we need a comparison where the base model is weaker, so
-the OASiS scaffolding has room to make a measurable difference.
+the openPASO scaffolding has room to make a measurable difference.
 
 This file runs all 25 tasks × 3 seeds under **Sonnet 4.6** with the full
-OASiS MCP server attached. Together with the existing Opus-4.7 BARE
+openPASO MCP server attached. Together with the existing Opus-4.7 BARE
 column (73/75), it tests the headline hypothesis:
 
-  **Sonnet 4.6 + OASiS ≈ Opus 4.7 BARE**
+  **Sonnet 4.6 + openPASO ≈ Opus 4.7 BARE**
 
-If yes, the contribution becomes "OASiS lets a cheaper model perform
+If yes, the contribution becomes "openPASO lets a cheaper model perform
 like a more expensive one" — a sharper, less-erodable claim than the
 original "78 % → 94 % uplift on the same model."
 
 ## Invocation
 
-Each cell launches `claude` with the Sonnet model flag. The OASiS MCP
+Each cell launches `claude` with the Sonnet model flag. The openPASO MCP
 server stays attached via the standard `open-fem-agent` registration in
 `~/.claude.json` — **no** `--mcp-config` override, **no**
 `--strict-mcp-config`. The OFA_DISABLE_* ablation env vars are NOT set,
@@ -103,7 +103,7 @@ so the agent gets the full pitfall DB, critic instruction, cross-backend
 collation catalog — everything.
 
 Manual paste (interactive Claude Code) so the agent can spawn sub-agents
-via its Agent tool, as the MANDATORY CRITIC paragraph in the OASiS
+via its Agent tool, as the MANDATORY CRITIC paragraph in the openPASO
 server instructions asks for. Headless `-p` mode blocks Agent.
 
 ## Workflow

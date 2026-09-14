@@ -1,4 +1,4 @@
-"""Guard: OASiS's knowledge must describe the CODE, never the ANSWER.
+"""Guard: openPASO's knowledge must describe the CODE, never the ANSWER.
 
 An audit found evaluation-specific content reachable through the very tool the
 server instructions tell every agent to call first. Confirmed by execution:
@@ -44,7 +44,7 @@ CAMPAIGN_TOKENS = [
     r"\bB2/E[1-5]\b", r"\bheld-?out\s+(?:cell|instance)\b",
 ]
 # NOTE: "held-out evaluation" is deliberately NOT a token here. Unlike a
-# campaign identifier, the phrase legitimately appears in OASiS's own design
+# campaign identifier, the phrase legitimately appears in openPASO's own design
 # prose (e.g. the verification gate explaining why an ablation flag exists).
 # Flagging it would pressure a maintainer into deleting correct documentation,
 # which is a worse outcome than the residual risk: an entry that named a

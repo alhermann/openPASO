@@ -1,5 +1,5 @@
 /* Steady heat conduction  -div(k grad T) = f  on ONE rectangular subdomain of
- * the canonical OASiS coupling problem (two subdomains sharing a straight
+ * the canonical openPASO coupling problem (two subdomains sharing a straight
  * interface at x = iface_x).
  *
  * Domain [x0,x1] x [y0,y1].  Dirichlet T = T_outer on the NON-interface

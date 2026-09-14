@@ -1,12 +1,12 @@
 """4C's real diagnostic must reach the agent, not the MPI boilerplate.
 
-WHAT IT COST, MEASURED. Both OASiS-arm runs of coupled cell C2 (seeds 70 and 71)
+WHAT IT COST, MEASURED. Both openPASO-arm runs of coupled cell C2 (seeds 70 and 71)
 wrote COULD_NOT_COMPLETE with ZERO deliverables and stopped at 30 and 37 tool
 calls, having used 22-27% of their wall budget. Their stated root cause:
 
     "The 4C binary (/home/alexander/4C/build/4C) fails to execute:
      'Invalid MIT-MAGIC-COOKIE-1 key' followed by 'MPI_ABORT was invoked on
-     rank 0' ... This occurs even when using OASiS's run_with_generator tool"
+     rank 0' ... This occurs even when using openPASO's run_with_generator tool"
 
 The binary was never broken. The bare arm ran the same binary in the same
 minutes and produced a complete three-level submission, and `4C -p` prints the
@@ -137,7 +137,7 @@ class TestTheDiagnosticIsFoundByContent(unittest.TestCase):
 
 
 class TestTheServedKnowledgeSaysIt(unittest.TestCase):
-    """The backend fix helps an agent using OASiS's runner. An agent running 4C
+    """The backend fix helps an agent using openPASO's runner. An agent running 4C
     itself needs to be told, or it draws the same wrong conclusion."""
 
     def test_the_universal_block_warns_about_the_cookie_line(self):
@@ -189,7 +189,7 @@ if __name__ == "__main__":
 
 
 class TestTheDeckSyntaxPrimitivesAreServed(unittest.TestCase):
-    """Two blockers found by running the OASiS arm's own failing C2 deck, each
+    """Two blockers found by running the openPASO arm's own failing C2 deck, each
     verified by execution and each of which alone kills the run.
 
     LAYER 1 -- the topology block was written as bare quoted strings rather than
@@ -262,7 +262,7 @@ class TestTheDeckSyntaxPrimitivesAreServed(unittest.TestCase):
 
 FAILURE_LOGS = Path(__file__).parent / "fixtures" / "fourc_failure_logs"
 
-# Four real 4C failures, peeled one at a time from the OASiS arm's own failing
+# Four real 4C failures, peeled one at a time from the openPASO arm's own failing
 # C2 deck by repairing what the previous layer revealed and re-running. Each is
 # fatal on its own; each is diagnosed precisely by 4C; none survives a tail.
 LAYERS = [
@@ -278,9 +278,9 @@ LAYERS = [
 
 
 class TestAllFourRealLayersReachTheAgent(unittest.TestCase):
-    """The measurement that settles what OASiS owed this agent.
+    """The measurement that settles what openPASO owed this agent.
 
-    Layers 1 and 2 are knowledge OASiS should have served, and now does. Layers
+    Layers 1 and 2 are knowledge openPASO should have served, and now does. Layers
     3 and 4 are the agent's OWN modelling errors -- and 4C names both of them
     exactly ("Candidate parameter 'VAL' has incorrect size", "Dimension of
     condition is larger than the problem dimension"). They needed no new

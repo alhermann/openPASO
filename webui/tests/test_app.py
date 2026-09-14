@@ -39,7 +39,7 @@ def test_models(client):
 
 def test_mcp_servers(client):
     r = client.get("/api/mcp_servers").json()
-    assert any(s["id"] == "oasis" for s in r["servers"])
+    assert any(s["id"] == "openpaso" for s in r["servers"])
 
 
 def test_modes(client):
@@ -191,7 +191,7 @@ def test_webui_keeps_mcp_context_open_for_agent_lifetime(monkeypatch):
             lifecycle.append("closed")
 
     monkeypatch.setattr(
-        langgraph_agent, "oasis_mcp_tools_session", fake_mcp_session)
+        langgraph_agent, "openpaso_mcp_tools_session", fake_mcp_session)
 
     async def main():
         async def emitter(_event):

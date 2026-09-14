@@ -2,7 +2,7 @@
 
 HISTORY. Until 2026-08-03 the generator registered under
 ``linear_elasticity_2d`` was one line — ``return _poisson_2d(params)``
-— so asking OASiS for DUNE linear elasticity produced a byte-identical
+— so asking openPASO for DUNE linear elasticity produced a byte-identical
 Poisson script that printed "DUNE-fem Poisson solve complete." under an
 elasticity name. Nothing in the output said so. It is replaced below by
 a template that was executed against dune-fem 2.12.0.2 and checked

@@ -15,7 +15,7 @@ The user-facing journey this module powers (task #227):
     4. VERIFY   Run the backend's smoke test (core/smoke_tests.py)
                 to confirm the install actually solves something.
     5. PERSIST  Write the resolved paths into
-                ~/.config/oasis/sources.json (single config
+                ~/.config/openpaso/sources.json (single config
                 entry point) so every future MCP session finds the
                 backend without re-discovery.
 
@@ -209,7 +209,7 @@ SETUP_ROUTES: dict[str, list[dict[str, Any]]] = {
                               "\"No matching distribution found\". They "
                               "need a source build.",
                               "Kratos must be installed into the SAME "
-                              "interpreter that runs OASiS; the backend has "
+                              "interpreter that runs openPASO; the backend has "
                               "no path override.",
                           ]},
                 "darwin": {"verified": False, "system_deps": [],

@@ -158,7 +158,7 @@ def test_the_finding_arrives_on_the_SUBMISSION_WRITE_not_only_on_request():
 
 # ═══════════ both sides on the same convention, without a derivative ════════
 #
-# C2_27b_MCP_seed1301 is the furthest any OASiS run reached on the coupled
+# C2_27b_MCP_seed1301 is the furthest any openPASO run reached on the coupled
 # cell: both codes really ran, the interface iteration converged to 4.4e-07,
 # the temperature matched across the seam to 1.3e-13, and the graded order was
 # 1.9367. It reported BOTH sides' flux with the same sign, so it graded

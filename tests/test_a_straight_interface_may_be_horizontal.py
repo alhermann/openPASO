@@ -4,7 +4,7 @@ Every contract in the corpus hard-coded the split as the line x = IFACE_X: the o
 the partner-sample column and the exported coordinates all assumed it. One development problem's
 interface is the horizontal line y = 5/8, so its agents would have had to edit served lines -- the one
 thing their brief tells them not to do -- and the export self-check would then have fired on a correct
-side. The handshake is OASiS's own interface; expressing it on one axis only was our limitation.
+side. The handshake is openPASO's own interface; expressing it on one axis only was our limitation.
 
 IFACE_AXIS defaults to "x", so every vertical problem is unchanged, and the horizontal path is executed
 here rather than asserted: the fill below is the test's own, never served."""
@@ -33,7 +33,7 @@ def test_the_contract_declares_the_axis_and_derives_everything_from_it(name):
     assert 'AX = 0 if IFACE_AXIS == "x" else 1' in t, f"{name}: the derived block ignores the knob"
     assert "AL = 1 - AX" in t
     # nothing outside the elided holes may still assume the vertical case
-    B, E = "OASiS DOES NOT SERVE THIS ─ begin", "OASiS DOES NOT SERVE THIS ─ end"
+    B, E = "openPASO DOES NOT SERVE THIS ─ begin", "openPASO DOES NOT SERVE THIS ─ end"
     served, inside = [], False
     for line in t.split("\n"):
         if B in line:

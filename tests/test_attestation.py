@@ -54,7 +54,7 @@ def test_fabricated_claim_is_refused(tmp_path):
     _write_field(tmp_path, 2.0)
     att = attest_quantity(tmp_path, "j1", "l2_norm")
     ok, why = require_attested(att.value * 10, att)
-    assert not ok and "not the value OASiS computed" in why
+    assert not ok and "not the value openPASO computed" in why
 
 
 def test_claim_without_attestation_is_refused():

@@ -52,7 +52,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-REPO = Path(os.environ.get("OASIS_REPO",
+REPO = Path(os.environ.get("OPENPASO_REPO",
                            "/home/alexander/Schreibtisch/ofa-balanced"))
 sys.path.insert(0, str(REPO / "src"))
 
@@ -534,7 +534,7 @@ def main():
 
     problems = HERE / "problems"
     keys = Path(os.environ.get(
-        "OASIS_BLIND_KEYS",
+        "OPENPASO_BLIND_KEYS",
         "/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys"))
     for pid, task, spec, key, _ in cells:
         pdir = problems / pid

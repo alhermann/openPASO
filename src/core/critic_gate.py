@@ -2,7 +2,7 @@
 
 THE HOLE THIS CLOSES
 --------------------
-OASiS's run tools took ``critic_approved: bool`` — a value the AGENT passes.
+openPASO's run tools took ``critic_approved: bool`` — a value the AGENT passes.
 The critic sub-agent lives in the client harness, and the server never observed
 it: there is no spawn record, no review log, and nothing in ``src/`` references
 ``spawn_subagent`` at all. So an agent could call
@@ -109,7 +109,7 @@ class CriticRegistry:
         """
         if not token:
             raise CriticGateError(
-                "no critic review: OASiS treats no result as trustworthy until "
+                "no critic review: openPASO treats no result as trustworthy until "
                 "an independent critic has reviewed this setup. Submit the "
                 "critic's findings to obtain a review token, then re-run.")
         rec = self._reviews.get(token)

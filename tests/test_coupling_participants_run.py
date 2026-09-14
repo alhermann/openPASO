@@ -150,7 +150,7 @@ def _dealii_exe():
     import hashlib as _hl
     _tag = _hl.sha1(str(PART_DIR.resolve()).encode()).hexdigest()[:10]
     build = (Path(os.environ.get("TMPDIR", "/tmp"))
-             / f"oasis_dealii_participant_build_{_tag}")
+             / f"openpaso_dealii_participant_build_{_tag}")
     exe = build / "heat_iface_dealii"
     if exe.is_file():
         return exe
@@ -184,7 +184,7 @@ def test_shipped_participant_runs_standalone(tmp_path, backend, side):
 
 @pytest.mark.parametrize("pair", [("fenics", "fourc"), ("fourc", "fenics")])
 def test_shipped_participants_couple_across_two_codes(tmp_path, pair):
-    """A REAL cross-code coupling through OASiS's own driver, both ways round.
+    """A REAL cross-code coupling through openPASO's own driver, both ways round.
 
     Asserts convergence and that the two independent codes agree with each
     other at the shared interface — a consistency property, not a stored value.

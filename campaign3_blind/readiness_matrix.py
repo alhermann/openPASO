@@ -1,6 +1,6 @@
 """For every coupled problem: what the door gives each side, and whether it arrives whole.
 
-Campaign-side by design -- OASiS knows nothing about these problem ids. For each problem it reads the
+Campaign-side by design -- openPASO knows nothing about these problem ids. For each problem it reads the
 public spec, works out the physics word an agent would pass for that family, calls the coupling door the
 way a worker does (second call: the pointer-mode reply), and reports whether the first fenced block is
 the handshake contract and which variant leads it.
@@ -67,7 +67,7 @@ def main() -> int:
             d = re.search(r'"""(.+)', block) if block else None
             if d:
                 lead = d.group(1)[:52]
-            elided = "OASiS DOES NOT SERVE THIS" in block or "THE SOLVE ITSELF IS YOURS" in block
+            elided = "openPASO DOES NOT SERVE THIS" in block or "THE SOLVE ITSELF IS YOURS" in block
             want = {"thermoelastic": ("THERMO",), "elasticity": ("VECTOR",),
                     "transient": ("TRANSIENT",), "3d": ("3-D",),
                     "fsi": ("FLUID", "STRUCTURE")}.get(phys, ())

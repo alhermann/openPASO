@@ -1,4 +1,4 @@
-"""deal.II participant for the OASiS `couple` driver.
+"""deal.II participant for the openPASO `couple` driver.
 
 Steady heat conduction  -div(k grad T) = f  on one rectangular subdomain.
 CONTRACT (do not change): runs in its work_dir with no arguments, reads
@@ -114,7 +114,7 @@ if SIDE == "dirichlet":
 else:
     side_flag, pairs = 1, sample(imp, "normal_fluxes", Q_INIT)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 # The ninth header field is the solver's LEGACY CONSTANT source. It is kept in
 # the file format so a solver binary built before the sampled block below still
 # parses this header, and it is always written as 0.0: the real source is the
@@ -180,7 +180,7 @@ for line in out_txt.read_text().splitlines():
 if not coords:
     sys.stderr.write("deal.II solver produced no interface points\n")
     sys.exit(1)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
 #    fine and are worthless: a non-finite field; a Neumann side whose imported

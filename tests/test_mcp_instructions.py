@@ -70,7 +70,7 @@ def test_the_critic_block_tells_the_agent_how_to_satisfy_it():
 def test_the_instructions_offer_the_residual_check_and_computed_numbers():
     instr = _instructions()
     assert "verify_pde" in instr          # prove the output solves the problem
-    assert "oasis_computed" in instr      # report OASiS's numbers, not your own
+    assert "openpaso_computed" in instr      # report openPASO's numbers, not your own
 
 
 def test_critic_block_references_only_real_tools():
@@ -140,7 +140,7 @@ def test_every_critic_gated_tool_actually_RESOLVES_the_critic():
     parameter EXISTS. Declaring the gate is not enforcing it.
 
     Reading the flag is no longer the bar either, and this test used to check
-    exactly that. `critic_approved` is a self-report; OASiS now resolves the
+    exactly that. `critic_approved` is a self-report; openPASO now resolves the
     critic from its own review record. So the requirement is that a gated tool
     LOOKS THE REVIEW UP: either by calling `_critic_state` itself, or by handing
     `_stamp_verification` the `solver` and `setup_text` it needs to do so. A

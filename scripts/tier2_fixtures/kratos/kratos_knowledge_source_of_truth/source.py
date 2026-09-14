@@ -42,15 +42,15 @@ _HERE = Path(__file__).resolve()
 # In place the checkout is four levels up. The mutation harness stages a copy
 # of this fixture into a scratch tree that has no such ancestor, so the search
 # walks up looking for the catalog itself and only then falls back to
-# $OASIS_REPO. If neither resolves, abort loudly: a fixture that cannot find
+# $OPENPASO_REPO. If neither resolves, abort loudly: a fixture that cannot find
 # the catalog it audits must never report a pass.
 _REPO = next((p for p in _HERE.parents
               if (p / "src" / "backends" / "kratos" / "generators").is_dir()),
              None)
 if _REPO is None:
-    _REPO = Path(os.environ.get("OASIS_REPO") or "/nonexistent")
+    _REPO = Path(os.environ.get("OPENPASO_REPO") or "/nonexistent")
     if not (_REPO / "src" / "backends" / "kratos" / "generators").is_dir():
-        print("FIXTURE_ABORT=no_oasis_checkout: set OASIS_REPO to the checkout "
+        print("FIXTURE_ABORT=no_openpaso_checkout: set OPENPASO_REPO to the checkout "
               "whose Kratos catalog is under audit", file=sys.stderr)
         raise SystemExit(2)
 sys.path.insert(0, str(_REPO / "src"))

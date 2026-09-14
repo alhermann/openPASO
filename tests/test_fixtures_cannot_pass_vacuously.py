@@ -1,6 +1,6 @@
 """A fixture must not pass on a machine that cannot run it.
 
-OASiS is meant to be cloned, run and picked apart by other people. That makes
+openPASO is meant to be cloned, run and picked apart by other people. That makes
 "green on this workstation" worth very little on its own: what matters is
 whether a stranger's run tells them the truth.
 

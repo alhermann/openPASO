@@ -1,4 +1,4 @@
-"""The trajectory must not read as if OASiS served less than it did.
+"""The trajectory must not read as if openPASO served less than it did.
 
 The trajectory is the only record of what an agent was told, and it is what
 the development loop greps to answer "did the primitive reach the agent". It

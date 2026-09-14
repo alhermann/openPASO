@@ -1,6 +1,6 @@
 """Nothing a solver agent reads may mention the evaluation around it.
 
-OASiS is a product; the tasks it is measured on are not part of it. A served payload that says a run
+openPASO is a product; the tasks it is measured on are not part of it. A served payload that says a run
 was "graded", or cites "round 45", or calls its own evidence a "step-trial", tells the reader there is
 an evaluation and invites them to write for it. Measured 2026-09-14: thirty such occurrences across the
 coupling replies, seven of them added that same day while writing measured facts -- which is exactly

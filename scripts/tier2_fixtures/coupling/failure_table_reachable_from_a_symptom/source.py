@@ -1,7 +1,7 @@
 """The coupling failure table is only worth its size if a broken run can REACH
 it, and until now nothing could.
 
-THE CLAIM UNDER TEST. Every other family of knowledge in OASiS ships its
+THE CLAIM UNDER TEST. Every other family of knowledge in openPASO ships its
 symptoms as `[Category] ... Signal: ...` entries, and `knowledge(signal=...)` is
 how a post-execution critic gets from a symptom to the entry that explains it.
 The coupling payload had a failure table whose left-hand column IS a set of

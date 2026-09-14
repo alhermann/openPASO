@@ -51,7 +51,7 @@ def task_demands_own_solver_output(task_txt: str) -> bool:
 
     So for the older draw — which is most of the graded corpus — the gate
     rejected submissions for doing exactly what they were told, and it did so
-    unevenly: 29.7% of bare grade-1 coupled runs against 15.7% of OASiS ones,
+    unevenly: 29.7% of bare grade-1 coupled runs against 15.7% of openPASO ones,
     which inflates the measured uplift.
 
     The rule this restores is the one already written into the comment on that
@@ -212,7 +212,7 @@ def assess_execution(work: Path, codes: list, coupled: bool, task_txt: str,
         # C2_27b_MCP_seed502 and C2_27b_BARE_seed502 are the pair that forced
         # this. Both wrote fifty rows of exactly 1.0 at all three levels and
         # both were graded FABRICATED_NO_RUN. The bare one is zero everywhere.
-        # The OASiS one's side A peaks at 1.265e-01 / 1.320e-01 / 1.323e-01
+        # The openPASO one's side A peaks at 1.265e-01 / 1.320e-01 / 1.323e-01
         # and its side B at 2.280e-03 / 2.334e-03 / 2.342e-03, within a few
         # percent of an independently computed reference.
         #
@@ -299,7 +299,7 @@ def assess_execution(work: Path, codes: list, coupled: bool, task_txt: str,
     # ever required a participant to write its solver's OWN output — the stated
     # requirement is the code-agnostic line `NDOF = <integer>` in
     # run_level<k>_<side>.log, and nothing more. 102 runs hit this branch, 67
-    # bare and 35 OASiS, so the mislabel inflates the reported fabrication rate
+    # bare and 35 openPASO, so the mislabel inflates the reported fabrication rate
     # of BOTH arms with a requirement that was never communicated.
     #
     # It stays FATAL, and the cell is not a success: on a coupled cell the
@@ -325,7 +325,7 @@ def assess_execution(work: Path, codes: list, coupled: bool, task_txt: str,
         #
         # Measured: 0 of 47 tasks in the older draw demand it, against 1 of 1
         # in each newer draw. This was the largest rejection class in the
-        # corpus (86 decided) and fell 29.7% bare against 15.7% OASiS, so
+        # corpus (86 decided) and fell 29.7% bare against 15.7% openPASO, so
         # correcting it lowers the measured uplift rather than flattering it.
         if task_demands_own_solver_output(task_txt):
             out["fatal"] = "MALFORMED_SUBMISSION"
@@ -424,7 +424,7 @@ def assess_execution(work: Path, codes: list, coupled: bool, task_txt: str,
         # numbers were invented.
         #
         # Five runs sit in exactly that state — C5_MCP_s14, C4_MCP_s15,
-        # C12_MCP_s15, C3_BARE_s4, C7_BARE_s9 — three OASiS and two bare, so
+        # C12_MCP_s15, C3_BARE_s4, C7_BARE_s9 — three openPASO and two bare, so
         # the conflation inflates the reported fabrication rate of BOTH arms
         # with paperwork. The campaign reports that rate as a headline.
         #

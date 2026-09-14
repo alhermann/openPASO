@@ -2,7 +2,7 @@
 
 Date: 2026-08-02. Model: `qwen/qwen3.5-27b` via OpenRouter, temperature 0.2,
 seed 0, driving the standard LangGraph MCP harness (`langgraph_eval/agent.py`,
-`build_mcp_agent`) against the OASiS server spawned from THIS branch, so the
+`build_mcp_agent`) against the openPASO server spawned from THIS branch, so the
 agent saw `verify_mesh_independence` exactly as any MCP client would. Runner:
 `validation/run_validation.py`; full transcripts and ledgers in the per-scenario
 directories (key-free; the OpenRouter key was sourced from the environment and

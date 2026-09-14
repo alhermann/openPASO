@@ -1,4 +1,4 @@
-"""FEniCSx (dolfinx) VECTOR participant for the OASiS `couple` driver.
+"""FEniCSx (dolfinx) VECTOR participant for the openPASO `couple` driver.
 
 Plane-strain linear elasticity  -div(sigma(u)) = 0  on ONE rectangular
 subdomain of a domain split by a straight interface at x = IFACE_X. Unlike the
@@ -93,10 +93,10 @@ TI_X, TI_Y = 0.0, 0.0     # iteration-1 fallback interface traction export
 #    next to this script overrides NX, NY and names the level; the per-level
 #    dumps below carry that level so the coarse levels survive the fine ones.
 LEVEL = 1
-if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
     try:
         _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
-        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         NX = int(_cfg.get("nx", NX))
         NY = int(_cfg.get("ny", NY))
@@ -153,7 +153,7 @@ def sample(imp, key, fallback, y):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
                                 [NX, NY], dmesh.CellType.triangle)
 V = fem.functionspace(domain, ("Lagrange", 1, (2,)))
@@ -219,7 +219,7 @@ facets = dmesh.locate_entities_boundary(
 tags = dmesh.meshtags(domain, fdim, np.sort(facets),
                       np.full(len(facets), 7, dtype=np.int32))
 ds_if = ufl.Measure("ds", domain=domain, subdomain_data=tags)(7)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 if SIDE == "dirichlet":
     g = fem.Function(V)
@@ -237,11 +237,11 @@ else:
     # APPLY the partner's numbers UNCHANGED
     L = L_vol + ufl.inner(g, v) * ds_if
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 uh = LinearProblem(a, L, bcs=bcs, petsc_options_prefix="cpl",
                    petsc_options={"ksp_type": "preonly",
                                   "pc_type": "lu"}).solve()
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # Interface traction export q_out = -(sigma . n_own).
 #

@@ -26,7 +26,7 @@ from core.backend import (
 from core.registry import register_backend
 from .generators import GENERATORS, KNOWLEDGE
 
-logger = logging.getLogger("oasis.dune")
+logger = logging.getLogger("openpaso.dune")
 
 # Cache for the verified dune.fem interpreter. Probing candidates spawns a
 # subprocess per candidate (`import dune.fem`, up to 30 s each), so we only
@@ -46,7 +46,7 @@ _DUNE_INSTALL_HINT = (
     "dune-fem package:\n"
     "  pip install dune-fem mpi4py    (mpi4py is an undeclared dependency; "
     "without it the first import stops)\n"
-    "Or point OASiS at an existing install:\n"
+    "Or point openPASO at an existing install:\n"
     "  DUNE_PYTHON=/path/to/env/bin/python   (explicit interpreter)\n"
     "  DUNE_CONDA_PREFIX=/path/to/env        (conda env root)\n"
     "DUNE JIT-compiles C++ on first use, so a fresh install is slow before it "
@@ -70,7 +70,7 @@ def _find_dune_python() -> Optional[str]:
 
     DUNE-fem is heavy enough that users typically install it into a
     dedicated conda env (ofa-dune is the convention mirroring
-    ofa-fenicsx / ofa-dealii). The MCP server runs in the oasis .venv
+    ofa-fenicsx / ofa-dealii). The MCP server runs in the openpaso .venv
     which usually does NOT have dune.fem.
 
     Resolution order:
@@ -138,7 +138,7 @@ def _find_dune_python() -> Optional[str]:
                 # package. A conda env with a broken C-ABI passes
                 # `import dune.fem` with rc=0 and then raises
                 # 'undefined symbol: PyThreadState_GetUnchecked' the
-                # moment a generated module loads — so OASiS selected the
+                # moment a generated module loads — so openPASO selected the
                 # poisoned interpreter (priority 0) over the working venv
                 # (priority 99, never reached) and four coupled runs died
                 # on it. structuredGrid triggers the JIT path.

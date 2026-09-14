@@ -38,8 +38,8 @@ def test_snapshot_is_committed_content_and_dirty_source_is_refused(tmp_path):
         path.write_text(content)
     _git(repo, "init", "-q")
     _git(repo, "add", ".")
-    _git(repo, "-c", "user.name=OASiS Test", "-c",
-         "user.email=oasis-test@example.invalid", "commit", "-qm", "fixture")
+    _git(repo, "-c", "user.name=openPASO Test", "-c",
+         "user.email=openpaso-test@example.invalid", "commit", "-qm", "fixture")
 
     build = R.prepare_source_snapshot(repo, tmp_path / "snapshots")
     snapshot = Path(build["snapshot_path"])

@@ -1,4 +1,4 @@
-"""Kratos Multiphysics participant for the OASiS `couple` driver (DIRICHLET side).
+"""Kratos Multiphysics participant for the openPASO `couple` driver (DIRICHLET side).
 
 CONTRACT (do not change): runs in its work_dir with no arguments, reads
 imports.json (written every iteration; it is `{}` on iteration 1), writes
@@ -37,10 +37,10 @@ nx, ny = 32, 32
 #    next to this script overrides nx, ny and names the level; the per-level
 #    dumps below carry that level so the coarse levels survive the fine ones.
 LEVEL = 1
-if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
     try:
         _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
-        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         nx = int(_cfg.get("nx", nx))
         ny = int(_cfg.get("ny", ny))
@@ -62,7 +62,7 @@ def imported_T(y_coords: np.ndarray) -> np.ndarray:
 
 
 def solve(T_if_in: np.ndarray):
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     model = KM.Model()
     mp = model.CreateModelPart("thermal")
     mp.ProcessInfo[KM.DOMAIN_SIZE] = 2
@@ -115,7 +115,7 @@ def solve(T_if_in: np.ndarray):
                                               True, False, False, False)
     strategy.Initialize()
     strategy.Solve()
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
     # TWO THINGS YOUR SOLVE ABOVE MUST DO, or the recovery below reads zeros:
     #   * AddDof(TEMPERATURE, REACTION_FLUX, mp) -- the SECOND argument gives
     #     every fixed dof a place to store its reaction; without it the

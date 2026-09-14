@@ -1,4 +1,4 @@
-"""Every input key OASiS names must exist in the backend that would consume it.
+"""Every input key openPASO names must exist in the backend that would consume it.
 
 A wrong warning misleads a user. A wrong KEY produces a deck the solver refuses
 to parse, for every user, every time — and the user has no way to tell whether

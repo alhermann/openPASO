@@ -1,6 +1,6 @@
 """Where tool output goes — resolved from the CALLER, not the installation.
 
-Every output directory in OASiS used to be computed from the package's own
+Every output directory in openPASO used to be computed from the package's own
 location:
 
     _OUTPUT_DIR = Path(__file__).resolve().parents[2] / "simulation_outputs"
@@ -37,10 +37,10 @@ _INSTALL_ROOT = Path(__file__).resolve().parents[2]
 
 # env var -> path relative to the install root, used when the var is unset
 _DIRS = {
-    "simulation_outputs": ("OASIS_OUTPUT_DIR", "simulation_outputs"),
-    "coupling": ("OASIS_COUPLING_DIR", "benchmarks/coupling"),
-    "meshes": ("OASIS_MESH_DIR", "meshes"),
-    "benchmark_results": ("OASIS_BENCHMARK_DIR", "benchmarks/results"),
+    "simulation_outputs": ("OPENPASO_OUTPUT_DIR", "simulation_outputs"),
+    "coupling": ("OPENPASO_COUPLING_DIR", "benchmarks/coupling"),
+    "meshes": ("OPENPASO_MESH_DIR", "meshes"),
+    "benchmark_results": ("OPENPASO_BENCHMARK_DIR", "benchmarks/results"),
 }
 
 

@@ -1,4 +1,4 @@
-"""DUNE-fem VECTOR participant for the OASiS `couple` driver.
+"""DUNE-fem VECTOR participant for the openPASO `couple` driver.
 
 Plane-strain linear elasticity  -div(sigma(u)) = f  on ONE rectangular
 subdomain of a domain split by a straight interface at x = IFACE_X (or
@@ -186,7 +186,7 @@ def sample(imp, key, fallback, y):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 gridView = structuredGrid([X0, Y0], [X1, Y1], [NX, NY])
 space = lagrange(gridView, order=1, dimRange=2)
 x = SpatialCoordinate(space)
@@ -277,7 +277,7 @@ gdofs[:] = 0.0
 ox, oy = xd[outer_n], yd[outer_n]
 gdofs[2 * outer_n] = UDX[0] + UDX[1] * ox + UDX[2] * oy + UDX[3] * oy * oy
 gdofs[2 * outer_n + 1] = UDY[0] + UDY[1] * ox + UDY[2] * oy + UDY[3] * oy * oy
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 if SIDE == "dirichlet":
     u_if = sample(imp, "values", (UI_X, UI_Y), y_if)
@@ -301,11 +301,11 @@ else:
     b = b + conditional(lt(abs(x[0] - IFACE_X), EPS), dot(tfun, v), 0.0) * ds
     bc_where = on_outer
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 scheme = galerkin([a == b, DirichletBC(space, gfun, bc_where)], solver="cg")
 uh = space.interpolate(as_vector([0.0, 0.0]), name="displacement")
 scheme.solve(target=uh)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # Interface traction export q_out = -(sigma . n_own).
 #

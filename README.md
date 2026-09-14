@@ -1,255 +1,377 @@
 <p align="center">
-  <img src="logo/logo_w_text.png" alt="OASiS — open-source multi-physics and multi-code framework for verified computer simulations" width="640"/>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="logo/openPASO_koralle_dunkel.gif">
+    <source media="(prefers-color-scheme: light)" srcset="logo/openPASO_graphit_transparent.gif">
+    <img src="logo/openPASO_koralle_dunkel.gif" alt="openPASO" width="220">
+  </picture>
 </p>
 
-# OASiS
+<h1 align="center">openPASO</h1>
 
-**O**pen-source **A**gent for **Si**mulation across multiple FEM **S**olvers
+<p align="center"><b>open Platform for Agentic Simulation and Optimization</b></p>
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20543501.svg)](https://doi.org/10.5281/zenodo.20543501)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-FF6B4A?style=flat-square" alt="MIT licence"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10%2B-64748B?style=flat-square" alt="Python 3.10+"></a>
+  <a href="https://doi.org/10.5281/zenodo.20543501"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20543501-64748B?style=flat-square" alt="DOI"></a>
+  <a href="#which-solvers-can-it-use"><img src="https://img.shields.io/badge/solvers-9-FF6B4A?style=flat-square" alt="9 solvers"></a>
+</p>
+
+<p align="center">
+  <i>Describe a physics problem in ordinary words.<br>
+  An AI model picks a solver, writes the input, runs it, and checks the answer.</i>
+</p>
+
+---
+
+## What openPASO does
+
+Finite element software is powerful and hard to use. Every code has its own input
+format, its own words for the same thing, and its own traps. Learning one takes weeks.
+Learning nine takes years.
+
+openPASO puts **nine simulation codes behind one door** and lets an AI model open it.
+You write what you want in a normal sentence. The model chooses a suitable code, writes
+the input file for it, starts the solver, reads the real output, and checks whether the
+answer is right.
+
+You do not need to know the input format. openPASO gives the model what it needs: what
+each keyword means **in the version you have installed**, which settings break, what a
+specific error message really means, and how to verify a result.
 
 > [!NOTE]
-> Development happens on the experimental fork <https://github.com/alhermann/OASiS>; stable releases live here.
+> openPASO checks whether the **numbers are computed correctly** — the convergence order,
+> the consistency, the evidence that the solver truly ran. It does not check whether your
+> model describes reality. Choosing the right physics is still your work.
 
-## What it is
+---
 
-OASiS is an **agentic simulation system**: it lets any AI language model operate **eight professional finite-element and multiphysics codes** — FEniCSx, deal.II, 4C Multiphysics, NGSolve, scikit-fem, Kratos Multiphysics, DUNE-fem, and FEBio — through one common interface. You describe the physics problem in plain language; the AI agent picks a solver, writes correct input for it, runs the simulation, checks the result against analytical solutions or published benchmarks, and shows you the outcome. Under the hood, OASiS gives the model curated solver knowledge (pitfalls, working examples, element catalogs) and verified execution, so the agent does not have to rediscover each code's quirks by trial and error.
+## See it work
 
-## What it can do
+```console
+$ python run_agent.py "Use the discover tool to list available solvers, then answer in one sentence."
 
-- **Classic PDEs** — Poisson and other elliptic problems, heat conduction, diffusion
-- **Solid mechanics** — linear elasticity, hyperelasticity, plasticity, contact, eigenfrequency analysis
-- **Nonlinear problems** — large deformation, nonlinear material laws, Newton-solver setup with sensible defaults
-- **Flow** — Stokes and Navier-Stokes (lid-driven cavity, vortex shedding, channel flow)
-- **Transport** — transient heat, reaction-diffusion (e.g. Turing patterns), convection
-- **Electromagnetics** — Maxwell, cavity resonances, magnetostatics (NGSolve)
-- **Particle methods** — SPH, DEM, peridynamics (4C, Kratos)
-- **Cross-code coupling** — split a problem across two different solvers and iterate to convergence: thermo-mechanics, fluid-structure interaction, domain decomposition, and even multi-paradigm couplings such as **FEM ↔ DSMC** (continuum solid + rarefied-gas particle code via the experimental SPARTA backend), plus a bridge to the preCICE coupling library
-- **Mesh generation** — Gmsh-based geometries (L-domain, plate with hole, channel, custom)
-- **Visualization & checking** — field statistics, plots, automated sanity checks
-- **Convergence studies** — h-refinement studies with error norms against analytical solutions
-- **Solver development** — when a code lacks a feature, the agent can browse its source, implement the change, rebuild, and test
+  model    deepseek/deepseek-v4.1-flash
+  starting the openPASO server ...
 
-## How to use it — with any model
+  24 solver tools ready
+────────────────────────────────────────────────────────────────────────
+  → discover(query='list')
+    ← discover: 1 line(s)
 
-OASiS speaks the **Model Context Protocol (MCP)** — the standard way to plug tools into AI assistants. That gives you two ways in.
+All nine backends are available on this install: 4C Multiphysics,
+FEniCSx (dolfinx 0.10.0), deal.II 9.8.0-pre, FEBio, NGSolve 6.2.2604,
+scikit-fem 12.0.1, Kratos Multiphysics 10.3, DUNE-fem, and SPARTA (DSMC).
 
-### Option A: connect to an MCP-capable app (Claude Desktop, Claude Code, Cursor, ...)
-
-If you already use an AI coding app with a subscription, this is the zero-extra-cost path: the app brings the model, OASiS brings the solvers.
-
-**Claude Code** (from the project root):
-
-```bash
-claude mcp add oasis \
-  .venv/bin/python -- -m server \
-  -e PYTHONPATH=src \
-  -e PYVISTA_OFF_SCREEN=true
+────────────────────────────────────────────────────────────────────────
+  done
 ```
 
-**Claude Desktop** — add to `claude_desktop_config.json` (Settings > Developer > Edit Config):
+---
+
+## Start here
+
+There are two ways to use openPASO. **Pick one.** Both need the steps in
+[Install](#install) first.
+
+### Option A — you already pay for an AI app
+
+If you use **Claude Code**, **Claude Desktop**, **Cursor** or another app that supports
+MCP, this costs you nothing extra. The app brings the AI model. openPASO brings the
+solvers.
+
+> MCP (Model Context Protocol) is the standard plug that connects tools to AI apps.
+> openPASO is such a tool.
+
+**Claude Code** — run this once, in the openPASO folder:
+
+```bash
+claude mcp add openpaso .venv/bin/python -- -m server \
+  -e PYTHONPATH=src -e PYVISTA_OFF_SCREEN=true
+```
+
+**Claude Desktop** — open Settings → Developer → Edit Config, and add this.
+Replace `/path/to/openPASO` with the real folder on your computer:
 
 ```json
 {
   "mcpServers": {
-    "oasis": {
-      "command": "/path/to/OASiS/.venv/bin/python",
+    "openpaso": {
+      "command": "/path/to/openPASO/.venv/bin/python",
       "args": ["-m", "server"],
-      "cwd": "/path/to/OASiS/src",
-      "env": { "PYTHONPATH": "/path/to/OASiS/src", "PYVISTA_OFF_SCREEN": "true" }
+      "cwd": "/path/to/openPASO/src",
+      "env": {
+        "PYTHONPATH": "/path/to/openPASO/src",
+        "PYVISTA_OFF_SCREEN": "true"
+      }
     }
   }
 }
 ```
 
-**Cursor / Windsurf / any MCP client** — same idea: command `/path/to/OASiS/.venv/bin/python`, args `-m server`, working directory `/path/to/OASiS/src`, env `PYTHONPATH=/path/to/OASiS/src` and `PYVISTA_OFF_SCREEN=true`. The server speaks standard MCP over stdio.
+**Cursor, Windsurf, or any other MCP app** — use the same four values:
+command `/path/to/openPASO/.venv/bin/python`, arguments `-m server`, working folder
+`/path/to/openPASO/src`, and the two environment variables above.
 
-Then just ask, e.g.: *"Solve the Poisson equation on a unit square with a known analytical solution and verify the convergence rate."*
+Then simply ask, in the app:
 
-### Option B: drive it from your own code with ANY API model (LangGraph)
+> Solve the Poisson equation on a unit square with a known exact solution,
+> and verify the convergence rate.
 
-If you prefer an API key over an app subscription — OpenAI, OpenRouter, Anthropic, a local vLLM or Ollama server — this repository ships a working **LangGraph agent harness** in [`langgraph_eval/`](langgraph_eval/). It attaches OASiS tools to a LangGraph agent via `langchain-mcp-adapters` and works with any OpenAI-compatible endpoint. The shipped scaffold builds the model client, host-side tools, and a persistent OASiS MCP session; pointing it at any provider is a one-line change to the model client:
+### Option B — you have an OpenRouter key
 
-```python
-import os
-from langchain_openai import ChatOpenAI
+Use this if you do not have such an app, or if you want to choose the model yourself.
+**OpenRouter** gives you one key for many AI models, and you pay for what you use.
 
-# OpenRouter (any hosted model)
-llm = ChatOpenAI(base_url="https://openrouter.ai/api/v1",
-                 api_key=os.environ["OPENROUTER_API_KEY"],
-                 model="anthropic/claude-sonnet-4.5")
+**Three steps:**
 
-# OpenAI:  base_url default,             api_key=os.environ["OPENAI_API_KEY"]
-# local vLLM:  base_url="http://localhost:8000/v1", api_key="not-needed"
-# Ollama:      base_url="http://localhost:11434/v1", api_key="not-needed"
+```bash
+# 1. Copy the settings template
+cp .env.example .env
+
+# 2. Open .env and paste your key after OPENROUTER_API_KEY=
+#    Get a key at https://openrouter.ai/keys
+
+# 3. Ask for a simulation
+python run_agent.py "Solve -Δu = 1 on the unit square with u = 0 on the boundary
+                     using scikit-fem, and report the maximum value."
 ```
 
-Keep the returned context open for the complete agent run so stateful checks, including critic-review tokens, survive between tool calls:
+Your key lives in the file **`.env`** in the openPASO folder, and nowhere else.
+That file stays on your computer; git never uploads it.
 
-```python
-async with build_mcp_agent(size="27b", seed=0, workdir=workdir) as agent:
-  result = await agent.ainvoke({"messages": [("user", task)]})
-```
+> [!TIP]
+> Start with a cheap model. `.env.example` lists a few good ones. You can change the
+> model at any time by editing `OPENPASO_MODEL` in `.env`, or by adding
+> `--model some/model-id` to the command.
 
-The harness spawns one OASiS subprocess for that context, exposes an explicit campaign-safe tool set, and gives the model isolated file/shell/web tools alongside the solver tools. It can also spawn a sub-agent to criticize its setup before running. Install the extra dependencies with `pip install -r langgraph_eval/requirements-langgraph.txt` (a separate virtualenv, e.g. `.venv-lg`, is recommended).
+### Which option should I choose?
 
-### Subscription or API key?
+| | Option A — an AI app | Option B — an OpenRouter key |
+|---|---|---|
+| **You need** | Claude Code, Claude Desktop, Cursor, … | an account at openrouter.ai |
+| **Extra cost** | none beyond your subscription | you pay per use |
+| **Choice of model** | whatever the app offers | any model on OpenRouter |
+| **Good for** | trying it out, daily work | scripting, experiments, cheap models |
 
-- **Subscription** (Claude Pro/Max, Cursor, ...): use Option A. No API key, no per-token billing; the app you already pay for becomes a simulation front-end.
-- **API key**: use Option B. Full control over which model runs the agent loop — including free/cheap models via OpenRouter or fully local open-weight models via vLLM/Ollama. Costs scale with usage.
+---
 
 ## Install
 
-### Prerequisites by backend tier
-
-| Tier | Backends | Install effort |
-|------|----------|----------------|
-| pip-installable | NGSolve, scikit-fem, Kratos | `pip install ...` — seconds |
-| conda-installable | FEniCSx, DUNE-fem | `conda create -c conda-forge ...` — minutes |
-| system package | deal.II | `sudo apt install libdeal.ii-dev` |
-| compiled from source | 4C Multiphysics | CMake build, see 4C docs |
-| binary download | FEBio | <https://febio.org/downloads/>, set `FEBIO_BINARY` |
-
-You do **not** need all eight — install what you need; `discover(query='list')` reports what is available and how to get the rest.
-
-### Quickstart: five lines to a first Poisson solve
+You need Python 3.10 or newer, and **at least one** simulation code. You do not need all
+nine. openPASO tells you what is missing and how to get it.
 
 ```bash
-git clone https://github.com/Hereon-InstituteMS/OASiS.git && cd OASiS
+git clone https://github.com/alhermann/openPASO.git
+cd openPASO
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e . && pip install scikit-fem
-claude mcp add oasis .venv/bin/python -- -m server -e PYTHONPATH=src -e PYVISTA_OFF_SCREEN=true
-claude "Solve the Poisson equation -Δu = 1 on a unit square with u=0 on the boundary using scikit-fem, and report the max value."
+pip install -e .
+pip install scikit-fem              # the easiest solver to start with
 ```
 
-### Backend examples
+Only for **Option B**, also install the agent packages:
 
 ```bash
-# pip-installable (any combination), into the SAME interpreter that runs OASiS
+pip install -r langgraph_eval/requirements-langgraph.txt
+```
+
+Check that it starts:
+
+```bash
+cd src && python -m server          # stops with Ctrl+C
+```
+
+### Which solvers can it use?
+
+| Solver | What it is good at | How hard to install |
+|---|---|---|
+| **scikit-fem** | pure Python, assembly-level control | `pip` — seconds |
+| **NGSolve** | Maxwell, Helmholtz, high-order, eigenvalues | `pip` — seconds |
+| **Kratos Multiphysics** | structures, fluids, FSI, DEM, MPM | `pip` — seconds |
+| **DUNE-fem** | DG methods, VEM, h/p-adaptivity | `pip` — minutes |
+| **FEniCSx (dolfinx)** | fast prototyping, weak forms, Navier–Stokes | `conda` — minutes |
+| **deal.II** | adaptive refinement, matrix-free, MPI + GPU | system package |
+| **FEBio** | biomechanics, tissue, active contraction | binary download |
+| **4C Multiphysics** | FSI, thermo-mechanics, contact, beams, particles | build from source |
+| **SPARTA** | rarefied gas (DSMC particles), experimental | build from source |
+
+<details>
+<summary><b>Install commands for each solver</b></summary>
+
+```bash
+# pip-installable — into the SAME interpreter that runs openPASO
 pip install ngsolve scikit-fem meshio
 
-# Kratos: use the metapackage. Installing KratosMultiphysics alone lets pip
-# take the newest wheel, and the 10.4.x wheels are tagged manylinux_2_28 while
-# actually requiring GLIBC_2.32 — they install fine and then fail to import.
-# Check your host with `ldd --version | head -1`.
+# Kratos: use the metapackage. Installing KratosMultiphysics alone lets pip take
+# the newest wheel, and the 10.4.x wheels are tagged manylinux_2_28 while actually
+# requiring GLIBC_2.32 — they install fine and then fail to import.
+# Check your system with: ldd --version | head -1
 pip install KratosMultiphysics-all
 
-# DUNE-fem: PyPI, NOT conda-forge — conda-forge has no dune-fem package.
-# mpi4py is an undeclared dependency; without it the first import stops with
-# "Please run pip install mpi4py before rerunning your Dune script."
+# DUNE-fem: from PyPI. mpi4py is an undeclared dependency; without it the first
+# import stops with "Please run pip install mpi4py before rerunning your Dune script."
 pip install dune-fem mpi4py
 
-# FEniCSx (conda-forge is the supported path). Real and complex scalars are
-# SEPARATE environments, not a runtime flag.
+# FEniCSx: conda-forge is the supported route. Real and complex numbers are
+# SEPARATE environments, not a runtime switch.
 conda create -n fenics -c conda-forge fenics-dolfinx
 
-# deal.II (Ubuntu/Debian). Note 20.04 ships 9.1.1, which is old enough to
-# miss many current APIs; check with
+# deal.II on Ubuntu/Debian. Note that 20.04 ships 9.1.1, which is old enough to
+# miss many current functions. Check yours with:
 #   grep DEAL_II_PACKAGE_VERSION /usr/include/deal.II/base/config.h
-# Build from source with -DCMAKE_BUILD_TYPE=DebugRelease if you want
-# assertion messages — Release compiles every Assert out.
+# Build from source with -DCMAKE_BUILD_TYPE=DebugRelease if you want assertion
+# messages — a Release build removes every Assert.
 sudo apt install libdeal.ii-dev
+
+# FEBio: download the binary from https://febio.org/downloads/ and then
+export FEBIO_BINARY=/path/to/febio4
 ```
 
-For the install route per backend, the exact first-run error messages, and
-which claims depend on how the backend was compiled, ask the server itself:
-`knowledge(topic='install')`, optionally with `solver=...`.
-
-On macOS, install deal.II from the official `deal.II.app` bundle and point
-`DEAL_II_DIR` at its `Contents/Resources/Libraries`. If a deal.II build then
-fails inside `<complex>`/`<cmath>` (an Xcode SDK header clash baked into the
-app bundle, not an OASiS issue), set the SDK sysroot consistently:
+**macOS and deal.II.** Install the official `deal.II.app` bundle and point
+`DEAL_II_DIR` at its `Contents/Resources/Libraries`. If a build then fails inside
+`<complex>` or `<cmath>`, that is an Xcode SDK header clash inside the bundle, not an
+openPASO problem. Fix it with:
 
 ```bash
 export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 ```
 
-Conda envs are auto-detected (envs whose name contains `fenics`/`dolfinx`
-or `dune` are preferred). For non-standard layouts point OASiS at the
-interpreter explicitly — both discovery **and** execution use it:
+**Conda environments** are found automatically when their name contains `fenics`,
+`dolfinx` or `dune`. For any other layout, name the interpreter yourself — openPASO
+uses it both to find the code and to run it:
 
 ```bash
-export FENICS_PYTHON=/path/to/env/bin/python   # or FENICS_CONDA_PREFIX=/path/to/env
-export DUNE_PYTHON=/path/to/env/bin/python     # or DUNE_CONDA_PREFIX=/path/to/env
+export FENICS_PYTHON=/path/to/env/bin/python
+export DUNE_PYTHON=/path/to/env/bin/python
 ```
 
-### Verify
-
-```bash
-source .venv/bin/activate
-cd src && python -m server   # should start without errors (Ctrl+C to stop)
-cd .. && pytest tests/ -v    # run the test suite
-```
-
-### Optional: solver source access (developer mode)
-
-Set `*_ROOT` environment variables (`FOURC_ROOT`, `DEALII_ROOT`, `FENICS_ROOT`, `NGSOLVE_ROOT`, `KRATOS_ROOT`, `DUNE_ROOT`, `SKFEM_ROOT`) in your MCP settings to let the agent browse, modify, and rebuild solver source code. For compiled binaries set `FOURC_BINARY` / `FEBIO_BINARY`. See `.claude/settings.json.example`.
-
-## Architecture
+**If a solver will not install**, ask openPASO itself. It answers with the route that
+works on your system, the exact first-run error messages, and which environment
+variables it checks rather than trusts:
 
 ```
-You --> AI model (any app or API) --> MCP --> OASiS (src/server.py)
-                                                |
-   +-------------+---------+------+--------+--------+--------+--------+-------+
-   |             |         |      |        |        |        |        |       |
-FEniCSx     deal.II      4C   NGSolve   skfem   Kratos    DUNE    FEBio
-(Python)     (C++)    (YAML) (Python) (Python) (JSON)   (Python)  (XML)
+knowledge(topic='install', solver='fourc')
 ```
 
-- **Server** — `src/server.py`, a stdio MCP server; backends load as plugins via `src/core/registry.py`.
-- **Backends** — one package per code under `src/backends/`, each with a physics catalog and input **generators** for the compiled codes (plus an experimental SPARTA DSMC backend for rarefied-gas problems).
-- **Curated knowledge** — per-backend pitfalls, element catalogs, installed-version API references, and a cross-backend collation layer, served through `knowledge` and `prepare_simulation`.
-- **Coupling orchestrator** — `src/core/coupling_driver.py`: each participant is a black box that reads `imports.json` / writes `exports.json` under an explicit contract; OASiS validates the contract, runs the fixed-point iteration with Aitken relaxation, and reports convergence-or-failure. A non-converged run is never presented as a result.
-- **preCICE bridge** — `src/core/precice_config.py` + the `couple_precice` tool: generates a valid `precice-config.xml` for standard scenarios and verifies the coupling end-to-end.
+</details>
 
-### Tools the agent gets
+---
 
-| Tool | Purpose |
-|------|---------|
-| `discover` | List solvers, availability, capabilities matrix |
-| `prepare_simulation` | Knowledge + real examples + template in one call — always the first step |
-| `run_simulation` | Execute Python-based solvers (FEniCSx, NGSolve, scikit-fem, DUNE-fem) |
-| `run_with_generator` | Generate input + run compiled solvers (4C, deal.II, Kratos) |
-| `verify_mesh_independence` | Heuristic mesh-refinement study for problems without an exact solution: re-runs at refined resolutions, compares global norms + probe values, converged/not-converged verdict |
-| `knowledge` | Physics knowledge, pitfalls, materials, coupling docs, cross-backend collation |
-| `examples` | Real test files from the solvers' own test suites |
-| `couple` | General partitioned coupling for any physics (contract + Aitken relaxation) |
-| `couple_precice` | preCICE-based coupling: config generation and end-to-end run |
-| `coupled_solve` | Legacy fixed-geometry domain decomposition (deprecated — prefer `couple`) |
-| `transfer_field` | Extract and transfer fields between solver outputs |
-| `generate_mesh` | Gmsh mesh generation |
-| `visualize` | Field statistics, plots, automated validation |
-| `developer` | Solver source architecture, file browsing, extension points |
-| `session_insights` | Review session patterns, contribute reusable knowledge back |
-| `setup_backend` / `rediscover_backends` / `reload_catalog` | Install hints, re-scan for new solvers, hot-reload catalogs |
+## What you can simulate
 
-## Methodology
+- **Classic PDEs** — Poisson, heat conduction, diffusion
+- **Solid mechanics** — linear elasticity, large deformation, plasticity, contact, eigenfrequencies
+- **Flow** — Stokes and Navier–Stokes: lid-driven cavity, vortex shedding, channel flow
+- **Transport** — transient heat, reaction–diffusion, convection
+- **Electromagnetics** — Maxwell, cavity resonances, magnetostatics
+- **Particle methods** — SPH, DEM, peridynamics
+- **Two codes on one problem** — split a domain between two different solvers and iterate
+  until they agree: thermo-mechanics, fluid–structure interaction, domain decomposition,
+  even a continuum code coupled to a rarefied-gas particle code
+- **Meshes** — Gmsh geometries: L-shape, plate with a hole, channel, or your own
+- **Convergence studies** — refine the mesh step by step and measure the error
 
-Three principles shape everything in this repository:
+---
 
-- **General knowledge, never problem constants.** Curated entries describe a *class* of failure and its general fix. Templates use placeholders, not the dimensions of any particular benchmark — anything that would anchor the agent to one geometry or one paper's parameters is rejected. The agent researches problem-specific values per task; the knowledge layer only removes tooling friction.
-- **Verification is not optional.** Every workflow should end with a check against an analytical solution, a published benchmark, or an independent solver. The coupling orchestrator enforces this in code: contract violations and non-converged iterations are failures, never results. The server also asks the agent to have an independent critic review each setup before running.
-- **Operate and develop.** The agent both runs the solvers and, when a feature is missing, extends them: developer mode exposes the source tree, and the agent reads, modifies, rebuilds, and re-tests the code itself. Fixes flow back into the knowledge layer in general form.
+## How openPASO checks the answer
+
+A wrong result that looks right is worse than no result. Four things guard against it.
+
+1. **An exact solution to compare against.** For many problems openPASO can construct a
+   source term whose exact answer is known, so the error is a number, not an opinion.
+2. **The convergence order.** Refine the mesh and the error must fall at the rate the
+   theory predicts. If it does not, the run failed, whatever the pictures look like.
+3. **Evidence that the solver really ran.** openPASO reads the solver's own console
+   output and its own data files. A number with no run behind it is reported as such.
+4. **A second AI instance reviews the setup** before the run starts — units, boundary
+   conditions, mesh resolution, material values. The server keeps the record of that
+   review and looks it up instead of believing a claim.
+
+When two codes are coupled, a coupling that does not converge is reported as a failure.
+It is never presented as a result.
+
+---
+
+## The tools the model gets
+
+| Tool | What it does |
+|---|---|
+| `discover` | lists the solvers, what is installed, what each can do |
+| `prepare_simulation` | knowledge, real examples and a template in one call — always the first step |
+| `run_simulation` | runs the Python solvers (FEniCSx, NGSolve, scikit-fem, DUNE-fem) |
+| `run_with_generator` | writes the input file and runs the compiled solvers (4C, deal.II, Kratos) |
+| `verify_mesh_independence` | refines the mesh and reports whether the answer stopped changing |
+| `knowledge` | physics, pitfalls, materials, coupling, and comparisons between codes |
+| `examples` | real test files from the solvers' own test suites |
+| `couple` | runs one problem across two codes and iterates until they agree |
+| `couple_precice` | the same through the preCICE coupling library |
+| `transfer_field` | moves a field from one solver's output to another |
+| `generate_mesh` | builds a mesh with Gmsh |
+| `visualize` | field statistics, plots, automatic checks |
+| `developer` | reads and changes a solver's own source code, then rebuilds it |
+| `setup_backend` | install help for a solver that is missing |
+
+---
+
+## How it is built
+
+```
+You ──▶ AI model (an app, or your API key) ──▶ MCP ──▶ openPASO (src/server.py)
+                                                            │
+   ┌──────────┬──────────┬────────┬─────────┬────────┬──────┴───┬────────┬────────┐
+FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPARTA
+(Python)    (C++)     (YAML)  (Python) (Python)  (JSON)   (Python)  (XML)  (native)
+```
+
+- **Server** — `src/server.py`, an MCP server over stdio. Backends load as plugins
+  through `src/core/registry.py`.
+- **Backends** — one package per code under `src/backends/`, each with a catalog of the
+  physics it supports and input generators for the compiled codes.
+- **Knowledge** — per-code pitfalls, element catalogs, API references read from the
+  version you actually installed, and a layer that compares the codes with each other.
+- **Coupling** — `src/core/coupling_driver.py`. Each side is a black box that reads
+  `imports.json` and writes `exports.json` under a fixed contract. openPASO checks the
+  contract, runs the fixed-point iteration with Aitken relaxation, and reports
+  convergence or failure.
+- **preCICE bridge** — `src/core/precice_config.py` and the `couple_precice` tool.
+
+---
 
 ## Contributing
 
-Contributions are welcome. One rule above all: **every improvement must benefit all simulations**, not be fine-tuned for a specific example. Solver pitfalls, element catalogs, new backends, and new coupling generators are great contributions; benchmark-specific parameter databases and model-specific templates are not. New capabilities are typically developed and stress-tested on the experimental fork (<https://github.com/alhermann/OASiS>) before they land here.
+Contributions are welcome. One rule stands above the rest: **every improvement must help
+all simulations**, not one example.
 
-## License
+Good contributions are solver pitfalls, element catalogs, new backends and new coupling
+generators. Not welcome are databases of parameters for one benchmark, or templates built
+around one particular problem. Templates use placeholders, never the dimensions of a
+specific case.
 
-MIT — see [LICENSE](LICENSE).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-## Citation
+---
 
-If you use OASiS in your research, please cite the archived release:
+## Licence and citation
+
+openPASO is released under the [MIT licence](LICENSE).
+
+This repository is the **experimental fork**, where new capabilities are developed and
+tested. The stable, citable release lives at
+**<https://github.com/Hereon-InstituteMS/OASiS>** and is archived on Zenodo. If you use
+this software in research, please cite the archived release:
 
 ```bibtex
-@software{oasis2026,
-  title  = {OASiS: an open-source multi-physics and multi-code framework for verified computer simulations},
+@software{openpaso2026,
+  title  = {openPASO: an open-source multi-physics and multi-code framework
+            for verified computer simulations},
   author = {Hermann, Alexander and Shojaei, Arman and Scheider, Ingo and Cyron, Christian},
   year   = {2026},
   doi    = {10.5281/zenodo.20543501},
   url    = {https://github.com/Hereon-InstituteMS/OASiS}
 }
 ```
+
+<p align="center">
+  <sub>Helmholtz-Zentrum Hereon · Institute of Materials Mechanics &nbsp;·&nbsp;
+  Hamburg University of Technology</sub>
+</p>

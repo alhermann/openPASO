@@ -1,6 +1,6 @@
 """Campaign MCP calls must share one server process.
 
-The critic registry is held in memory by the OASiS server.  A review submitted
+The critic registry is held in memory by the openPASO server.  A review submitted
 on one stdio connection cannot authorize a run made on a newly spawned server.
 This test exercises the same transport boundary as the campaign: submit a
 review, then redeem its token on a small real solve through one session.
@@ -63,7 +63,7 @@ def test_critic_review_survives_until_the_run(tmp_path, monkeypatch):
     pytest.importorskip("langchain_mcp_adapters")
     import agent
 
-    session_factory = getattr(agent, "oasis_mcp_tools_session", None)
+    session_factory = getattr(agent, "openpaso_mcp_tools_session", None)
     assert session_factory is not None, (
         "the campaign exposes only connection-per-call MCP tools; add one "
         "persistent-session context for the lifetime of an agent run"
@@ -157,7 +157,7 @@ def test_mcp_couple_persists_native_participant_output(tmp_path):
         })
 
     async def exercise():
-        async with agent.oasis_mcp_tools_session(tmp_path) as tools:
+        async with agent.openpaso_mcp_tools_session(tmp_path) as tools:
             couple = next(tool for tool in tools if tool.name == "couple")
             valid = json.loads(_text(await couple.ainvoke({
                 "participants": json.dumps(participants),

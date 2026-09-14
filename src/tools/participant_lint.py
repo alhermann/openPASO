@@ -12,7 +12,7 @@ the call that works. The same facts are served through the coupling door; this i
 most useful, which is before the run that would have taught them.
 
 WHAT THIS IS NOT. It does not judge the mesh, the weak form, the material, the source or the solve --
-those are the agent's and OASiS has no business dictating them. It reads the file and writes nothing.
+those are the agent's and openPASO has no business dictating them. It reads the file and writes nothing.
 """
 from __future__ import annotations
 

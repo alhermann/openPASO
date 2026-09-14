@@ -49,7 +49,7 @@ def _served_kratos_coupling() -> str:
 
 
 def test_the_served_kratos_neumann_route_creates_the_conditions():
-    """The Neumann-side contract OASiS serves for Kratos must create the
+    """The Neumann-side contract openPASO serves for Kratos must create the
     interface flux conditions in a loop over the interface edges, with the
     solve elided; without the conditions the imported flux is silently
     discarded."""

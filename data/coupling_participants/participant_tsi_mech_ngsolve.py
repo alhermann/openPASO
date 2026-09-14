@@ -41,12 +41,12 @@ import json
 from pathlib import Path
 
 import numpy as np
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 from netgen.geom2d import SplineGeometry
 from ngsolve import (VERTEX, BilinearForm, CoefficientFunction, GridFunction,
                      H1, InnerProduct, LinearForm, Mesh, NodeId, Sym,
                      TaskManager, VectorH1, div, dx, grad)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
@@ -94,13 +94,13 @@ def sample(imp, key, fallback, pts):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 geo = SplineGeometry()
 geo.AddRectangle((X0, Y0), (X1, Y1), bcs=("bottom", "right", "top", "left"))
 mesh = Mesh(geo.GenerateMesh(maxh=MAXH))
 
 fesq = H1(mesh, order=1)                   # where fields are exchanged
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 vdof = np.array([fesq.GetDofNrs(NodeId(VERTEX, i))[0] for i in range(mesh.nv)], int)
 pts = np.array([mesh.vertices[i].point for i in range(mesh.nv)], float)[:, :2]
 
@@ -110,7 +110,7 @@ gth.vec[:] = 0.0
 for i, d in enumerate(vdof):
     gth.vec[int(d)] = float(theta_nodal[i])
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 # u_x = 0 on x = X0 ("left"); u_y = 0 on y = Y0/Y1 ("bottom"/"top")
 fes = VectorH1(mesh, order=2, dirichletx="left", dirichlety="bottom|top")
 u, v = fes.TnT()
@@ -126,16 +126,16 @@ gfu.vec[:] = 0.0
 m = BilinearForm(fesq)
 p_, w_ = fesq.TnT()
 m += p_ * w_ * dx
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 with TaskManager():
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     a.Assemble()
     f.Assemble()
     r = f.vec.CreateVector()
     r.data = f.vec - a.mat * gfu.vec
     gfu.vec.data += a.mat.Inverse(fes.FreeDofs(), inverse="sparsecholesky") * r
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
     # volumetric strain, L2-projected onto the order-1 space
     m.Assemble()
     fq = LinearForm(fesq)

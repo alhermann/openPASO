@@ -1,7 +1,7 @@
 """Front-loading must not cut the facts an agent cannot ask for.
 
 WHAT HAPPENED. `_front_load_coupling` was added to stop the coupling payload
-eating the OASiS arm's tool-call budget (measured: coupled runs reading the full
+eating the openPASO arm's tool-call budget (measured: coupled runs reading the full
 corpus got a median 39 tool calls and wrote no output 60% of the time; runs with
 no coupling text got 95 calls). It takes a PREFIX, and the "Choosing theta"
 section sits past 24,000 characters — so the iteration budget, the divergence
@@ -103,7 +103,7 @@ class TestTheServedPayload(unittest.TestCase):
         loop wrote 1.0, 0.5, 0.25, ... into their history file -- an invented
         sequence. The remedy is behaviour, not a file name: the agent is told
         at the very top to pass `history_path` so couple() writes the measured
-        history to the file its task names. OASiS is a general product, so no
+        history to the file its task names. openPASO is a general product, so no
         benchmark's file name may appear anywhere in what it serves."""
         i = self.served.find("history_path")
         self.assertGreaterEqual(i, 0, "history_path is never mentioned")

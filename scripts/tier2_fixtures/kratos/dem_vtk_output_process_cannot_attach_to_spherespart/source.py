@@ -25,7 +25,7 @@ with it. The third probe states that as the environment-independent biconditiona
 it is -- dem_vtk_output imports if and only if pyevtk does -- so the fixture is
 correct on a machine that happens to have pyevtk as well as on one that does not.
 
-What works instead is post_gid_option, which is what the OASiS DEM generator now
+What works instead is post_gid_option, which is what the openPASO DEM generator now
 emits.
 
 MUTATION CONTROL (T2_MUTATE=1): the vtk_output block is removed from both decks

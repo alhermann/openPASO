@@ -6,7 +6,7 @@ is right and it had an unmeasured cost: anything the TERMINAL writes without a
 trailing newline lands in front of the agent's correct line, and `^` then cannot
 match.
 
-MEASURED in this tree, 19 logs (6 bare, 13 OASiS) state an NDOF the anchor
+MEASURED in this tree, 19 logs (6 bare, 13 openPASO) state an NDOF the anchor
 rejects:
 
   C2_27b_MCP_seed73   "Invalid MIT-MAGIC-COOKIE-1 keyNDOF = 54"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Screen every input key OASiS names against the backend that would consume it.
+"""Screen every input key openPASO names against the backend that would consume it.
 
 WHY THIS EXISTS
 ---------------
@@ -176,11 +176,11 @@ _PROSE_STOPWORDS = {
 #
 # Admitted on the same evidence as above: neither is a Kratos variable
 # (KratosGlobals.GetVariable raises for both), and neither is in 4C's grammar.
-_OASIS_OWN_NAMES = {
+_OPENPASO_OWN_NAMES = {
     "KRATOS_KNOWLEDGE",   # the name that does NOT exist; the entry says so
     "GEOMECHANICS",       # a constant in data/kratos_knowledge.py, not Kratos
 }
-_STOPWORDS |= _OASIS_OWN_NAMES
+_STOPWORDS |= _OPENPASO_OWN_NAMES
 
 _STOPWORDS |= _PROSE_STOPWORDS
 
@@ -392,7 +392,7 @@ def candidate_keys(text: str) -> list[tuple[str, int, int]]:
     return out
 
 
-# An OASiS environment variable is not a backend input key. `FEBIO_BINARY` is
+# An openPASO environment variable is not a backend input key. `FEBIO_BINARY` is
 # underscore-shaped, so it is a candidate on shape alone, and the entry naming
 # it says plainly what it is:
 #
@@ -408,14 +408,14 @@ def candidate_keys(text: str) -> list[tuple[str, int, int]]:
 # list: it is read out of this repo's own AST, and a name qualifies only by
 # appearing as the literal argument of os.environ[...] / os.environ.get(...) /
 # os.getenv(...). An invented input key lives in a deck template or in prose —
-# to reach this set someone would have to make OASiS read it from the
-# environment, at which point it is an OASiS variable and this is true. 24
+# to reach this set someone would have to make openPASO read it from the
+# environment, at which point it is an openPASO variable and this is true. 24
 # names qualify today, every one of them plainly ours: FOURC_BINARY,
 # KRATOS_ROOT, FEBIO_BINARY, SPARTA_BINARY, OFA_DISABLE_PITFALLS, LD_LIBRARY_PATH.
 _ENV_VAR_CACHE: dict[str, set[str]] = {}
 
 
-def oasis_env_vars() -> set[str]:
+def openpaso_env_vars() -> set[str]:
     """ALL-CAPS names this repo reads out of the process environment."""
     if str(REPO) in _ENV_VAR_CACHE:
         return _ENV_VAR_CACHE[str(REPO)]
@@ -498,7 +498,7 @@ def template_keys(backend: str) -> list[tuple[Path, str]]:
     """Keys the deck TEMPLATES emit — the most dangerous surface in the corpus.
 
     `collect_entries` only returns strings containing "Signal:", i.e. warning
-    text. Templates carry no Signal clause, so the whole set of keys OASiS
+    text. Templates carry no Signal clause, so the whole set of keys openPASO
     actually WRITES INTO INPUT FILES was invisible to this audit. `AREA0` was
     caught only because it happened to appear in a warning as well as in the
     arterial-network template; a key that appeared solely in a template would
@@ -597,12 +597,12 @@ def audit(backend: str, verbose: bool = False) -> dict:
     for path, tok in template_keys(backend):
         seen.setdefault(tok, []).append((str(path), "[DECK TEMPLATE]"))
 
-    ours = oasis_env_vars()
+    ours = openpaso_env_vars()
     res["substring_only"] = []
     for tok in sorted(seen):
         res["checked"] += 1
         if tok in ours:
-            continue          # our own environment variable, see oasis_env_vars
+            continue          # our own environment variable, see openpaso_env_vars
         present, whole_word = key_present(tok, roots)
         if not present:
             res["unresolved"].append({

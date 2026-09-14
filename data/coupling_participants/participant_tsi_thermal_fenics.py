@@ -44,12 +44,12 @@ import json
 from pathlib import Path
 
 import numpy as np
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 import ufl
 from dolfinx import default_scalar_type, fem, mesh as dmesh
 from dolfinx.fem.petsc import LinearProblem
 from mpi4py import MPI
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
@@ -109,27 +109,27 @@ def sample(imp, key, fallback, pts):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
                                 [NX, NY], dmesh.CellType.triangle)
 V = fem.functionspace(domain, ("Lagrange", 1))
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 pts = V.tabulate_dof_coordinates()[:, :2]
 
 evol = fem.Function(V)
 evol.x.array[:] = sample(imp, "values", EVOL_INIT, pts)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 T, s = ufl.TrialFunction(V), ufl.TestFunction(V)
 c = fem.Constant(domain, default_scalar_type(RHO_C / DT))
 a = c * T * s * ufl.dx + fem.Constant(domain, default_scalar_type(K_COND)) * \
     ufl.dot(ufl.grad(T), ufl.grad(s)) * ufl.dx
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 L = c * fem.Constant(domain, default_scalar_type(T_OLD)) * s * ufl.dx \
     - fem.Constant(domain, default_scalar_type(COUPLING * T_REF * BETA / DT)) * \
     (evol - fem.Constant(domain, default_scalar_type(EVOL_OLD))) * s * ufl.dx
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 g = fem.Function(V)
 hot = np.where(np.abs(pts[:, 0] - X0) < GEOM_TOL)[0]
 cold = np.where(np.abs(pts[:, 0] - X1) < GEOM_TOL)[0]
@@ -140,7 +140,7 @@ bcs = [fem.dirichletbc(g, np.unique(np.concatenate([hot, cold])))]
 uh = LinearProblem(a, L, bcs=bcs, petsc_options_prefix="tsi_th",
                    petsc_options={"ksp_type": "preonly",
                                   "pc_type": "lu"}).solve()
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 sol = uh.x.array.real
 
 print(f"[fenics thermal] n={len(sol)} coupling={COUPLING} "

@@ -1,4 +1,4 @@
-# Contributing to OASiS
+# Contributing to openPASO
 
 Thanks for the interest.  This MCP server gets more useful as more
 people add verified knowledge — but a single wrong parameter key in the

@@ -24,7 +24,7 @@ FREEZE = ROOT / "campaign3_blind" / "freeze.py"
 MARKER = ROOT / "campaign3_blind" / "FROZEN.json"
 PY = "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python"
 ENV = dict(os.environ,
-           OASIS_BLIND_KEYS="/home/alexander/Schreibtisch/qwen_uplift_test/"
+           OPENPASO_BLIND_KEYS="/home/alexander/Schreibtisch/qwen_uplift_test/"
                             "campaign3_blind/keys")
 
 TARGETS = {

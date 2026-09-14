@@ -60,7 +60,7 @@ def vault(tmp_path):
 
 
 def _start_victim(vault: Path) -> subprocess.Popen:
-    env = dict(os.environ, OASIS_BLIND_KEYS=str(vault))
+    env = dict(os.environ, OPENPASO_BLIND_KEYS=str(vault))
     src = VICTIM.format(gr=str(GRADE_ROUND.parent))
     p = subprocess.Popen([sys.executable, "-c", textwrap.dedent(src)],
                          env=env, stdout=subprocess.PIPE,

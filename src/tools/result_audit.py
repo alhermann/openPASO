@@ -1,6 +1,6 @@
 """audit_results — self-consistency checks on the agent's own output files.
 
-THE MEASURED FAILURE MODE (53 development runs with OASiS):
+THE MEASURED FAILURE MODE (53 development runs with openPASO):
   * 53/53 read the knowledge; the advice channel works.
   * 51/53 execute solvers through run_bash. The verification machinery —
     residual checks in run_simulation, the critic gate, the new unsaved-work
@@ -42,13 +42,13 @@ import hashlib
 import re
 from pathlib import Path
 
-# Directories OASiS itself creates. A stale zero-valued probe file in one of
+# Directories openPASO itself creates. A stale zero-valued probe file in one of
 # these once produced a NEAR-ZERO FIELD finding on verified-correct work, and
-# only in runs that went through OASiS, which is why the search is filtered
+# only in runs that went through openPASO, which is why the search is filtered
 # rather than naive.
 _SCRATCH = {"simulation_outputs", "coupling", "meshes", "benchmark_results",
             ".git", "__pycache__", "runs", "runs_quarantine",
-            # OASiS's own source layout: a cell once pointed audit_results at the
+            # openPASO's own source layout: a cell once pointed audit_results at the
             # server's src tree and the ladder read core/instructions.py as a
             # participant script written from scratch
             "core", "tools", "backends", "src", "site-packages"}
@@ -70,7 +70,7 @@ _LEVEL_FILE = re.compile(
 
 def _level_files(work: Path, ext: str = "csv") -> list:
     """(path, kind, level, side) for every level-indexed file with that
-    extension, outside OASiS's own scratch directories."""
+    extension, outside openPASO's own scratch directories."""
     out = []
     for q in work.rglob(f"*level*.{ext}"):
         if not q.is_file():
@@ -105,7 +105,7 @@ def _csv_role(q: Path, kind: str | None = None) -> str:
         m = _LEVEL_FILE.match(q.name)
         kind = m.group("kind").lower() if m else ""
     if kind == "field":
-        return "raw"      # OASiS's own per-participant dump, not a deliverable
+        return "raw"      # openPASO's own per-participant dump, not a deliverable
     if any(w in kind for w in ("resid", "hist", "iter", "converg")):
         return "history"
     if any(w in kind for w in ("iface", "interface", "seam", "coupl")):
@@ -256,11 +256,11 @@ def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
     _PAT = _re.compile(r"^(?P<kind>[A-Za-z_]+?)_level(?P<k>\d+)"
                        r"(?:_(?P<side>[A-Za-z0-9]+))?\.csv$")
     # RECURSIVE, MINUS OUR OWN SCRATCH. This globbed the TOP LEVEL only,
-    # because rglob once picked OASiS's own directories — benchmark_results/,
-    # coupling/, meshes/, simulation_outputs/, all created by OASiS itself and
+    # because rglob once picked openPASO's own directories — benchmark_results/,
+    # coupling/, meshes/, simulation_outputs/, all created by openPASO itself and
     # all sorting before solution_*.csv — and a stale zero-valued probe file
     # there produced a NEAR-ZERO FIELD finding on verified-correct work, and
-    # only in runs that went through OASiS. The restriction fixed that and
+    # only in runs that went through openPASO. The restriction fixed that and
     # introduced a blind spot: one development run wrote its 15 files into
     # level1/, level2/, level3/, and the audit found ZERO sequences and
     # returned clean=True on a full result set. Name the directories to skip
@@ -277,7 +277,7 @@ def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
             continue
         kind = m.group("kind").lower()
         if kind == "field":
-            # OASiS's own per-participant raw dump (field_level<k>.csv, one per
+            # openPASO's own per-participant raw dump (field_level<k>.csv, one per
             # side's work dir), not a deliverable. Two sides writing the same
             # name at the same depth read as AMBIGUOUS INPUT on verified-correct
             # work (measured on a real coupled rebuild) -- so it is not a
@@ -332,12 +332,12 @@ def _one_sequence(by_level: dict, key: tuple, _csv) -> dict[str, list[float]]:
     levels: list[dict] = []
     for i in range(1, 9):
         # TOP LEVEL ONLY. rglob + sorted(cands)[0] picked the
-        # lexicographically first PATH, so OASiS's own scratch directories —
+        # lexicographically first PATH, so openPASO's own scratch directories —
         # benchmark_results/, coupling/, meshes/, simulation_outputs/, all
-        # created by OASiS itself and all sorting before solution_*.csv — won
+        # created by openPASO itself and all sorting before solution_*.csv — won
         # over the agent's real output. A stale zero-valued probe file left by
         # a failed first run then produced a NEAR-ZERO FIELD finding on
-        # verified-correct work, and only in runs that went through OASiS.
+        # verified-correct work, and only in runs that went through openPASO.
         cands = by_level.get(i) or []
         if not cands:
             break
@@ -450,7 +450,7 @@ def residual_findings(work: Path) -> list[dict]:
         except OSError:
             continue
         name = q.name
-        # A LEADING NaN IS OASiS'S OWN history[0], NOT THE AGENT'S DEFECT.
+        # A LEADING NaN IS openPASO'S OWN history[0], NOT THE AGENT'S DEFECT.
         #
         # `couple` returns a history whose first entry is NaN by construction —
         # there is no previous export to compare the first one against. The
@@ -463,7 +463,7 @@ def residual_findings(work: Path) -> list[dict]:
         # and not forged, with the residual falling 0.309 -> 8.2e-07 — this
         # audit returned
         # "clean": false and told it, three times, that "the residual was never
-        # actually computed from the two sides". OASiS produced the NaN, then
+        # actually computed from the two sides". openPASO produced the NaN, then
         # reported it to the agent as evidence of the agent's own failure, and
         # the only fix available to an agent that believes it is to go and
         # break something that was right.
@@ -687,7 +687,7 @@ def contract_findings(work: Path) -> list[dict]:
     #                                                   prescribed levels
     #
     # The failure it names is specific and fatal, and it is visible at LEVEL
-    # ONE while there is still time to fix it. Three OASiS runs of one Stokes
+    # ONE while there is still time to fix it. Three openPASO runs of one Stokes
     # task hit it with an identical NDOF of 592,387 against a 1936-point
     # probe grid — a solve two orders of magnitude larger than the
     # prescribed coarsest mesh, which completes level 1 and then cannot finish
@@ -1351,7 +1351,7 @@ def interface_sign_findings(work: Path) -> list[dict]:
     #
     # The `inverted` branch below needs recover_normal_derivative, and on the
     # NEUMANN side that recovery is ill-conditioned: measured on the furthest
-    # OASiS run of the coupled problem, side B's implied coefficient came out
+    # openPASO run of the coupled problem, side B's implied coefficient came out
     # None, +63.6 and -128.0 across the three levels, so only the last one
     # tripped `k < 0` and the finding named level 3 alone. Its field near the
     # seam is ~3e-3 with k = 200, which is why.
@@ -1625,7 +1625,7 @@ def export_findings(work: Path) -> list[dict]:
 
     (1) NEAREST-NODE SAMPLING INSTEAD OF INTERPOLATION. This one is real, and
         it is the largest single recoverable defect measured across the
-        development runs: 99 runs with OASiS and 86 without carry the
+        development runs: 99 runs with openPASO and 86 without carry the
         fingerprint. The tasks prescribe FIXED probe points that are
         deliberately not mesh nodes. Answering with the value at the closest
         node is O(h) accurate, so it caps the reported order at 1 however good
@@ -1649,7 +1649,7 @@ def export_findings(work: Path) -> list[dict]:
         Verified against an independent reference, not argued: the 4C+Kratos
         reference is correct at order 1.9796; the SAME result set with the row
         order transposed is correct at order 1.9796, bit-identical. A check on
-        row order would have flagged 146 runs with OASiS and 117 without -- a
+        row order would have flagged 146 runs with openPASO and 117 without -- a
         third of the development runs -- and sent every one of them to fix
         something that costs nothing, spending the action budget that is
         already the binding constraint. It was written, measured, and removed.
@@ -2380,7 +2380,7 @@ def pde_source_findings(pde_json: str, task_text: str = "") -> list[dict]:
         return [{"sequence": "declared pde", "informational": True, "finding": (
             "DECLARED PDE NOT CHECKED: the pde argument was not valid JSON. "
             "Pass {\"A\": {\"source\": \"...\", \"task_source\": \"...\"}} to "
-            "have OASiS compare the forcing you implemented against the task's "
+            "have openPASO compare the forcing you implemented against the task's "
             "stated forcing (both PUBLIC strings you supply).")}]
     if not isinstance(spec, dict):
         return []
@@ -2408,7 +2408,7 @@ def pde_source_findings(pde_json: str, task_text: str = "") -> list[dict]:
                 f"placeholder -- a different forcing converges cleanly to a "
                 f"different answer, and no self-consistency check can catch it. "
                 f"(This compares only the two PUBLIC strings you provided; "
-                f"OASiS reads nothing sealed.)")})
+                f"openPASO reads nothing sealed.)")})
     return out
 
 
@@ -2706,7 +2706,7 @@ def coupled_ladder(work: Path) -> dict | None:
     # self-checks would have refused each export. Fires only before the first
     # converged level: a coupling that already converged a level has working scripts.
     _served_marks = ("EXPORT SELF-CHECK ─ keep this block", "exports.json LAST",
-                     "CONTRACT (do not change)", "OASiS DOES NOT SERVE THIS")
+                     "CONTRACT (do not change)", "openPASO DOES NOT SERVE THIS")
     _converged_any = False
     for q in hist:
         try:
@@ -2745,7 +2745,7 @@ def coupled_ladder(work: Path) -> dict | None:
         # A 4C SIDE THAT ALREADY RAN THE BINARY: the step is the deck 4C refused, not the
         # whole participant. The side directory holds 4C's own verdict -- its error block
         # in the captured console, the VTU folder of every run that finished, the reaction
-        # monitor files -- and the deck defects OASiS can name from the deck text. Put
+        # monitor files -- and the deck defects openPASO can name from the deck text. Put
         # them in the brief, so the worker starts from the defect (measured: a worker
         # handed the whole step again rewrote the deck from scratch and hit the same
         # section a second time). Reads only the agent's own files; writes nothing.
@@ -2944,7 +2944,7 @@ def summary_names_findings(work: Path) -> list[dict]:
     audit at hand-in said nothing about the names, so the run handed in a
     list. No task knowledge is used: the names come from the agent's own
     summary text, and existence is checked by basename anywhere under the
-    working directory outside OASiS's scratch.
+    working directory outside openPASO's scratch.
     """
     import re as _re
     out: list[dict] = []

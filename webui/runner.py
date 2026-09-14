@@ -169,7 +169,7 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
     """Build a LangGraph ReAct agent with all WebUI hooks wired in.
 
     * ``model`` is a key from ``config.MODELS``. ``mock`` skips vLLM.
-    * ``mcp_on`` attaches OASiS via langchain-mcp-adapters when True.
+    * ``mcp_on`` attaches openPASO via langchain-mcp-adapters when True.
     * ``emitter`` is an async function ``(event_dict) -> None`` used to
       stream events back over the WebSocket.
     * ``get_mode`` is a callable returning the current mode string.
@@ -300,7 +300,7 @@ async def open_agent_for_session(**kwargs):
     workdir = kwargs["workdir"]
     try:
         if kwargs.get("mcp_on"):
-            async with la.oasis_mcp_tools_session(workdir) as mcp_tools:
+            async with la.openpaso_mcp_tools_session(workdir) as mcp_tools:
                 yield build_agent_for_session(
                     **kwargs, _mcp_tools=mcp_tools)
         else:

@@ -8,7 +8,7 @@ prompt document for just those 24 cells (8 tasks × 3 seeds).
 
 BARE invocation: ``claude --mcp-config scripts/bare_mcp_config.json
 --strict-mcp-config`` — verified to ignore the user-scope
-``~/.claude.json`` entries so the OASiS MCP server is NOT attached.
+``~/.claude.json`` entries so the openPASO MCP server is NOT attached.
 
 Workdirs use a ``_v2`` suffix and live alongside the MCP_FULL/NO_PITDB/
 NO_CRITIC cells:
@@ -60,7 +60,7 @@ and `--strict-mcp-config`, which guarantees that **no MCP server is
 attached** — not even the globally-registered `open-fem-agent` entry
 in `~/.claude.json`. The agent therefore has only Claude Code's native
 tools (Bash, Read, Write, WebSearch, Agent) and must solve each Tier-E
-task from first principles, with no OASiS catalog, no pitfall DB, no
+task from first principles, with no openPASO catalog, no pitfall DB, no
 example finder, no coupling helper, no critic prompt.
 
 If `scripts/bare_mcp_config.json` does not exist, create it with the

@@ -1,4 +1,4 @@
-"""scikit-fem participant for the OASiS `couple` driver.
+"""scikit-fem participant for the openPASO `couple` driver.
 
 Steady heat conduction  -div(k grad T) = f  on one rectangular subdomain.
 CONTRACT (do not change): runs in its work_dir with no arguments, reads
@@ -133,7 +133,7 @@ def sample(imp, key, fallback, where):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 mesh = MeshTri.init_tensor(np.linspace(X0, X1, NX + 1),
                            np.linspace(Y0, Y1, NY + 1))
 elem = ElementTriP1()
@@ -163,7 +163,7 @@ def source(v, w):
     through a P1 interpolant of the source, and no constant standing in for a
     field that varies over the element."""
     return F_SRC(w.x[0], w.x[1]) * v
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 @LinearForm
@@ -176,7 +176,7 @@ def unit_load(v, w):
     return 1.0 * v          # w_i = int_Gamma phi_i ds
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 A = stiffness.assemble(basis)          # UNCONSTRAINED: condense() below does
 b = source.assemble(basis)             # not modify A or b in place
 # THE VOLUME LOAD ALONE, kept for the flux recovery at the bottom. The Neumann
@@ -190,7 +190,7 @@ fbasis = FacetBasis(mesh, elem,
 sol = basis.zeros()
 sol[outer_dofs] = T_OUTER
 D = outer_dofs
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 if SIDE == "dirichlet":
     T_if = sample(imp, "values", T_INIT, y_if)
@@ -205,9 +205,9 @@ else:
     # `b_vol` above still holds the VOLUME load alone — the flux recovery
     # below subtracts that, not this, and the distinction is the whole point.
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 sol = solve(*condense(A, b, x=sol, D=D))
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # Outward normal flux density q = -(k grad T).n on the interface.
 #

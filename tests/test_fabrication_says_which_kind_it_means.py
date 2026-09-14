@@ -5,7 +5,7 @@ is bit-identical across three or more mesh levels while the NDOF sequence shows
 the mesh changed, and it lands the outcome FABRICATED_NO_RUN. Measured over the
 50 runs in this tree that meet that condition:
 
-    OASiS arm  17 total:  6 whole-submission,  9 artefact-only,  2 undetermined
+    openPASO arm  17 total:  6 whole-submission,  9 artefact-only,  2 undetermined
     bare arm   33 total: 17 whole-submission, 10 artefact-only,  6 undetermined
 
 So for 19 of 50 the word NO_RUN is wrong: the per-level fields are nonzero and
@@ -15,13 +15,13 @@ solver ran and refined. What was invented is the coupling history alone.
 The pair that forced this is C2_27b_MCP_seed502 and C2_27b_BARE_seed502, from
 the same round and the same cell. Both wrote fifty rows of exactly 1.0 at all
 three levels; both were graded FABRICATED_NO_RUN. The bare one's fields are
-identically zero everywhere. The OASiS one's side A peaks at 1.265e-01,
+identically zero everywhere. The openPASO one's side A peaks at 1.265e-01,
 1.320e-01, 1.323e-01 and its side B at 2.280e-03, 2.334e-03, 2.342e-03 --
 three settling values per side, within a few percent of an independently
 computed reference that grades CORRECT.
 
 NOTHING IS SOFTENED. Both stay FABRICATED_NO_RUN, both stay in every
-denominator. The paper's claim is "fabrication near zero in the OASiS arm",
+denominator. The paper's claim is "fabrication near zero in the openPASO arm",
 and a claim like that has to survive a reader asking which kind, so the two
 are made countable rather than argued about later -- the same treatment the
 per-code attribution hole got.
@@ -46,7 +46,7 @@ def _state(work: Path):
     return per_level_field_state(work)
 
 
-@pytest.mark.skipif(not REAL.is_dir(), reason="seed502 OASiS tree absent")
+@pytest.mark.skipif(not REAL.is_dir(), reason="seed502 openPASO tree absent")
 def test_a_run_whose_fields_refine_is_not_called_a_non_run():
     st = _state(REAL)
     assert st["verdict"] == "REAL_AND_REFINED", st

@@ -38,9 +38,9 @@ CELLS = ["FE1", "FE2", "DL1", "DL2", "NG1", "NG2", "SK1", "SK2",
 
 
 def keys_dir() -> Path:
-    d = os.environ.get("OASIS_BLIND_KEYS")
+    d = os.environ.get("OPENPASO_BLIND_KEYS")
     if not d:
-        sys.exit("OASIS_BLIND_KEYS is unset: refusing to guess where the "
+        sys.exit("OPENPASO_BLIND_KEYS is unset: refusing to guess where the "
                  "answer keys live")
     return Path(d)
 

@@ -1758,7 +1758,7 @@ def main():
                          "problems — use a fresh root for a new draw so a "
                          "spent instance is never overwritten")
     ap.add_argument("--keys-root", default=None,
-                    help="write answer keys here instead of $OASIS_BLIND_KEYS")
+                    help="write answer keys here instead of $OPENPASO_BLIND_KEYS")
     ap.add_argument("--overwrite-spent", action="store_true",
                     help="permit replacing instances that already exist; "
                          "refused by default because a drawn instance, its "
@@ -1771,7 +1771,7 @@ def main():
 
     if a.sparta:
         keys = Path(os.environ.get(
-            "OASIS_BLIND_KEYS",
+            "OPENPASO_BLIND_KEYS",
             "/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys"))
         emit_sparta(HERE / "problems", keys)
         return 0
@@ -1806,7 +1806,7 @@ def main():
 
     problems = Path(a.problems_root) if a.problems_root else HERE / "problems"
     keys = Path(a.keys_root) if a.keys_root else Path(os.environ.get(
-        "OASIS_BLIND_KEYS",
+        "OPENPASO_BLIND_KEYS",
         "/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys"))
 
     # A REBUILD MUST NOT DESTROY A SPENT INSTANCE OR ITS ANSWER KEY. Same

@@ -1,4 +1,4 @@
-"""FEBio 4 VECTOR participant for the OASiS `couple` driver.
+"""FEBio 4 VECTOR participant for the openPASO `couple` driver.
 
 Plane-strain linear elasticity  -div(sigma(u)) = b  on ONE rectangular
 subdomain of a domain split by a straight interface at x = IFACE_X (or
@@ -407,12 +407,12 @@ LOG_R = "cpl_r.csv"        # Rx, Ry at the interface nodes (Dirichlet side only)
 LOG_E = "cpl_e.csv"        # sx, sxy per element (Neumann side only)
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def _n(v):
     """Full-precision XML number. NEVER use repr()/!r: numpy 2 scalars
     stringify as 'np.float64(0.0)' and FEBio rejects the deck."""
     return format(float(v), ".17g")
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 # ---------------------------------------------------------------- imports
@@ -453,7 +453,7 @@ def sample(imp, key, fallback, y):
                             for c in range(vs.shape[1])])
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def u_dirichlet(x, y):
     """The prescribed displacement on the non-interface boundary."""
     x, y = np.asarray(x, float), np.asarray(y, float)
@@ -793,7 +793,7 @@ def parse_log(path, ncol):
         except ValueError:
             continue
     return out
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 # -------------------------------------------------------------------- run
@@ -824,7 +824,7 @@ f_bd = mesh.body_load()
 if not np.any(f_bd):
     f_bd = None
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 write_deck(mesh, u_if, f_if, f_bd)
 for f in (LOG_U, LOG_R, LOG_E):
     Path(f).unlink(missing_ok=True)
@@ -840,20 +840,20 @@ ulog = parse_log(LOG_U, 2)
 if not ulog:
     sys.stderr.write(f"empty FEBio node logfile {LOG_U}\n")
     sys.exit(2)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 U = np.array([[0.5 * (ulog[nb][c] + ulog[nt][c]) for c in (0, 1)]
               for (nb, nt) in mesh.iface_pair], float)
 
 if SIDE == "dirichlet":
     # THE CONSISTENT (REACTION) TRACTION — see the header. Rx/Ry are m_Fr at
     # PRESCRIBED dofs, which is exactly r = A u_h - b there.
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     rlog = parse_log(LOG_R, 2)
     if not rlog:
         sys.stderr.write(f"empty FEBio reaction logfile {LOG_R}: this build "
                          f"did not produce the Rx/Ry node log data\n")
         sys.exit(2)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
     w = mesh.iface_weights()
     R = np.array([[rlog[nb][c] + rlog[nt][c] for c in (0, 1)]
                   for (nb, nt) in mesh.iface_pair], float)
@@ -940,7 +940,7 @@ else:
     # FEniCSx sibling retired. So it is a gross-error detector and nothing
     # finer: expect a discrepancy of tens of percent on a correct run, and read
     # a discrepancy of ORDER ONE as a real fault.
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     elog = parse_log(LOG_E, 2)
     if not elog:
         sys.stderr.write(f"empty FEBio element logfile {LOG_E}\n")
@@ -954,7 +954,7 @@ else:
         cnt[jj] += 1.0
         cnt[jj + 1] += 1.0
     Q_stress /= cnt[:, None]
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
     if len(good):
         d = float(np.max(np.abs(Q[good] - Q_stress[good])))
         sc = max(1e-30, float(np.max(np.abs(Q[good]))))

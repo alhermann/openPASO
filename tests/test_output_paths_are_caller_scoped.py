@@ -4,8 +4,8 @@ Every output directory used to be computed from the package's own location,
 so one shared directory served every caller. An evaluation cell that followed
 the documented workflow wrote its results outside its own sandbox, and the
 grader — which reads the sandbox — recorded it as having produced nothing.
-Because these are the OASiS tools, the cost fell entirely on the arm under
-test: 8 of 14 coupled OASiS runs in one round went through that path.
+Because these are the openPASO tools, the cost fell entirely on the arm under
+test: 8 of 14 coupled openPASO runs in one round went through that path.
 
 The first repair fixed tools/consolidated.py and missed tools/coupling.py,
 tools/simulation.py, tools/mesh_generation.py and tools/benchmark.py, which
@@ -25,12 +25,12 @@ SRC = Path(__file__).resolve().parents[1] / "src"
 
 # module -> (attribute holding the directory, env var that must control it)
 CASES = [
-    ("tools.consolidated", "_OUTPUT_DIR", "OASIS_OUTPUT_DIR"),
-    ("tools.consolidated", "_COUPLING_DIR", "OASIS_COUPLING_DIR"),
-    ("tools.coupling", "_COUPLING_DIR", "OASIS_COUPLING_DIR"),
-    ("tools.simulation", "_OUTPUT_DIR", "OASIS_OUTPUT_DIR"),
-    ("tools.mesh_generation", "_MESH_OUTPUT_DIR", "OASIS_MESH_DIR"),
-    ("tools.benchmark", "_BENCHMARK_DIR", "OASIS_BENCHMARK_DIR"),
+    ("tools.consolidated", "_OUTPUT_DIR", "OPENPASO_OUTPUT_DIR"),
+    ("tools.consolidated", "_COUPLING_DIR", "OPENPASO_COUPLING_DIR"),
+    ("tools.coupling", "_COUPLING_DIR", "OPENPASO_COUPLING_DIR"),
+    ("tools.simulation", "_OUTPUT_DIR", "OPENPASO_OUTPUT_DIR"),
+    ("tools.mesh_generation", "_MESH_OUTPUT_DIR", "OPENPASO_MESH_DIR"),
+    ("tools.benchmark", "_BENCHMARK_DIR", "OPENPASO_BENCHMARK_DIR"),
 ]
 
 

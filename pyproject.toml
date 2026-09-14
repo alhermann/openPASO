@@ -1,13 +1,14 @@
 [project]
-name = "oasis-mcp"
+name = "openpaso"
 version = "1.1.0"
-description = "OASiS — an open-source multi-physics and multi-code framework for verified computer simulations. MCP server connecting LLMs to 8 FEM codes for AI-driven simulation, coupling, and solver development."
+description = "openPASO — open Platform for Agentic Simulation and Optimization. An MCP server that lets an AI model operate nine finite-element and multiphysics codes: simulation, cross-code coupling, verification and solver development."
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
-    {name = "OASiS Contributors"},
+    {name = "openPASO Contributors"},
 ]
-keywords = ["fem", "mcp", "simulation", "multiphysics", "coupling", "ai-agent"]
+keywords = ["fem", "mcp", "simulation", "multiphysics", "coupling",
+            "ai-agent", "verification", "finite-element"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Topic :: Scientific/Engineering",

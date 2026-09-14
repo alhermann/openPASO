@@ -132,8 +132,8 @@ def _vault_state() -> str:
     try:
         from blind_eval import keyvault as kv
         import os
-        d = os.environ.get("OASIS_BLIND_KEYS")
-        return kv.seal_state(Path(d)) if d else "OASIS_BLIND_KEYS unset"
+        d = os.environ.get("OPENPASO_BLIND_KEYS")
+        return kv.seal_state(Path(d)) if d else "OPENPASO_BLIND_KEYS unset"
     except Exception as e:                                    # noqa: BLE001
         return f"unavailable: {type(e).__name__}"
 

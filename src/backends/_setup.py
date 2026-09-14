@@ -1,9 +1,9 @@
 """Install, setup and build-configuration knowledge.
 
 WHY THIS MODULE EXISTS
-    Everything else in OASiS's pitfall database describes what happens once a
+    Everything else in openPASO's pitfall database describes what happens once a
     backend runs. This file describes the part before that: getting the backend
-    installed, letting OASiS find it, and knowing which of our claims survive on
+    installed, letting openPASO find it, and knowing which of our claims survive on
     a machine whose build options differ from the one they were checked on.
 
     Two failure classes live here and nowhere else.
@@ -25,7 +25,7 @@ HOW ENTRIES ARE WRITTEN
     tag naming the sub-kind, as in `src/backends/_cross.py`:
 
         [Integration][Install]      obtaining a working install
-        [Integration][Discovery]    how OASiS locates it; env vars
+        [Integration][Discovery]    how openPASO locates it; env vars
         [Integration][FirstRun]     what breaks on the first real run
         [Integration][BuildConfig]  claims conditional on build options
         [Integration][Portability]  version ranges; clean-environment evidence
@@ -230,7 +230,7 @@ _DEALII = {
         "`-- Using the deal.II-9.1.1 installation found at /usr` and the "
         "warning `Manually-specified variables were not used by the project: "
         "DEAL_II_DIR`. Exported as an ENVIRONMENT variable — which is the form "
-        "this file tells you to use and the form OASiS's own discovery reads — "
+        "this file tells you to use and the form openPASO's own discovery reads — "
         "there is NO warning whatsoever: the fallback to the old /usr install "
         "is completely silent. So do not wait for that warning as the tell; it "
         "does not appear in the common case. Read the version line instead. "
@@ -244,9 +244,9 @@ _DEALII = {
         "makes CMake fail loudly instead.",
 
         "[Integration][Discovery] DEAL_II_DIR and DEALII_ROOT are OPTIONAL "
-        "overrides, not requirements — with neither set, OASiS searches conda "
+        "overrides, not requirements — with neither set, openPASO searches conda "
         "envs, then ~/dealii and similar source dirs, then system paths. If "
-        "you DO set one it is AUTHORITATIVE: OASiS verifies the path carries "
+        "you DO set one it is AUTHORITATIVE: openPASO verifies the path carries "
         "deal.II’s own version evidence (include/deal.II/base/config.h, or "
         "deal.IIConfigVersion.cmake under lib/cmake/deal.II, "
         "share/deal.II/cmake or cmake/config — also looked for under the "
@@ -439,7 +439,7 @@ _FENICS = {
         "strings do not contain the word, so the spec matches nothing. Both "
         "lines above were checked with `conda create --dry-run` before being "
         "written here.\n"
-        "Do not install dolfinx into the environment OASiS itself runs in; it "
+        "Do not install dolfinx into the environment openPASO itself runs in; it "
         "pulls its own MPI and PETSc and will fight whatever is already there."
     ),
     "pitfalls": [
@@ -456,14 +456,14 @@ _FENICS = {
         "CONFIG_PROBES['dolfinx_scalar'] rather than assuming. Use "
         "install_route.",
 
-        "[Integration][Discovery] FENICS_PYTHON is OPTIONAL. Unset, OASiS "
+        "[Integration][Discovery] FENICS_PYTHON is OPTIONAL. Unset, openPASO "
         "searches conda envs whose NAME contains `fenics` or `dolfinx` "
         "(case-insensitive) and uses the first whose `import dolfinx` "
         "succeeds. Two behaviours follow, and they differ. Set it to a Python "
-        "that lacks dolfinx and OASiS is honest — Signal: "
+        "that lacks dolfinx and openPASO is honest — Signal: "
         "`dolfinx import failed at <path>:` followed by the real ImportError "
         "traceback, and the backend reports `not_installed`. Set it to a path "
-        "that does not exist and OASiS silently ignores it and falls back to "
+        "that does not exist and openPASO silently ignores it and falls back to "
         "the discovered conda env — Signal: the backend reports `available` "
         "naming an interpreter you did not choose. A typo in FENICS_PYTHON is "
         "therefore invisible. Defense: confirm the reported interpreter path "
@@ -472,7 +472,7 @@ _FENICS = {
         "[Integration][BuildConfig] REAL vs COMPLEX is a property of the "
         "INSTALL, not of the script, and a name-based env search cannot tell "
         "them apart. Both builds are `dolfinx 0.10.0` and both satisfy `import "
-        "dolfinx`; if the complex env sorts first, OASiS will pick it for a "
+        "dolfinx`; if the complex env sorts first, openPASO will pick it for a "
         "real-valued problem. Signal, running a real-valued template on a "
         "complex build: assembly succeeds and the solution array has dtype "
         "complex128, so every downstream comparison against a float reference "
@@ -482,7 +482,7 @@ _FENICS = {
         "on this host by querying both environments: "
         "`np.dtype(dolfinx.default_scalar_type).name` is `float64` in one and "
         "`complex128` in the other. Defense: run "
-        "CONFIG_PROBES['dolfinx_scalar'] against the interpreter OASiS "
+        "CONFIG_PROBES['dolfinx_scalar'] against the interpreter openPASO "
         "reports, and choose the environment to match the physics.",
 
         "[Integration][FirstRun] dolfinx compiles every form at first use and "
@@ -536,7 +536,7 @@ _FENICS = {
         "pulled it in. adios2 is absent, and `from dolfinx.io import "
         "VTXWriter` still imports successfully, so an import check does NOT "
         "prove VTX output will work. Defense: probe the specific module you "
-        "need in the specific interpreter OASiS reports, rather than assuming "
+        "need in the specific interpreter openPASO reports, rather than assuming "
         "either presence or absence: "
         "`<fenics-python> -c 'import slepc4py, adios2'`.",
     ],
@@ -570,7 +570,7 @@ _FOURC = {
 
         "[Integration][Discovery] FOURC_BINARY is accepted WITHOUT being "
         "checked — any existing file is taken as 4C. Point it at the wrong "
-        "executable and OASiS reports `available` naming that file, then hands "
+        "executable and openPASO reports `available` naming that file, then hands "
         "it your input deck. Signal: with FOURC_BINARY=/bin/true, "
         "`check_availability()` returns `available` / `4C at /bin/true` and "
         "`setup_backend(action='plan', solver='fourc')` prints it back as "
@@ -587,13 +587,13 @@ _FOURC = {
         "information.`; the version is printed in the banner of an actual run.",
 
         "[Integration][Discovery] Neither FOURC_ROOT nor FOURC_BINARY is "
-        "required. With both unset OASiS falls back to a list of conventional "
+        "required. With both unset openPASO falls back to a list of conventional "
         "locations and will find a build under a home-directory 4C checkout. "
         "That means a WRONG FOURC_ROOT is not an error either — it is ignored "
         "in favour of the fallback. Signal: with FOURC_ROOT pointed at an "
         "unrelated directory the backend still reports "
         "`4C at <conventional-path>`, i.e. the variable you set had no effect "
-        "and the message does not say so. Defense: read the path OASiS reports "
+        "and the message does not say so. Defense: read the path openPASO reports "
         "back rather than assuming your variable chose it. FOURC_ROOT has a "
         "second, separate job — it is where reference input decks are looked "
         "up, under <FOURC_ROOT>/tests/input_files — so setting it wrong costs "
@@ -603,7 +603,7 @@ _FOURC = {
         "server has started does nothing: with the variable unset at import, "
         "`backends.fourc.backend.FOURC_ROOT` is None and stays None even after "
         "`os.environ['FOURC_ROOT']` is assigned. Set it before launching "
-        "OASiS, not afterwards. (2) Nothing in OASiS sets it for you — unlike "
+        "openPASO, not afterwards. (2) Nothing in openPASO sets it for you — unlike "
         "FOURC_BINARY, which the registry fills in from a conventional "
         "location — so with it unset the tutorial surface raises "
         "`ValueError: FOURC_ROOT not set` rather than degrading.",
@@ -612,7 +612,7 @@ _FOURC = {
         "and the served text names it by ABSOLUTE PATH on the machine that "
         "served it. The tutorial decks under <FOURC_ROOT>/tests/tutorials — "
         "FSI, contact, fluid — reference an Exodus mesh with `FILE: <name>.e`, "
-        "which 4C cannot resolve on its own. OASiS therefore prepends a header "
+        "which 4C cannot resolve on its own. openPASO therefore prepends a header "
         "`# MESH_FILE: <FOURC_ROOT>/tests/<relative-path>.e` and copies that "
         "file into the working directory at run time; its validator REJECTS a "
         "deck carrying a bare `FILE: *.e` with no such header, so the header "
@@ -748,7 +748,7 @@ _KRATOS = {
         "CONFIG_PROBES['kratos_glibc'] on the installed package.",
 
         "[Integration][Discovery] Kratos is IMPORTED from whichever Python is "
-        "running OASiS, and there is no interpreter override — so 'installed' "
+        "running openPASO, and there is no interpreter override — so 'installed' "
         "means 'installed in THAT interpreter'. A perfectly good Kratos in "
         "another environment on the same machine is invisible. Signal: "
         "`discover(query='list')` reports kratos `not_installed` with a "
@@ -762,8 +762,8 @@ _KRATOS = {
         "availability still report `not_installed` while the run environment "
         "picked the path up. So the two surfaces can disagree, and the one you "
         "see first is the pessimistic one. Defense: install Kratos into the "
-        "environment OASiS itself runs in, and confirm with that same "
-        "interpreter: `<oasis-python> -c 'import KratosMultiphysics'`.",
+        "environment openPASO itself runs in, and confirm with that same "
+        "interpreter: `<openpaso-python> -c 'import KratosMultiphysics'`.",
 
         "[Integration][Install] Not every Kratos application has a wheel FOR "
         "LINUX, and the reason matters because it changes what the error "
@@ -810,7 +810,7 @@ _DUNE = {
         "`conda search -c conda-forge --override-channels dune-fem`; an "
         "install attempt ends in PackagesNotFoundError. PyPI is the working "
         "source — `python -m pip install dune-fem` installs 2.12.0.2 and its "
-        "siblings. If some OASiS text still recommends the conda-forge "
+        "siblings. If some openPASO text still recommends the conda-forge "
         "channel as the supported path and warns against PyPI, that text is "
         "backwards; follow this entry.",
 
@@ -898,7 +898,7 @@ _FEBIO = {
         "Two routes, both fine; source is the one that needs no account.\n"
         "  (a) Official binary from https://febio.org/downloads/ — requires a "
         "free registered account, so there is no direct download URL and the "
-        "step is interactive. Unpack, then point OASiS at it (below).\n"
+        "step is interactive. Unpack, then point openPASO at it (below).\n"
         "  (b) Source build — no account, and you control the options:\n"
         "        git clone https://github.com/febiosoftware/FEBio.git\n"
         "        cmake -S FEBio -B FEBio/cbuild -DUSE_MKL=OFF \\\n"
@@ -934,7 +934,7 @@ _FEBIO = {
 
         "[Integration][Discovery] FEBIO_BINARY is OPTIONAL but is the only "
         "reliable way to choose a build, and it is accepted without "
-        "validation. Set it to any existing file and OASiS reports "
+        "validation. Set it to any existing file and openPASO reports "
         "`available` naming that file, with no check that it is FEBio at all. "
         "Signal of the unvalidated case: with FEBIO_BINARY=/bin/true, "
         "`check_availability()` returns `available` / `FEBio at /bin/true`, "
@@ -1050,7 +1050,7 @@ _SPARTA = {
         "guess at conventional locations.",
 
         "[Integration][Discovery] SPARTA_BINARY is OPTIONAL and unvalidated. "
-        "Unset, OASiS looks for `spa_serial`, `spa_mpi` or `sparta` on PATH "
+        "Unset, openPASO looks for `spa_serial`, `spa_mpi` or `sparta` on PATH "
         "and then in conventional build locations. Set to any existing file, "
         "it is taken at face value — and WORSE THAN AT FACE VALUE, because "
         "this check LOOKS like it validates and does not: it really does run "
@@ -1124,20 +1124,20 @@ _NGSOLVE = {
         "pip wheels; no compiler needed.\n"
         "    python -m pip install ngsolve\n"
         "This pulls netgen-mesher, netgen-occt and an OpenBLAS build. Install "
-        "it into the SAME interpreter that runs OASiS — see the discovery "
+        "it into the SAME interpreter that runs openPASO — see the discovery "
         "pitfall."
     ),
     "pitfalls": [
         "[Integration][Discovery] NGSolve has NO environment-variable "
-        "override. The backend uses the interpreter running OASiS and nothing "
+        "override. The backend uses the interpreter running openPASO and nothing "
         "else, so 'is NGSolve installed' is really 'is NGSolve installed in "
         "THIS interpreter'. An NGSolve in some other environment on the same "
         "machine is invisible. Signal when it is missing from the running "
         "interpreter: the backend reports `not_installed` with `ngsolve import "
         "failed:` and the ModuleNotFoundError; when present it reports "
         "`NGSolve <version> at <interpreter>` — read that interpreter path, it "
-        "is the whole answer. Defense: `<oasis-python> -m pip install ngsolve`, "
-        "using the interpreter OASiS names, not whichever `pip` is on PATH.",
+        "is the whole answer. Defense: `<openpaso-python> -m pip install ngsolve`, "
+        "using the interpreter openPASO names, not whichever `pip` is on PATH.",
 
         "[Integration][Portability] The pinned and newest releases behave the "
         "same on the checked surface, and the surface is not small. A clean "
@@ -1174,17 +1174,17 @@ _SKFEM = {
         "pip; pure Python, nothing to compile.\n"
         "    python -m pip install scikit-fem meshio\n"
         "meshio is separate and is what writes VTU output. Install into the "
-        "interpreter that runs OASiS."
+        "interpreter that runs openPASO."
     ),
     "pitfalls": [
         "[Integration][Discovery] scikit-fem has NO environment-variable "
         "override — like NGSolve it is imported from the interpreter running "
-        "OASiS. Signal when present: the backend reports `scikit-fem "
+        "openPASO. Signal when present: the backend reports `scikit-fem "
         "<version>` with no path, so if you need to know WHICH interpreter "
         "that was, read the path NGSolve or the server reports rather than "
         "guessing. Signal when absent: `skfem import failed:` and the "
-        "ModuleNotFoundError. Defense: install with the OASiS interpreter "
-        "explicitly — `<oasis-python> -m pip install scikit-fem meshio`.",
+        "ModuleNotFoundError. Defense: install with the openPASO interpreter "
+        "explicitly — `<openpaso-python> -m pip install scikit-fem meshio`.",
 
         "[Integration][Portability] Checked across two versions and a clean "
         "environment. A fresh virtual environment was built at the pinned "
@@ -1211,7 +1211,7 @@ _SKFEM = {
 # backend under test, and re-run that backend's full tier-2 fixture set. A
 # fixture that passes on the development machine and fails on a clean one has
 # found either a portability defect or an undeclared dependency. Both are
-# things a stranger cloning OASiS hits and we do not.
+# things a stranger cloning openPASO hits and we do not.
 
 PORTABILITY_EVIDENCE: dict[str, dict] = {
     "clean_env_pinned": {
@@ -1309,7 +1309,7 @@ PORTABILITY_EVIDENCE: dict[str, dict] = {
 # `available`, because an agent calls `discover`, believes it, and then spends
 # the whole session debugging physics for a backend that was never there. So
 # the strength of each backend's own availability check is recorded here as a
-# fact about OASiS, not as advice.
+# fact about openPASO, not as advice.
 #
 # Measured by driving `check_availability()` on every backend with the
 # documented override pointed at `/bin/true` and `/bin/echo`, and — for
@@ -1401,7 +1401,7 @@ SETUP_KNOWLEDGE: dict[str, dict] = {
     "skfem": _SKFEM,
 }
 
-# Aliases the rest of OASiS uses for the same backend.
+# Aliases the rest of openPASO uses for the same backend.
 _ALIASES = {
     "deal.ii": "dealii", "deal_ii": "dealii", "deal": "dealii",
     "fenicsx": "fenics", "dolfinx": "fenics",

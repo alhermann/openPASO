@@ -130,7 +130,7 @@ class TestAConvergedRunIsNeverToldBothThings(unittest.TestCase):
     own files contradict, and graded COMPLETED_UNPHYSICAL.
     """
 
-    REAL = ("the coupling CONVERGED, and then failed one of OASiS's "
+    REAL = ("the coupling CONVERGED, and then failed one of openPASO's "
             "silent-wrong checks (see `validation`). This is a converged "
             "result with a caveat, NOT a failed run: report the numbers and "
             "the caveat.")

@@ -126,7 +126,7 @@ else:
                   "    ONOFF: [1]\n    VAL: [1.0]\n    FUNCT: [2]\n")
 
 deck = f"""TITLE:
-  - "OASiS balanced-set path walk (4C scalar transport)"
+  - "openPASO balanced-set path walk (4C scalar transport)"
 PROBLEM SIZE:
   DIM: 2
 PROBLEM TYPE:

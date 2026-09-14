@@ -15,13 +15,13 @@
 # count in each ledger; participant files present in the work dir.
 set -u
 cd /home/alexander/Schreibtisch/ofa-v2
-export OASIS_BLIND_KEYS=/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
-export OASIS_REPO=/home/alexander/Schreibtisch/ofa-v2
+export OPENPASO_BLIND_KEYS=/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
+export OPENPASO_REPO=/home/alexander/Schreibtisch/ofa-v2
 LOG=campaign3_blind/probe2.log
 PY=/home/alexander/Schreibtisch/open-fem-agent/.venv-lg/bin/python
 
-if [ "$(stat -c %A "$OASIS_BLIND_KEYS")" != "d---------" ]; then
-  echo "REFUSING: answer keys are not sealed ($(stat -c %A "$OASIS_BLIND_KEYS"))" >> "$LOG"; exit 1
+if [ "$(stat -c %A "$OPENPASO_BLIND_KEYS")" != "d---------" ]; then
+  echo "REFUSING: answer keys are not sealed ($(stat -c %A "$OPENPASO_BLIND_KEYS"))" >> "$LOG"; exit 1
 fi
 
 SEED=13

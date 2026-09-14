@@ -31,8 +31,8 @@ from pathlib import Path
 _PARTICIPANT_DIR = Path(__file__).resolve().parents[2] / "data" / "coupling_participants"
 
 
-_SOLVE_BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"
-_SOLVE_END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+_SOLVE_BEGIN = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin"
+_SOLVE_END = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end"
 
 _SOLVE_ELIDED = """\
 # ─────────────────────────────────────────────────────────────────────────
@@ -40,9 +40,9 @@ _SOLVE_ELIDED = """\
 #
 # Build the mesh, the function space, the weak form and the linear solve for
 # the problem you were given, in this backend, however you judge best. That is
-# ordinary finite-element work and OASiS has no business dictating it.
+# ordinary finite-element work and openPASO has no business dictating it.
 #
-# What OASiS does document — because you cannot guess it and it is what the
+# What openPASO does document — because you cannot guess it and it is what the
 # interface check compares against — is everything AROUND the solve: the
 # imports/exports handshake above, the interface sign convention, and the flux
 # recovery below. Those are this tool's own interface, not your method.
@@ -56,7 +56,7 @@ _SOLVE_ELIDED = """\
 
 
 def _script(name: str) -> str:
-    """Return the participant CONTRACT shipped with OASiS: the file with its marked SOLVE regions elided.
+    """Return the participant CONTRACT shipped with openPASO: the file with its marked SOLVE regions elided.
 
     The script is a file rather than a string literal on purpose: the file is
     the artefact that gets executed in the test suite, so the text an agent is
@@ -67,14 +67,14 @@ def _script(name: str) -> str:
     runs that gave up never exchanged data once, and one development run spent
     74 tool calls rebuilding syntax already present in these executed files
     before delivering a false two-step convergence. Generic, parameterised
-    solver templates are an OASiS capability just like the complete single-code
+    solver templates are an openPASO capability just like the complete single-code
     templates returned by prepare_simulation; they contain no task answer or
     measured result. Serving the exact file the tests execute removes drift and
     lets the model spend its budget on the problem-specific edit block.
     """
     p = _PARTICIPANT_DIR / f"participant_{name}.py"
     if not p.is_file():
-        return (f"[OASiS] participant script for '{name}' is missing from the "
+        return (f"[openPASO] participant script for '{name}' is missing from the "
                 f"install (expected data/coupling_participants/{p.name}).")
     return _serve_participant(p)
 
@@ -82,7 +82,7 @@ def _script(name: str) -> str:
 def _serve_participant(p: Path) -> str:
     """THE ONE DOOR every participant is served through, and it FAILS CLOSED.
 
-    Option B says OASiS serves the handshake, the interface sign convention,
+    Option B says openPASO serves the handshake, the interface sign convention,
     the consistent flux recovery and the exports schema, and does NOT serve a
     working finite element solve. That was enforced by a marker convention plus
     a call to `_elide_solve` -- and enforcement disappeared without anyone
@@ -114,7 +114,7 @@ def _serve_participant(p: Path) -> str:
     Absence of elision can no longer mean "serve everything".
     """
     if not p.is_file():
-        return (f"[OASiS] participant script for '{p.stem}' is missing from "
+        return (f"[openPASO] participant script for '{p.stem}' is missing from "
                 f"the install (expected data/coupling_participants/{p.name}).")
     text = p.read_text()
     if _SOLVE_BEGIN not in text:
@@ -125,10 +125,10 @@ def _serve_participant(p: Path) -> str:
         except (SyntaxError, ValueError):
             doc = ""
         return (
-            f"[OASiS WITHHOLDS THE BODY OF {p.name}]\n"
-            f"This participant carries no SOLVE marker, so OASiS cannot tell "
+            f"[openPASO WITHHOLDS THE BODY OF {p.name}]\n"
+            f"This participant carries no SOLVE marker, so openPASO cannot tell "
             f"which region is the solve and will not serve the file. What "
-            f"OASiS documents is its own interface -- the imports/exports "
+            f"openPASO documents is its own interface -- the imports/exports "
             f"handshake, the interface sign convention, the consistent flux "
             f"recovery the interface check compares against, and the "
             f"iteration-1 fallback. "
@@ -145,7 +145,7 @@ def _serve_participant(p: Path) -> str:
     # whose solve was correctly cut can come back longer. That test refused 13
     # of 30 participants outright and served 352 characters where the
     # handshake, the exports schema and the sign convention should have been --
-    # withholding exactly what Option B says OASiS DOES serve.
+    # withholding exactly what Option B says openPASO DOES serve.
     #
     # The proof that elision happened is the elision marker in the output, and
     # that the marked source region is gone from it.
@@ -159,9 +159,9 @@ def _serve_participant(p: Path) -> str:
                 _cut_ok = False        # marker echoed but the region survived
     if not _cut_ok:
         return (
-            f"[OASiS WITHHOLDS THE BODY OF {p.name}]\n"
+            f"[openPASO WITHHOLDS THE BODY OF {p.name}]\n"
             f"The SOLVE marker is present but elision removed nothing, which "
-            f"is a wiring bug in OASiS, not a licence to hand over a working "
+            f"is a wiring bug in openPASO, not a licence to hand over a working "
             f"solve. Refusing rather than serving it. Report this: the file "
             f"has the marker at least once and the elision left the marked "
             f"region in place ({len(served)} characters served for a "
@@ -198,7 +198,7 @@ def lean_view(served: str, keep: int = 2) -> str:
     in_hole = in_contract = False
     for line in served.splitlines():
         st = line.strip()
-        if "OASiS DOES NOT SERVE THIS" in st:
+        if "openPASO DOES NOT SERVE THIS" in st:
             flush(); out.append(line); in_hole = not in_hole
             continue
         if st.startswith("#") and "LEAVE BEHIND" in st:
@@ -207,7 +207,7 @@ def lean_view(served: str, keep: int = 2) -> str:
         if in_hole or in_contract:
             flush(); out.append(line)
             continue
-        if st.startswith("#") and "SOLVE" not in st and "OASiS" not in st \
+        if st.startswith("#") and "SOLVE" not in st and "openPASO" not in st \
                 and "EDIT THIS BLOCK" not in st and "SELF-CHECK" not in st \
                 and "MUST" not in st:
             run.append(line)
@@ -258,7 +258,7 @@ def _reconstruction_contract(served: str, original: str) -> list:
     agent which ones, or how many. Measured on the served skfem participant, 22
     names are used and never defined, and the payload does not name one of them
     as the reader's responsibility. The measured consequence: 73% of the
-    coupled OASiS runs that gave up never got both sides to exchange data once,
+    coupled openPASO runs that gave up never got both sides to exchange data once,
     dying in a write-run-error-rewrite loop on the participant script.
 
     Derived from the same markers that do the elision, so it cannot go stale.
@@ -311,7 +311,7 @@ def _append_reconstruction_contract(served: str, original: str) -> str:
         "#\n"
         "# That is the whole contract. Read the surviving lines to see the\n"
         "# shape each one has to have -- they are already indexed, assembled\n"
-        "# or written out there. OASiS does not serve the solve itself, but\n"
+        "# or written out there. openPASO does not serve the solve itself, but\n"
         "# it will not make you guess which variables the hole was filling.\n")
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -482,7 +482,7 @@ Dirichlet-Neumann coupling, but know that it happens.
     non-zero floor is.
 
 Returns JSON with `converged`, `iterations`, `residual`, `history`, per-
-participant `exports`, a `validation` block, and OASiS's `verification` /
+participant `exports`, a `validation` block, and openPASO's `verification` /
 `trustworthy_result` verdict — plus `noise_floor`, `tol_effective`,
 `stopped_at_noise_floor` and `noise_notes` whenever a floor was in play. Two
 things about it:
@@ -492,7 +492,7 @@ things about it:
     one more reason not to report a non-converged run as a result;
   * `trustworthy_result` is false until an independent critic review for THIS
     exact set of arguments is on record. `critic_approved=True` on its own does
-    nothing — OASiS looks the review up rather than believing the flag. Call
+    nothing — openPASO looks the review up rather than believing the flag. Call
     `submit_critic_review(solver="couple", coupling_args=<the same arguments as
     a JSON object>, findings=<what the critic concluded>)` first.
 
@@ -859,7 +859,7 @@ what `couple_precice` with a `serial-implicit` scheme provides — see
 _SIGNS = '''\
 ## 5. Interface flux: TWO different quantities, two different signs
 
-Confusing these is the mistake that produces a converged coupling which OASiS
+Confusing these is the mistake that produces a converged coupling which openPASO
 then stamps NOT VERIFIED, with nothing in the output explaining why.
 
 **(1) The BC VALUE you APPLY in the receiving code — the SAME number.**
@@ -900,7 +900,7 @@ outward normal. Those normals are anti-parallel, so on a conservative interface
 
     integral(normal_fluxes_A) + integral(normal_fluxes_B)  ~  0
 
-That is what OASiS's conservation check tests. Export both sides with the same
+That is what openPASO's conservation check tests. Export both sides with the same
 sign and a CORRECT coupling fails it: you get `Interface flux NOT balanced` and
 a NOT VERIFIED verdict on a coupling that converged perfectly well.
 
@@ -1036,14 +1036,14 @@ Every "yes" above means a real two-code coupling was run in that role on THIS
 install and CONVERGED; it is not copied from a tool docstring. Two rows carry
 conditions you must know before planning around them:
 
-  * KRATOS runs in ITS OWN INTERPRETER, not the one OASiS itself runs in. The
+  * KRATOS runs in ITS OWN INTERPRETER, not the one openPASO itself runs in. The
     coupling to 4C was driven with the Kratos participant under a separate
     Python — which is exactly what the `command` field is for, so this is a
     configuration fact and not a limitation. A core-only Kratos has no thermal
     element, so `import KratosMultiphysics.ConvectionDiffusionApplication` in
     THAT interpreter is the thing to test first: if it fails, the conduction
     participant cannot run there whatever the table says. Note also that
-    `discover(query='list')` probes Kratos in OASiS's own interpreter, so it can
+    `discover(query='list')` probes Kratos in openPASO's own interpreter, so it can
     report Kratos unavailable on a machine where the coupling works.
   * SPARTA is a Monte-Carlo code, so its residual has a floor and a `tol` under
     that floor can never be met. That used to make every SPARTA coupling report
@@ -1320,7 +1320,7 @@ Pass the task's absolute output path in the call:
   couple(...,
        history_path="<absolute path of the per-level residual-history file your task names>")
 
-OASiS writes `iteration,interface_residual` atomically from the values the
+openPASO writes `iteration,interface_residual` atomically from the values the
 driver measured and omits the non-finite first sentinel. The response reports
 `history_file.path`, `rows_written`, `nonfinite_omitted`, and
 `driver_iterations`; inspect those instead of copying an array out of chat
@@ -1329,7 +1329,7 @@ The CSV normally has one fewer row because iteration 1 has no previous iterate
 and no defined residual.
 
 If you omit `history_path`, filter to finite measured entries yourself. A
-leading NaN reads to an independent check as OASiS bookkeeping rather than as
+leading NaN reads to an independent check as openPASO bookkeeping rather than as
 fabrication, and an iteration-count mismatch reads as a discrepancy, not an
 accusation. Neither allowance makes a hand-written history acceptable.
 """
@@ -1415,7 +1415,7 @@ def coupling_sides_table() -> str:
 # ══════════════════════════════════════════════════════════════════════════
 #
 # These rows were a hand-written markdown table and nothing else, which cost
-# them their only route in: every other family of knowledge in OASiS ships its
+# them their only route in: every other family of knowledge in openPASO ships its
 # symptoms in the `[Category] ... Signal: ...` shape, and `knowledge(signal=...)`
 # is how a post-execution critic gets from a symptom to the entry that explains
 # it. Coupling had no pitfall list at all, so a coupling failure could not be
@@ -2417,7 +2417,7 @@ _LAUNCH_PY = '''\
    A coupling cannot repair a participant that never ran.
 4. {INTERP}
 5. Have a critic review the setup, then put the review on record — the flag
-   alone is NOT enough, OASiS looks the review up rather than believing you:
+   alone is NOT enough, openPASO looks the review up rather than believing you:
 
 ```
 submit_critic_review(solver="couple",
@@ -2580,17 +2580,17 @@ def _interp_wrapper(binary: str, const: str, extra: str = "") -> str:
       f"   `discover(query='list')` prints for this backend. If the wrapper\n"
       f"   invokes that binary with `capture_output=True`, write the child\n"
       f"   stdout and stderr back to `sys.stdout` and `sys.stderr` on EVERY\n"
-      f"   run, including success. OASiS can preserve only bytes the wrapper\n"
+      f"   run, including success. openPASO can preserve only bytes the wrapper\n"
       f"   emits; printing a hand-written success summary is not native solver\n"
       f"   evidence.{extra}")
 
 
 def coupling_core() -> str:
     return (
-        "# Cross-code coupling with OASiS — `couple`\n\n"
+        "# Cross-code coupling with openPASO — `couple`\n\n"
         "## 0. WHICH TOOL, IN ONE PARAGRAPH\n\n"
         "`couple(participants, ...)` is THE tool. It is physics-agnostic: you write "
-        "one self-contained solver script per subdomain, and OASiS runs the "
+        "one self-contained solver script per subdomain, and openPASO runs the "
         "fixed-point iteration, the relaxation, the convergence-or-fail and the "
         "conservation check. `couple_precice(...)` is the alternative when each side "
         "is a real preCICE participant and you want preCICE's mapping and implicit "
@@ -2688,7 +2688,7 @@ def _fourc() -> str:
         "fourc",
         _launch_py(_interp_wrapper(
             "4C", "FOURC_BIN",
-            extra="\n   That Python needs numpy + meshio (OASiS's own has both). Put\n"
+            extra="\n   That Python needs numpy + meshio (openPASO's own has both). Put\n"
                   "   4C's dependency lib directory in `FOURC_LD` if the binary does\n"
                   "   not find its libraries by itself.")),
         '''\
@@ -2762,8 +2762,8 @@ from pathlib import Path
 
 CFG = json.loads(Path("config.json").read_text())
 # A multi-level coupling call hands this level's keys in the environment
-# (OASIS_CONFIG_JSON, a JSON object) instead of writing this file.
-CFG.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))
+# (OPENPASO_CONFIG_JSON, a JSON object) instead of writing this file.
+CFG.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))
 NX, NY = CFG["nx"], CFG["ny"]
 X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV = CFG["k"]; IF = CFG.get("iface", "left")
@@ -2909,12 +2909,12 @@ def _diagnose_at_exit():
         print(why_4c_did_not_finish(), file=sys.stderr, flush=True)
 atexit.register(_diagnose_at_exit)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─────────────────────────────────────
 # THE 4C DECK AND THE SOLVE ITSELF ARE YOURS AND ARE NOT SERVED HERE.
 #
 # Build the mesh, the material, the elements and the full 4C input deck for the
 # problem you were given, and run the 4C binary on it. That is ordinary 4C
-# input-deck work and OASiS has no business writing your deck; before you run it,
+# input-deck work and openPASO has no business writing your deck; before you run it,
 # check_input(solver='fourc', input_path=<deck>) names every defect the grammar can see. Get the deck
 # grammar (also `4C -p`), a runnable Scalar_Transport skeleton and the measured
 # gotchas from:
@@ -2976,9 +2976,9 @@ atexit.register(_diagnose_at_exit)
 # through -- the served check right below reads that log and the deck and stops
 # with the cause spelled out (measured: a wrapper that raised "Solver execution
 # failed, check the log" first hid 4C's own "Could not match this input: IO:
-# VERBOSITY ..." from the agent). OASiS does not run the solver for you and ships
+# VERBOSITY ..." from the agent). openPASO does not run the solver for you and ships
 # no host-specific binary path.
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─────────────────────────────────────
 
 # ── CONSISTENT OUTWARD FLUX + EXPORTS -- the served recovery route ─────────
 # After YOUR deck has run, read 4C's OWN output. Never hand-parse the VTU XML,
@@ -3160,7 +3160,7 @@ print(f"4C Neumann participant: NDOF = {len(nodes)}  "
 #                defect; without them it globs *.4C.yaml and config fourc_bin
 #
 # and YOUR deck must have produced out-vtk-files/*.vtu carrying phi_1 and
-# flux_boundary_phi_1. OASiS does not serve the solve, but it will not make you
+# flux_boundary_phi_1. openPASO does not serve the solve, but it will not make you
 # guess which variables the hole was filling.
 ```
 
@@ -3546,7 +3546,7 @@ def coupling_knowledge(solver: str = "", signal: str = "") -> str:
         known = ", ".join(sorted(set(_ALIAS_CANON.get(k, k)
                                       for k in _BACKENDS)))
         return (f"# No coupling participant pattern for solver='{solver}'\n\n"
-                f"That name is not one OASiS ships a participant script for. "
+                f"That name is not one openPASO ships a participant script for. "
                 f"The ones it does: {known}.\n"
                 f"The general contract below applies to EVERY backend, so you "
                 f"can still write a participant for '{solver}' from it — the "
@@ -3560,11 +3560,11 @@ def coupling_knowledge(solver: str = "", signal: str = "") -> str:
 # ══════════════════════════════════════════════════════════════════════════
 
 _PRECICE_CORE = '''\
-# preCICE coupling with OASiS — `couple_precice`
+# preCICE coupling with openPASO — `couple_precice`
 
 ## 0. WHEN TO USE IT INSTEAD OF `couple`
 
-`couple` is a file handshake: OASiS starts your solver once per iteration and
+`couple` is a file handshake: openPASO starts your solver once per iteration and
 moves JSON between the runs. It needs nothing from the solver but a script.
 
 `couple_precice` is the library path: both codes run CONCURRENTLY, stay alive
@@ -3578,7 +3578,7 @@ libprecice) IN ITS OWN INTERPRETER. That is the gate — a backend whose
 interpreter cannot import precice cannot use this path at all, no matter what
 physics it solves.
 
-## 1. WHAT YOU SUPPLY vs WHAT OASiS GENERATES
+## 1. WHAT YOU SUPPLY vs WHAT openPASO GENERATES
 
 You supply, as JSON strings:
 
@@ -3595,7 +3595,7 @@ You supply, as JSON strings:
                                             | "parallel-explicit" | "parallel-implicit"
     dimensions = 2                 max_time = 10.0        time_window = 1.0
 
-OASiS writes `work_dir/precice-config.xml` for you, containing:
+openPASO writes `work_dir/precice-config.xml` for you, containing:
   * one `<data:scalar|vector>` per entry in `data`;
   * one `<mesh>` per participant, listing every data name it writes or reads;
   * one `<participant>` per participant, with `<provide-mesh>`, a
@@ -3631,7 +3631,7 @@ HARD LIMITS OF THE GENERATED CONFIG, know them before you design the coupling:
     coupling scheme`. A real N-way coupling needs `<coupling-scheme:multi>`,
     which this tool does not generate.
   * FOR `serial-implicit`, `exchanges[0]` MUST BE THE FIELD WRITTEN BY THE
-    SECOND PARTICIPANT. OASiS silently makes `exchanges[0]` both the
+    SECOND PARTICIPANT. openPASO silently makes `exchanges[0]` both the
     convergence measure and the acceleration datum, and preCICE only allows
     second-to-first data there: get the order wrong and both sides abort with
     `only data exchanged from the second to the first participant can be used
@@ -3697,7 +3697,7 @@ checkpoint calls, always.
     background the first one.
   * `libprecice` must be loadable, and `LD_LIBRARY_PATH` is NOT optional:
     without it `import precice` fails with
-    `libprecice.so.3: cannot open shared object file`. OASiS reads
+    `libprecice.so.3: cannot open shared object file`. openPASO reads
     `$PRECICE_LIB_DIR` (it has a built-in default) and prepends it for the
     participant processes it launches; set that variable if the library lives
     elsewhere, and use `extra_env` for anything else a participant needs.
@@ -3710,7 +3710,7 @@ checkpoint calls, always.
     next run hang on connect. Delete it before re-running.
   * A PARTICIPANT THAT NEVER STARTS MAKES THE OTHER BLOCK FOREVER. preCICE has
     no connect timeout. If one `command` is wrong — bad interpreter, missing
-    module — the partner sits in `initialize()` until OASiS's `timeout` fires,
+    module — the partner sits in `initialize()` until openPASO's `timeout` fires,
     and because the orchestrator waits on the participants one after another
     the real wall-clock cost is N x timeout. Run each participant's command by
     hand once (it will block at initialize; that is the correct symptom) before
@@ -3720,7 +3720,7 @@ checkpoint calls, always.
     `nearest-projection` needs `set_mesh_edges` / `set_mesh_triangles` calls in
     the participant, which the pattern below does not make. Stay on
     nearest-neighbor unless you write the config yourself.
-  * preCICE writes its own INFO log to each participant's stdout and OASiS
+  * preCICE writes its own INFO log to each participant's stdout and openPASO
     returns only a short tail, so your solver's own prints are usually NOT in
     the returned `logs`. Write your diagnostics to a file in `work_dir`.
   * `set_mesh_vertices` expects an (N, dimensions) array. Passing 3-column
@@ -3773,7 +3773,7 @@ def precice_knowledge(solver: str = "") -> str:
 # Per-backend preCICE verdicts, and WHICH FIXTURE ESTABLISHES EACH ONE.
 #
 # This comment used to say "Every CAN was established by running a real
-# two-participant coupling through OASiS's own preCICE orchestrator on this
+# two-participant coupling through openPASO's own preCICE orchestrator on this
 # install" while only TWO of the seven CANs had one. The other five were
 # written from an import check or from nothing: the strong fixture's own
 # docstring downgrades NGSolve and DUNE to the import GATE, and deal.II, Kratos
@@ -3839,7 +3839,7 @@ against a closed form.
 participant was coupled to a second code end to end: NGSolve on the Neumann
 side against a scikit-fem Dirichlet side, non-matching interface meshes,
 serial-implicit, interface temperature and flux checked against a closed form.
-NGSolve shares the OASiS venv with scikit-fem here, so that pair is one
+NGSolve shares the openPASO venv with scikit-fem here, so that pair is one
 interpreter — the coupling is real, but it is not what proves preCICE spans
 separate environments; the FEniCSx, DUNE and Kratos pairs are.
 
@@ -3888,7 +3888,7 @@ against.
                     "(fixture: precice_can_verdicts_for_the_other_four)"),
         "body": '''\
 A DUNE-fem participant was coupled end to end: DUNE on the Neumann side, in its
-own conda environment, against a scikit-fem Dirichlet side in the OASiS venv,
+own conda environment, against a scikit-fem Dirichlet side in the openPASO venv,
 non-matching interface meshes, serial-implicit, interface temperature and flux
 checked against a closed form. Two install-level facts decide whether it works
 at all:
@@ -3901,7 +3901,7 @@ at all:
     `python -c "import precice, dune.fem"` BEFORE coupling — a failed import
     leaves the partner blocking in `initialize()` with no error.
     That whole-site-packages form works HERE because the DUNE environment has
-    no package the OASiS venv would shadow badly. It is not universal: see the
+    no package the openPASO venv would shadow badly. It is not universal: see the
     Kratos entry, where the same recipe shadows the good install and has to be
     narrowed to a directory of symlinks.
   * DUNE-fem JIT-COMPILES EACH DISTINCT SCHEME. Measured on a cold cache here
@@ -3960,7 +3960,7 @@ Start from that file rather than from this description.
         "body": '''\
 A Kratos participant was coupled to a second code end to end: Kratos on the
 Neumann side, in its own interpreter, against a scikit-fem Dirichlet side in
-the OASiS venv, non-matching interface meshes, serial-implicit, interface
+the openPASO venv, non-matching interface meshes, serial-implicit, interface
 temperature and flux checked against a closed form. The install is the hard
 part, and it is harder than for any other backend here:
 
@@ -4088,7 +4088,7 @@ Note what kind of evidence that is. A CAN here is backed by a coupling that
 RAN; this CANNOT is backed by not finding an entry point, which is weaker and
 is why it is worded as absence.
 
-USE `couple` INSTEAD. 4C works well as a participant in OASiS's file-handshake
+USE `couple` INSTEAD. 4C works well as a participant in openPASO's file-handshake
 driver — it has been run there on BOTH the Dirichlet and the Neumann side of a
 cross-code coupling. Call `knowledge(topic='coupling', solver='fourc')` for a
 complete runnable 4C participant.''',
@@ -4107,7 +4107,7 @@ A preCICE-enabled FEBio would have to be a compiled FEBio plugin using FEBio's
 own callback interface. That is a real route, but nothing of the kind is built
 here, so this is UNVERIFIED, not supported.
 
-USE `couple` INSTEAD. FEBio participates fine in OASiS's file-handshake driver
+USE `couple` INSTEAD. FEBio participates fine in openPASO's file-handshake driver
 as an XML-writing / log-parsing wrapper. Call
 `knowledge(topic='coupling', solver='febio')`.''',
     },
@@ -4244,8 +4244,8 @@ def _sparta() -> str:
 def _kratos() -> str:
     return _payload(
         "Kratos Multiphysics",
-        "**Either side — but NOT in OASiS's own interpreter on this install.** "
-        "Kratos is not importable where OASiS runs here, so its participant was "
+        "**Either side — but NOT in openPASO's own interpreter on this install.** "
+        "Kratos is not importable where openPASO runs here, so its participant was "
         "proven in a separate Kratos install: both the Dirichlet and the "
         "Neumann role were run against FEniCSx and both converged with "
         "non-matching interface meshes. The contract below is the DIRICHLET side; "
@@ -4332,7 +4332,7 @@ def _dune() -> str:
   machine precision; tighten the scheme's linear-solver parameters before
   asking for a much tighter coupling tolerance.
 * DUNE usually lives in its own conda environment. Use the interpreter
-  `discover(query='list')` reports for it, not OASiS's own.
+  `discover(query='list')` reports for it, not openPASO's own.
 
 * THE DUNE-fem DIRICHLET-SIDE PARTICIPANT SCAFFOLD (config-driven). The
   handshake mapped onto your dofs, the vertex-ordered mesh access, the P1
@@ -4375,8 +4375,8 @@ import numpy as np
 
 CFG = json.loads(Path("config.json").read_text())
 # A multi-level coupling call hands this level's keys in the environment
-# (OASIS_CONFIG_JSON, a JSON object) instead of writing this file.
-CFG.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))
+# (OPENPASO_CONFIG_JSON, a JSON object) instead of writing this file.
+CFG.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))
 NX, NY = CFG["nx"], CFG["ny"]
 X0, X1, Y0, Y1 = CFG["x0"], CFG["x1"], CFG["y0"], CFG["y1"]
 KV, CV, FV = CFG["k"], CFG.get("reaction", 0.0), CFG.get("source_const", 0.0)
@@ -4433,7 +4433,7 @@ def trace(t):
 # two sides' fluxes carry OPPOSITE normals; export yours w.r.t. THIS side's
 # outward normal and never write the partner's negated number.
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─────────────────────────────────────
 # HOLE 1 OF 2: THE MESH AND THE P1 SPACE ARE YOURS AND ARE NOT SERVED HERE.
 # Build the SIMPLEX grid of this subdomain (X0..X1, Y0..Y1, NX x NY cells -- the
 # P1 recovery below is exact on triangles, and a structuredGrid makes
@@ -4443,7 +4443,7 @@ def trace(t):
 #     gridView   the simplex grid view of this subdomain
 #     space      the P1 Lagrange space on it
 #     x          the SpatialCoordinate of that space
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─────────────────────────────────────
 
 # ── HANDSHAKE MAPPED ONTO YOUR SPACE (served: the partner's samples on THIS
 #    side's interface dofs -- not the solve) ────────────────────────────────
@@ -4479,7 +4479,7 @@ C_UFL = _Constant(CV, name="c")
 #     conditional(lt(abs(x[IF_COORD] - IF_VAL), _EPS), 1, 0)
 # (conditional, lt from ufl; abs is the Python built-in).
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─────────────────────────────────────
 # HOLE 2 OF 2: THE WEAK FORM, THE MATERIAL, THE SOURCE, THE BOUNDARY CONDITIONS
 # AND THE LINEAR SOLVE ARE YOURS AND ARE NOT SERVED HERE. Write them for the
 # problem you were given (-div(k grad u) + c*u = f on this subdomain, with the
@@ -4495,7 +4495,7 @@ C_UFL = _Constant(CV, name="c")
 #      expression string -- and keep the form and F_SRC the same f: the
 #      recovery below integrates F_SRC and refuses a field whose interior
 #      residual against it is not small)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─────────────────────────────────────
 
 # ── VERTEX-ORDERED ARRAYS FROM YOUR MESH (served: mesh access, not the solve) ──
 _idx = gridView.indexSet
@@ -4635,7 +4635,7 @@ print(f"DUNE Dirichlet participant: NDOF = {len(u_vert)}  "
 #     hole 2:  uh (the solved P1 function), F_SRC (your source as a Python
 #              function of (x, y))
 #
-# OASiS does not serve the solve, but it will not make you guess which names
+# openPASO does not serve the solve, but it will not make you guess which names
 # the holes were filling.
 ```''')
 
@@ -4647,7 +4647,7 @@ def _dealii_sources() -> str:
     its transient sibling, elast_iface_dealii.cc and the CMakeLists — under the
     heading "save these to disk, then build". That made the deal.II payload
     103 kB and handed the agent a working finite element program, which is
-    exactly what OASiS is not for. The Python wrapper's own solve was elided at
+    exactly what openPASO is not for. The Python wrapper's own solve was elided at
     the same time; leaving the C++ in place would have made that pointless,
     since the input format the wrapper writes is readable straight off the .cc.
 
@@ -4663,11 +4663,11 @@ def _dealii_sources() -> str:
     return (
         "\n## THE C++ SOLVER IS YOURS TO WRITE\n\n"
         "deal.II is a C++ library, so a participant here is TWO files: a "
-        "compiled solver and the thin Python wrapper above. OASiS does not "
+        "compiled solver and the thin Python wrapper above. openPASO does not "
         "supply the solver and there is no copy of one to find on this "
         "install — do not go looking for it. Write it, build it against your "
         "deal.II, and point `DEALII_EXE` at YOUR binary.\n\n"
-        "What OASiS does specify is the part that is its own: the wrapper must "
+        "What openPASO does specify is the part that is its own: the wrapper must "
         "implement the imports.json/exports.json handshake exactly as shown, "
         "and the interface flux or traction it exports must be the CONSISTENT "
         "one — the residual of the assembled system with NO boundary condition "

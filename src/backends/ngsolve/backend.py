@@ -23,7 +23,7 @@ from core.backend import (
 from core.registry import register_backend
 from .generators import GENERATORS, KNOWLEDGE
 
-logger = logging.getLogger("oasis.ngsolve")
+logger = logging.getLogger("openpaso.ngsolve")
 
 
 def _find_ngsolve_python() -> Optional[Path]:

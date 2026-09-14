@@ -1,4 +1,4 @@
-"""deal.II TRANSIENT participant for the OASiS `couple` driver.
+"""deal.II TRANSIENT participant for the openPASO `couple` driver.
 
 Transient conduction  rho_c dT/dt - div(k grad T) = f(x, y, t)  on ONE
 rectangular subdomain of a domain split by a straight interface at x = IFACE_X,
@@ -158,7 +158,7 @@ if SIDE == "dirichlet":
 else:
     side_flag, pairs = 1, sample_trace(imp, "normal_fluxes", Q_GUESS)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 header = (f"{side_flag} {K!r} {RHO_C!r} {X0!r} {X1!r} {Y0!r} {Y1!r} {IFACE_X!r} "
           f"{NX} {NY} {DEGREE} {THETA!r} {T_START!r} {T_END!r} {N_STEPS} "
           f"{1 if OUTER_FACES == 'all' else 0}")
@@ -196,7 +196,7 @@ for i in range(n_nodes):
     coords.append([float(IFACE_X), row[0]])
     temps.append(row[1:1 + n_steps_out])
     fluxes.append(row[1 + n_steps_out:])
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 print(f"[dealii-transient {SIDE}] iface n={n_nodes} steps={N_STEPS} "
       f"dt={(T_END - T_START) / N_STEPS:.6g} theta={THETA} "

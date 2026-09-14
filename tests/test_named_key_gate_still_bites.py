@@ -116,7 +116,7 @@ CASES = [
     ("febio", "FEBIO_BINARY",
      "[Setup] Set FEBIO_BINARY so check_availability() finds the build. "
      "Signal: x.",
-     False, "an OASiS environment variable, not a FEBio key"),
+     False, "an openPASO environment variable, not a FEBio key"),
 ]
 
 _ROOTS: dict[str, list] = {}
@@ -140,8 +140,8 @@ def _verdict(backend: str, tok: str, entry: str):
     if all(a._is_retracted(entry, i, j) or a._absence_asserted(entry, i, j)
            for i, j in hits):
         return False, "read as an absence claim"
-    if tok in a.oasis_env_vars():
-        return False, "classed as an OASiS environment variable"
+    if tok in a.openpaso_env_vars():
+        return False, "classed as an openPASO environment variable"
     present, whole_word = a.key_present(tok, roots)
     if present:
         return False, ("resolves in the corpus" if whole_word else

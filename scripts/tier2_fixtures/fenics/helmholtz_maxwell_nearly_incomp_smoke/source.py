@@ -38,7 +38,7 @@ generated text rather than printed as literals.
 
 NOTE on the staged (recipe) mutation arm: this fixture imports the
 catalog out of the checkout's src/, so a copy of the fixture on its
-own cannot find it. Set OASIS_REPO_ROOT to the checkout when running
+own cannot find it. Set OPENPASO_REPO_ROOT to the checkout when running
 scripts/mutate_tier2_fixtures.py; an in-place run (the ledger's env
 arm) finds it by path and needs nothing.
 """
@@ -56,11 +56,11 @@ def _find_repo_root() -> Path:
     harness stages the fixture into a scratch tree where parents[4]
     resolves to `/`, the catalog import then fails, and the mutation
     verdict would be vacuous rather than informative. So the root is
-    SEARCHED for, and $OASIS_REPO_ROOT wins when set — that is how a
+    SEARCHED for, and $OPENPASO_REPO_ROOT wins when set — that is how a
     staged copy is told where the real checkout is.
     """
     marker = Path("src") / "core" / "registry.py"
-    override = os.environ.get("OASIS_REPO_ROOT", "")
+    override = os.environ.get("OPENPASO_REPO_ROOT", "")
     cands = [Path(override)] if override else []
     here = Path(__file__).resolve()
     cands += list(here.parents) + list(Path.cwd().resolve().parents)
@@ -68,7 +68,7 @@ def _find_repo_root() -> Path:
         if (cand / marker).is_file():
             return cand
     print(f"FIXTURE_ABORT=repo_root_not_found searched_from={here}; "
-          f"set OASIS_REPO_ROOT to the checkout", file=sys.stderr)
+          f"set OPENPASO_REPO_ROOT to the checkout", file=sys.stderr)
     raise SystemExit(3)
 
 

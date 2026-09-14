@@ -28,14 +28,14 @@ from core.backend import (
 )
 from core.registry import register_backend
 
-logger = logging.getLogger("oasis.dealii")
+logger = logging.getLogger("openpaso.dealii")
 
 
 class DealiiRootOverrideError(RuntimeError):
     """DEAL_II_DIR / DEALII_ROOT names something that is not deal.II.
 
     Raised rather than ignored, for the same reason FEBIO_BINARY raises:
-    silently searching elsewhere means the install OASiS reports is not
+    silently searching elsewhere means the install openPASO reports is not
     the install the user named. `DEAL_II_DIR=/tmp` used to log a warning
     and CONTINUE discovery, so the backend reported
     `available — deal.II 9.8.0-pre at /home/alexander/dealii/build` while
@@ -784,7 +784,7 @@ class DealiiBackend(SolverBackend):
                         or ("abs" in err and "ambiguous" in err)):
                     hint = ("\n\nHint (macOS + deal.II.app): this looks like the Xcode "
                             "SDK header conflict (a deal.II.app packaging issue, not an "
-                            "OASiS bug). Make the sysroot consistent and re-run:\n"
+                            "openPASO bug). Make the sysroot consistent and re-run:\n"
                             "    export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk")
                 job.error = f"Compilation failed:\n{err[-2000:]}{hint}"
                 job.elapsed = time.time() - start

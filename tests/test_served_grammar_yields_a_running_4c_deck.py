@@ -1,6 +1,6 @@
-"""Does OASiS serve ENOUGH to make 4C run? Answered by writing a deck from it.
+"""Does openPASO serve ENOUGH to make 4C run? Answered by writing a deck from it.
 
-THE QUESTION THAT MATTERS. OASiS elides "the solve" by design (Option B), and
+THE QUESTION THAT MATTERS. openPASO elides "the solve" by design (Option B), and
 for a Python library that is right: the agent should choose its own mesh, space
 and weak form. But 4C IS A BINARY THAT CONSUMES A YAML DECK. For it the deck is
 the backend's run interface in exactly the way exports.json is the driver's --
@@ -17,7 +17,7 @@ knowledge(topic='coupling', solver='fourc'):
     NUMDOF                  absent
 
 It named TRANSPORT ELEMENTS and SYMBOLIC_FUNCTION and nothing else. An agent
-could not write a runnable deck from it, and all three OASiS-arm runs of coupled
+could not write a runnable deck from it, and all three openPASO-arm runs of coupled
 cell C2 failed on exactly that -- seed71 said so in its own words: "4C scalar
 transport module requires specific topology definitions that proved difficult to
 generate correctly within time budget".
@@ -66,7 +66,7 @@ def _served():
 
 class TestTheGrammarIsServed(unittest.TestCase):
     """Every section the running deck uses must be documented, or the deck is
-    evidence about me rather than about OASiS."""
+    evidence about me rather than about openPASO."""
 
     def test_every_section_of_the_running_deck_is_in_the_served_text(self):
         served = _served()
@@ -76,7 +76,7 @@ class TestTheGrammarIsServed(unittest.TestCase):
         missing = [s for s in sections if s not in served]
         self.assertEqual(
             missing, [],
-            f"the deck runs but OASiS does not document these sections, so an "
+            f"the deck runs but openPASO does not document these sections, so an "
             f"agent could not have written it: {missing}")
 
     def test_the_source_term_mechanism_is_served(self):
@@ -130,7 +130,7 @@ class TestBothPathsServeTheSameOneCopy(unittest.TestCase):
     FC2) never calls knowledge(topic='coupling') -- it has no coupling -- so the
     agents working the LARGEST target (>70% single-code, currently ~40%)
     received nothing about how to write a runnable deck. Same defect that killed
-    all three OASiS runs of coupled C2, on the bigger number.
+    all three openPASO runs of coupled C2, on the bigger number.
 
     And it must not become four copies. The interface-probe text existed in four
     places, two of them dead, and a fix applied to the wrong one looked correct

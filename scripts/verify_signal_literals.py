@@ -3,7 +3,7 @@
 
 WHY THIS EXISTS
 ---------------
-Every pitfall in OASiS ships a ``Signal:`` clause — the observable symptom an
+Every pitfall in openPASO ships a ``Signal:`` clause — the observable symptom an
 agent is told to look for. `verify_signal_clauses.py` checks two things about
 those clauses: that they name an entity the catalogs know (tier 0) and that they
 use symptom vocabulary (tier 1). A hand-written fixture (tier 2) covers a small

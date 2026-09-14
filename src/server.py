@@ -1,5 +1,5 @@
 """
-OASiS — MCP Server
+openPASO — MCP Server
 
 Connects any LLM to multiple open-source FEM codes via the Model Context Protocol.
 Supported backends (catalog ships 8, runtime depends on local installs):
@@ -12,6 +12,11 @@ import os
 import sys
 import logging
 
+# Old and new spellings of this project's variables are the same variable.
+# This runs before the guard below, which reads one of them.
+from core.env_compat import install_aliases as _install_env_aliases
+_install_env_aliases()
+
 # ── PROTECT THE PROTOCOL CHANNEL BEFORE ANYTHING ELSE IS IMPORTED ──────────
 # Over stdio transport, file descriptor 1 IS the JSON-RPC stream. Libraries
 # this server loads write banners to that descriptor from C code — importing
@@ -23,7 +28,7 @@ import logging
 # protocol, and point fd 1 at stderr so anything naive lands in the log
 # instead of the wire. sys.stdout (which the MCP transport writes through)
 # is rebound to the duplicate, so the protocol is unaffected.
-if os.environ.get("OASIS_NO_FD_GUARD") != "1":       # escape hatch for tests
+if os.environ.get("OPENPASO_NO_FD_GUARD") != "1":       # escape hatch for tests
     _real_stdout_fd = os.dup(1)
     os.dup2(2, 1)
     sys.stdout = os.fdopen(_real_stdout_fd, "w", buffering=1)
@@ -33,7 +38,7 @@ from mcp.server.fastmcp import FastMCP
 # OFA_DISABLE_PITFALLS=1 → knowledge surfaces strip pitfall-DB content
 # (per-backend pitfalls incl. Signal: anchors, post-mortems, cross-backend
 # collation catalog); implemented in tools/consolidated.py. It only ever makes
-# OASiS weaker, so it cannot inflate a result.
+# openPASO weaker, so it cannot inflate a result.
 #
 # There was an OFA_DISABLE_CRITIC toggle here that stripped the critic
 # paragraph. The critic requirement is no longer a paragraph an agent may
@@ -50,10 +55,10 @@ logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
     handlers=[logging.StreamHandler(sys.stderr)],
 )
-logger = logging.getLogger("oasis")
+logger = logging.getLogger("openpaso")
 
 mcp = FastMCP(
-    "OASiS",
+    "openPASO",
     instructions=INSTRUCTIONS,
 )
 
@@ -67,7 +72,7 @@ load_all_backends()
 
 
 def main():
-    logger.info("Starting OASiS MCP server")
+    logger.info("Starting openPASO MCP server")
     try:
         mcp.run(transport="stdio")
     finally:

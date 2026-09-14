@@ -1,6 +1,6 @@
-"""The served THERMO-ELASTIC contracts run, with fills OASiS never serves.
+"""The served THERMO-ELASTIC contracts run, with fills openPASO never serves.
 
-Option B elides the solve; what OASiS serves for a temperature-plus-
+Option B elides the solve; what openPASO serves for a temperature-plus-
 displacement exchange (three-component handshake, sign convention, 4C's
 two-run recovery from its boundary-flux VTU and reaction monitor, FEniCSx's
 reaction recovery of both fields, self-checks, exports) must be executable
@@ -28,8 +28,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 PART = ROOT / "data" / "coupling_participants"
-BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"
-END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+BEGIN = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin"
+END = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end"
 FOURC = Path("/home/alexander/4C/build/4C")
 FENICS_PY = Path("/home/alexander/miniconda3/envs/fenics/bin/python")
 LX, LY = 0.8, 1.0

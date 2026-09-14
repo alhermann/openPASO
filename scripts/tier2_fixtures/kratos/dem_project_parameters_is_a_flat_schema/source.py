@@ -1,6 +1,6 @@
 """Tier-2: ProjectParametersDEM.json is FLAT, not the FEM problem_data schema.
 
-Pitfall (kratos.dem): the OASiS DEM generator emitted the StructuralMechanics
+Pitfall (kratos.dem): the openPASO DEM generator emitted the StructuralMechanics
 ProjectParameters layout -- a "problem_data" block plus
 "solver_settings": {"solver_type": "dem_solver", "time_stepping": {...}}.
 Kratos DEM does not read any of that. It wants a flat file whose top level

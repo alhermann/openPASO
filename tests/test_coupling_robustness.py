@@ -1,4 +1,4 @@
-"""What a partitioned coupling gets WRONG quietly, and that OASiS now says so.
+"""What a partitioned coupling gets WRONG quietly, and that openPASO now says so.
 
 Every case here was first run against the previous machinery and reported as a
 clean success, or reported nothing at all. They are the adversarial suite for

@@ -35,6 +35,10 @@ import tempfile
 import time
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from core.env_compat import install_aliases as _install_env_aliases
+_install_env_aliases()   # OASIS_* and OPENPASO_* name the same variable
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 
@@ -231,7 +235,7 @@ def _tree_sha256(root: Path, ignore: set[str] | None = None) -> str:
     """Hash the SOURCE of a snapshot tree, not the bytecode Python leaves in it.
 
     IMPORTING FROM THE SNAPSHOT WRITES INTO IT. CPython caches compiled modules
-    next to their source, so the moment an agent's tool process imports OASiS
+    next to their source, so the moment an agent's tool process imports openPASO
     from the mounted snapshot, `src/tools/__pycache__/*.pyc` appears inside the
     tree this function hashes. The post-run `verify_source_snapshot` then finds
     a different digest and reports
@@ -390,13 +394,13 @@ if _envf.exists():
 # that exists on this machine, so any launch not going through the one
 # untracked driver script silently ran an uncommitted agent while the
 # pre-registration attested to this tree. Self-locate, and refuse a mismatch.
-REPO = Path(os.environ.get("OASIS_REPO", str(ROOT))).resolve()
+REPO = Path(os.environ.get("OPENPASO_REPO", str(ROOT))).resolve()
 if REPO != ROOT.resolve():
     sys.exit(
-        f"REFUSING TO RUN — OASIS_REPO points at {REPO}, but this campaign "
+        f"REFUSING TO RUN — OPENPASO_REPO points at {REPO}, but this campaign "
         f"lives in {ROOT.resolve()}. The agent definition, the knowledge under "
         f"test and the pre-registration must all come from one checkout. "
-        f"Unset OASIS_REPO or set it to {ROOT.resolve()}.")
+        f"Unset OPENPASO_REPO or set it to {ROOT.resolve()}.")
 sys.path.insert(0, str(REPO / "langgraph_eval"))
 import agent as _agent                                            # noqa: E402
 from agent import build_bare_agent, build_mcp_agent               # noqa: E402
@@ -432,7 +436,7 @@ RECURSION_LIMIT = 1000
 # This block used to interpolate f"{REPO}/.venv/bin/python" for NGSolve and
 # scikit-fem. When the runner was made to self-locate, REPO became this
 # checkout, which has no .venv, and every agent was handed an interpreter that
-# does not exist. Ten of round 2's first twenty-one runs hit it; one OASiS run
+# does not exist. Ten of round 2's first twenty-one runs hit it; one openPASO run
 # died 8 calls in with a finished solver script it could not execute. Telling
 # an agent a tool is at a path where it is not is the same defect as promising
 # it source we do not serve — it reads as an instruction and burns the budget.
@@ -551,8 +555,8 @@ def _usage_totals():
 # history lives in. Unset, the provider reserved its own default of 65536 —
 # a quarter of the window, gone whether or not the model wrote a single token,
 # which is what killed FC2 BARE seed3 at 196609 input tokens. The arms are not
-# equally exposed: the OASiS arm accumulates faster because one knowledge call
-# can return ~23k tokens, so an unnecessarily large reservation costs OASiS
+# equally exposed: the openPASO arm accumulates faster because one knowledge call
+# can return ~23k tokens, so an unnecessarily large reservation costs openPASO
 # more turns than it costs bare. Measured over 128 round-3 runs, output is 839
 # tokens per call on average and 2480 in the worst whole-run average, so 16384
 # is roughly six times the worst case observed and frees 49152 tokens of input.
@@ -595,7 +599,7 @@ _INFRA_ERRS = ("APIConnectionError", "Connection error", "UnicodeDecodeError",
                # 402 Insufficient credits. The account ran dry partway through
                # round 5 seed 7 and 18 runs died with ZERO tool calls and zero
                # wall time — they never reached the model. Unlisted, they were
-               # booked as model results, 10 of them against the OASiS arm, so
+               # booked as model results, 10 of them against the openPASO arm, so
                # an unpaid invoice would have read as a capability gap.
                "error code: 402", "Insufficient credits")
 
@@ -637,7 +641,7 @@ class TrajLiveLog(BaseCallbackHandler):
     # megabytes per run — but it was invisible, and the log is the only record
     # of what the agent was told. A prepare_simulation payload of 30,099
     # characters was written as ~600, so grepping the trajectory for a phrase
-    # OASiS definitely served returns nothing and reads as "the agent never
+    # openPASO definitely served returns nothing and reads as "the agent never
     # saw it".
     #
     # That is not hypothetical: on 2026-08-30 I reported that a served
@@ -704,7 +708,7 @@ def keys_are_sealed() -> bool:
     The previous implementation returned True when ``keys/`` was MISSING or
     EMPTY, so a deleted keys tree read as sealed and the campaign would have
     started with nothing to grade against.  Absence is not a seal.  The real
-    check lives in the OASiS repo, under version control and under test, and is
+    check lives in the openPASO repo, under version control and under test, and is
     imported rather than restated here -- Amendment 1 declared this fixed while
     the runner still carried the broken copy and never imported the fix.
     """
@@ -719,10 +723,10 @@ def _keys_dir():
     preflight failed on exists=False in every configuration, including the
     correct one. Same defect class as the grader loading its evidence gate
     from another worktree: two components resolving the same thing two ways.
-    OASIS_BLIND_KEYS is the single authority, exactly as in the grader.
+    OPENPASO_BLIND_KEYS is the single authority, exactly as in the grader.
     """
     import os as _os
-    v = _os.environ.get("OASIS_BLIND_KEYS")
+    v = _os.environ.get("OPENPASO_BLIND_KEYS")
     return Path(v) if v else HERE / "keys"
 
 
@@ -765,7 +769,7 @@ def _quarantine_stray_scratch() -> list:
     dest_root = HERE / "runs_quarantine" / "stray_scratch"
     repo, here = REPO.resolve(), HERE.resolve()
     protected = {repo, here}
-    configured_repo = os.environ.get("OASIS_REPO")
+    configured_repo = os.environ.get("OPENPASO_REPO")
     if configured_repo:
         protected.add(Path(configured_repo).expanduser().resolve())
     roots = {Path("/tmp").resolve(), Path.home().resolve(),
@@ -860,12 +864,12 @@ def _quarantine_stray_scratch() -> list:
 def _problems_root() -> Path:
     """The question sheets, from the same place the grader takes them.
 
-    Mirrors campaign3_blind/grading/loading.problems_dir(): OASIS_BLIND_PROBLEMS
+    Mirrors campaign3_blind/grading/loading.problems_dir(): OPENPASO_BLIND_PROBLEMS
     if set, else campaign3_blind/problems. Two independent notions of "where the
     task text lives" is how a runner ends up serving one contract while the
     grader enforces another.
     """
-    env = os.environ.get("OASIS_BLIND_PROBLEMS")
+    env = os.environ.get("OPENPASO_BLIND_PROBLEMS")
     return Path(env) if env else (HERE / "problems")
 
 
@@ -990,13 +994,13 @@ def preflight_or_die(problems: list) -> None:
         # Absent is now unready. Add the id with `true` once its path has
         # actually been walked, which is the only thing that should silence it.
         unready = [p for p in problems if rd.get(p) is not True]
-        if unready and not os.environ.get("OASIS_SKIP_PATH_CHECK"):
+        if unready and not os.environ.get("OPENPASO_SKIP_PATH_CHECK"):
             failures.append(
                 f"no throwaway non-blind run has been recorded through the "
                 f"intended coupling path for {unready}. A tool bug there reads "
                 f"as agent failure and is charged to the arm under test. Run "
                 f"one per task, discard the result, and record it in "
-                f"path_readiness.json (or set OASIS_SKIP_PATH_CHECK to "
+                f"path_readiness.json (or set OPENPASO_SKIP_PATH_CHECK to "
                 f"override deliberately).")
 
     if failures:
@@ -1038,7 +1042,7 @@ def run_one(pid: str, model: str, cond: str, seed: int, timeout_s: int) -> dict:
     except SourceBuildError as exc:
         sys.exit(f"REFUSING DUPLICATE CELL: {exc}")
 
-    expected_problems = os.environ.get("OASIS_PROBLEMS_SHA256")
+    expected_problems = os.environ.get("OPENPASO_PROBLEMS_SHA256")
     try:
         verify_problem_draw(_problems_root(), expected_problems)
     except SourceBuildError as exc:
@@ -1049,7 +1053,7 @@ def run_one(pid: str, model: str, cond: str, seed: int, timeout_s: int) -> dict:
     # THE RUNNER MUST READ THE SAME PROBLEMS ROOT THE GRADER READS.
     #
     # This was hardcoded to HERE/"problems" while the grader's loading.py
-    # resolves OASIS_BLIND_PROBLEMS. A fresh draw goes into its own root
+    # resolves OPENPASO_BLIND_PROBLEMS. A fresh draw goes into its own root
     # (build_balanced --problems-root, so a spent instance is never
     # overwritten), so a hardcoded runner serves the OLD task text and the
     # grader grades against the NEW key -- agent and grader disagreeing about
@@ -1064,7 +1068,7 @@ def run_one(pid: str, model: str, cond: str, seed: int, timeout_s: int) -> dict:
     # text it was served, and a grader holding a newly drawn key had no way to
     # show the agent had been given the matching contract. That is not a
     # hypothetical: the problems root was hardcoded here while the grader
-    # resolved OASIS_BLIND_PROBLEMS, so runner and grader could silently read
+    # resolved OPENPASO_BLIND_PROBLEMS, so runner and grader could silently read
     # different contracts, and a fresh draw would have been graded against text
     # the agent never saw.
     #
@@ -1075,12 +1079,12 @@ def run_one(pid: str, model: str, cond: str, seed: int, timeout_s: int) -> dict:
                   "task_path": str(_task_path),
                   "task_sha256": _hl.sha256(task.encode()).hexdigest(),
                   "source_git_commit": os.environ.get(
-                      "OASIS_SOURCE_GIT_COMMIT"),
-                  "source_sha256": os.environ.get("OASIS_SOURCE_SHA256"),
+                      "OPENPASO_SOURCE_GIT_COMMIT"),
+                  "source_sha256": os.environ.get("OPENPASO_SOURCE_SHA256"),
                   "problems_sha256": expected_problems,
                   "dune_cache_sha256": os.environ.get(
-                      "OASIS_DUNE_CACHE_SHA256")}
-    # STATE THE BUDGET. Round 1: 13 of 14 coupled OASiS runs stopped
+                      "OPENPASO_DUNE_CACHE_SHA256")}
+    # STATE THE BUDGET. Round 1: 13 of 14 coupled openPASO runs stopped
     # VOLUNTARILY at a mean of 37% of the wall budget (floor 11.8%, 24 calls,
     # zero solver runs), and 47 statements across those transcripts invoke
     # "time constraints" or invent hour estimates — a deadline the model
@@ -1104,7 +1108,7 @@ def run_one(pid: str, model: str, cond: str, seed: int, timeout_s: int) -> dict:
           if cond == "BARE" else None)
 
     # Hand the agent a clock. Both arms: _bash_tool_for is shared, and knowing
-    # the time is not an OASiS capability. Two C9 runs threw away 59% of their
+    # the time is not an openPASO capability. Two C9 runs threw away 59% of their
     # budget while stating they had run out of it.
     _agent._DEADLINE = (time.time() + timeout_s, float(timeout_s))
 
@@ -1119,10 +1123,10 @@ def run_one(pid: str, model: str, cond: str, seed: int, timeout_s: int) -> dict:
     # its hand, and the two are indistinguishable from the loop's side. Measured
     # over all 813 runs of this campaign, 112 (13.8%) ended with error=null and
     # no RESULT.txt on disk — and the arms are NOT equally exposed: 79 of 405
-    # OASiS runs (19.5%) against 33 of 408 bare (8.1%), because the OASiS arm
+    # openPASO runs (19.5%) against 33 of 408 bare (8.1%), because the openPASO arm
     # accumulates history faster (one knowledge call can return ~23k tokens) and
     # carries a larger tool schema in every request. Every uplift this campaign
-    # has reported so far was measured with the OASiS arm silently losing one
+    # has reported so far was measured with the openPASO arm silently losing one
     # run in five to this.
     #
     # The stopped runs were not agents giving up. Their last words were
@@ -1140,8 +1144,8 @@ def run_one(pid: str, model: str, cond: str, seed: int, timeout_s: int) -> dict:
     # left, and repeats that COULD_NOT_COMPLETE is the honest way out. It says
     # nothing about the physics, the method, or the state of the work, and both
     # arms get the identical text — this is the harness enforcing its own
-    # deliverable, not a hint. It will help OASiS more than bare, because the
-    # defect hurt OASiS more than bare.
+    # deliverable, not a hint. It will help openPASO more than bare, because the
+    # defect hurt openPASO more than bare.
     _CONT_MAX = 8
     _NUDGE = (
         "Your last turn ended without a tool call, and {f} does not exist yet, "
@@ -1264,13 +1268,13 @@ def run_one(pid: str, model: str, cond: str, seed: int, timeout_s: int) -> dict:
         # accumulation — this harness never trims history — so the run counts
         # as a model result, but it is labelled distinctly because it is a
         # different failure from running out of clock, and because the arms
-        # are not equally exposed: the OASiS arm receives much larger tool
+        # are not equally exposed: the openPASO arm receives much larger tool
         # responses (a single knowledge call can return ~23k tokens). Measured
         # so far: 1 occurrence in 109 runs, in the BARE arm, so no bias yet —
         # but it is worth counting per arm at every tier.
         rec["outcome"] = "CONTEXT_EXHAUSTED"
     try:
-        verify_source_snapshot(Path(os.environ["OASIS_SOURCE_SNAPSHOT"]))
+        verify_source_snapshot(Path(os.environ["OPENPASO_SOURCE_SNAPSHOT"]))
     except (KeyError, SourceBuildError) as exc:
         rec["outcome"] = "INVALID_INFRA"
         rec["error"] = f"SourceSnapshotIntegrity: {exc}"
@@ -1316,9 +1320,9 @@ def main():
             REPO, HERE / ".source_snapshots")
     except SourceBuildError as exc:
         sys.exit(f"REFUSING TO RUN — source build is not immutable:\n{exc}")
-    os.environ["OASIS_SOURCE_SNAPSHOT"] = source_build["snapshot_path"]
-    os.environ["OASIS_SOURCE_GIT_COMMIT"] = source_build["git_commit"]
-    os.environ["OASIS_SOURCE_SHA256"] = source_build["source_sha256"]
+    os.environ["OPENPASO_SOURCE_SNAPSHOT"] = source_build["snapshot_path"]
+    os.environ["OPENPASO_SOURCE_GIT_COMMIT"] = source_build["git_commit"]
+    os.environ["OPENPASO_SOURCE_SHA256"] = source_build["source_sha256"]
     sys.path.insert(0, str(Path(source_build["snapshot_path"]) / "src"))
     # flush=True: this line identifies WHICH BUILD a live round is on, and
     # block-buffered stdout held it back until process exit -- a launch at
@@ -1359,8 +1363,8 @@ def main():
             HERE / ".source_snapshots" / "dune-cache")
     except SourceBuildError as exc:
         sys.exit(f"REFUSING TO RUN — DUNE cache baseline failed:\n{exc}")
-    os.environ["OASIS_DUNE_CACHE_BASELINE"] = dune_build["baseline_path"]
-    os.environ["OASIS_DUNE_CACHE_SHA256"] = dune_build["dune_cache_sha256"]
+    os.environ["OPENPASO_DUNE_CACHE_BASELINE"] = dune_build["baseline_path"]
+    os.environ["OPENPASO_DUNE_CACHE_SHA256"] = dune_build["dune_cache_sha256"]
     print(f"[DUNE cache] sha256="
           f"{dune_build['dune_cache_sha256'][:16]}... "
           f"(neutral, private copy per cell)")
@@ -1372,7 +1376,7 @@ def main():
         problems_root=str(_problems_root().resolve()),
         problems_sha256=_tree_sha256(_problems_root().resolve()),
     )
-    os.environ["OASIS_PROBLEMS_SHA256"] = \
+    os.environ["OPENPASO_PROBLEMS_SHA256"] = \
         population_build["problems_sha256"]
     population_lock = (HERE / "runs" /
                        f".source_build_{a.phase}_{a.model}_seed{a.seed}.json")

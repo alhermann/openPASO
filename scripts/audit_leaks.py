@@ -21,7 +21,7 @@ Three defects in the previous version, all of which made it report clean:
 
 What counts as a leak
 ---------------------
-``BARE`` arm      any access to OASiS curated sources — the bare arm is defined
+``BARE`` arm      any access to openPASO curated sources — the bare arm is defined
                   by not having them.
 ``both arms``     reading another run's results, an archive, the key directory,
                   a builder that holds hidden fields, or any file under
@@ -144,7 +144,7 @@ def audit(root: Path, keys_dir: Path | None = None,
         arm = "BARE" if "_BARE_" in own else "MCP"
         findings = []
         if arm == "BARE" and BAD_BARE.search(txt):
-            findings.append("OASiS-source access")
+            findings.append("openPASO-source access")
         for m in sorted(set(BAD_BOTH.findall(txt) or [])):
             findings.append(f"forbidden path: {m}" if isinstance(m, str)
                             else "forbidden path")
@@ -172,7 +172,7 @@ def main():
     ap.add_argument("--keys", default=None)
     ap.add_argument("--json", default=None)
     a = ap.parse_args()
-    pw = os.environ.get("OASIS_KEY_PASSPHRASE")
+    pw = os.environ.get("OPENPASO_KEY_PASSPHRASE")
     rep = audit(Path(a.root), Path(a.keys) if a.keys else None, pw)
     txt = json.dumps(rep, indent=1)
     if a.json:

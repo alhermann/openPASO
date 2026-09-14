@@ -1,4 +1,4 @@
-"""OASiS-side 4C deck lint: names the defects of a deck the AGENT wrote, from the deck text and 4C's
+"""openPASO-side 4C deck lint: names the defects of a deck the AGENT wrote, from the deck text and 4C's
 own console log. A verification gate, not a generator: it never writes or completes a deck.
 
 The same defect classes ride inside the served coupling contracts as text the participant runs at

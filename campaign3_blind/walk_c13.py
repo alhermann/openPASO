@@ -20,12 +20,12 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(Path(os.environ.get(
-    "OASIS_REPO", "/home/alexander/Schreibtisch/ofa-balanced")) / "src"))
+    "OPENPASO_REPO", "/home/alexander/Schreibtisch/ofa-balanced")) / "src"))
 
 import build_offpool as B                                        # noqa: E402
 from core.coupling_driver import Participant, run_coupling       # noqa: E402
 
-TMP = Path(os.environ.get("OASIS_WALK_TMP",
+TMP = Path(os.environ.get("OPENPASO_WALK_TMP",
                           "/tmp/claude-1001/-home-alexander-4C/balancedtmp/walkc13"))
 
 CFG_COMMON = dict(ls=B.LS, lg=B.LG, h=B.HH, t_hot=B.T_HOT, t_cold=B.T_COLD,

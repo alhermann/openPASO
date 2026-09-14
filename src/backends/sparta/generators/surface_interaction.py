@@ -197,7 +197,7 @@ KNOWLEDGE = {
             "inside simulation box (../surf.cpp:1689)'.",
 
             "[Setup] SPARTA opens every data file relative to the current "
-            "working directory and OASiS stages deck references by BASENAME, "
+            "working directory and openPASO stages deck references by BASENAME, "
             "but the SPARTA distribution ships several DIFFERENT geometries "
             "under the same name — a dozen example directories contain a file "
             "called 'data.circle', all but one identical and the odd one out "

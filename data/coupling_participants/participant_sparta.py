@@ -1,4 +1,4 @@
-"""SPARTA (DSMC) participant for the OASiS `couple` driver.
+"""SPARTA (DSMC) participant for the openPASO `couple` driver.
 
 SPARTA is a rarefied-gas DSMC particle code, not a FEM code, and has no
 scripting API: it reads a text input deck and writes text dump/log files.
@@ -82,7 +82,7 @@ def read_imports():
     return d.get(PARTNER) or None
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def read_surf_elements():
     """Parse SPARTA's surf file -> (n_elem, centroids[n,2])."""
     txt = Path(SURF_FILE).read_text().splitlines()
@@ -115,7 +115,7 @@ def read_surf_elements():
                      0.5 * (pts[a][1] + pts[b][1])] for (_, a, b) in lines])
     assert len(lines) == nlines and len(pts) == npts, "surf file parse mismatch"
     return len(lines), cen
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 def _arclen(p):
@@ -139,10 +139,10 @@ def sample_on(imp, key, fallback, cen):
     return np.interp(_arclen(cen), _arclen(src), vs)
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def write_tsurf(t):
     """SPARTA `custom surf ... file` format: comment, blank, 'N M', 'id v'."""
-    L = ["# per-surf wall temperature written by the OASiS coupling driver", ""]
+    L = ["# per-surf wall temperature written by the openPASO coupling driver", ""]
     L.append(f"{len(t)} 1")
     for i, v in enumerate(t, 1):
         L.append(f"{i} {float(v):.10g}")
@@ -215,12 +215,12 @@ for f in (SURF_FILE, SPECIES, VSS):
                              f"run: put the file beside the deck yourself, or pass data_dir.\n")
             sys.exit(3)
         Path(f).write_bytes(src.read_bytes())
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 n_elem, cen = read_surf_elements()
 imp = read_imports()
 t_wall = sample_on(imp, "values", T_INIT, cen)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 write_tsurf(t_wall)
 
 it = 0
@@ -239,7 +239,7 @@ if r.returncode != 0 or not Path(FLUX_OUT).is_file():
     sys.exit(1)
 
 a = parse_dump(FLUX_OUT, n_elem)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 cx = 0.5 * (a[:, 1] + a[:, 3])
 cy = 0.5 * (a[:, 2] + a[:, 4])
 q_out = a[:, 5]          # etot: net energy flux INTO the wall = OUT of the gas

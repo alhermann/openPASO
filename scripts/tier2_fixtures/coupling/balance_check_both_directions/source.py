@@ -3,7 +3,7 @@ right one. Both directions, because only one of them is usually tested.
 
 THE CLAIM UNDER TEST, from the interface-flux section of the coupling knowledge:
 
-  "That is what OASiS's conservation check tests. Export both sides with the
+  "That is what openPASO's conservation check tests. Export both sides with the
    same sign and a CORRECT coupling fails it ... a genuinely near-zero net flux
    (a symmetric profile) is NOT reported as unbalanced — the comparison is
    floored by the flux magnitudes, so float noise on two cancelling integrals

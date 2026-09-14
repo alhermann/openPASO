@@ -4,7 +4,7 @@ WHICH OF THE TWO FIXTURES THIS IS, AND WHY
 ------------------------------------------
 This is the STRONG one: a REAL preCICE coupling, driven through the REGISTERED
 `couple_precice` tool, between two backends that live in two DIFFERENT
-interpreters — scikit-fem in the OASiS venv and FEniCSx in its own conda env —
+interpreters — scikit-fem in the openPASO venv and FEniCSx in its own conda env —
 with the exchanged interface fields checked against a closed form. The weaker
 fallback (prove only the import gate) was not needed, so the import gate is
 folded in as this fixture's PRECONDITION rather than as its whole content: the
@@ -386,7 +386,7 @@ def spans(vals) -> tuple[float, float]:
 
 def net_flux(export: dict) -> float:
     """Net normal flux leaving through the interface, integrated over
-    arclength. Recomputed here rather than taken from any OASiS helper, so the
+    arclength. Recomputed here rather than taken from any openPASO helper, so the
     conservation check does not depend on that helper being right."""
     co = export["coordinates"]
     fl = export["normal_fluxes"]
@@ -443,7 +443,7 @@ def import_gate(lib_dir: str) -> None:
     # interpreter that does have one is enough. So it is probed with that
     # recipe, and the other two on their own.
     targets = [
-        ("oasis_venv", L.interpreter("skfem"), "skfem, ngsolve", None),
+        ("openpaso_venv", L.interpreter("skfem"), "skfem, ngsolve", None),
         ("fenicsx", L.interpreter("fenics"), "dolfinx", None),
         ("dune", L.interpreter("dune"), "dune.fem", own_site),
     ]
@@ -535,7 +535,7 @@ def coupled_run(work: Path) -> dict:
     ]
     data = [{"name": "Temperature", "type": "scalar"},
             {"name": "Heat-Flux", "type": "scalar"}]
-    # exchanges[0] MUST be the field written by the SECOND participant: OASiS
+    # exchanges[0] MUST be the field written by the SECOND participant: openPASO
     # makes it both the convergence measure and the acceleration datum, and
     # preCICE allows only second-to-first data there.
     exchanges = [{"data": "Temperature", "from": "Right", "to": "Left"},

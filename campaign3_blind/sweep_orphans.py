@@ -36,7 +36,7 @@ from pathlib import Path
 # instead of the live campaign — a sweep that has never been shown to
 # FIRE is worth nothing, and proving it fires must not mean planting a
 # fake process in the real runs/ directory while a round is going.
-RUNS = Path(os.environ.get("OASIS_RUNS_DIR",
+RUNS = Path(os.environ.get("OPENPASO_RUNS_DIR",
                            Path(__file__).resolve().parent / "runs"))
 
 

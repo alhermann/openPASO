@@ -1,4 +1,4 @@
-"""Kratos Multiphysics participant for the OASiS `couple` driver (NEUMANN side).
+"""Kratos Multiphysics participant for the openPASO `couple` driver (NEUMANN side).
 
 CONTRACT (do not change): runs in its work_dir with no arguments, reads
 imports.json (written every iteration; it is `{}` on iteration 1, so an
@@ -107,10 +107,10 @@ def source(x, y):
 #    next to this script overrides NX, NY and names the level; the per-level
 #    dumps below carry that level so the coarse levels survive the fine ones.
 LEVEL = 1
-if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
     try:
         _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
-        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         NX = int(_cfg.get("nx", NX))
         NY = int(_cfg.get("ny", NY))
@@ -157,7 +157,7 @@ def sample(imp, key, fallback, y):
 
 def build_model():
     """Structured triangulation of [X0,X1] x [Y0,Y1]; returns (mp, nid)."""
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     model = KM.Model()
     mp = model.CreateModelPart("thermal")
     mp.ProcessInfo[KM.DOMAIN_SIZE] = 2
@@ -192,7 +192,7 @@ def build_model():
             mp.CreateNewElement("LaplacianElement2D3N", eid, [b, c, d], props)
             eid += 1
     return mp, nid
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 def main():
@@ -211,7 +211,7 @@ def main():
                  "direction, and NX >= 1 so the interface and the outer "
                  "Dirichlet boundary do not land on the same nodes")
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     mp, nid = build_model()
     i_if = NX if ON_MAX_X else 0            # column index of the interface
     i_out = 0 if ON_MAX_X else NX           # column index of x = OUTER_X
@@ -227,11 +227,11 @@ def main():
             sys.exit(f"internal: the {what} column sits at x={got}, not "
                      f"x={want} — the mesh and the column indices disagree")
     y_if = np.array([Y0 + (Y1 - Y0) * j / NY for j in range(NY + 1)])
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
     q_in = sample(read_imports(), "normal_fluxes", Q_INIT, y_if)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     for n in mp.Nodes:
         n.SetSolutionStepValue(KM.CONDUCTIVITY, K)
         n.SetSolutionStepValue(KM.HEAT_FLUX, float(source(n.X, n.Y)))
@@ -249,7 +249,7 @@ def main():
                 n = mp.Nodes[nid[(i, j)]]
                 n.SetSolutionStepValue(KM.TEMPERATURE, float(T_OUTER))
                 n.Fix(KM.TEMPERATURE)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
     # ── the interface: the partner's flux, applied UNCHANGED (see the header) ──
     for j in range(NY + 1):
@@ -263,7 +263,7 @@ def main():
         mp.CreateNewCondition("FluxCondition2D2N", j + 1,
                               [nid[(i_if, j)], nid[(i_if, j + 1)]], props)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     # AddDof with a REACTION variable: without the second argument the fixed
     # dofs have nowhere to store their reaction and it is silently discarded.
     # This side does not export the reaction, but the conservation self-check
@@ -276,7 +276,7 @@ def main():
                                               True, False, False, False)
     strategy.Initialize()
     strategy.Solve()
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
     # TWO THINGS YOUR SOLVE ABOVE MUST DO, or the self-check below reads zeros:
     #   * AddDof(TEMPERATURE, REACTION_FLUX, mp) -- the SECOND argument gives
     #     every fixed dof a place to store its reaction; without it the

@@ -1,6 +1,6 @@
 """Re-running the solver got the submission rejected, in one arm only.
 
-OASiS's run_simulation writes into
+openPASO's run_simulation writes into
 `simulation_outputs/<backend>_<YYYYmmdd_HHMMSS>/`, a fresh directory per call.
 An agent that runs its solver more than once — the normal way to iterate — ends
 up with several copies of solution_level<k>.csv at the SAME depth, and
@@ -8,7 +8,7 @@ discover_levels called that an ambiguity the contract could not resolve and
 raised a problem.
 
 MEASURED: 18 runs in the tree carry two or more timestamped directories for one
-backend, and every one is an OASiS-arm run, because only that arm has the tool.
+backend, and every one is an openPASO-arm run, because only that arm has the tool.
 DU1_27b_MCP_seed7 has 26 of them. The rejection is therefore arm-specific by
 construction, and correcting it RAISES the measured uplift — it is corrected
 because it is wrong, and the direction is recorded so nobody has to guess.

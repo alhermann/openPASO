@@ -1,5 +1,5 @@
 /* TRANSIENT heat conduction  rho_c dT/dt - div(k grad T) = f(x,y,t)  on ONE
- * rectangular subdomain of the canonical OASiS coupling problem (two subdomains
+ * rectangular subdomain of the canonical openPASO coupling problem (two subdomains
  * sharing a straight interface at x = iface_x).  Compiled partner of
  * participant_dealii_transient.py; the steady sibling is heat_iface_dealii.cc.
  *

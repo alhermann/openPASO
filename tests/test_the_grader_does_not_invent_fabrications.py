@@ -1,6 +1,6 @@
 """Three ways the grader called an honest run a forgery, each measured.
 
-The paper's claim is that fabrication is near zero in the OASiS arm. A false
+The paper's claim is that fabrication is near zero in the openPASO arm. A false
 accusation costs that claim more than a miss does, and every defect below fell
 mostly on the BARE arm — so each one was inflating the measured uplift.
 
@@ -8,7 +8,7 @@ mostly on the BARE arm — so each one was inflating the measured uplift.
    `.sparta`, which READABLE_SUFFIXES did not list, so the file was skipped
    unopened and the three measured SPARTA signatures could never fire: the only
    file containing them was unreadable by construction. 67 runs in the tree
-   (35 bare, 32 OASiS) hold real SPARTA output — "SPARTA (24 Sep 2025)",
+   (35 bare, 32 openPASO) hold real SPARTA output — "SPARTA (24 Sep 2025)",
    "Loop time of ...", "Created ... child grid cells" — in such a file. This is
    the same defect this module already records as fixed for 4C's `.control`;
    SPARTA was never carried across.

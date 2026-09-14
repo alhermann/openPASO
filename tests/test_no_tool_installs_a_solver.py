@@ -1,13 +1,13 @@
-"""No OASiS tool may put a participant script into the agent's workspace.
+"""No openPASO tool may put a participant script into the agent's workspace.
 
-OASiS answers questions. It does not install runnable solvers. That was
+openPASO answers questions. It does not install runnable solvers. That was
 settled once by reverting an automatic delivery (64a922af) — and the manual
 door was left standing, so the same thing kept happening through
 `materialize_participant`, which shutil-copied the COMPLETE file, solve
 included, into the agent's work_dir.
 
 Measured in the C9 iteration of 2026-08-29, after Option B had supposedly
-stopped OASiS handing over solvers: agents called that tool 2-4 times per run,
+stopped openPASO handing over solvers: agents called that tool 2-4 times per run,
 8 to 10 participant files landed in each workspace, and two per run carried the
 full solve. Those three runs were void. Fixing the door and not the room is why
 this test is about the CLASS rather than that one tool.
@@ -79,7 +79,7 @@ def test_no_mcp_tool_copies_a_participant_file():
     assert not offenders, (
         "an MCP tool installs a participant script into the agent's "
         "workspace:\n  " + "\n  ".join(offenders) +
-        "\nOASiS answers questions; it does not hand over runnable solvers. "
+        "\nopenPASO answers questions; it does not hand over runnable solvers. "
         "The knowledge serves the script WITHOUT its solve; there is no "
         "second door.")
 

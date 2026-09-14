@@ -78,7 +78,7 @@ def test_the_served_deck_check_refuses_a_condition_on_an_undefined_e_id(tmp_path
     import json, os, re, subprocess, sys
     from pathlib import Path
     src = (Path(__file__).resolve().parents[1] / "data" / "coupling_participants" / "participant_fourc_thermoelastic.py").read_text()
-    BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+    BEGIN = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end"
     a = src.index(BEGIN); b = src.index(END, a) + len(END)
     fill = ('hx, hy = (X1 - X0) / NX, (Y1 - Y0) / NY\n'
             'nodes = [(X0 + i * hx, Y0 + j * hy) for j in range(NY + 1) for i in range(NX + 1)]\n'
@@ -106,7 +106,7 @@ def test_the_served_lint_names_the_closest_real_section(tmp_path):
     if not binp.is_file():
         pytest.skip("4C binary not on this host")
     src = (Path(__file__).resolve().parents[1] / "data" / "coupling_participants" / "participant_fourc_thermoelastic.py").read_text()
-    BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+    BEGIN = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end"
     a = src.index(BEGIN); b = src.index(END, a) + len(END)
     fill = ('nodes = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)]\ninterior = []\nTZ = 1.0\n'
             'Path("run_u.4C.yaml").write_text("PROBLEM TYPE:\\n  PROBLEMTYPE: \\"Thermo_Structure_Interaction\\"\\n'
@@ -129,7 +129,7 @@ def test_the_served_deck_check_refuses_twisted_elements(tmp_path):
     import json, os, subprocess, sys
     from pathlib import Path
     src = (Path(__file__).resolve().parents[1] / "data" / "coupling_participants" / "participant_fourc_thermoelastic.py").read_text()
-    BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+    BEGIN = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end"
     a = src.index(BEGIN); b = src.index(END, a) + len(END)
     fill = ('nodes = [(0.0, 0.0), (0.5, 0.0), (1.0, 0.0), (0.0, 0.5), (0.5, 0.5), (1.0, 0.5)]\ninterior = []\nTZ = 0.5\n'
             'Path("deck_T.4C.yaml").write_text("NODE COORDS:\\n" + "".join(f\'  - "NODE {i + 1} COORD {x} {y} 0.0"\\n\' for i, (x, y) in enumerate(nodes))\n'
@@ -148,7 +148,7 @@ def _run_contract_with_deck(tmp_path, deck_lines: str):
     import json, os, subprocess, sys
     from pathlib import Path
     src = (Path(__file__).resolve().parents[1] / "data" / "coupling_participants" / "participant_fourc_thermoelastic.py").read_text()
-    BEGIN = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end"
+    BEGIN = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin"; END = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end"
     a = src.index(BEGIN); b = src.index(END, a) + len(END)
     fill = ('hx, hy = (X1 - X0) / NX, (Y1 - Y0) / NY\n'
             'nodes = [(X0 + i * hx, Y0 + j * hy) for j in range(NY + 1) for i in range(NX + 1)]\n'

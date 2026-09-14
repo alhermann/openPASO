@@ -54,7 +54,7 @@ async def http_checks(client: httpx.AsyncClient) -> dict:
     state: dict = {}
 
     r = await client.get("/")
-    check("GET /  serves HTML", r.status_code == 200 and "OASiS" in r.text,
+    check("GET /  serves HTML", r.status_code == 200 and "openPASO" in r.text,
           f"status={r.status_code}, bytes={len(r.text)}")
 
     r = await client.get("/api/models")
@@ -66,8 +66,8 @@ async def http_checks(client: httpx.AsyncClient) -> dict:
 
     r = await client.get("/api/mcp_servers")
     servers = r.json()["servers"]
-    check("GET /api/mcp_servers  has OASiS",
-          any(s["id"] == "oasis" for s in servers), f"{servers}")
+    check("GET /api/mcp_servers  has openPASO",
+          any(s["id"] == "openpaso" for s in servers), f"{servers}")
 
     r = await client.get("/api/modes")
     md = r.json()
@@ -337,7 +337,7 @@ async def ws_live_commands() -> None:
               msg["type"] == "status" and "autonomous" in msg["message"],
               f"msg={msg}")
         await ws.send(json.dumps({"type": "set_mcp",
-                                  "servers": ["oasis"]}))
+                                  "servers": ["openpaso"]}))
         msg = json.loads(await ws.recv())
         check("set_mcp  → status event acknowledging rebuild",
               msg["type"] == "status" and "MCP" in msg["message"],
@@ -354,7 +354,7 @@ async def ws_live_commands() -> None:
     check("Session persisted mode change",
           saved["mode"] == "autonomous", f"mode={saved['mode']}")
     check("Session persisted MCP change",
-          saved["mcp_servers"] == ["oasis"],
+          saved["mcp_servers"] == ["openpaso"],
           f"mcp_servers={saved['mcp_servers']}")
 
 

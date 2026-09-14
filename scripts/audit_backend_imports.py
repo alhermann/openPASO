@@ -70,7 +70,7 @@ HOME = Path.home()
 # about what a backend's interpreter IS: explicit env var, then plausible
 # locations, then the running interpreter.
 _ENV_VAR = {
-    "venv":        "OASIS_PYTHON",
+    "venv":        "OPENPASO_PYTHON",
     "kratos":      "KRATOS_PYTHON",
     "ofa-fenicsx": "FENICS_PYTHON",
     "ofa-dune":    "DUNE_PYTHON",

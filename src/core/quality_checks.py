@@ -9,7 +9,7 @@ steps, etc. based on the physics of each specific problem.
 import logging
 from typing import Optional
 
-logger = logging.getLogger("oasis.quality")
+logger = logging.getLogger("openpaso.quality")
 
 
 def check_time_step(
@@ -760,7 +760,7 @@ def check_interfaces_are_the_same_surface(export_a, export_b, label_a="A",
     # point — it is unconditional, and a reader who is told the interfaces
     # overlap would otherwise take that for "the right surface was used".
     _WRONG_SURFACE_LIMIT = (
-        "interface identity: OASiS compared the coordinates the two participants "
+        "interface identity: openPASO compared the coordinates the two participants "
         "REPORTED and they describe the same region of space. It cannot check "
         "that those coordinates are the surface each participant actually "
         "applied its boundary condition on — a participant that reports the "
@@ -1061,7 +1061,7 @@ def is_stub_output(content: str) -> str | None:
     deal.II print-and-exit placeholders, Kratos availability-probe stubs, 4C one-line
     comment templates, and `<...>`-placeholder decks. Turning these into a LOUD refusal
     (rather than fake output that passes validation) is the paper's own principle applied
-    to OASiS itself.
+    to openPASO itself.
     """
     if content is None:
         return "empty generator output"

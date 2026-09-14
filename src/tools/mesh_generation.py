@@ -18,7 +18,7 @@ import tempfile
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
-logger = logging.getLogger("oasis.mesh")
+logger = logging.getLogger("openpaso.mesh")
 
 from core.output_paths import output_dir as _output_dir  # noqa: E402
 _MESH_OUTPUT_DIR = _output_dir("meshes")

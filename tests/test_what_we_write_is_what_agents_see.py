@@ -1,6 +1,6 @@
 """Every rule we write must ride the tool the live server exposes.
 
-THE FAILURE THIS PINS. OASiS consolidated 61 tools into 20; the superseded
+THE FAILURE THIS PINS. openPASO consolidated 61 tools into 20; the superseded
 modules (tools/knowledge.py, tools/coupling.py, ...) stayed in the tree,
 importable and editable, with no link to the live tool and no test binding
 them. Between rounds 4 and 7 three rules were written into

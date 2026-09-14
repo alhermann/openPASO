@@ -1,6 +1,6 @@
 """A template must not claim to be a backend it does not use.
 
-OASiS is going to be read and picked apart by the computational-mechanics
+openPASO is going to be read and picked apart by the computational-mechanics
 community. The single most damaging thing it could contain is a template that
 names a solver and quietly solves with something else — a reviewer who finds one
 is entitled to distrust everything around it.

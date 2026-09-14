@@ -2,7 +2,7 @@
 
 `residual_check` separates a solve from a forgery. `residual_gate` is what makes
 it reachable from a run, and what turns a JSON problem declaration into the
-operator OASiS assembles. These tests cover the shapes that appear in the blind
+operator openPASO assembles. These tests cover the shapes that appear in the blind
 problem set — 2D and 3D, constant, spatially varying and anisotropic tensor
 coefficients — because a check that only works on the one case its author tried
 is how `residual_check` came to raise TypeError on every real artefact while its

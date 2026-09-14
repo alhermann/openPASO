@@ -63,7 +63,7 @@ def run_template_in_subprocess(
     b = get_backend(backend_name)
     template = b.generate_input(physics, variant, {})
     if MUTATE and (backend_name, physics, variant) == MUTATION_TARGET:
-        template = ("import __oasis_mutation_absent_module__  # noqa\n"
+        template = ("import __openpaso_mutation_absent_module__  # noqa\n"
                     + template)
 
     with tempfile.NamedTemporaryFile(

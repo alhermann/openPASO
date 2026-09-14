@@ -20,7 +20,7 @@ evidence was fourteen 10-byte files reading `NDOF = <n>`, credited to both named
 codes at once. Its convergence order was genuinely second-order.
 
 The grader cannot repair that after the fact — punishing an agent for meeting
-the contract as written is not available to us, and 102 runs (67 bare, 35 OASiS)
+the contract as written is not available to us, and 102 runs (67 bare, 35 openPASO)
 had been charged with forgery for exactly that. So the contract now asks for the
 one artefact that settles attribution: the solver's OWN captured output. Every
 real run produces it by redirection; a numpy monolith cannot produce 4C's
@@ -103,7 +103,7 @@ class TestCoupledTaskText(unittest.TestCase):
 
 class TestSingleCodeTaskText(unittest.TestCase):
     """The single-code half carried the worse wording and must be fixed too:
-    the substitution claim (27B+OASiS >= 397B bare) rests on single-code
+    the substitution claim (27B+openPASO >= 397B bare) rests on single-code
     correctness being real."""
 
     def test_the_template_no_longer_certifies_a_typed_line_as_proof(self):

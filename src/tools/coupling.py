@@ -25,7 +25,7 @@ from core.field_transfer import (
 from core.coupling_driver import Participant, run_coupling
 from core.backend import sorted_by_step
 
-logger = logging.getLogger("oasis.coupling")
+logger = logging.getLogger("openpaso.coupling")
 
 from core.output_paths import output_dir as _output_dir  # noqa: E402
 _COUPLING_DIR = _output_dir("coupling")
@@ -1195,7 +1195,7 @@ def register_coupling_tools(mcp: FastMCP):
                      accelerator: str = "aitken") -> str:
         """GENERAL partitioned multi-code coupling — works for ANY physics/coupling.
 
-        You write one self-contained solver script per subdomain/participant; OASiS
+        You write one self-contained solver script per subdomain/participant; openPASO
         runs the fixed-point iteration, relaxation, and convergence-or-fail for you.
         No fixed geometry, no fixed physics — the driver only moves interface data and
         iterates. Use this for any coupling not covered by the legacy `coupled_solve`.

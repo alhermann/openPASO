@@ -14,7 +14,7 @@ That is what happened: the digest covers participants, max_iter, tol,
 accelerator, theta, monolithic and probe, and the served example listed only
 the first five. An engineer following the documented procedure hit it three
 times in a row before finding the cause by reading consolidated.py. In the
-campaign the coupled OASiS arm ends HONEST_INCOMPLETE 63% of the time at a
+campaign the coupled openPASO arm ends HONEST_INCOMPLETE 63% of the time at a
 median 30% of budget, and a spurious NOT VERIFIED is exactly the kind of thing
 that stops a run that was going fine.
 
@@ -99,11 +99,11 @@ def test_a_converged_run_is_never_told_it_may_not_have_converged():
     """The verdict text must not hand a working run a reason to stop.
 
     The reason string was a disjunction — "did not converge, or failed one of
-    OASiS's silent-wrong checks" — emitted whenever the checks failed, even
+    openPASO's silent-wrong checks" — emitted whenever the checks failed, even
     with converged=True in the same payload.
     """
     src = CONSOLIDATED.read_text()
-    bad = "the coupling did not converge, or failed one of OASiS"
+    bad = "the coupling did not converge, or failed one of openPASO"
     occurrences = [
         ln for i, ln in enumerate(src.splitlines())
         if bad in ln and not ln.lstrip().startswith("#")

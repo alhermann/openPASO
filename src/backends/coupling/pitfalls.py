@@ -2,7 +2,7 @@
 
 WHY THIS FILE EXISTS
 --------------------
-The coupling knowledge OASiS serves is ~145 kB of prose across ten payloads,
+The coupling knowledge openPASO serves is ~145 kB of prose across ten payloads,
 and none of it carried a `[Category]` tag or a Signal clause. Retrieval is
 built on exactly those two fields — `knowledge(topic='pitfalls', solver=...,
 signal='<paste the error>')` matches the Signal clause and `category=` filters
@@ -81,7 +81,7 @@ from __future__ import annotations
 _SILENT_WRONG = [
     "[Coupling][BC] SIGN CONVENTION: the flux you APPLY and the flux you "
     "EXPORT are not the same number, and confusing them is the most common way "
-    "to get a converged coupling that OASiS then refuses to verify. The "
+    "to get a converged coupling that openPASO then refuses to verify. The "
     "receiving side applies the partner's flux value UNCHANGED — its outward "
     "normal points back at the sender, and that second sign flip cancels the "
     "first. The `normal_fluxes` array you EXPORT is taken with respect to YOUR "
@@ -134,7 +134,7 @@ _SILENT_WRONG = [
     "converges, the interface balance closes, the pointwise flux profile "
     "matches, the sensitivity probe reports a healthy response, the validation "
     "block comes back EMPTY, and the verdict is trustworthy — the answer is "
-    "simply in the wrong units and no check in OASiS can see it. Do not expect "
+    "simply in the wrong units and no check in openPASO can see it. Do not expect "
     "a worse-looking run: conservation is a property of the fixed point, so the "
     "mismatched run can balance BETTER than the correct one, and reading a tight "
     "balance as reassurance is exactly the mistake. Only an independent answer "
@@ -187,7 +187,7 @@ _SILENT_WRONG = [
     "names the axis and both spans — 'Interfaces do NOT overlap: along axis "
     "<d>' with each side's range and the size of the gap between them — and "
     "that is a finding, not a warning. When they DO overlap nothing fires, and "
-    "the coverage list carries the limit instead: 'OASiS compared the "
+    "the coverage list carries the limit instead: 'openPASO compared the "
     "coordinates the two participants REPORTED and they describe the same "
     "region of space. It cannot check that those coordinates are the surface "
     "each participant actually applied its boundary condition on'. A "
@@ -607,7 +607,7 @@ _CHECK_LIMITS = [
     "src/core/quality_checks.py)",
 
     "[Coupling][Validation] A CRITIC-APPROVED FLAG IS NOT A CRITIC REVIEW. "
-    "`critic_approved=True` on its own does nothing: OASiS looks the review up "
+    "`critic_approved=True` on its own does nothing: openPASO looks the review up "
     "rather than believing the flag, and the review has to have been recorded "
     "for THIS exact set of arguments. Submit the review first, with the same "
     "coupling arguments as a JSON object, then couple. "
@@ -720,7 +720,7 @@ _CAPABILITY_LIMITS = [
     "balance closes — because balance is arithmetic on whatever numbers you "
     "exported, whatever they mean — and the iteration converges to a fixed "
     "point of two solvers exchanging numbers with no physical relation. No "
-    "check in OASiS can see it, because nothing here knows what the exchanged "
+    "check in openPASO can see it, because nothing here knows what the exchanged "
     "quantity IS. The tell is at setup time, not in the output: read what each "
     "side actually applies its imported number as, and check the two are the "
     "same physical quantity in the same units. "

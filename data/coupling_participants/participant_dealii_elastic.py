@@ -1,4 +1,4 @@
-"""deal.II VECTOR participant for the OASiS `couple` driver.
+"""deal.II VECTOR participant for the openPASO `couple` driver.
 
 Plane-strain linear elasticity  -div(sigma(u)) = 0  on ONE rectangular
 subdomain of a domain split by a straight interface at x = IFACE_X. The
@@ -120,7 +120,7 @@ if SIDE == "dirichlet":
 else:
     side_flag, triples = 1, sample(imp, "normal_fluxes", (TI_X, TI_Y))
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 lines = [f"{side_flag} {E_MOD!r} {NU!r} {X0!r} {X1!r} {Y0!r} {Y1!r} "
          f"{IFACE_X!r} {NX} {NY} {DEGREE}",
          " ".join(repr(float(c)) for c in UDX),
@@ -188,7 +188,7 @@ for line in out_txt.read_text().splitlines():
 if not coords:
     sys.stderr.write("deal.II solver produced no interface points\n")
     sys.exit(1)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 Path("exports.json").write_text(json.dumps({
     "field_name": "displacement",

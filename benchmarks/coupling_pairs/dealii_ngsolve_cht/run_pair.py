@@ -149,7 +149,7 @@ def run_pair(params: dict | None = None, workdir: Path | None = None,
         "T_interface_init": 0.5 * (p["T_bot"] + p["T_top"]),
         "nx": p["nx"], "ny": p["ny"], "degree": p["degree"],
         "exe": str(dealii_exe), "partner": "ngsolve",
-        "ld_library_path": os.environ.get("OASIS_DEALII_LD", ""),
+        "ld_library_path": os.environ.get("OPENPASO_DEALII_LD", ""),
     }
     params_b = {
         "k": p["k2"], "x_min": p["x_min"], "x_max": p["x_max"],

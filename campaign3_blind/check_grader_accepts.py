@@ -92,11 +92,11 @@ def _own_output(code: str, nd: int) -> str:
     return _OWN.get(str(code).lower(), "").format(nd=nd)
 
 # v1 exposed these as module constants; v2 resolves them through loading, which
-# honours OASIS_BLIND_KEYS and is encryption-aware.
+# honours OPENPASO_BLIND_KEYS and is encryption-aware.
 G.KEYS = _loading.keys_dir()
 G.PROBLEMS = _loading.problems_dir()
 
-TMP = Path(os.environ.get("OASIS_CHECK_TMP",
+TMP = Path(os.environ.get("OPENPASO_CHECK_TMP",
                           "/tmp/claude-1001/-home-alexander-4C/balancedtmp/grade"))
 SYMS = {"x": sp.Symbol("x", real=True), "y": sp.Symbol("y", real=True),
         "z": sp.Symbol("z", real=True)}

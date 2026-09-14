@@ -50,7 +50,7 @@ _NON_MCP_ALLOWED = {
     "APPROVE", "REJECT",     # critic verdict tokens
     "search",                # verb / generic
     # README backtick-without-parens mentions of non-tool nouns:
-    "oasis",        # MCP server name (not a tool)
+    "openpaso",        # MCP server name (not a tool)
 }
 
 

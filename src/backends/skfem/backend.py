@@ -25,7 +25,7 @@ from core.backend import (
 from core.registry import register_backend
 from .generators import GENERATORS, KNOWLEDGE
 
-logger = logging.getLogger("oasis.skfem")
+logger = logging.getLogger("openpaso.skfem")
 
 
 class SkfemBackend(SolverBackend):

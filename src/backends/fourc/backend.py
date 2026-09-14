@@ -23,7 +23,7 @@ from core.backend import (
 )
 from core.registry import register_backend
 
-logger = logging.getLogger("oasis.fourc")
+logger = logging.getLogger("openpaso.fourc")
 
 # Path resolution
 FOURC_ROOT = Path(os.environ["FOURC_ROOT"]) if os.environ.get("FOURC_ROOT") else None
@@ -212,7 +212,7 @@ def _find_fourc_binary() -> Optional[Path]:
     if env_path and not Path(env_path).is_file():
         logger.warning(
             "FOURC_BINARY is set to %r, which is not a file; NOT falling back "
-            "to the search path, because the binary OASiS tests must be the one "
+            "to the search path, because the binary openPASO tests must be the one "
             "you named", env_path)
         return None
     if env_path and Path(env_path).is_file():
@@ -243,7 +243,7 @@ def _find_fourc_binary() -> Optional[Path]:
 
 
 def _get_generators():
-    """Import the 4C generators — self-contained in oasis."""
+    """Import the 4C generators — self-contained in openpaso."""
     # The generators package is at backends/fourc/generators/ (copied from 4c-ai-interface)
     from backends.fourc.generators import get_generator, list_generators
     return get_generator, list_generators
@@ -343,7 +343,7 @@ class FourcBackend(SolverBackend):
         # Check that local generators are present (self-contained)
         local_gen = Path(__file__).parent / "generators" / "__init__.py"
         if not local_gen.exists():
-            return BackendStatus.MISCONFIGURED, "4C generators not found in oasis"
+            return BackendStatus.MISCONFIGURED, "4C generators not found in openpaso"
 
         # Confirm the binary IS 4C, not merely that a file exists and is
         # executable. `FOURC_BINARY=/bin/true` used to report

@@ -23,7 +23,7 @@ from mcp.server.fastmcp import FastMCP
 from core.registry import get_backend, available_backends
 from core.backend import BackendStatus
 
-logger = logging.getLogger("oasis.workflows")
+logger = logging.getLogger("openpaso.workflows")
 
 FOURC_ROOT = Path(os.environ.get("FOURC_ROOT", ""))
 

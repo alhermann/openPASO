@@ -1,4 +1,4 @@
-"""FastAPI app for the OASiS WebUI.
+"""FastAPI app for the openPASO WebUI.
 
 Start with::
 
@@ -39,9 +39,9 @@ from .runner import (ApprovalGate, _session_workdir,
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-log = logging.getLogger("oasis.webui")
+log = logging.getLogger("openpaso.webui")
 
-app = FastAPI(title="OASiS WebUI", version="0.1.0")
+app = FastAPI(title="openPASO WebUI", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"],
                    allow_methods=["*"], allow_headers=["*"])
 
@@ -216,7 +216,7 @@ class WSSession:
         if self.agent is None:
             self.agent_context = open_agent_for_session(
                 model=self.state.get("model", config.DEFAULT_MODEL),
-                mcp_on="oasis" in self.state.get("mcp_servers", []),
+                mcp_on="openpaso" in self.state.get("mcp_servers", []),
                 workdir=self.workdir,
                 emitter=self.emit,
                 get_mode=self.mode,

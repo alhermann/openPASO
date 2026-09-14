@@ -1,6 +1,6 @@
 """A finding delivered at 98% of the run changes nothing. Fire it earlier.
 
-MEASURED, from file mtimes over the six C2 OASiS runs of rounds 4 and 5:
+MEASURED, from file mtimes over the six C2 openPASO runs of rounds 4 and 5:
 
     seed301  RESULT.txt at 98% of the file-activity span,  40s of activity after
     seed302  93%,  115s after
@@ -108,7 +108,7 @@ def test_a_correct_submission_is_not_nagged(last):
 
 
 def test_the_bare_arm_gets_none_of_this():
-    """The hook is OASiS's capability; the control arm must be untouched, or
+    """The hook is openPASO's capability; the control arm must be untouched, or
     the measured uplift includes a mechanism the bare arm was also given."""
     from langgraph_eval.agent import _read_write_tools_for
 
@@ -134,7 +134,7 @@ def _reply_from_shell(src: Path, audit: bool) -> str:
     that can see them is the shell command that ran it.
 
     MEASURED, and this is the twelfth instance of the recurring theme: the
-    write_file hook reached NONE of round 7's three OASiS runs. Their work dirs
+    write_file hook reached NONE of round 7's three openPASO runs. Their work dirs
     hold 6, 3 and 11 Python scripts producing 12, 5 and 15 per-level CSVs -- the
     agent writes a program with write_file and the PROGRAM writes the
     deliverables. This file already recorded the same lesson for RESULT.txt,
@@ -199,17 +199,17 @@ def test_the_shell_route_is_silent_on_a_correct_submission():
 def test_the_shell_route_is_silent_for_the_bare_arm():
     out = _reply_from_shell(WRONG_SIGN, audit=False)
     assert "WRONG SIGN" not in out.upper(), (
-        f"the control arm received an OASiS capability: {out[:400]}")
+        f"the control arm received an openPASO capability: {out[:400]}")
 
 
 # ------------------------------------------- defects visible in the SCRIPT
 def _reply_writing_script(src: str, audit: bool = True) -> str:
     """What the agent gets back when it writes a participant script.
 
-    THIS IS THE MECHANISM THAT WORKED. Measured over the 18 OASiS runs of the
+    THIS IS THE MECHANISM THAT WORKED. Measured over the 18 openPASO runs of the
     coupled cell served the interface-condition fact: 18 of 18 called a
     knowledge door, 18 of 18 set FACE_HEAT_FLUX, and 0 of 18 created the
-    condition that makes it do anything. They find OASiS, read it, and grasp
+    condition that makes it do anything. They find openPASO, read it, and grasp
     the concept; the one line that turns a nodal value into a boundary
     condition does not survive from prose into code. So the script is read
     instead, and the reply carries the fix rather than the diagnosis.
@@ -248,7 +248,7 @@ def test_the_same_script_with_a_condition_is_not_nagged():
 
 
 def test_cg_on_an_advective_operator_is_named():
-    """20 OASiS runs do this. cg is accepted on a non-symmetric operator and
+    """20 openPASO runs do this. cg is accepted on a non-symmetric operator and
     scheme.solve does NOT raise -- it returns the initial guess, so every level
     is exactly zero with exit 0. Measured 0.000000e+00 against 8.875850e-02
     for bicgstab."""
@@ -264,7 +264,7 @@ def test_cg_on_an_advective_operator_is_named():
 
 
 def test_rebinding_x_or_y_in_ngsolve_is_named():
-    """27 OASiS runs do this. After `from ngsolve import *` those names ARE the
+    """27 openPASO runs do this. After `from ngsolve import *` those names ARE the
     symbolic coordinates, so the assignment turns the source into a constant:
     measured type() CoefficientFunction -> float, value 0.02514662, giving
     u identically zero and order 0.0000 against 1.2229e-02."""

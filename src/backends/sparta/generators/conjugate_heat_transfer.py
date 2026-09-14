@@ -144,7 +144,7 @@ KNOWLEDGE = {
             "participant in a fresh directory dies at setup unless the "
             "species, VSS and surface files were staged there first. "
             "Signal: 'ERROR on proc 0: Cannot open species file <name>' from "
-            "particle.cpp at setup, before any stats line. The OASiS couple() "
+            "particle.cpp at setup, before any stats line. The openPASO couple() "
             "path stages every file referenced by the deck into the "
             "participant work directory; pass task-specific files through the "
             "participant's data_files list so they win over the "

@@ -2,7 +2,7 @@
 
 MEASURED over 464 single-code runs: among submissions with a complete level
 set, the SELF-convergence order computed from the agent's own numbers has a
-median of 1.96 (bare) and 1.99 (OASiS). The discretisations converge. So a
+median of 1.96 (bare) and 1.99 (openPASO). The discretisations converge. So a
 graded order near zero is almost never the method failing to converge — it is a
 field converging cleanly to the WRONG function, which a refinement study cannot
 see, and which the agent's own mesh-independence verdict cannot separate either

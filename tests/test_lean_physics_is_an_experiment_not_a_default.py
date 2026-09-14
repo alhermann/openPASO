@@ -44,17 +44,17 @@ sys.path.insert(0, str(ROOT / "src"))
 
 
 def _tail(flag: str) -> str:
-    old = os.environ.get("OASIS_LEAN_PHYSICS")
-    os.environ["OASIS_LEAN_PHYSICS"] = flag
+    old = os.environ.get("OPENPASO_LEAN_PHYSICS")
+    os.environ["OPENPASO_LEAN_PHYSICS"] = flag
     try:
         import tools.knowledge as K
         importlib.reload(K)
         return K._physics_tail()
     finally:
         if old is None:
-            os.environ.pop("OASIS_LEAN_PHYSICS", None)
+            os.environ.pop("OPENPASO_LEAN_PHYSICS", None)
         else:
-            os.environ["OASIS_LEAN_PHYSICS"] = old
+            os.environ["OPENPASO_LEAN_PHYSICS"] = old
         import tools.knowledge as K2
         importlib.reload(K2)
 
@@ -98,7 +98,7 @@ def test_lean_offers_the_rest_rather_than_deleting_it():
 
 
 def test_the_signal_route_it_promises_actually_returns_the_longer_form():
-    """A promise OASiS cannot keep is worse than an honest cap — measured
+    """A promise openPASO cannot keep is worse than an honest cap — measured
     once already on the coupling payload's escape hatch."""
     from core.registry import load_all_backends
     load_all_backends()

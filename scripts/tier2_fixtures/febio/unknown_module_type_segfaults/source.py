@@ -13,7 +13,7 @@ signal.
 The fixture runs four decks that differ from a known-good solid
 deck by the module string alone:
 
-  * "heat"          — the module OASiS's heat template used, and
+  * "heat"          — the module openPASO's heat template used, and
                       which does not exist in FEBio 4.12
   * "biphasic-FSI"  — likewise; the real 4.12 spelling is a
                       MATERIAL inside the fluid-FSI module

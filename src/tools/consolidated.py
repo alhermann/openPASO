@@ -1,5 +1,5 @@
 """
-Consolidated MCP tools for the OASiS.
+Consolidated MCP tools for openPASO.
 
 Reduces 48 tools → ~12 tools by combining related functionality.
 Fewer tools = faster schema loading = faster agent response.
@@ -58,11 +58,11 @@ _SETUP_TOPIC_ALIASES = frozenset({
 # An OFA_DISABLE_CRITIC environment ablation used to lift it, stamping an
 # unreviewed run VERIFIED. That is removed. An environment variable that turns a
 # mandatory gate off is a bypass, and a gate with a bypass cannot support the
-# claim that OASiS results are critic-reviewed: anything that sets the variable
+# claim that openPASO results are critic-reviewed: anything that sets the variable
 # — a stray export, a harness default, a copied shell script — silently
 # converts every verdict into an unreviewed one that still reads as VERIFIED.
 # The comparison it existed for (running without the critic) is not run; the
-# design is OASiS or no OASiS.
+# design is openPASO or no openPASO.
 
 # The critic requirement was a boolean the AGENT passed: an audit showed a run
 # stamped VERIFIED with critic_approved=True and no critic anywhere in the
@@ -252,7 +252,7 @@ def _attest_run_quantities(work_dir, job_id: str) -> dict:
     clean run passed everything. Nothing recomputed it, because nothing could —
     the number existed only in the agent's narration.
 
-    So OASiS computes them itself, from the solver's data artefacts and never
+    So openPASO computes them itself, from the solver's data artefacts and never
     from anything the agent wrote: a value is derived from the mesh and nodal
     field the run actually produced, and carries the file it came from and that
     file's hash. The agent no longer has to state a number, which is the point —
@@ -295,7 +295,7 @@ def _attest_run_quantities(work_dir, job_id: str) -> dict:
                 "computed_by": att.computed_by,
             }
     quantities["note"] = (
-        "Computed by OASiS from this run's own data output. Report these "
+        "Computed by openPASO from this run's own data output. Report these "
         "rather than numbers read out of a script's print statements, and "
         "never a number you did not obtain from the run.")
     return quantities
@@ -312,7 +312,7 @@ def _check_declared_pde(spec: str, out_files) -> dict:
     only property that separates it from a solve is whether it satisfies the
     equations, and that is what this measures.
 
-    Opt-in, because it needs the problem's source term and OASiS cannot infer
+    Opt-in, because it needs the problem's source term and openPASO cannot infer
     one. That is not a leak: f is the problem statement, not its solution, and a
     residual is computed from f alone. A gate that needed the answer could not
     verify a real engineering problem, where there isn't one.
@@ -374,13 +374,13 @@ def _residual_coverage_note(result: dict) -> str:
                 + str(result["residual_check"].get("detail", ""))[:200]
                 + "). It is neither certified nor rejected.")
     if verdict in ("UNSUPPORTED", "REFUSED"):
-        return ("NOTE: OASiS could not check whether this output solves the "
+        return ("NOTE: openPASO could not check whether this output solves the "
                 "declared problem ("
                 + str(result["residual_check"].get("detail", ""))[:160]
                 + "), so this verdict covers the run, not the physics.")
     return ("NOTE: nothing here checked whether this output satisfies any "
             "equations — the run declared no problem to check against. Pass "
-            "verify_pde with the problem's source term to have OASiS assemble "
+            "verify_pde with the problem's source term to have openPASO assemble "
             "it and measure the residual; a field that is finite, structurally "
             "sane and solves nothing passes every other check in this gate.")
 
@@ -388,7 +388,7 @@ def _residual_coverage_note(result: dict) -> str:
 def _residual_blocks_verification(result: dict) -> bool:
     """True only when the residual check positively established the field does
     not solve the declared problem. UNSUPPORTED and REFUSED must never block —
-    they mean OASiS did not check, and 'not checked' is not evidence of guilt
+    they mean openPASO did not check, and 'not checked' is not evidence of guilt
     any more than it is evidence of innocence."""
     return (result.get("residual_check") or {}).get("verdict") == "DOES_NOT_SOLVE"
 
@@ -649,7 +649,7 @@ _MONOLITHIC_NOT_SUPPLIED = (
     "you the iteration converged, conserved and stayed finite, and all of that "
     "is true of a coupling in which both sides consistently use the wrong units "
     "or apply the interface condition with the wrong sign. If this problem can "
-    "be solved un-split in ONE code, pass `monolithic` and OASiS will compare "
+    "be solved un-split in ONE code, pass `monolithic` and openPASO will compare "
     "the two answers; that is the strongest verification available here and it "
     "needs no external benchmark.")
 
@@ -733,7 +733,7 @@ def _run_monolithic_check(monolithic: str, exports: dict,
     # a reference that is wrong in the same way as the coupling turns the
     # strongest check in this tool into a rubber stamp.
     not_run: list[str] = [
-        "monolithic reference INDEPENDENCE: OASiS ran the command it was given "
+        "monolithic reference INDEPENDENCE: openPASO ran the command it was given "
         "and compared the numbers; it cannot tell a genuine un-split solve from "
         "one that re-reads or reproduces the coupled answer. Agreement below is "
         "evidence only if the reference solves the problem on its own."]
@@ -935,7 +935,7 @@ def _couple_failure_reason(r, checks_ok: bool) -> str:
         return ("the coupling did not reach the requested tolerance "
                 "(see `history` for the residual per iteration)")
     return (
-        "the coupling CONVERGED, and then failed one of OASiS's "
+        "the coupling CONVERGED, and then failed one of openPASO's "
         "silent-wrong checks (see `validation`). This is a converged "
         "result with a caveat, NOT a failed run: report the numbers "
         "and the caveat. A downstream check can fail on discretisation "
@@ -948,11 +948,11 @@ def _stamp_verification(result: dict, *, evidence_ok: bool, reason: str = "",
                         setup_text: str | None = None,
                         critic_token: str = "",
                         job_id: str = "") -> dict:
-    """Attach OASiS's verification-gate verdict to a run/coupling result in place.
+    """Attach openPASO's verification-gate verdict to a run/coupling result in place.
 
     A result is trustworthy ONLY when it (1) passes the numerical checks — the
     run completed, produced output, and that output is finite / converged /
-    balanced — AND (2) has been reviewed by OASiS's independent critic. OASiS
+    balanced — AND (2) has been reviewed by openPASO's independent critic. openPASO
     *verifies* and checks integrity; it does not *validate* — physical validity
     stays the engineer's task.
 
@@ -997,7 +997,7 @@ def _stamp_verification(result: dict, *, evidence_ok: bool, reason: str = "",
             "not checked — this tool did not identify its setup to the "
             "verification gate, so no review could be looked up")
     if critic_approved and not critic_ok:
-        critic_note += ("; the call declared critic_approved=True, which OASiS "
+        critic_note += ("; the call declared critic_approved=True, which openPASO "
                         "does not accept as evidence — a review must be on "
                         "record via submit_critic_review")
     if not evidence_ok:
@@ -1013,7 +1013,7 @@ def _stamp_verification(result: dict, *, evidence_ok: bool, reason: str = "",
         # ROUTE ON THE PROPERTY, NOT ON THREE WORDS. The first router
         # recognised a converged-with-caveat run only when the reason contained
         # balance/conserv/flux. One development run's caveat read "the
-        # coupling CONVERGED, and then failed one of OASiS's silent-wrong
+        # coupling CONVERGED, and then failed one of openPASO's silent-wrong
         # checks ... report the numbers and the caveat" -- no listed word -- so
         # it fell to the else-branch, and the agent received both "report the
         # numbers and the caveat" AND "must NOT be reported as a result;
@@ -1051,24 +1051,24 @@ def _stamp_verification(result: dict, *, evidence_ok: bool, reason: str = "",
             result["verification"] = (
                 "NOT VERIFIED — "
                 + (reason or "the result is not bound to a check-passing run")
-                + ". Per OASiS attestation this claim must NOT be reported as "
+                + ". Per openPASO attestation this claim must NOT be reported as "
                 "a result; revise the setup and re-run.")
     elif not critic_ok:
         result["trustworthy_result"] = False
         result["verification"] = (
-            "NOT VERIFIED — the automated checks passed, but OASiS's MANDATORY "
-            "independent critic has not reviewed this setup, and OASiS treats no "
+            "NOT VERIFIED — the automated checks passed, but openPASO's MANDATORY "
+            "independent critic has not reviewed this setup, and openPASO treats no "
             "result as trustworthy until it has (" + critic_note + "). Spawn a "
             "critic to challenge the parameters, units, discretisation, problem "
             "statement and boundary conditions and to cross-check against "
             "literature/benchmarks, then call submit_critic_review with what it "
             "found and re-run. Asserting critic_approved=True does not work: "
-            "OASiS looks the review up rather than taking your word for it.")
+            "openPASO looks the review up rather than taking your word for it.")
     else:
         result["trustworthy_result"] = True
         result["verification"] = (
             "VERIFIED — an independent critic reviewed this exact setup ("
-            + critic_note + ") and the run passed OASiS's verification-gate "
+            + critic_note + ") and the run passed openPASO's verification-gate "
             "numerical checks. This is verification, not validation: confirm "
             "physical validity against reality yourself. "
             "A VERIFIED arrangement is SETTLED: write its deliverable files "
@@ -2628,7 +2628,7 @@ def register_consolidated_tools(mcp: FastMCP):
                   narrow the response. These pitfalls belong to no
                   single backend's catalog because they only fire on
                   the delta between two.
-                - "install" — how to INSTALL a backend, how OASiS
+                - "install" — how to INSTALL a backend, how openPASO
                   finds it, which environment variables matter, the
                   first-run failures with the exact message each one
                   produces, and — importantly — which claims depend on
@@ -2851,7 +2851,7 @@ def register_consolidated_tools(mcp: FastMCP):
                 #
                 # Served here under an explicit prefix so the label travels
                 # with the content: knowing four FSI traps is worth a lot even
-                # when OASiS cannot write the FSI input for you, but an agent
+                # when openPASO cannot write the FSI input for you, but an agent
                 # must not read their presence as "I can run this".
                 # Only entries not ALREADY served are added. Backends alias
                 # heavily — 4C resolves 154 area names onto 248 texts that the
@@ -3164,7 +3164,7 @@ def register_consolidated_tools(mcp: FastMCP):
                     "note": (
                         "SPARTA is a Direct Simulation Monte Carlo (DSMC) "
                         "rarefied-gas / particle code, NOT a FEM solver — "
-                        "reachable through OASiS coupling (e.g. a continuum "
+                        "reachable through openPASO coupling (e.g. a continuum "
                         "FEM thermal wall coupled to DSMC gas)."),
                 },
             }
@@ -3466,7 +3466,7 @@ def register_consolidated_tools(mcp: FastMCP):
                 "Two tools, and one deprecated one:",
                 "- `couple(participants, max_iter, tol, accelerator, theta)` — THE "
                 "general partitioned coupling. You write one solver script per "
-                "subdomain; OASiS iterates, relaxes, checks convergence and "
+                "subdomain; openPASO iterates, relaxes, checks convergence and "
                 "conservation. Use this for any coupling.",
                 "- `couple_precice(participants, data, exchanges, work_dir, scheme)` "
                 "— the preCICE path, when each side is a real preCICE participant.",
@@ -3779,7 +3779,7 @@ def register_consolidated_tools(mcp: FastMCP):
         written the review, so the review is wasted. Measured over the
         development runs, half of all reviews handed in were rejected this way.
 
-        OASiS's critic requirement is enforced, not requested. The run and
+        openPASO's critic requirement is enforced, not requested. The run and
         coupling tools do not take your word for it: they look up whether THIS
         server holds a review of the EXACT setup being executed. Passing
         critic_approved=True without a matching review here leaves the result
@@ -3930,7 +3930,7 @@ def register_consolidated_tools(mcp: FastMCP):
             critic_token: optional token from submit_critic_review; makes the
                 review single-use and binds it to this job.
             verify_pde: optional JSON declaring the problem being solved, so
-                OASiS can check the result actually SATISFIES it rather than
+                openPASO can check the result actually SATISFIES it rather than
                 merely looking well-formed. Example:
                 {"operator": "diffusion",
                  "source": "2*pi**2*sin(pi*x)*sin(pi*y)",
@@ -4060,10 +4060,10 @@ def register_consolidated_tools(mcp: FastMCP):
             # 'non-finite values' (FEBio .xplt / .bp-without-adios2 runs).
             nonfinite = [x for x in nonfinite
                          if not x.startswith("finiteness not asserted")]
-            # OASiS computes the run's headline numbers from the run's own
+            # openPASO computes the run's headline numbers from the run's own
             # data, so the agent never has to assert one of its own.
             if out_files:
-                result["oasis_computed"] = _attest_run_quantities(
+                result["openpaso_computed"] = _attest_run_quantities(
                     work_dir, job.job_id)
                 # …and, if the run declared what it is solving, whether that
                 # data satisfies those equations at all.
@@ -4173,7 +4173,7 @@ def register_consolidated_tools(mcp: FastMCP):
             critic_token: optional token from submit_critic_review; makes the
                 review single-use and binds it to this job.
             verify_pde: optional JSON declaring the problem being solved, so
-                OASiS can check the result actually SATISFIES it rather than
+                openPASO can check the result actually SATISFIES it rather than
                 merely looking well-formed. Example:
                 {"operator": "diffusion",
                  "source": "2*pi**2*sin(pi*x)*sin(pi*y)",
@@ -4272,10 +4272,10 @@ def register_consolidated_tools(mcp: FastMCP):
             # 'non-finite values' (FEBio .xplt / .bp-without-adios2 runs).
             nonfinite = [x for x in nonfinite
                          if not x.startswith("finiteness not asserted")]
-            # OASiS computes the run's headline numbers from the run's own
+            # openPASO computes the run's headline numbers from the run's own
             # data, so the agent never has to assert one of its own.
             if out_files:
-                result["oasis_computed"] = _attest_run_quantities(
+                result["openpaso_computed"] = _attest_run_quantities(
                     work_dir, job.job_id)
                 # …and, if the run declared what it is solving, whether that
                 # data satisfies those equations at all.
@@ -4325,7 +4325,7 @@ def register_consolidated_tools(mcp: FastMCP):
     # full solve. Those runs are void.
     #
     # It is also the behaviour that was already reverted once, in 64a922af:
-    # OASiS answers questions, it does not install runnable solvers into the
+    # openPASO answers questions, it does not install runnable solvers into the
     # agent's workspace. Reverting the automatic delivery and leaving the
     # manual one standing fixed the door and not the room.
     #
@@ -5077,19 +5077,19 @@ def register_consolidated_tools(mcp: FastMCP):
                                  max_iter=max_iter, tol=tol,
                                  relaxation=relaxation, params=params))
         if critic_ok:
-            note = ("\n\n[OASiS verification: LEGACY coupled_solve — critic-reviewed. "
+            note = ("\n\n[openPASO verification: LEGACY coupled_solve — critic-reviewed. "
                     "Trust is governed by the convergence report above; a "
                     "non-converged run is reported as failure, never a result. "
                     "For a machine-readable verification verdict use `couple`.]")
         else:
-            note = ("\n\n[OASiS verification: NOT VERIFIED — OASiS's independent "
-                    "critic has not reviewed this setup, and OASiS treats no "
+            note = ("\n\n[openPASO verification: NOT VERIFIED — openPASO's independent "
+                    "critic has not reviewed this setup, and openPASO treats no "
                     "result as trustworthy until it has. Do NOT report the values "
                     "above as a result: have a critic challenge the parameters, "
                     "units, discretisation and boundary conditions, then call "
                     "submit_critic_review with what it found and re-run. "
                     f"({critic_note}.) Asserting critic_approved=True does not "
-                    "work: OASiS looks the review up rather than taking your "
+                    "work: openPASO looks the review up rather than taking your "
                     "word for it. For a machine-readable verdict use `couple`.]")
         return (out + note) if isinstance(out, str) else out
 
@@ -5108,11 +5108,11 @@ def register_consolidated_tools(mcp: FastMCP):
         critic-reviewed first).
 
         Unlike coupled_solve (legacy, fixed toy geometries), this is physics-agnostic:
-        you write one self-contained solver script per subdomain/participant and OASiS
+        you write one self-contained solver script per subdomain/participant and openPASO
         runs the fixed-point iteration, relaxation, convergence-or-fail, AND the
         silent-wrong validation a partitioned coupling needs, because a partitioned
         coupling's characteristic failure is not a crash — it is a clean, converged,
-        confidently wrong number. OASiS checks, and reports in the verdict:
+        confidently wrong number. openPASO checks, and reports in the verdict:
           * convergence, and per-block convergence (a large settled block, e.g. force,
             cannot hide a small moving one, e.g. displacement, inside one global norm);
           * finiteness of every exchanged array, including coordinates and fluxes;
@@ -5199,14 +5199,14 @@ def register_consolidated_tools(mcp: FastMCP):
               which writes <work_dir>/monolithic.json in InterfaceData shape on the
               same interface. Supplying it is the strongest verification available
               here and needs no external benchmark.
-                        history_path: optional ABSOLUTE CSV path. When set, OASiS writes its
+                        history_path: optional ABSOLUTE CSV path. When set, openPASO writes its
                             measured finite residuals there as
                             ``iteration,interface_residual``. Use the path of the per-level
                             residual-history file your task names; never retype the returned history.
 
         iface_level: optional level number stamped into the suggested_filename of the interface_csv blocks the reply carries on convergence (each participant's own final interface data, ready to save verbatim).
 
-        pde_sources: OPTIONAL, public-only. JSON {"A": {"source": "<the forcing/coefficient you actually implemented>", "task_source": "<the task's stated source, verbatim>"}, "B": {...}}. When supplied, OASiS compares the two PUBLIC strings and flags a mismatch — a silent wrong forcing (right shape, wrong function) converges cleanly to a different answer and no self-consistency check can see it. Never required; OASiS reads no reference solution and never supplies the equation for you.
+        pde_sources: OPTIONAL, public-only. JSON {"A": {"source": "<the forcing/coefficient you actually implemented>", "task_source": "<the task's stated source, verbatim>"}, "B": {...}}. When supplied, openPASO compares the two PUBLIC strings and flags a mismatch — a silent wrong forcing (right shape, wrong function) converges cleanly to a different answer and no self-consistency check can see it. Never required; openPASO reads no reference solution and never supplies the equation for you.
 
         Returns: JSON with converged, iterations, residual, per-block residuals,
             exports, the coupling graph, per-participant responsiveness and exit
@@ -5235,7 +5235,7 @@ def register_consolidated_tools(mcp: FastMCP):
         if not isinstance(specs, list) or len(specs) < 2:
             return json.dumps({"error": "need a JSON list of >=2 participants"})
         parts = []
-        cell_work = os.environ.get("OASIS_CELL_WORKDIR")
+        cell_work = os.environ.get("OPENPASO_CELL_WORKDIR")
         cell_root = Path(cell_work).resolve() if cell_work else None
         for s in specs:
             try:
@@ -5397,7 +5397,7 @@ def register_consolidated_tools(mcp: FastMCP):
         # door) converted 0 of 9 scripts. So the reply now carries each
         # participant's OWN final exports.json data -- the numbers its own
         # solver produced, already validated by the checks in this verdict --
-        # as ready-to-save CSV text. OASiS writes no file and computes no
+        # as ready-to-save CSV text. openPASO writes no file and computes no
         # number here; the agent saves its own data verbatim.
         # EACH SIDE'S SOLVER CONSOLE, KEPT PER LEVEL. The driver retains each
         # participant's captured console in participant_output.log, which the
@@ -5511,7 +5511,7 @@ def register_consolidated_tools(mcp: FastMCP):
         # list where anything at all means the coupling cannot be trusted. Left
         # in `val` it stamps NOT VERIFIED on every correct stochastic coupling,
         # measured: a converged run at a floor of 1.0e-02 came back "NOT
-        # VERIFIED — the coupling did not converge, or failed one of OASiS's
+        # VERIFIED — the coupling did not converge, or failed one of openPASO's
         # silent-wrong checks", which is the verdict the whole branch exists to
         # stop being unavoidable. The driver hands these over in their own list
         # rather than being pattern-matched out of `warnings`, so a reworded
@@ -5792,7 +5792,7 @@ def register_consolidated_tools(mcp: FastMCP):
         # NAME THE CLAUSE THAT FIRED. DO NOT TELL A CONVERGED RUN IT DIVERGED.
         #
         # This was a disjunction — "the coupling did not converge, or failed
-        # one of OASiS's silent-wrong checks" — printed whenever checks_ok was
+        # one of openPASO's silent-wrong checks" — printed whenever checks_ok was
         # false, including when `converged` is True in the very same payload.
         # An agent that has just driven a real coupling to tolerance, at ~30%
         # of its budget, was told its coupling may not have converged. It is
@@ -6155,11 +6155,11 @@ def register_consolidated_tools(mcp: FastMCP):
                  {"level": 3, "A": {"nx": 20, "ny": 32}, "B": {"nx": 28, "ny": 32}}]
             where the keys under each participant's NAME, plus "level", are
             handed to that participant's PROCESS in the environment variable
-            OASIS_CONFIG_JSON (a JSON object; OASIS_LEVEL carries the level
-            alone). OASiS writes NO file into your directories: the served
-            contracts merge OASIS_CONFIG_JSON over their own ./config.json, and
+            OPENPASO_CONFIG_JSON (a JSON object; OPENPASO_LEVEL carries the level
+            alone). openPASO writes NO file into your directories: the served
+            contracts merge OPENPASO_CONFIG_JSON over their own ./config.json, and
             a participant you wrote yourself must read it the same way
-            (json.loads(os.environ.get("OASIS_CONFIG_JSON", "{}")) merged over
+            (json.loads(os.environ.get("OPENPASO_CONFIG_JSON", "{}")) merged over
             its config) or use one couple() call per level instead. Halve h per
             level as the task prescribes, i.e. double every cell count;
           * each level starts from the previous level's converged interface
@@ -6181,7 +6181,7 @@ def register_consolidated_tools(mcp: FastMCP):
         IS THE ONE `couple` TAKES: submit_critic_review(solver='couple',
         coupling_args=<{"participants": ..., "max_iter": ..., "tol": ...,
         "accelerator": ..., "theta": ..., "probe": ...} exactly as passed here>),
-        then critic_approved=True; OASiS looks that review up for every level.
+        then critic_approved=True; openPASO looks that review up for every level.
         """
         try:
             lv = json.loads(levels)
@@ -6197,7 +6197,7 @@ def register_consolidated_tools(mcp: FastMCP):
         if not isinstance(specs, list) or len(specs) < 2:
             return json.dumps({"error": "need a JSON list of >=2 participants"})
         names = {s.get("name"): s for s in specs if isinstance(s, dict) and s.get("name")}
-        cell_work = os.environ.get("OASIS_CELL_WORKDIR")
+        cell_work = os.environ.get("OPENPASO_CELL_WORKDIR")
         if not history_dir:
             history_dir = cell_work or str(Path(specs[0].get("work_dir", ".")).resolve().parent)
         if "{k}" not in (history_pattern or ""):
@@ -6223,9 +6223,9 @@ def register_consolidated_tools(mcp: FastMCP):
                 k = int(entry.get("level", len(out_levels) + 1))
             except (TypeError, ValueError):
                 return json.dumps({"error": f"bad level entry {entry!r}"})
-            # THE LEVEL'S KEYS TRAVEL IN EACH PARTICIPANT'S ENVIRONMENT. OASiS
+            # THE LEVEL'S KEYS TRAVEL IN EACH PARTICIPANT'S ENVIRONMENT. openPASO
             # writes NO file of the agent's -- the served contracts read
-            # OASIS_CONFIG_JSON and merge it over their own ./config.json.
+            # OPENPASO_CONFIG_JSON and merge it over their own ./config.json.
             level_specs = []
             for spec in specs:
                 sp = dict(spec)
@@ -6234,8 +6234,8 @@ def register_consolidated_tools(mcp: FastMCP):
                 cfg = dict(upd) if isinstance(upd, dict) else {}
                 cfg["level"] = k
                 env = dict(sp.get("env") or {})
-                env["OASIS_LEVEL"] = str(k)
-                env["OASIS_CONFIG_JSON"] = json.dumps(cfg)
+                env["OPENPASO_LEVEL"] = str(k)
+                env["OPENPASO_CONFIG_JSON"] = json.dumps(cfg)
                 sp["env"] = env
                 level_specs.append(sp)
             reply = await couple(json.dumps(level_specs), max_iter=max_iter, tol=tol, accelerator=accelerator,
@@ -6296,7 +6296,7 @@ def register_consolidated_tools(mcp: FastMCP):
         critic_approved=True only after that review.
 
         The standard-library (preCICE) path for cross-code coupling — works for any
-        number of participants, any data fields, any exchange pattern. OASiS generates
+        number of participants, any data fields, any exchange pattern. openPASO generates
         the preCICE config and launches every participant's solver command. Use this
         when each side is a separate executable/script that talks preCICE (e.g. a DSMC
         particle code <-> a FEM solid; FSI; TSI). Each backend's preCICE participant
@@ -6871,7 +6871,7 @@ def register_consolidated_tools(mcp: FastMCP):
             parts.append(
                 f"> ⚠ **{backend.display_name()} ({backend.name()}) is NOT available "
                 f"on this install** — {_short_reason(_avail_msg)}\n>\n> That message "
-                f"is a LOCAL OBSERVATION from the machine hosting this OASiS "
+                f"is a LOCAL OBSERVATION from the machine hosting this openPASO "
                 f"server: any paths in it are this host's, not universal facts. "
                 f"See `knowledge(topic='install')` for the route and the "
                 f"environment variable that overrides it. The setup below is "
@@ -7282,7 +7282,7 @@ def register_consolidated_tools(mcp: FastMCP):
         on each, and re-runs load_all_backends() so the registry
         re-binds the backend objects to the refreshed module
         attributes. After the call, the very next
-        mcp__oasis__knowledge call returns the on-disk
+        mcp__openpaso__knowledge call returns the on-disk
         catalog without having to restart Claude Code.
 
         Returns a one-line summary of which modules were
@@ -7383,7 +7383,7 @@ def register_consolidated_tools(mcp: FastMCP):
         machine — picking the fastest install route for the current OS
         (pip > conda > binary download > source build), executing it,
         running the backend's smoke test, and persisting the resolved
-        paths into ~/.config/oasis/sources.json so every future MCP
+        paths into ~/.config/openpaso/sources.json so every future MCP
         session finds the install without re-discovery.
 
         Actions:
@@ -8304,7 +8304,7 @@ or ONE couple_levels(participants=..., levels='[{"level": 1, "A": {"nx": ..,
 "ny": ..}, "B": {...}}, ...]', history_pattern='<the per-level history file
 name your task prescribes, with {k} for the level>') call for the whole
 sequence: it hands each side its level's mesh keys in the environment
-(OASIS_CONFIG_JSON, read by the served contracts -- OASiS writes no file of
+(OPENPASO_CONFIG_JSON, read by the served contracts -- openPASO writes no file of
 yours), warm-starts each level from the previous one, and keeps every level's
 history, console and interface tables (measured: couplings proven
 at level 1 ran out of wall clock before level 3 when every level cost ten calls).
@@ -8557,7 +8557,7 @@ INCONSISTENT on the side it does answer tells you a great deal.
 
 WHAT YOUR SOLVE MUST LEAVE BEHIND.
 
-OASiS serves the participant with the mesh/form/solve region CUT OUT, and the
+openPASO serves the participant with the mesh/form/solve region CUT OUT, and the
 surviving code still uses the names that region defined. It is your solve, but
 it has a contract: whatever you write must leave behind the interface degrees
 of freedom, the assembled operator, and the solution vector the export block
@@ -8721,7 +8721,7 @@ def _front_load_coupling(payload: str, solver: str = "",
     # Those are not exotic call shapes. The truncation notice below tells the
     # agent, in as many words, to come back with
     # knowledge(topic='coupling', solver='...', signal='<what you are stuck
-    # on>') — so OASiS was directing agents at the one door that dropped the
+    # on>') — so openPASO was directing agents at the one door that dropped the
     # text they were being sent to find.
     if not isinstance(payload, str):
         return _append_deck_grammar(payload, solver)

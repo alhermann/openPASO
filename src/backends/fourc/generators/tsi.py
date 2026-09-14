@@ -223,7 +223,7 @@ class TSIGenerator(BaseGenerator):
                     "a generator script and hand that script to "
                     "run_with_generator(solver='4c', generator_script=...):\n"
                     "    import sys\n"
-                    "    sys.path.insert(0, '<OASiS repo>/src')\n"
+                    "    sys.path.insert(0, '<openPASO repo>/src')\n"
                     "    from backends.fourc.backend import FourcBackend\n"
                     "    deck = FourcBackend().generate_input(\n"
                     "        'tsi', 'plane_strain_2d', {})\n"

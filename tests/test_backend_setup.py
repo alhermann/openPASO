@@ -11,7 +11,7 @@ Created 2026-06-12 (task #227). Covers:
      asserts only stable invariants (skfem available in this venv,
      legacy config fallback resolves fourc's source tree).
   4. The legacy sources.json fallback (pre-rebrand
-     ~/.config/open-fem-agent/ vs new ~/.config/oasis/) — the
+     ~/.config/open-fem-agent/ vs new ~/.config/openpaso/) — the
      rebrand regression found 2026-06-12.
   5. MCP tool wiring — setup_backend registered, status/usage paths.
 
@@ -151,7 +151,7 @@ class TestDetectAndStatus(unittest.TestCase):
                         f"{d['details']}")
 
     def test_legacy_config_fallback_resolves_fourc(self) -> None:
-        """The rebrand moved _GLOBAL_CONFIG_PATH to ~/.config/oasis/
+        """The rebrand moved _GLOBAL_CONFIG_PATH to ~/.config/openpaso/
         but this machine's real config lives at the pre-rebrand
         ~/.config/open-fem-agent/. The fallback must surface fourc's
         source tree. (Regression found + fixed 2026-06-12.)"""
@@ -167,7 +167,7 @@ class TestDetectAndStatus(unittest.TestCase):
         #
         # What the 2026-06-12 regression was actually about is the FALLBACK: the
         # rebrand moved the config from ~/.config/open-fem-agent/ to
-        # ~/.config/oasis/, and installs with only the old path stopped
+        # ~/.config/openpaso/, and installs with only the old path stopped
         # resolving. That mechanism is testable without touching the real config.
         import importlib
 

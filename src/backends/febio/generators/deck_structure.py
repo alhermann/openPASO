@@ -32,7 +32,7 @@ USE_MKL=OFF) symlinked at ~/FEBio/bin/febio4.
 VERSION DRIFT WARNING: the installed build reports itself as
 ``version 4.12.0.86045466d``. Ten modules are registered. There
 is NO ``heat`` module and NO ``biphasic-FSI`` module in this
-build, although both strings appear in older OASiS catalog
+build, although both strings appear in older openPASO catalog
 entries and in FEBio documentation for earlier lines. Feeding
 either string to ``<Module type=...>`` does not raise an error —
 it segfaults the process (see ``module_types`` below).

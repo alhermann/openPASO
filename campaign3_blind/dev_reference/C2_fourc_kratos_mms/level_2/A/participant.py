@@ -1,4 +1,4 @@
-"""4C participant for the OASiS `couple` driver (Scalar_Transport = conduction).
+"""4C participant for the openPASO `couple` driver (Scalar_Transport = conduction).
 
 4C is a compiled YAML-in / VTU-out code with no Python API, so a participant is
 a small Python WRAPPER: write the deck from imports.json, run the 4C binary,
@@ -8,7 +8,7 @@ CONTRACT (do not change): runs in its work_dir with no arguments, reads
 imports.json (written every iteration; it is `{}` on iteration 1), writes
 exports.json LAST.
 Needs `meshio` and `numpy` in whatever interpreter runs this wrapper — that is
-OASiS's own interpreter, NOT the 4C binary.
+openPASO's own interpreter, NOT the 4C binary.
 """
 import json
 import os
@@ -99,7 +99,7 @@ def sample(imp, key, fallback, ys):
     return np.interp(ys, yy[o], vv[o])
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def funct_expr(ys, vals, deg):
     """4C takes a boundary profile as VAL x FUNCT(x,y,z,t), and FUNCT is a
     symbolic expression — not a table. So the imported samples are fitted by a
@@ -160,14 +160,14 @@ def src_expr(vals, gx, gy, rtol=1e-9):
         terms.append(f"({v:.12e})" + (f"*x^{i}" if i else "")
                      + (f"*y^{j}" if j else ""))
     return " + ".join(terms) if terms else None
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 imp = read_imports()
 ys = np.linspace(Y0, Y1, NY + 1)
 iface_vals = sample(imp, "values" if SIDE == "dirichlet" else "normal_fluxes",
                     T_INIT if SIDE == "dirichlet" else Q_INIT, ys)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 expr = funct_expr(ys, iface_vals, FIT_DEG)
 
 # F_SRC on the element-node grid — the points at which 4C itself evaluates the
@@ -208,7 +208,7 @@ else:
                    "    ONOFF: [1]\n    VAL: [1.0]\n    FUNCT: [1]\n")
 
 deck = f"""TITLE:
-  - "OASiS coupling participant (4C scalar transport)"
+  - "openPASO coupling participant (4C scalar transport)"
 PROBLEM SIZE:
   DIM: 2
 PROBLEM TYPE:
@@ -270,7 +270,7 @@ if FOURC_LD:
 # is detected at LINE DBC 2", "could not find ':' colon after key") is LOST and
 # all you see is an MPI failure. Five coupled runs in one campaign concluded from
 # that silence that "4C cannot run under subprocess" and gave up; re-running
-# their decks with stdbuf printed an ordinary deck bug every time. OASiS's own
+# their decks with stdbuf printed an ordinary deck bug every time. openPASO's own
 # run_simulation path already does this.
 shutil.rmtree("out-vtk-files", ignore_errors=True)
 for stale in Path(".").glob("out*"):
@@ -371,7 +371,7 @@ if FULL_OUTER_DIRICHLET:
     # Corner reactions also contain the perpendicular outer-boundary flux and
     # cannot be separated into one interface contribution. C2 excludes them.
     q_consistent[[0, -1]] = 0.0
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 mask = np.abs(pts[:, 0] - IFACE_X) < 1e-9
 if not mask.any():

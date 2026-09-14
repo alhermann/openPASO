@@ -521,7 +521,7 @@ def interface_phase(work: Path, spec: dict, key: dict, dim: int,
     # Those are converging couplings graded as unphysical.
     #
     # It also mattered asymmetrically: the consistent recovery that passes a
-    # fixed tolerance is described in the OASiS payload and nowhere in the task
+    # fixed tolerance is described in the openPASO payload and nowhere in the task
     # text, so a grading-critical rule was published to one arm. Testing for
     # non-convergence instead removes that, because both recoveries converge.
     #

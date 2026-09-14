@@ -1,7 +1,7 @@
 """A turn that ends with no tool call and no RESULT.txt must not end the run.
 
 The defect this guards against was worth 112 of the campaign's 813 runs — and
-it was not arm-neutral in effect: 19.5% of OASiS runs against 8.1% of bare.
+it was not arm-neutral in effect: 19.5% of openPASO runs against 8.1% of bare.
 The stopped runs were mid-task, with most of their clock unspent, announcing
 the next action they never got to emit.
 

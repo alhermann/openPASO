@@ -157,7 +157,7 @@ def _grammar() -> dict:
     dump."""
     import json as _json
     import yaml
-    cache = Path(os.environ.get("TMPDIR", "/tmp")) / "oasis_4c_grammar.json"
+    cache = Path(os.environ.get("TMPDIR", "/tmp")) / "openpaso_4c_grammar.json"
     if cache.is_file():
         return _json.loads(cache.read_text())
     env = dict(os.environ)
@@ -301,7 +301,7 @@ def deck(p: TsiProblem, nx: int = 160, two_way: bool = True,
     vol = [f"NODE {n} DVOL 1" for n, _, _, _ in coords]
 
     d = {
-        "TITLE": ["OASiS TSI cross-code reference: one implicit step of coupled "
+        "TITLE": ["openPASO TSI cross-code reference: one implicit step of coupled "
                   "linear thermoelasticity, uniaxial strain."],
         "PROBLEM TYPE": {"PROBLEMTYPE": "Thermo_Structure_Interaction"},
         "IO": {"STRUCT_STRESS": "No", "STRUCT_STRAIN": "No"},

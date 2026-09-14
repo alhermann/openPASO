@@ -101,14 +101,14 @@ def test_it_supplies_no_physics(tmp_path):
         assert leak not in out, f"the notice leaks method: {leak!r}"
 
 
-def test_only_the_oasis_arm_gets_it(tmp_path):
-    """The bare arm must be untouched — this is an OASiS gate.
+def test_only_the_openpaso_arm_gets_it(tmp_path):
+    """The bare arm must be untouched — this is an openPASO gate.
 
     ASKED OF THE BEHAVIOUR, ON EVERY CHANNEL, not of the source text. The
     earlier version located the call site and asserted that the 2000 characters
     before it contained `if audit_on_submit and p.name ==`. That is a proxy for
-    "OASiS-only", and it went red the moment the check was ALSO wired to the
-    shell path — where it is equally OASiS-only, guarded by
+    "openPASO-only", and it went red the moment the check was ALSO wired to the
+    shell path — where it is equally openPASO-only, guarded by
     `if not audit_on_submit: return ""` at the top of _audit_after_shell.
 
     A guard written against a proxy passes when the property is broken in a way
@@ -140,7 +140,7 @@ def test_only_the_oasis_arm_gets_it(tmp_path):
         seen[arm] = (MARK in by_write, MARK in by_shell)
 
     assert seen[True] == (True, True), (
-        "the OASiS arm must be told on BOTH channels; 57% of submitters write "
+        "the openPASO arm must be told on BOTH channels; 57% of submitters write "
         f"RESULT.txt by shell only. got write/shell = {seen[True]}")
     assert seen[False] == (False, False), (
         f"the bare arm must be told on neither channel; got {seen[False]}")

@@ -100,7 +100,7 @@ _TIMESTAMP_RE = __import__("re").compile(r"_(\d{8}_\d{6})(?:/|$)")
 def _timestamp_in(path) -> str:
     """The newest run-tool timestamp on this path, or "" if there is none.
 
-    OASiS names its per-call output directories <backend>_<YYYYmmdd_HHMMSS>,
+    openPASO names its per-call output directories <backend>_<YYYYmmdd_HHMMSS>,
     which sorts lexicographically in time order, so a plain string compare is
     a correct "which is later".
     """
@@ -139,7 +139,7 @@ def discover_levels(work: Path, coupled: bool, run_dir: Path | None = None):
                 if seen[key].read_bytes() != c.read_bytes():
                     # A DEEPER DIFFERING COPY IS AN INTERMEDIATE ARTEFACT, NOT
                     # AN AMBIGUOUS SUBMISSION -- AND THIS RULE PENALISED ONLY
-                    # THE OASiS ARM.
+                    # THE openPASO ARM.
                     #
                     # The message already said "grading the shallowest", and
                     # then appending to `problems` made grade_blind_v2 return
@@ -149,7 +149,7 @@ def discover_levels(work: Path, coupled: bool, run_dir: Path | None = None):
                     # Measured across the development grades: 16 runs rejected
                     # this way, ALL SIXTEEN in the MCP arm and none in BARE --
                     # NG1 (9), NG2 (2), DL1 (2), DL2, DU1, KR1. The cause is
-                    # OASiS's own tooling: a run through its simulation tools
+                    # openPASO's own tooling: a run through its simulation tools
                     # writes results into work/simulation_outputs/<run>/, so the
                     # MCP arm ends up with work/solution_level1.csv AND
                     # work/simulation_outputs/ngsolve_.../solution_level1.csv.
@@ -172,14 +172,14 @@ def discover_levels(work: Path, coupled: bool, run_dir: Path | None = None):
                     # A RE-RUN IS NOT AN AMBIGUITY, AND THE LATEST WRITE IS
                     # THE ANSWER.
                     #
-                    # OASiS's run_simulation writes into
+                    # openPASO's run_simulation writes into
                     # simulation_outputs/<backend>_<YYYYmmdd_HHMMSS>/, a fresh
                     # directory per call, so an agent that ran its solver more
                     # than once — which is the normal way to iterate — ends up
                     # with several copies at the SAME depth and was rejected
                     # for it. Measured: 18 runs in the tree carry two or more
                     # timestamped directories for one backend, and every single
-                    # one is an OASiS-arm run, because only that arm has the
+                    # one is an openPASO-arm run, because only that arm has the
                     # tool. So this rejection is arm-specific by construction,
                     # and correcting it RAISES the measured uplift; it is
                     # corrected because it is wrong, and the direction is

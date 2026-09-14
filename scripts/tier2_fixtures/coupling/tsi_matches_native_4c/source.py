@@ -1,6 +1,6 @@
 """THE PARTITIONED TWO-WAY TSI, AGAINST 4C's NATIVE Thermo_Structure_Interaction.
 
-THE CLAIM UNDER TEST: the answer OASiS's cross-code partitioned coupling
+THE CLAIM UNDER TEST: the answer openPASO's cross-code partitioned coupling
 converges to is the answer a production multiphysics code gets when it solves
 the same coupled problem monolithically in one piece.
 
@@ -149,7 +149,7 @@ def body() -> None:
             f"switching mechanical->thermal off moved the coupled answer by only "
             f"{csize:.3e}")
     L.check(d < 0.05, "reverse_direction_size_disagrees_with_fourc",
-            f"OASiS measures the reverse direction at {csize:.3e} of the answer "
+            f"openPASO measures the reverse direction at {csize:.3e} of the answer "
             f"and 4C at {gsize:.3e} — {d:.1%} apart")
     print(f"both_codes_agree_on_reverse_direction={bool(csize > 1e-3 and d < 0.05)}")
     print("pairs_run=1")

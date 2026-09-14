@@ -1,7 +1,7 @@
 """TWO-WAY TSI, same code on both halves — the control the cross-code pairs are
 read against.
 
-THE CLAIM UNDER TEST: OASiS can run a genuinely two-way thermo-structural
+THE CLAIM UNDER TEST: openPASO can run a genuinely two-way thermo-structural
 coupling through the generic `couple` path — thermal expansion drives the
 deformation AND the deformation feeds back into the energy equation — and the
 converged answer is the answer, not just A fixed point.

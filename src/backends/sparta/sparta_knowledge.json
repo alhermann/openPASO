@@ -2142,7 +2142,7 @@
       "surf_react_adsorb"
     ],
     "how_to_read_this": "The 'commands' dict in this file is the SPARTA DOCUMENTATION index, one entry per doc page. 55 of those 121 keys are doc-page filenames, NOT things you may type in a deck: every compute_* / fix_* page, dump_image and surf_react_adsorb are written as 'compute <ID> grid ...', 'fix <ID> ave/surf ...', 'dump <ID> image ...', 'surf_react <ID> adsorb ...'. Typing the underscore form is a hard error: 'ERROR: Unknown command: compute_grid 1 all all nrho (../input.cpp:244)'. Use 'true_commands' as the parser surface and 'commands' as the syntax reference.",
-    "no_command_is_missing": "The set difference (build commands) - (documented commands) is empty: OASiS over-lists, it does not under-list."
+    "no_command_is_missing": "The set difference (build commands) - (documented commands) is empty: openPASO over-lists, it does not under-list."
   },
   "required_setup_sequence": {
     "canonical_order": [

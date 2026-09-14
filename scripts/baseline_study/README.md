@@ -1,6 +1,6 @@
 # Token-Savings Baseline Study
 
-Compares OASiS MCP vs bare LLM (Claude Code without MCP) across 6 tasks of increasing difficulty.
+Compares openPASO MCP vs bare LLM (Claude Code without MCP) across 6 tasks of increasing difficulty.
 
 ## How to run
 
@@ -8,14 +8,14 @@ Compares OASiS MCP vs bare LLM (Claude Code without MCP) across 6 tasks of incre
 
 **With MCP** (normal setup):
 ```bash
-cd /path/to/oasis
+cd /path/to/openpaso
 claude  # MCP auto-connects
 # Give the prompt from prompts.json, let it work, save session
 ```
 
 **Without MCP** (remove MCP from Claude Code settings first):
 ```bash
-cd /path/to/oasis
+cd /path/to/openpaso
 claude  # No MCP connected
 # Give the exact same prompt, let it work, save session
 ```

@@ -29,11 +29,11 @@ MODELS = {
                     "weights": None},
 }
 
-# MCP servers selectable in the UI. The OASiS server is the main one;
+# MCP servers selectable in the UI. The openPASO server is the main one;
 # additional rows are placeholders for future plug-ins.
 MCP_SERVERS = {
-    "oasis": {
-        "label": "OASiS — Open Agentic Simulation System",
+    "openpaso": {
+        "label": "openPASO — Open Agentic Simulation System",
         "command": str(REPO / ".venv/bin/python"),
         "args": ["-m", "server"],
         "cwd": str(REPO / "src"),

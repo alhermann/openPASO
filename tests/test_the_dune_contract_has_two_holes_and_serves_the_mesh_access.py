@@ -22,7 +22,7 @@ def _contract() -> str:
 
 def test_two_holes_and_the_names_each_must_leave():
     t = _contract()
-    assert t.count("OASiS DOES NOT SERVE THIS") == 4          # two holes, each opened and closed
+    assert t.count("openPASO DOES NOT SERVE THIS") == 4          # two holes, each opened and closed
     assert "HOLE 1 OF 2" in t and "HOLE 2 OF 2" in t
     # the lean view thins comment runs, so pin the names in the leave-behind block
     # that survives it, not a particular explanatory line

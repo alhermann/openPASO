@@ -584,7 +584,7 @@ def narrow(all_pitfalls: dict[str, Any], *, physics: str = "",
         # knowledge unreachable or make a miss look like an empty database",
         # and the code broke that promise: an unrecognised physics name left
         # only the physics-independent buckets, so the agent read a near-empty
-        # reply as "OASiS knows nothing about my problem". Measured on one
+        # reply as "openPASO knows nothing about my problem". Measured on one
         # development run, where the one fact that decides a correct result
         # from a confidently wrong one lives under `poisson` and the task calls
         # the problem anisotropic diffusion.

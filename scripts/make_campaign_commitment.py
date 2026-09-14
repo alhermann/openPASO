@@ -77,7 +77,7 @@ GLOBS = [
     "campaign3_blind/problems/*/spec_public.json",
     "src/blind_eval/*.py",
     "src/blind_eval/**/*.py",
-    # THE MCP ARM'S ENTIRE TREATMENT. The knowledge served to the OASiS arm is
+    # THE MCP ARM'S ENTIRE TREATMENT. The knowledge served to the openPASO arm is
     # the independent variable of this experiment; none of it was hashed, so
     # "which knowledge produced these numbers" had no answer.
     "src/tools/*.py",
@@ -182,7 +182,7 @@ def verify(doc: dict, keys_dir: Path | None) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--keys", type=Path,
-                    default=Path(os.environ.get("OASIS_BLIND_KEYS", "")))
+                    default=Path(os.environ.get("OPENPASO_BLIND_KEYS", "")))
     ap.add_argument("--seed", type=int, default=None,
                     help="evaluation draw seed to record (required to write)")
     ap.add_argument("--verify", action="store_true")

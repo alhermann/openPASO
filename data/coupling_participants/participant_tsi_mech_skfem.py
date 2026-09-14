@@ -90,19 +90,19 @@ def sample(imp, key, fallback, pts):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 mesh = MeshTri.init_tensor(np.linspace(X0, X1, NX + 1),
                            np.linspace(Y0, Y1, NY + 1))
 ub = Basis(mesh, ElementVector(ElementTriP2()), intorder=4)
 tb = Basis(mesh, ElementTriP1(), intorder=4)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 pts = tb.doflocs.T                        # (nnode, 2) — where fields are exchanged
 
 # theta = T - T_ref imported from the thermal participant, as a P1 field here
 theta = sample(imp, "values", THETA_INIT, pts)
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 @BilinearForm
 def elasticity(u, v, w):
     eu, ev = sym_grad(u), sym_grad(v)
@@ -134,7 +134,7 @@ dy1 = ub.get_dofs(lambda x: np.abs(x[1] - Y1) < TOL).all("u^2")
 D = np.unique(np.concatenate([dx0, dy0, dy1]))
 
 u = solve(*condense(K, f, D=D))
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # volumetric strain, L2-projected onto P1 so it lives on the exchange nodes
 evol = solve(asm(mass, tb), asm(evol_rhs, tb, uh=ub.interpolate(u)))

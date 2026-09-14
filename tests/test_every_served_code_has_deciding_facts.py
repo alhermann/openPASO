@@ -62,7 +62,7 @@ def test_a_coupled_skfem_reply_carries_them():
 
 
 # Every trap below was measured on this install after a step-trial worker died on it while writing
-# ONE side of a coupling from exactly what OASiS serves. 58 saved fills, re-run and graded the way
+# ONE side of a coupling from exactly what openPASO serves. 58 saved fills, re-run and graded the way
 # the campaign's tasks grade (interface interior for the recovered flux): 46 never wrote exports at
 # all, and every one of those died on an invented API call. A fact names each of these.
 MEASURED_TRAPS = [

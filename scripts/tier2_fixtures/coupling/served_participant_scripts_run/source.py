@@ -57,7 +57,7 @@ WRAPPERS = {"fourc": "FOURC_BIN", "febio": "FEBIO", "sparta": "SPARTA",
 # exactly what the starred row in the sides table records.
 NOT_EXECUTED = {"sparta": "its deck opens surf/species/vss files that must be "
                           "staged into work_dir first",
-                "kratos": "KratosMultiphysics does not import in OASiS's "
+                "kratos": "KratosMultiphysics does not import in openPASO's "
                           "interpreter on this install"}
 
 

@@ -6,7 +6,7 @@ MEASURED, on three real runs:
                       residual 0.309 -> 8.2e-07 over 20 iterations.
                       audit_results said "clean": FALSE, and told it three
                       times that "the residual was never actually computed from
-                      the two sides" — because of the leading NaN that OASiS's
+                      the two sides" — because of the leading NaN that openPASO's
                       OWN `couple` writes as history[0]. The grader drops that
                       NaN by name; this gate did not. The only repair available
                       to an agent that believes it is to break something right.
@@ -62,11 +62,11 @@ HEALTHY = {1: [0.309, 0.178, 0.0959, 0.0498, 0.0254, 0.0121, 0.0058],
 
 
 def test_a_leading_nan_is_not_reported_as_the_agents_defect(tmp_path):
-    """OASiS writes history[0] = NaN itself."""
+    """openPASO writes history[0] = NaN itself."""
     with_nan = {k: [float("nan")] + v for k, v in HEALTHY.items()}
     kinds = _kinds(_write(tmp_path, with_nan))
     assert not any("NON-POSITIVE OR NON-FINITE" in k for k in kinds), (
-        "the gate blames the agent for the NaN that OASiS's own couple() "
+        "the gate blames the agent for the NaN that openPASO's own couple() "
         f"returns as history[0]; findings were {kinds}"
     )
 

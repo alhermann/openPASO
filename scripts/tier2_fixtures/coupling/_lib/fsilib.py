@@ -353,7 +353,7 @@ def report_verdict(res: dict, tag: str) -> bool:
     print(f"{tag}_validation_empty={not val}")
     # The verdict string itself, printed and NOT asserted on. Measured on a
     # clean, fully converged, validation-empty FSI run: the verdict still reads
-    # "NOT VERIFIED - the automated checks passed, but OASiS's MANDATORY
+    # "NOT VERIFIED - the automated checks passed, but openPASO's MANDATORY
     # independent critic has not reviewed this setup". The critic gate wants a
     # RECORDED review, which a fixture process does not have and should not
     # fake, so "NOT VERIFIED" appears on correct runs and broken ones alike and

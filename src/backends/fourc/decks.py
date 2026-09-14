@@ -519,7 +519,7 @@ DECKS: tuple[Deck, ...] = (
         pitfalls=(
             "There is no SOLIDH8PORO element. It appears in zero files of the "
             "4C source, zero upstream decks and is absent from the grammar "
-            "index; earlier OASiS knowledge named it as the 3-D poro element. "
+            "index; earlier openPASO knowledge named it as the 3-D poro element. "
             "The real ones are SOLIDPORO_PRESSURE_VELOCITY_BASED (used here, "
             "and the only one the 25 upstream Poroelasticity decks use), "
             "SOLIDPORO_PRESSURE_VELOCITY_BASED_P1 (porosity as a 4th nodal "

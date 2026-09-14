@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "langgraph_eval"))
 
 import agent as A  # noqa: E402
 
-MARKER = "oasis_pgroup_test_grandchild"
+MARKER = "openpaso_pgroup_test_grandchild"
 
 
 def _alive() -> int:

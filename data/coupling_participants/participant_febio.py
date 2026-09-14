@@ -1,4 +1,4 @@
-"""FEBio 4 participant for the OASiS `couple` driver.
+"""FEBio 4 participant for the openPASO `couple` driver.
 
 FEBio has NO scripting API: it is XML-in / (plot|log)-file-out. This module is
 therefore a WRAPPER that, each coupling iteration:
@@ -79,12 +79,12 @@ LOG_NODE = "cpl_node.csv"
 LOG_ELEM = "cpl_elem.csv"
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def _n(v):
     """Full-precision XML number. NEVER use repr()/!r: numpy 2 scalars
     stringify as 'np.float64(0.0)' and FEBio rejects the deck."""
     return format(float(v), ".17g")
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 # ---------------------------------------------------------------- imports
@@ -112,7 +112,7 @@ def sample(imp, key, fallback, y):
 
 
 # ------------------------------------------------------------------- mesh
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def build_mesh():
     xs = np.linspace(X0, X1, NX + 1)
     ys = np.linspace(Y0, Y1, NY + 1)
@@ -261,7 +261,7 @@ def parse_log(path):
         except ValueError:
             continue
     return out
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 # -------------------------------------------------------------------- run
@@ -284,7 +284,7 @@ else:
     # UNCHANGED as the x-traction.
     traction_x = 0.5 * (q_line[:-1] + q_line[1:])
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 write_deck(u_map, traction_x)
 for f in (LOG_NODE, LOG_ELEM):
     Path(f).unlink(missing_ok=True)
@@ -300,7 +300,7 @@ sx = parse_log(LOG_ELEM)
 if not ux or not sx:
     sys.stderr.write(f"empty FEBio logfile output: n_ux={len(ux)} n_sx={len(sx)}\n")
     sys.exit(2)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 u_out = np.array([ux[n] for n in iface_nodes], float)
 sig_xx = float(np.mean(list(sx.values())))

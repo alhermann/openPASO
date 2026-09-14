@@ -5,7 +5,7 @@ WHAT THIS FIXTURE EXISTS TO FIX
 `_PRECICE_BY_BACKEND` in src/tools/coupling_knowledge.py served
 "CAN — proven by a real coupled run" for SEVEN backends, under a header comment
 saying "Every CAN was established by running a real two-participant coupling
-through OASiS's own preCICE orchestrator on this install."
+through openPASO's own preCICE orchestrator on this install."
 
 Two of the seven had that: scikit-fem and FEniCSx, in
 `precice_can_verdicts_proven_by_a_real_run`, whose own docstring downgrades
@@ -26,7 +26,7 @@ Four separate two-participant preCICE couplings, each driven through the
 REGISTERED `couple_precice` tool, each pairing the SAME scikit-fem DIRICHLET
 participant against one backend's NEUMANN participant:
 
-    NGSolve    Python, netgen mesh          (shares the OASiS venv with skfem)
+    NGSolve    Python, netgen mesh          (shares the openPASO venv with skfem)
     DUNE-fem   Python, ALUGrid + JIT UFL    (its own conda env + the PYTHONPATH
                                              recipe its payload prescribes)
     deal.II    COMPILED C++ linking         (data/coupling_participants/
@@ -644,7 +644,7 @@ def spans(vals) -> tuple[float, float]:
 def net_flux(export: dict) -> float:
     """Net normal flux leaving through the interface, integrated over
     arclength. Recomputed here so the conservation check does not depend on
-    any OASiS helper being right."""
+    any openPASO helper being right."""
     co, fl = export["coordinates"], export["normal_fluxes"]
     ys = [c[1] for c in co]
     order = sorted(range(len(ys)), key=lambda i: ys[i])
@@ -666,7 +666,7 @@ def precice_shim(dst: Path) -> Path:
 
       * PYTHONPATH is searched BEFORE the interpreter's own site-packages, so a
         whole-site-packages entry also shadows that interpreter's `KratosMultiphysics`
-        with the OASiS venv's broken wheel, which dies at import on `GLIBC_2.32
+        with the openPASO venv's broken wheel, which dies at import on `GLIBC_2.32
         not found`.
       * `cyprecice` is a compiled extension built against ONE numpy ABI. Import
         it next to a different numpy and it fails with "numpy.core.multiarray
@@ -765,7 +765,7 @@ def dealii_precice_exe() -> Path:
         raise L.Absent("no deal.II install tree with "
                        "lib/cmake/deal.II/deal.IIConfig.cmake")
     build = (Path(os.environ.get("TMPDIR", "/tmp")) /
-             "oasis_dealii_precice_participant_build")
+             "openpaso_dealii_precice_participant_build")
     exe = build / "precice_heat_dealii"
     if exe.is_file():
         return exe
@@ -841,7 +841,7 @@ def run_pair(tag: str, right_text: str, right_py: str, extra_env: dict | None,
     ]
     data = [{"name": "Temperature", "type": "scalar"},
             {"name": "Heat-Flux", "type": "scalar"}]
-    # exchanges[0] MUST be the field written by the SECOND participant: OASiS
+    # exchanges[0] MUST be the field written by the SECOND participant: openPASO
     # makes it both the convergence measure and the acceleration datum, and
     # preCICE allows only second-to-first data there.
     exchanges = [{"data": "Temperature", "from": "Right", "to": "Left"},
@@ -955,7 +955,7 @@ def body() -> None:
 
     done = 0
 
-    # 1. NGSolve — the OASiS venv, the same interpreter scikit-fem uses. The
+    # 1. NGSolve — the openPASO venv, the same interpreter scikit-fem uses. The
     #    payload's claim is that `import precice` works in the interpreter that
     #    carries NGSolve; what was missing is that a coupling ever RAN.
     run_pair("ngsolve", _RIGHT_NGSOLVE, L.interpreter("ngsolve"), None)

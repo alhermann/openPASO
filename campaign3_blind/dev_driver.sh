@@ -10,10 +10,10 @@
 # the paper's table. Every run dir and ledger is kept.
 set -u
 cd /home/alexander/Schreibtisch/ofa-v2
-export OASIS_REPO=/home/alexander/Schreibtisch/ofa-v2
-export OASIS_BLIND_KEYS=/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
+export OPENPASO_REPO=/home/alexander/Schreibtisch/ofa-v2
+export OPENPASO_BLIND_KEYS=/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
 set -a; . /home/alexander/Schreibtisch/qwen_uplift_test/.env; set +a
-export OASIS_PYTHON=/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python
+export OPENPASO_PYTHON=/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python
 # NO X11. DISPLAY=:1 with a stale ~/.Xauthority made every graphical-capable
 # solver emit "Invalid MIT-MAGIC-COOKIE-1 key" — 60 such lines across round 1,
 # and C1 concluded in BOTH arms that "4C requires an X11 display" and treated

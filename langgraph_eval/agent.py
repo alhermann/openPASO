@@ -3,9 +3,9 @@
 Two agent constructors:
 
 * :func:`build_bare_agent`  — host-side toolset only (bash + web search +
-  spawn_subagent). No OASiS MCP. Mirrors what Claude has in v1 BARE.
+  spawn_subagent). No openPASO MCP. Mirrors what Claude has in v1 BARE.
 * :func:`build_mcp_agent`   — async context manager yielding the same host-side
-    toolset plus the campaign OASiS MCP tools. Keep the context open for the full
+    toolset plus the campaign openPASO MCP tools. Keep the context open for the full
     run so server-side state survives between calls.
 
 Both conditions get parity with what Claude Code offers natively:
@@ -18,7 +18,7 @@ Both conditions get parity with what Claude Code offers natively:
 | ``web_search``      | Equivalent of Claude's WebSearch (literature/benchmarks) |
 | ``spawn_subagent``  | Equivalent of Claude's Agent tool; needed so the   |
 |                     | model can fulfil the MANDATORY CRITIC protocol the |
-|                     | OASiS server prompts it to follow                  |
+|                     | openPASO server prompts it to follow                  |
 
 MCP_FULL exposes the explicit ``CAMPAIGN_MCP_TOOL_ALLOWLIST`` below. Deprecated
 coupling shims and environment-mutating setup/reload tools are deliberately not
@@ -90,9 +90,9 @@ BARE_SYSTEM = (
     "spawn_subagent.\n\n"
 )
 # NOTE: the mandatory-critic instruction is deliberately NOT part of the
-# baseline. The critic is one of the things OASiS provides, so giving it to the
-# unequipped arm hands the control group an OASiS method and understates the
-# measured difference. The two arms are: host tools only (BARE) vs the OASiS
+# baseline. The critic is one of the things openPASO provides, so giving it to the
+# unequipped arm hands the control group an openPASO method and understates the
+# measured difference. The two arms are: host tools only (BARE) vs the openPASO
 # tool layer, which includes the mandatory critic (MCP).
 
 # THIS STRING IS THE ONLY ONE THE MODEL EVER READS.
@@ -109,13 +109,13 @@ BARE_SYSTEM = (
 # are marked DEPRECATED in server.py and were called ZERO times in 325 MCP
 # runs, while `couple` — which this prompt never mentioned — was used in 70.
 def _mcp_system_prompt() -> str:
-    """The OASiS arm's system text is OASiS's OWN instructions string -- the
+    """The openPASO arm's system text is openPASO's OWN instructions string -- the
     one server.py hands to FastMCP -- read from the product (core.instructions).
     MCP clients fold or drop a server's instructions, so the harness puts the
     same bytes in front of the model; it adds only its own tool wiring (the
-    host-side tools, and how to run the critic OASiS demands with this
+    host-side tools, and how to run the critic openPASO demands with this
     harness's spawn_subagent). No knowledge, no file names, no coaching lives
-    here: whatever OASiS should say about itself is said in OASiS."""
+    here: whatever openPASO should say about itself is said in openPASO."""
     from core.instructions import INSTRUCTIONS    # src/ is put on sys.path below
     return (INSTRUCTIONS
             + "\n\nHost-side tools (also available): run_bash, read_file, "
@@ -153,7 +153,7 @@ def _llm(size: str, *, temperature: float, seed: int) -> ChatOpenAI:
 # So the harness stamps the remaining time on every command result. It is set
 # by the runner, it carries no domain content, and BOTH ARMS get it: the bare
 # arm builds its shell tool from this same function, and a clock is not an
-# OASiS capability.
+# openPASO capability.
 _DEADLINE = None
 
 _SENSITIVE_ENV_MARKERS = (
@@ -175,7 +175,7 @@ def _clean_subprocess_env() -> dict[str, str]:
         key: value for key, value in os.environ.items()
         if not any(marker in key.upper() for marker in _SENSITIVE_ENV_MARKERS)
     }
-    clean.pop("OASIS_BLIND_KEYS", None)
+    clean.pop("OPENPASO_BLIND_KEYS", None)
     clean.pop("SSH_AUTH_SOCK", None)
     return clean
 
@@ -288,7 +288,7 @@ def _add_mount_dirs(argv: list[str], root: Path, target: Path,
 def _sandbox_scratch_path(workdir: Path) -> Path:
     work = workdir.resolve()
     digest = hashlib.sha256(str(work).encode()).hexdigest()[:24]
-    return Path("/tmp/oasis-cell-scratch") / digest
+    return Path("/tmp/openpaso-cell-scratch") / digest
 
 
 def _relocate_dune_cache(dune_cache: Path) -> None:
@@ -323,12 +323,12 @@ def _relocate_dune_cache(dune_cache: Path) -> None:
 
 def sandbox_scratch_for(workdir: Path) -> Path:
     """Return the host scratch visible as ``/tmp`` to exactly one cell."""
-    root = Path("/tmp/oasis-cell-scratch")
+    root = Path("/tmp/openpaso-cell-scratch")
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
     scratch = _sandbox_scratch_path(workdir)
     scratch.mkdir(mode=0o700, exist_ok=True)
     _OWNED_SCRATCH.add(scratch)
-    baseline = os.environ.get("OASIS_DUNE_CACHE_BASELINE")
+    baseline = os.environ.get("OPENPASO_DUNE_CACHE_BASELINE")
     dune_cache = scratch / "dune-cache" / "dune-py"
     if baseline and not dune_cache.exists():
         dune_cache.parent.mkdir(parents=True, exist_ok=True)
@@ -406,12 +406,12 @@ def _sandboxed_process_argv(workdir: Path, process: list[str], *,
     cwd = work
     if source_repo is not None:
         source = source_repo.resolve()
-        source_mount = Path("/tmp/oasis-source")
+        source_mount = Path("/tmp/openpaso-source")
         _add_mount_dirs(argv, Path("/tmp"), source_mount, made)
         argv.extend(("--ro-bind", str(source), str(source_mount)))
         sessions = source / "data" / "sessions"
         if sessions.is_dir():
-            session_output = work / ".oasis_sessions"
+            session_output = work / ".openpaso_sessions"
             session_output.mkdir(parents=True, exist_ok=True)
             argv.extend(("--bind", str(session_output),
                          str(source_mount / "data" / "sessions")))
@@ -440,7 +440,7 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
     # HEREDOC.
     #
     # Its docstring says the write of RESULT.txt is "the only moment that
-    # reaches 100% of submitters". Measured over the OASiS-arm runs whose
+    # reaches 100% of submitters". Measured over the openPASO-arm runs whose
     # trajectory records the write at all: 57% wrote RESULT.txt by SHELL only,
     # 29% by both, 14% by write_file only — and an auto-audit reply appears in
     # 29% of them. So the hook reached about a quarter of submitters, not all.
@@ -493,7 +493,7 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
     # WHICH NO write_file HOOK CAN SEE.
     #
     # The early artefact check was attached to write_file and reached NONE of
-    # round 7's three OASiS runs, while the submission audit reached all three.
+    # round 7's three openPASO runs, while the submission audit reached all three.
     # Measured in their work dirs: 6, 3 and 11 Python scripts producing 12, 5
     # and 15 per-level CSVs. The agent writes a program with write_file and the
     # PROGRAM writes the deliverables, so the only channel that sees them is
@@ -713,7 +713,7 @@ def _read_write_tools_for(workdir: Path, *, audit_on_submit: bool = False):
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(content)
             reply = f"wrote {len(content)} chars to {p}"
-            # ROUND-8 MECHANISM, OASiS ARM ONLY: the submission is audited the
+            # ROUND-8 MECHANISM, openPASO ARM ONLY: the submission is audited the
             # moment it is written, and the findings are placed in the reply
             # the agent is already reading. Round 7 measured why voluntary
             # does not work: a calibrated audit tool plus the instruction to
@@ -721,7 +721,7 @@ def _read_write_tools_for(workdir: Path, *, audit_on_submit: bool = False):
             # by 1 of 51 agents — while the tool's checks catch 15 of the 18
             # submitted-and-wrong runs of earlier rounds. Participation is now
             # by default. The bare arm is untouched: this flag is set only by
-            # build_mcp_agent, because the audit is OASiS's capability.
+            # build_mcp_agent, because the audit is openPASO's capability.
             # FIRE THE COUPLED CHECKS ON THE ARTEFACT WRITE, not only on
             # submission. See _early_artefact_check for the mtime measurement
             # that forced this.
@@ -817,7 +817,7 @@ def _make_spawn_subagent_tool(
 
     The sub-agent reuses the same vLLM server (cheap on memory) with a
     slightly higher temperature and a derived seed. It gets the same
-    workdir-bound bash/read/write/web_search and the parent's OASiS
+    workdir-bound bash/read/write/web_search and the parent's openPASO
     tools, but its own ``spawn_subagent`` is *not* re-installed beyond
     depth 1 to prevent runaway recursion.
     """
@@ -828,19 +828,19 @@ def _make_spawn_subagent_tool(
 
         The critic role should ruthlessly challenge the parent's setup; the
         verifier should re-derive numbers independently; the researcher
-        should look things up via web_search and the OASiS knowledge tool.
+        should look things up via web_search and the openPASO knowledge tool.
         Returns the sub-agent's final message text.
         """
         # ASYNC, AND ainvoke BELOW, BECAUSE THE MCP TOOLS ARE ASYNC-ONLY.
         # This was a sync `def` calling `sub_agent.invoke`. The sub-agent
-        # inherits the parent's OASiS tools, which langchain_mcp_adapters
+        # inherits the parent's openPASO tools, which langchain_mcp_adapters
         # returns as coroutine-only StructuredTools, so the first time a
         # critic reached for `knowledge` or `discover` it raised
         # "NotImplementedError: StructuredTool does not support sync
         # invocation" — caught by the except below and returned to the model
         # as a string, so it looked like a critic verdict rather than a dead
         # mechanism. Round 1: this fired in 14 of 14 coupled and 16 of 18
-        # single-code OASiS runs, i.e. the MANDATORY critic the server
+        # single-code openPASO runs, i.e. the MANDATORY critic the server
         # instructions demand never ran once in the entire campaign.
         if depth >= 2:
             return "[spawn_subagent denied: max depth 2 to prevent recursion]"
@@ -864,7 +864,7 @@ def _make_spawn_subagent_tool(
         elif role == "worker":
             # A bounded step worker: the same tools, one step, one check.
             # Plumbing only -- the step and its check come from the parent's
-            # task text (which OASiS's ladder writes); nothing here knows
+            # task text (which openPASO's ladder writes); nothing here knows
             # any task.
             sys = (
                 "You are the worker for exactly ONE step of a larger job. Do "
@@ -888,7 +888,7 @@ def _make_spawn_subagent_tool(
         # (round 46, C2 7211): a worker wrote RESULT.txt, the audit named the missing level-1
         # run logs in the worker's write reply, the worker's report to the parent carried none
         # of it, and the parent stopped at 21 min left. Plumbing only: the finding text is the
-        # same OASiS audit the write hook calls.
+        # same openPASO audit the write hook calls.
         _rt = None
         try:
             _rt = next(iter(sorted(workdir.rglob("RESULT.txt"))), None)
@@ -922,9 +922,9 @@ def _make_spawn_subagent_tool(
 
 
 # ────────────────────────────────────────────────────────────────────
-# OASiS MCP tool loader (langchain-mcp-adapters)
+# openPASO MCP tool loader (langchain-mcp-adapters)
 # ────────────────────────────────────────────────────────────────────
-def _oasis_mcp_client(workdir: Path | None = None):
+def _openpaso_mcp_client(workdir: Path | None = None):
     from langchain_mcp_adapters.client import MultiServerMCPClient
 
     env = _clean_subprocess_env()
@@ -962,23 +962,23 @@ def _oasis_mcp_client(workdir: Path | None = None):
     env["LD_LIBRARY_PATH"] = ":".join(_parts)
     _pin_backend_runtime_env(env)
     source_repo = Path(os.environ.get(
-        "OASIS_SOURCE_SNAPSHOT", str(REPO))).resolve()
+        "OPENPASO_SOURCE_SNAPSHOT", str(REPO))).resolve()
     env["PYTHONPATH"] = str(source_repo / "src")
     # THE TOOLS MUST WRITE INTO THIS CELL'S SANDBOX.
     #
     # run_simulation and friends wrote to <repo>/simulation_outputs, a single
     # directory shared by every caller. An agent that followed the documented
-    # OASiS workflow therefore produced its solution files where nothing
+    # openPASO workflow therefore produced its solution files where nothing
     # downstream looks, and where another cell could overwrite or read them.
-    # It is the OASiS-arm tools that do this, so the cost fell entirely on the
-    # arm under test: 8 of 14 coupled OASiS runs in round 1 went through it.
+    # It is the openPASO-arm tools that do this, so the cost fell entirely on the
+    # arm under test: 8 of 14 coupled openPASO runs in round 1 went through it.
     if workdir is not None:
         cell_work = Path(workdir).resolve()
-        env["OASIS_CELL_WORKDIR"] = str(cell_work)
-        env["OASIS_OUTPUT_DIR"] = str(cell_work / "simulation_outputs")
-        env["OASIS_COUPLING_DIR"] = str(cell_work / "coupling")
-        env["OASIS_MESH_DIR"] = str(cell_work / "meshes")
-        env["OASIS_BENCHMARK_DIR"] = str(cell_work / "benchmark_results")
+        env["OPENPASO_CELL_WORKDIR"] = str(cell_work)
+        env["OPENPASO_OUTPUT_DIR"] = str(cell_work / "simulation_outputs")
+        env["OPENPASO_COUPLING_DIR"] = str(cell_work / "coupling")
+        env["OPENPASO_MESH_DIR"] = str(cell_work / "meshes")
+        env["OPENPASO_BENCHMARK_DIR"] = str(cell_work / "benchmark_results")
 
     # THE SERVER INTERPRETER, RESOLVED — NOT ASSUMED.
     #
@@ -990,13 +990,13 @@ def _oasis_mcp_client(workdir: Path | None = None):
     # exact defect class (backend_imports.json, the fixture runner) — same
     # fix: explicit env var first, then the repo venv, then the primary
     # checkout's venv, and REFUSE loudly rather than launch a crippled arm.
-    _cands = [os.environ.get("OASIS_PYTHON"),
+    _cands = [os.environ.get("OPENPASO_PYTHON"),
               str(REPO / ".venv/bin/python"),
               str(Path.home() / "Schreibtisch/open-fem-agent/.venv/bin/python")]
     _server_py = next((c for c in _cands if c and Path(c).is_file()), None)
     if _server_py is None:
         raise RuntimeError(
-            "no interpreter found for the OASiS MCP server; set OASIS_PYTHON. "
+            "no interpreter found for the openPASO MCP server; set OPENPASO_PYTHON. "
             "Refusing to build a silently crippled MCP arm.")
     command = _server_py
     args = ["-m", "server"]
@@ -1006,9 +1006,9 @@ def _oasis_mcp_client(workdir: Path | None = None):
             Path(workdir), [command, *args], source_repo=source_repo)
         command, args = wrapped[0], wrapped[1:]
         cwd = Path(workdir)
-        env["PYTHONPATH"] = "/tmp/oasis-source/src"
+        env["PYTHONPATH"] = "/tmp/openpaso-source/src"
     client = MultiServerMCPClient({
-        "oasis": {
+        "openpaso": {
             "command": command,
             "args": args,
             "cwd": str(cwd),
@@ -1019,30 +1019,47 @@ def _oasis_mcp_client(workdir: Path | None = None):
     return client
 
 
-def _load_oasis_mcp_tools(workdir: Path | None = None) -> list[BaseTool]:
+def _load_openpaso_mcp_tools(workdir: Path | None = None) -> list[BaseTool]:
     """List tools for discovery-only callers.
 
-    Agent runs must use :func:`oasis_mcp_tools_session`; tools returned here
+    Agent runs must use :func:`openpaso_mcp_tools_session`; tools returned here
     create a new server for every call and therefore cannot carry server-side
     state such as critic reviews.
     """
-    client = _oasis_mcp_client(workdir)
+    client = _openpaso_mcp_client(workdir)
     return asyncio.run(client.get_tools())
 
 
 @asynccontextmanager
-async def oasis_mcp_tools_session(workdir: Path | None = None):
-    """Yield tools bound to one OASiS process for an entire agent run."""
+async def openpaso_mcp_tools_session(workdir: Path | None = None, *,
+                                     surface: str = "campaign"):
+    """Yield tools bound to one openPASO process for an entire agent run.
+
+    ``surface="campaign"`` yields exactly CAMPAIGN_MCP_TOOL_ALLOWLIST and
+    refuses if the server cannot supply all of it, because a measurement is
+    only comparable against a fixed tool contract.
+
+    ``surface="all"`` yields every tool the server registers. That is what an
+    ordinary user of the product should get -- setup_backend and the catalog
+    tools are useful to a person and are simply not part of the experiment's
+    fixed surface. Nothing but the tool list differs between the two.
+    """
     from langchain_mcp_adapters.tools import load_mcp_tools
 
-    client = _oasis_mcp_client(workdir)
-    async with client.session("oasis") as session:
-        available = await load_mcp_tools(session, server_name="oasis")
+    if surface not in ("campaign", "all"):
+        raise ValueError(f"surface must be 'campaign' or 'all', not {surface!r}")
+
+    client = _openpaso_mcp_client(workdir)
+    async with client.session("openpaso") as session:
+        available = await load_mcp_tools(session, server_name="openpaso")
+        if surface == "all":
+            yield available
+            return
         names = {tool.name for tool in available}
         missing = CAMPAIGN_MCP_TOOL_ALLOWLIST - names
         if missing:
             raise RuntimeError(
-                "OASiS campaign tool contract is incomplete; missing: "
+                "openPASO campaign tool contract is incomplete; missing: "
                 + ", ".join(sorted(missing)))
         yield [tool for tool in available
                if tool.name in CAMPAIGN_MCP_TOOL_ALLOWLIST]
@@ -1055,21 +1072,21 @@ async def oasis_mcp_tools_session(workdir: Path | None = None):
 
 # sys.path is extended ONCE here, not on every RESULT.txt write —
 # the per-call insert accumulated 27 duplicate entries in 25 writes
-# and kept putting OASiS's src ahead of the venv for every import.
+# and kept putting openPASO's src ahead of the venv for every import.
 import sys as _sys_for_path
 _sys_for_path.path.insert(
     0, str(Path(__file__).resolve().parents[1] / "src"))
 
 
 # ─────────────────────────────────────────────────────────────────────
-# THE WORKSPACE CHECKS ARE OASiS's, NOT THE HARNESS'S.
+# THE WORKSPACE CHECKS ARE openPASO's, NOT THE HARNESS'S.
 #
 # They were accreting here, one plausible check at a time, until the harness
 # was a second knowledge system keyed to this campaign's contract -- which
-# breaks the attribution (an uplift produced by the runner is not OASiS's),
+# breaks the attribution (an uplift produced by the runner is not openPASO's),
 # cannot ship, and is invisible to a fresh draw. Boundary set explicitly on
 # 2026-09-03: the harness owns plumbing and hook POINTS only; every check
-# body lives in OASiS (tools/workspace_advisor.py, sibling of
+# body lives in openPASO (tools/workspace_advisor.py, sibling of
 # tools/result_audit.py) and is imported here like the audit already was.
 # Two pacing checks that coached the agent about its clock rather than
 # verifying anything were deleted outright, not moved.
@@ -1085,7 +1102,7 @@ from tools.workspace_advisor import (          # noqa: E402
 
 
 def _audit_submission(result_path: Path, content: str):
-    """Run the OASiS result audit in-process on the submission's directory.
+    """Run the openPASO result audit in-process on the submission's directory.
 
     Returns a findings string, "" for clean, and raises only when the audit
     module itself is unavailable. claimed order is parsed from the submission
@@ -1118,7 +1135,7 @@ def _audit_submission(result_path: Path, content: str):
     if r.get("clean"):
         return ""
     # LEAD WITH THE SINGLE NEXT FIX, then the full findings. The prioritisation
-    # body lives in OASiS (tools/result_audit.what_to_fix_next); the harness
+    # body lives in openPASO (tools/result_audit.what_to_fix_next); the harness
     # only prints what it returns. Advisory only — the gate never blocks.
     lead = r.get("what_to_fix_next") or ""
     body = "\n".join(f"  * {f['sequence']}: {f['finding']}"
@@ -1154,7 +1171,7 @@ def build_bare_agent(*, size: str, seed: int, workdir: Path, depth: int = 0):
 # call. The discarded-proof check, wired to run_bash and write_file, never saw
 # it: the artefacts appeared between hook points. Twenty-first instance of the
 # theme, on the newest mechanism. The hook below is plumbing only -- every
-# check body stays in OASiS (tools/workspace_advisor).
+# check body stays in openPASO (tools/workspace_advisor).
 _MCP_HOOK_ART = ("*_level*.csv", "*_level*.log")
 
 
@@ -1200,7 +1217,7 @@ def _post_mcp_artefact_check(workdir: Path, before: dict) -> str:
 
 
 def _wrap_mcp_tool_with_artefact_hook(tool: BaseTool, workdir: Path):
-    """Append OASiS's write-time findings to the reply of any MCP call that
+    """Append openPASO's write-time findings to the reply of any MCP call that
     left new deliverable files behind. String replies only; structured
     replies pass through untouched."""
     inner = tool.coroutine
@@ -1225,8 +1242,8 @@ def _wrap_mcp_tool_with_artefact_hook(tool: BaseTool, workdir: Path):
 @asynccontextmanager
 async def build_mcp_agent(*, size: str, seed: int, workdir: Path,
                           depth: int = 0):
-    """Yield an MCP agent whose tools share one live OASiS server."""
-    async with oasis_mcp_tools_session(workdir) as mcp_tools:
+    """Yield an MCP agent whose tools share one live openPASO server."""
+    async with openpaso_mcp_tools_session(workdir) as mcp_tools:
         mcp_tools = [_wrap_mcp_tool_with_artefact_hook(t, workdir)
                      for t in mcp_tools]
         host = _host_tools(workdir, size=size, seed=seed,
@@ -1238,5 +1255,5 @@ async def build_mcp_agent(*, size: str, seed: int, workdir: Path,
 
 
 __all__ = ["build_bare_agent", "build_mcp_agent",
-           "oasis_mcp_tools_session", "CAMPAIGN_MCP_TOOL_ALLOWLIST",
+           "openpaso_mcp_tools_session", "CAMPAIGN_MCP_TOOL_ALLOWLIST",
            "sandbox_scratch_for", "cleanup_sandbox_scratch"]

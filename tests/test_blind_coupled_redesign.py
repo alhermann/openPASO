@@ -320,7 +320,7 @@ def test_audit_leaks_reaches_campaign3_runs(tmp_path):
         "let me look at open-fem-agent/src/backends/fenics/backend.py")
     rep = AL.audit(tmp_path)
     assert rep["audited"] == 1, "the blind campaign was the one never audited"
-    assert rep["tainted"] and "OASiS-source access" in rep["tainted"][0]["findings"]
+    assert rep["tainted"] and "openPASO-source access" in rep["tainted"][0]["findings"]
 
 
 def test_audit_leaks_bad_both_regex_is_live():

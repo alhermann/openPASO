@@ -1,7 +1,7 @@
 """The auto-audit watched write_file, and agents submit with a heredoc.
 
 Its own docstring says the write of RESULT.txt is "the only moment that reaches
-100% of submitters". MEASURED over the OASiS-arm runs whose trajectory records
+100% of submitters". MEASURED over the openPASO-arm runs whose trajectory records
 the write at all: 57% wrote RESULT.txt by SHELL only, 29% by both, 14% by
 write_file only — and an auto-audit reply appears in 29% of them. The hook
 reached about a quarter of submitters, not all.
@@ -17,7 +17,7 @@ refuses exactly that when it is given the chance.
 The same audit now also runs after a shell command that TOUCHED RESULT.txt.
 Nothing is forced and nothing is blocked: the findings are appended to the reply
 the agent is already reading, at the moment the submission exists. The bare arm
-is untouched, because the audit is OASiS's capability and appears in the
+is untouched, because the audit is openPASO's capability and appears in the
 measured arm only.
 """
 
@@ -68,7 +68,7 @@ def test_a_heredoc_submission_is_audited(tmp_path):
 
 
 def test_the_bare_arm_is_untouched(tmp_path):
-    """The audit is OASiS's capability and must appear in one arm only."""
+    """The audit is openPASO's capability and must appear in one arm only."""
     _plant(tmp_path)
     out = _bash_tool_for(tmp_path, audit_on_submit=False).invoke({"command": HEREDOC})
     assert "AUTO-AUDIT" not in out and "WRITTEN-IN SEQUENCE" not in out

@@ -197,7 +197,7 @@ def test_served_payload_is_the_elided_contract_of_the_tested_participant(name):
         reveal = _coupling_participant_script(name)
         assert first_block.strip()[-300:] in reveal, (
             f"solver='{name}': the door's contract block and the reveal's differ")
-        for served_part in ("imports.json", "exports.json", "EXPORT SELF-CHECK", "OASiS DOES NOT SERVE THIS"):
+        for served_part in ("imports.json", "exports.json", "EXPORT SELF-CHECK", "openPASO DOES NOT SERVE THIS"):
             assert served_part in first_block, f"solver='{name}': {served_part} missing from the scaffold"
     else:
         # the payload carries the LEAN view of the elided contract (comment
@@ -698,7 +698,7 @@ def test_iteration_sizing_is_a_worked_formula_not_a_lookup_table():
 def test_sides_table_does_not_overstate_what_converged_here():
     """The blanket sentence under the table claimed every "yes" was a coupling
     that ran on THIS install and CONVERGED. Two of the nine rows contradicted it
-    in their own text: Kratos says "in a separate Kratos install, not OASiS's own
+    in their own text: Kratos says "in a separate Kratos install, not openPASO's own
     interpreter here", and SPARTA says the residual "cannot beat the Monte-Carlo
     noise" — i.e. `couple` reported FAILURE. The rows were honest; the summary
     over them was not, and it is the headline `discover('coupling')` serves.
@@ -761,8 +761,8 @@ def test_complete_templates_contain_no_task_result_artifacts():
         payload = _ck(solver)
         # the file contracts mark their editable block; a served scaffold
         # (4C, DUNE since 2026-09-11) marks its holes with the SOLVE bars
-        assert "EDIT THIS BLOCK" in payload or "OASiS DOES NOT SERVE THIS" in payload
-        assert "PLACEHOLDER" in payload or "OASiS DOES NOT SERVE THIS" in payload
+        assert "EDIT THIS BLOCK" in payload or "openPASO DOES NOT SERVE THIS" in payload
+        assert "PLACEHOLDER" in payload or "openPASO DOES NOT SERVE THIS" in payload
         for artifact in ("solution_level1_A.csv", "INTERFACE_RESIDUAL =",
                          "MESH_INDEPENDENCE = CONVERGED"):
             assert artifact not in payload, (

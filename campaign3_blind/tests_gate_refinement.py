@@ -16,7 +16,7 @@ arms while its flux jump fell at every level — BARE 3.3% -> 2.0% -> 1.1%, MCP
 CORRECT under the refinement test.
 
 It mattered asymmetrically too: the recovery that passes a fixed tolerance is
-described in the OASiS payload and nowhere in the task text, so a
+described in the openPASO payload and nowhere in the task text, so a
 grading-critical rule was published to one arm only. Testing for
 non-convergence removes that, because both recoveries converge.
 """

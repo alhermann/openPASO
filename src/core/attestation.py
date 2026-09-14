@@ -2,12 +2,12 @@
 
 WHY THIS EXISTS
 ---------------
-OASiS's verification gate stamps a RUN: it confirms that a solver executed,
+openPASO's verification gate stamps a RUN: it confirms that a solver executed,
 produced output files, and that those files are finite (``_stamp_verification``
 in ``tools/consolidated.py``). What it did not do is bind a REPORTED NUMBER to
 that run. The agent read the artefacts itself and wrote its own answer, so a
 plausible invented value passed every gate. Detection was only possible outside
-the tool, which means a general user of OASiS — one with nobody checking the
+the tool, which means a general user of openPASO — one with nobody checking the
 result independently — had no protection at all.
 
 WHY THE OBVIOUS FIX DOES NOT WORK
@@ -26,14 +26,14 @@ a run proves only that a run happened.
 WHAT THIS MODULE DOES INSTEAD
 -----------------------------
 Admissible evidence is the solver's DATA output only — the mesh and the nodal
-field it wrote. OASiS reads that data with its own reader and computes the
+field it wrote. openPASO reads that data with its own reader and computes the
 requested quantity with its own arithmetic. Narration (stdout, logs, and any
 plain-text file the agent could author) is never consulted. The agent supplies
 a job and a field; it never supplies a number.
 
 WHAT THIS GUARANTEES, AND WHAT IT DOES NOT
 -----------------------------------------
-Guaranteed: a reported number was computed BY OASIS, with its own arithmetic,
+Guaranteed: a reported number was computed BY OPENPASO, with its own arithmetic,
 from structured field data that existed in the run's work directory inside the
 run's execution window, and that has not been altered since (content hash).
 Typing a number, printing one from the solver script, reporting a quantity the
@@ -43,7 +43,7 @@ ones with a manufactured solution.
 
 NOT guaranteed: that the field data itself is the result of genuinely solving
 the stated problem. The agent authors the solver script, so a script that
-writes fabricated field values produces fabricated data that OASiS will then
+writes fabricated field values produces fabricated data that openPASO will then
 faithfully read. An adversary who can derive the expected answer can in
 principle emit a plausible field. Defending that requires evidence the data
 satisfies the discrete problem — a residual or consistency check — which is
@@ -142,7 +142,7 @@ def attest_quantity(work_dir, job_id: str, quantity: str, *,
     """
     if quantity not in ATTESTABLE:
         raise AttestationError(
-            f"'{quantity}' is not attestable; OASiS computes only {ATTESTABLE}")
+            f"'{quantity}' is not attestable; openPASO computes only {ATTESTABLE}")
 
     candidates = ([Path(result_file)] if result_file
                   else find_data_artefacts(work_dir))
@@ -204,7 +204,7 @@ def attest_quantity(work_dir, job_id: str, quantity: str, *,
                     f"job {job_id}: the run's data does not cover every probe "
                     f"point; the requested values are not supported by it")
             out_val, out_vals = None, [float(v) for v in vals]
-            how = "OASiS interpolation of the run's own nodal field"
+            how = "openPASO interpolation of the run's own nodal field"
 
         if out_val is not None and not math.isfinite(out_val):
             raise AttestationError(
@@ -233,14 +233,14 @@ def verify_attestation(att: Attestation) -> tuple[bool, str]:
 
 def require_attested(value_claimed, att: Attestation | None, *,
                      rel_tol: float = 1e-6) -> tuple[bool, str]:
-    """Gate a claimed number against an attestation computed by OASiS.
+    """Gate a claimed number against an attestation computed by openPASO.
 
     A claim with no attestation is refused outright. This is what makes
     fabrication unreachable rather than merely detectable.
     """
     if att is None:
         return False, ("REFUSED: no attestation. A reported value must be "
-                       "computed by OASiS from a registered run's data output.")
+                       "computed by openPASO from a registered run's data output.")
     ok, why = verify_attestation(att)
     if not ok:
         return False, f"REFUSED: {why}"
@@ -257,7 +257,7 @@ def require_attested(value_claimed, att: Attestation | None, *,
     # a claim 8x the attested value passed. (Found by attack suite, fixed.)
     denom = max(abs(att.value), abs(claimed), 1e-300)
     if abs(claimed - att.value) / denom > rel_tol:
-        return False, (f"REFUSED: claimed {claimed!r} is not the value OASiS "
+        return False, (f"REFUSED: claimed {claimed!r} is not the value openPASO "
                        f"computed from the run's data ({att.value!r}, job "
                        f"{att.job_id}, {att.source_file})")
     return True, "attested"

@@ -4,7 +4,7 @@ Why these fixtures exist
 ------------------------
 The tier-2 suite had 108 fixtures and not one of them exercised coupling. Every
 one was single-code. Coupling is the capability the project leans on hardest —
-it is the thing a model without OASiS cannot do at all — and its knowledge was
+it is the thing a model without openPASO cannot do at all — and its knowledge was
 ~35 kB across 18 per-backend payloads with no fixture-level verification behind
 any of it.
 
@@ -87,7 +87,7 @@ def _find_checkout(start: Path | None) -> Path | None:
 # can answer with a DIFFERENT checkout of the same repo and a reader comparing
 # runs needs to see that rather than infer it.
 #
-#   OASIS_REPO   an explicit pin, for anyone who wants one.
+#   OPENPASO_REPO   an explicit pin, for anyone who wants one.
 #   $PWD         the directory the RUNNER was invoked from. `subprocess.run`
 #                sets the child's working directory but leaves the inherited
 #                PWD alone, so this survives into a staged fixture and names
@@ -95,15 +95,15 @@ def _find_checkout(start: Path | None) -> Path | None:
 #                one whose mutation is being tested.
 #   sys.executable  last, and only useful when the interpreter lives inside a
 #                checkout.
-_ENV_ROOT = os.environ.get("OASIS_REPO")
+_ENV_ROOT = os.environ.get("OPENPASO_REPO")
 _PWD = os.environ.get("PWD")
 REPO_ROOT = (_find_checkout(Path(__file__))
              or _find_checkout(Path(_ENV_ROOT) if _ENV_ROOT else None)
              or _find_checkout(Path(_PWD) if _PWD else None)
              or _find_checkout(Path(sys.executable)))
 if REPO_ROOT is None:
-    print("FAIL: cannot locate an OASiS checkout from this fixture's own path, "
-          "from $OASIS_REPO, or from the running interpreter. A coupling "
+    print("FAIL: cannot locate an openPASO checkout from this fixture's own path, "
+          "from $OPENPASO_REPO, or from the running interpreter. A coupling "
           "fixture needs the checkout for src/ and for the shipped participant "
           "scripts; it cannot run without one.")
     raise SystemExit(2)
@@ -553,7 +553,7 @@ def dealii_exe(target: str = "heat_iface_dealii") -> Path:
     import hashlib
     tag = hashlib.sha1(str(PARTICIPANT_DIR.resolve()).encode()).hexdigest()[:10]
     build = (Path(os.environ.get("TMPDIR", "/tmp"))
-             / f"oasis_dealii_participant_build_{tag}")
+             / f"openpaso_dealii_participant_build_{tag}")
     exe = build / target
     if exe.is_file():
         return exe

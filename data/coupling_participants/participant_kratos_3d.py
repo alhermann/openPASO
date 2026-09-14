@@ -1,4 +1,4 @@
-"""Kratos Multiphysics participant for the OASiS `couple` driver — 3-D scalar
+"""Kratos Multiphysics participant for the openPASO `couple` driver — 3-D scalar
 conduction across a PLANAR interface.  Serves either side of the split.
 
 CONTRACT (do not change): runs in its work_dir with no arguments, reads
@@ -195,7 +195,7 @@ ON_HI = abs(IFACE_POS - HI[AX]) < abs(IFACE_POS - LO[AX])
 S = 1.0 if ON_HI else -1.0
 IFACE_FACE = f"{AXN[AX]}{1 if ON_HI else 0}"
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 # The six Kuhn (path) tetrahedra of a hexahedron, on the corner numbering
 # b = i + 2*j + 4*k.  Kuhn's decomposition applied identically to every cell is
 # FACE-CONFORMING: neighbouring cells split their shared quad along the same
@@ -208,7 +208,7 @@ KUHN = ((0, 1, 3, 7), (0, 1, 7, 5), (0, 2, 7, 3),
         (0, 2, 6, 7), (0, 4, 5, 7), (0, 4, 7, 6))
 
 _MODEL = None            # keeps the KM.Model alive for the ModelPart's lifetime
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 # ── driver handshake ────────────────────────────────────────────────────────
@@ -396,7 +396,7 @@ def build_model():
     ModelPart is a C++ object with no __dict__ to hang it on, and letting the
     Model be collected leaves the part dangling.
     """
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     global _MODEL
     _MODEL = KM.Model()
     mp = _MODEL.CreateModelPart("thermal")
@@ -454,7 +454,7 @@ def face_nodes(nid, name):
     sl = [slice(None)] * 3
     sl[a] = -1 if hi else 0
     return nid[tuple(sl)].ravel()
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 def interface_triangles(mp, iface_ids):
@@ -489,7 +489,7 @@ def area_weights(mp, tris, index_of):
     return w
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def linear_solver():
     if LIN_SOLVER == "direct":
         return KM.SkylineLUFactorizationSolver()
@@ -501,7 +501,7 @@ def linear_solver():
         "solver_type": "amgcl", "smoother_type": "spai0", "krylov_type": "cg",
         "coarsening_type": "aggregation", "max_iteration": 5000,
         "tolerance": 1e-13, "verbosity": 0, "scaling": false }"""))
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 def main():
@@ -517,7 +517,7 @@ def main():
                  f"and >= 1 across the interface axis so the interface plane and "
                  f"the opposite face do not land on the same nodes")
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     mp, nid = build_model()
 
     sl = [slice(None)] * 3
@@ -534,7 +534,7 @@ def main():
         sys.exit(f"internal: the interface slice sits at {AXN[AX]}="
                  f"{pts_raw[:, AX].mean()}, not {IFACE_POS} — the mesh and the "
                  f"slice index disagree")
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
     order = order_plane(pts_raw[:, TAN])
     ids = ids_raw[order]
@@ -545,7 +545,7 @@ def main():
     tris = interface_triangles(mp, ids)
     w = area_weights(mp, tris, index_of)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     # ── material, source, outer Dirichlet ───────────────────────────────────
     XYZ = np.array([[n.X, n.Y, n.Z] for n in mp.Nodes])
     fval = np.broadcast_to(np.asarray(
@@ -567,7 +567,7 @@ def main():
             n.SetSolutionStepValue(KM.TEMPERATURE, float(val))
             n.Fix(KM.TEMPERATURE)
             outer_ids.add(int(i))
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
     # Interface nodes that ALSO sit on an outer Dirichlet face: in 3-D that is
     # the whole RIM of the interface plane, not the two corner nodes of 2-D.
@@ -596,7 +596,7 @@ def main():
         for c, t in enumerate(tris):
             mp.CreateNewCondition("FluxCondition3D3N", c + 1, t, props)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     # AddDof with a REACTION variable: without the second argument the fixed
     # dofs have nowhere to store their reaction and it is silently discarded.
     KM.VariableUtils().AddDof(KM.TEMPERATURE, KM.REACTION_FLUX, mp)
@@ -609,7 +609,7 @@ def main():
                                               True, False, False, False)
     strategy.Initialize()
     strategy.Solve()
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
     # TWO THINGS YOUR SOLVE ABOVE MUST DO, or the recovery below reads zeros:
     #   * AddDof(TEMPERATURE, REACTION_FLUX, mp) -- the SECOND argument gives
     #     every fixed dof a place to store its reaction; without it the

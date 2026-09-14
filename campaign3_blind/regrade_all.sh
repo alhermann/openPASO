@@ -40,11 +40,11 @@
 #   ./regrade_all.sh < <(...)   # or one line on stdin
 set -u
 cd /home/alexander/Schreibtisch/ofa-v2
-export OASIS_BLIND_KEYS=/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
-export OASIS_REPO=/home/alexander/Schreibtisch/ofa-v2
+export OPENPASO_BLIND_KEYS=/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
+export OPENPASO_REPO=/home/alexander/Schreibtisch/ofa-v2
 PY=/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python
 # AS-RUN REGRADE 2026-09-03: graded against the problems tree the runs
-# actually saw (OASIS_BLIND_PROBLEMS points at the 64ea4d4c extract; the
+# actually saw (OPENPASO_BLIND_PROBLEMS points at the 64ea4d4c extract; the
 # ledgers' own task_sha256 match it 154/154 where a hash exists, and NO
 # historical text demanded own-solver output, so the per-code gate takes
 # the honest UNPROVEN branch for the whole back-catalogue instead of
@@ -59,7 +59,7 @@ LOG=campaign3_blind/regrade_asrun_2026_09_03.log
 # hashes. It is diagnostic material, not a quotable population.
 SEEDS="2 3 4 5 6 7 8 9 10 11 14 15 34 35 40 43 50 60"
 
-exec 9>/tmp/oasis_regrade.lock
+exec 9>/tmp/openpaso_regrade.lock
 flock -n 9 || { echo "REFUSING: another regrade holds the lock" >&2; exit 1; }
 
 live=$(pgrep -f 'run_blind[.]py' 2>/dev/null | wc -l)
@@ -69,8 +69,8 @@ if [ "$live" != "0" ]; then
   exit 1
 fi
 
-if [ "$(stat -c %A "$OASIS_BLIND_KEYS")" != "d---------" ]; then
-  echo "REFUSING: keys are not sealed ($(stat -c %A "$OASIS_BLIND_KEYS"))" >&2
+if [ "$(stat -c %A "$OPENPASO_BLIND_KEYS")" != "d---------" ]; then
+  echo "REFUSING: keys are not sealed ($(stat -c %A "$OPENPASO_BLIND_KEYS"))" >&2
   exit 1
 fi
 
@@ -97,7 +97,7 @@ printf '%s\n' "$PHRASE" | "$PY" campaign3_blind/grade_round.py \
 rc=${PIPESTATUS[1]}
 unset PHRASE
 
-state=$(stat -c %A "$OASIS_BLIND_KEYS")
+state=$(stat -c %A "$OPENPASO_BLIND_KEYS")
 echo ">>> keys after: $state" | tee -a "$LOG"
 if ! bash campaign3_blind/shield_keys.sh status >> "$LOG" 2>&1; then
   bash campaign3_blind/shield_keys.sh seal | tee -a "$LOG"

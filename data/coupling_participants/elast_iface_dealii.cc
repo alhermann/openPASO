@@ -1,5 +1,5 @@
 /* Plane-strain linear elasticity  -div(sigma(u)) = 0  on ONE rectangular
- * subdomain of the OASiS VECTOR coupling problem (two subdomains sharing a
+ * subdomain of the openPASO VECTOR coupling problem (two subdomains sharing a
  * straight interface at x = iface_x).  The vector counterpart of
  * heat_iface_dealii.cc.
  *

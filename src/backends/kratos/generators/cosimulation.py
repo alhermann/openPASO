@@ -16,7 +16,7 @@ imported KratosMultiphysics, while calling itself "CoSimulation ... Kratos
 (standalone)"; a coupled result built from it can be attributed to neither
 participant.
 
-FOR A REAL TWO-CODE COUPLING, DRIVE IT WITH OASiS's `couple` TOOL rather than
+FOR A REAL TWO-CODE COUPLING, DRIVE IT WITH openPASO's `couple` TOOL rather than
 the loop below: write one participant script per subdomain, have each read
 imports.json and write exports.json, and let the driver run the fixed-point
 iteration, the relaxation, and the flux-balance and responsiveness checks. The

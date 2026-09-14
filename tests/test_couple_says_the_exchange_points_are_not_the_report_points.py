@@ -1,8 +1,8 @@
-"""OASiS hands the agent node data, and 1 in 7 OASiS coupled runs submits it.
+"""openPASO hands the agent node data, and 1 in 7 openPASO coupled runs submits it.
 
 MEASURED across every coupled run in the tree: 11 submissions wrote an interface
 file containing a coordinate the task explicitly excludes, and 10 of the 11 are
-OASiS-arm runs — 13.7% of OASiS coupled runs against 1.2% of bare ones. Nine of
+openPASO-arm runs — 13.7% of openPASO coupled runs against 1.2% of bare ones. Nine of
 them wrote exactly 9 rows, which is the level-1 mesh nodes at h = 1/8.
 
 The cause is the coupling contract itself. Each participant writes exports.json
@@ -13,7 +13,7 @@ C4_27b_MCP_seed5's submitted interface_level1_A.csv is exports.json verbatim,
 down to the float noise -2.6927850894701087e-18 where a node sits at y = 0.
 
 The bare arm cannot make this mistake, because it has no such file. So this is
-a harm OASiS causes, and the warning belongs in the reply that accompanies the
+a harm openPASO causes, and the warning belongs in the reply that accompanies the
 data — the corpus already says it ~700 lines away in a different payload, which
 is not where the agent is when it decides.
 """

@@ -27,8 +27,8 @@ import numpy as np
 
 CFG = json.loads(Path("config.json").read_text())
 # A multi-level coupling call hands this level's keys in the environment
-# (OASIS_CONFIG_JSON, a JSON object) instead of writing this file.
-CFG.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))
+# (OPENPASO_CONFIG_JSON, a JSON object) instead of writing this file.
+CFG.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))
 NX, NY = int(CFG["nx"]), int(CFG["ny"])
 X0, X1, Y0, Y1 = (float(CFG["x0"]), float(CFG["x1"]),
                   float(CFG["y0"]), float(CFG["y1"]))
@@ -180,7 +180,7 @@ def _diagnose_at_exit():
 
 atexit.register(_diagnose_at_exit)
 
-# ── THE HOLE (yours): the mesh, the two decks and the two runs. OASiS serves the
+# ── THE HOLE (yours): the mesh, the two decks and the two runs. openPASO serves the
 #    handshake above and the recovery below; what 4C solves is YOUR deck. Build this
 #    subdomain's 2-D node layout (NX x NY on [X0, X1] x [Y0, Y1]) and, for deck U, the
 #    one-element-thick slab (a second node layer at z = TZ). Classify your interface
@@ -199,10 +199,10 @@ atexit.register(_diagnose_at_exit)
 #      interior  the 1-based ids of the interface nodes WITHOUT the two endpoints, in order along it
 #      TZ        the slab thickness (one well-shaped HEX8 layer)
 #      OUT_T, OUT_U   the two output prefixes;  DECK_U   the file name you wrote deck U to
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 nodes = interior = TZ = OUT_T = OUT_U = DECK_U = None     # your mesh, decks and runs define these six
 raise SystemExit("the mesh-decks-and-runs hole above the recovery is not filled")
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 # ── RECOVERY FROM 4C's OWN OUTPUTS (served): boundary flux VTU, displacement VTU, reaction yaml ──

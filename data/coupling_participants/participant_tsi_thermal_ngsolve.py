@@ -45,11 +45,11 @@ import json
 from pathlib import Path
 
 import numpy as np
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 from netgen.geom2d import SplineGeometry
 from ngsolve import (VERTEX, BilinearForm, CoefficientFunction, GridFunction,
                      H1, LinearForm, Mesh, NodeId, TaskManager, dx, grad)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
@@ -109,14 +109,14 @@ def sample(imp, key, fallback, pts):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 geo = SplineGeometry()
 geo.AddRectangle((X0, Y0), (X1, Y1), bcs=("bottom", "right", "top", "left"))
 mesh = Mesh(geo.GenerateMesh(maxh=MAXH))
 
 fes = H1(mesh, order=1, dirichlet="left|right")
 u, v = fes.TnT()
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # order 1 -> exactly one dof per vertex, so the exchange points are the vertices
 vdof = np.array([fes.GetDofNrs(NodeId(VERTEX, i))[0] for i in range(mesh.nv)], int)
@@ -128,15 +128,15 @@ gfe.vec[:] = 0.0
 for i, d in enumerate(vdof):
     gfe.vec[int(d)] = float(evol_nodal[i])
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 a = BilinearForm(fes)
 a += (RHO_C / DT) * u * v * dx + K_COND * grad(u) * grad(v) * dx
 f = LinearForm(fes)
 f += CoefficientFunction(RHO_C / DT * T_OLD) * v * dx
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 f += (-COUPLING * T_REF * BETA / DT) * (gfe - CoefficientFunction(EVOL_OLD)) * v * dx
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 gfu = GridFunction(fes)                    # also carries the Dirichlet data
 gfu.vec[:] = 0.0
 hot = np.where(np.abs(pts[:, 0] - X0) < GEOM_TOL)[0]
@@ -152,7 +152,7 @@ with TaskManager():
     r = f.vec.CreateVector()
     r.data = f.vec - a.mat * gfu.vec
     gfu.vec.data += a.mat.Inverse(fes.FreeDofs(), inverse="sparsecholesky") * r
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 sol = np.array([gfu.vec[int(d)] for d in vdof], float)
 print(f"[ngsolve thermal] n={len(sol)} coupling={COUPLING} "

@@ -61,7 +61,7 @@ def test_the_shell_tool_stamps_it(tmp_path):
 
 
 def test_both_arms_get_it():
-    """A clock is not an OASiS capability.
+    """A clock is not an openPASO capability.
 
     The bare arm builds its shell tool from the same factory, so the stamp is
     arm-neutral by construction. This pins that the factory is shared rather
@@ -75,7 +75,7 @@ def test_both_arms_get_it():
     #
     # This used to require that "audit_on_submit" appear nowhere inside
     # _bash_tool_for, as a stand-in for "the clock is not arm-specific". The
-    # shell tool now carries OASiS's submission audit, exactly as write_file
+    # shell tool now carries openPASO's submission audit, exactly as write_file
     # does, so the proxy fails while the property it stands for still holds.
     import tempfile
     import agent as A

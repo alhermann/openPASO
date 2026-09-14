@@ -41,7 +41,7 @@ from typing import Optional
 
 import numpy as np
 
-logger = logging.getLogger("oasis.mesh_independence")
+logger = logging.getLogger("openpaso.mesh_independence")
 
 #: Placeholder token a template must carry where the characteristic
 #: discretisation parameter goes (e.g. number of divisions per side).

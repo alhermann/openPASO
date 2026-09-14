@@ -15,7 +15,7 @@ verified", and it applies to a guard I wrote.
 So this one drives the real tool and reads the assembled reply. It is the only
 check in the repo positioned where the agent stands.
 
-WHY HOST PATHS IN A SERVED PAYLOAD ARE A DEFECT, not untidiness: OASiS is going
+WHY HOST PATHS IN A SERVED PAYLOAD ARE A DEFECT, not untidiness: openPASO is going
 to be cloned and run by people whose machines are not this one. A payload that
 tells an agent the solver is at `/home/alexander/4C/build/4C` is confidently
 wrong everywhere else, and an agent that will not second-guess a served fact
@@ -47,7 +47,7 @@ _TEACHES = re.compile(
 # characters, which is exactly the shape a proximity check gets wrong.
 _LOCAL_OBSERVATION = re.compile(
     r"LOCAL OBSERVATIONS?|local observations?|not universal facts?"
-    r"|machine hosting this OASiS", re.I)
+    r"|machine hosting this openPASO", re.I)
 
 
 @functools.lru_cache(maxsize=1)

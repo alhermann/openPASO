@@ -3,7 +3,7 @@
 C1 — 2-D steady thermoelasticity with 4C on one subdomain — was attempted twice
 and reported COULD_NOT_COMPLETE both times, the agent saying 4C's TSI input
 format "requires specific section names and element types that differ from
-standalone thermal or structural problems". It was right, and OASiS served
+standalone thermal or structural problems". It was right, and openPASO served
 nothing about it.
 
 FACT 1. `SOLID` is the THREE-dimensional continuum element. The 2-D one is

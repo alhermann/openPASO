@@ -54,7 +54,7 @@ def preamble(commit, branch, n_cells):
 Repo: `{BASE}` — branch `{branch}`, commit `{commit}`.
 
 **Why this exists.** Companion to `PROMPTS_HOE_V2_SONNET_MCP.md`. The
-paper's main claim is "OASiS lets a cheaper model perform like a more
+paper's main claim is "openPASO lets a cheaper model perform like a more
 expensive one." That claim needs three anchors:
 
 | | BARE | MCP_FULL |
@@ -62,7 +62,7 @@ expensive one." That claim needs three anchors:
 | Opus 4.7 | 73/75 = 97.3 % (have) | 73/75 = 97.3 % (have) |
 | Sonnet 4.6 | **this file** | `PROMPTS_HOE_V2_SONNET_MCP.md` |
 
-The within-Sonnet contrast (BARE vs MCP) shows the OASiS uplift; the
+The within-Sonnet contrast (BARE vs MCP) shows the openPASO uplift; the
 Sonnet-MCP vs Opus-BARE contrast shows MCP closes the model-size gap.
 
 ## BARE invocation

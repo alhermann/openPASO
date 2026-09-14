@@ -43,7 +43,7 @@ from pathlib import Path
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 
-MAGIC = b"OASISKEY1"
+MAGIC = b"OPENPASOKEY1"
 SALT_BYTES, NONCE_BYTES = 16, 12
 SCRYPT_N, SCRYPT_R, SCRYPT_P = 2 ** 15, 8, 1
 ENC_SUFFIX = ".enc"
@@ -65,7 +65,7 @@ def encrypt_bytes(plaintext: bytes, passphrase: str) -> bytes:
 def decrypt_bytes(blob: bytes, passphrase: str) -> bytes:
     """Decrypt in memory.  Callers must not write the result to the run tree."""
     if not blob.startswith(MAGIC):
-        raise ValueError("not an OASiS sealed key (bad magic)")
+        raise ValueError("not an openPASO sealed key (bad magic)")
     off = len(MAGIC)
     salt = blob[off:off + SALT_BYTES]
     nonce = blob[off + SALT_BYTES:off + SALT_BYTES + NONCE_BYTES]
@@ -299,7 +299,7 @@ def build_manifest(keys_dir: Path, campaign: str, note: str = "") -> dict:
             "encrypted": p.name.endswith(ENC_SUFFIX),
         })
     man = {
-        "schema": "oasis-blind-key-commitment/1",
+        "schema": "openpaso-blind-key-commitment/1",
         "campaign": campaign,
         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "keys_dir": str(keys_dir),

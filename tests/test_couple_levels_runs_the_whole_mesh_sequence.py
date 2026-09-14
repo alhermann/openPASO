@@ -17,7 +17,7 @@ TOY = '''import json
 from pathlib import Path
 import os
 cfg = json.loads(Path("config.json").read_text()) if Path("config.json").is_file() else {}
-cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))
+cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))
 imp = json.loads(Path("imports.json").read_text()) if Path("imports.json").is_file() else {}
 other = 0.0
 for d in imp.values():
@@ -61,7 +61,7 @@ def _call(fn, **kw):
 
 def test_three_levels_in_one_call(tmp_path, tools, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("OASIS_CELL_WORKDIR", str(tmp_path))
+    monkeypatch.setenv("OPENPASO_CELL_WORKDIR", str(tmp_path))
     for name, coef, off in (("A", 0.6, 1.0), ("B", 0.7, 0.2)):
         d = tmp_path / f"side_{name}"
         d.mkdir()
@@ -80,7 +80,7 @@ def test_three_levels_in_one_call(tmp_path, tools, monkeypatch):
         for side in ("A", "B"):
             log = tmp_path / f"side_{side}" / f"participant_output_level{k}.log"
             assert log.is_file() and f"toy console level {k}" in log.read_text()
-    # OASiS wrote NOTHING into the participants' own files: config.json is untouched
+    # openPASO wrote NOTHING into the participants' own files: config.json is untouched
     cfg = json.loads((tmp_path / "side_A" / "config.json").read_text())
     assert cfg == {"k": 1.0}, cfg
     # levels 2 and 3 warm-started (fewer iterations than level 1, which started cold)
@@ -90,11 +90,11 @@ def test_three_levels_in_one_call(tmp_path, tools, monkeypatch):
 
 def test_a_level_that_fails_stops_the_sequence(tmp_path, tools, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("OASIS_CELL_WORKDIR", str(tmp_path))
+    monkeypatch.setenv("OPENPASO_CELL_WORKDIR", str(tmp_path))
     for name in ("A", "B"):
         d = tmp_path / f"side_{name}"
         d.mkdir()
-        (d / "part.py").write_text("import json, sys, os\nfrom pathlib import Path\ncfg = json.loads(os.environ.get('OASIS_CONFIG_JSON') or '{}')\n"
+        (d / "part.py").write_text("import json, sys, os\nfrom pathlib import Path\ncfg = json.loads(os.environ.get('OPENPASO_CONFIG_JSON') or '{}')\n"
                                    "if int(cfg.get('nx', 1)) > 4:\n    sys.exit(3)\n"
                                    "Path('exports.json').write_text(json.dumps({'field_name': 'u', 'n_points': 1, 'coordinates': [[0.5, 0.0]], 'values': [1.0], 'normal_fluxes': [0.0]}))\n")
     parts = [{"name": "A", "command": [sys.executable, "part.py"], "work_dir": str(tmp_path / "side_A"), "imports_from": ["B"]},

@@ -12,7 +12,7 @@ plus a driver, so it lives in neither code's test tree. The gap is structural,
 not a missing file.
 
 Why it is the worst possible place to be silent: the coupled cells are where the
-OASiS arm most needs a worked example, and that arm's measured failure is
+openPASO arm most needs a worked example, and that arm's measured failure is
 running out of tool calls — median 39 against bare's 95, with no output written
 in 60% of runs against bare's 31%. A dead end spends a call and returns nothing.
 

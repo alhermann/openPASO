@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke tests for the LangGraph + OASiS-MCP scaffold.
+"""Smoke tests for the LangGraph + openPASO-MCP scaffold.
 
 Run from the repo root:
 
@@ -12,7 +12,7 @@ server so it works without vLLM/Qwen. T1-T7 are real:
 * T2 run_bash — actually runs a shell command in a sandbox
 * T3 read_file / write_file — actually round-trip a file
 * T4 web_search — actually hits DuckDuckGo and returns hits
-* T5 OASiS MCP enumeration — spawns a real OASiS server, lists tools
+* T5 openPASO MCP enumeration — spawns a real openPASO server, lists tools
 * T6 OFA_DISABLE_PITFALLS — calls `knowledge` over MCP and asserts the
   pitfall keys are stripped end-to-end (server-side masking propagates
   through the MCP bridge)
@@ -36,7 +36,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "langgraph_eval"))
 
 
-EXPECTED_OASIS = {
+EXPECTED_OPENPASO = {
     "prepare_simulation", "knowledge", "discover", "examples",
     "developer", "generate_mesh", "run_simulation", "run_with_generator",
     "coupled_solve", "transfer_field", "visualize", "session_insights",
@@ -123,7 +123,7 @@ def t_web_search():
 
 
 # ───────────────────────────────────────────────────────────────
-# T5 — OASiS MCP enumeration
+# T5 — openPASO MCP enumeration
 # ───────────────────────────────────────────────────────────────
 def _mcp_client(env_override: dict | None = None):
     from langchain_mcp_adapters.client import MultiServerMCPClient
@@ -138,7 +138,7 @@ def _mcp_client(env_override: dict | None = None):
         "FOURC_BINARY", str(Path.home() / "4C/build/4C"))
     env["LD_LIBRARY_PATH"] = env.get(
         "LD_LIBRARY_PATH", "/opt/4C-dependencies/lib")
-    return MultiServerMCPClient({"oasis": {
+    return MultiServerMCPClient({"openpaso": {
         "command": str(REPO / ".venv/bin/python"),
         "args": ["-m", "server"],
         "cwd": str(REPO / "src"),
@@ -147,13 +147,13 @@ def _mcp_client(env_override: dict | None = None):
     }})
 
 
-def t_oasis_enumeration():
+def t_openpaso_enumeration():
     client = _mcp_client()
     tools = asyncio.run(client.get_tools())
     names = {t.name for t in tools}
-    missing = EXPECTED_OASIS - names
+    missing = EXPECTED_OPENPASO - names
     assert not missing, \
-        f"missing OASiS tools: {missing}; got: {sorted(names)}"
+        f"missing openPASO tools: {missing}; got: {sorted(names)}"
 
 
 # ───────────────────────────────────────────────────────────────
@@ -257,7 +257,7 @@ CHECKS = [
     ("T2 run_bash", t_bash),
     ("T3 read_file/write_file", t_rw),
     ("T4 web_search (live)", t_web_search),
-    ("T5 OASiS MCP tool enumeration", t_oasis_enumeration),
+    ("T5 openPASO MCP tool enumeration", t_openpaso_enumeration),
     ("T6 masking propagates over MCP", t_masking_pitfalls),
     ("T7 spawn_subagent depth limit", t_spawn_depth_limit),
     ("T8 end-to-end critic spawn via mock LLM", t_spawn_endtoend),

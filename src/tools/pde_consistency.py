@@ -3,7 +3,7 @@
 WHY THIS EXISTS. Measured over 464 single-code runs, among
 those with a complete level set the SELF-convergence order — computed
 from the agent's own numbers, no reference — has a median of 1.96 (bare) and
-1.99 (OASiS). The discretisations converge cleanly. So an order near zero
+1.99 (openPASO). The discretisations converge cleanly. So an order near zero
 against an independent reference is almost never the finite element method
 failing to converge; it is a field converging beautifully TO THE WRONG
 FUNCTION (7% of all runs), or a field whose overall size is wrong by orders

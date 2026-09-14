@@ -520,7 +520,7 @@ class TestVerifyMeshIndependenceE2E(unittest.TestCase):
     def _review(self, solver, template):
         """Put a critic review of this template on record.
 
-        `critic_approved=True` alone no longer verifies anything: OASiS looks
+        `critic_approved=True` alone no longer verifies anything: openPASO looks
         the review up on the server rather than trusting the flag, so a test
         that wants a VERIFIED verdict has to do what a real agent does.
         """

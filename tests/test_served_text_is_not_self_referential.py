@@ -1,6 +1,6 @@
-"""OASiS must not tell the model under test that it is being tested.
+"""openPASO must not tell the model under test that it is being tested.
 
-The knowledge served to the OASiS arm carried, verbatim: "Measured over 256
+The knowledge served to the openPASO arm carried, verbatim: "Measured over 256
 runs of this campaign, agents stop VOLUNTARILY at a median of 46% of their wall
 budget", "Three runs in this campaign wrote a complete manufactured source into
 a deck", and the audit tool's own description said "measured over 40 graded

@@ -108,7 +108,7 @@ def test_dune_baseline_compiler_script_is_relocated(tmp_path, monkeypatch):
         "/baseline/dune-py/dune-compiler_launcher.sh $@\n")
     work = tmp_path / "work"
     work.mkdir()
-    monkeypatch.setenv("OASIS_DUNE_CACHE_BASELINE", str(baseline))
+    monkeypatch.setenv("OPENPASO_DUNE_CACHE_BASELINE", str(baseline))
 
     scratch = A.sandbox_scratch_for(work)
     try:

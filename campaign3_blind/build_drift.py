@@ -2,13 +2,13 @@
 
 WHY THIS EXISTS. On 2026-09-01 three commits to `src/` landed while round 9 was
 in flight. Each `run_blind.py` invocation is a fresh process that imports the
-OASiS tools from the working tree, so runs that started after a commit were
+openPASO tools from the working tree, so runs that started after a commit were
 served knowledge the earlier runs never saw: 16 of the round's 64 MCP runs
 finished before 14:58:23 and got the pre-change core, the rest got rule 7 (the
 halvings-not-cells refinement rule) and the mesh-size audit finding.
 
-That makes the round's OASiS number a MIXTURE of two builds. The bare arm is
-unaffected — it calls no OASiS tool — so the damage is one-sided, which is the
+That makes the round's openPASO number a MIXTURE of two builds. The bare arm is
+unaffected — it calls no openPASO tool — so the damage is one-sided, which is the
 worse kind: it moves the uplift without moving the control.
 
 Current ledgers carry the SHA-256 of the immutable source snapshot actually

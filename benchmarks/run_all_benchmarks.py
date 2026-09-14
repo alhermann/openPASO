@@ -223,7 +223,7 @@ async def benchmark_hyperelasticity():
 
 
 async def main():
-    print("OASiS — Full Benchmark Suite")
+    print("openPASO — Full Benchmark Suite")
     print(f"{'='*60}")
 
     load_all_backends()

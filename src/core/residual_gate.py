@@ -164,7 +164,7 @@ def parse_spec(spec: str | dict) -> dict:
     operator = str(spec.get("operator", "diffusion")).lower()
     if operator not in SUPPORTED_OPERATORS:
         raise ResidualSpecError(
-            f"operator '{operator}' is not one OASiS can assemble; supported: "
+            f"operator '{operator}' is not one openPASO can assemble; supported: "
             + ", ".join(SUPPORTED_OPERATORS))
     if "source" not in spec:
         raise ResidualSpecError(
@@ -184,7 +184,7 @@ def parse_spec(spec: str | dict) -> dict:
         for key in ("young", "poisson"):
             if key not in spec:
                 raise ResidualSpecError(
-                    f"elasticity needs `{key}`; OASiS cannot assemble the "
+                    f"elasticity needs `{key}`; openPASO cannot assemble the "
                     f"operator without the material constants")
         return {
             "operator": operator,
@@ -274,7 +274,7 @@ def check_run_residual(spec: str | dict, result_files) -> dict:
       SOLVES        — the field satisfies the discrete system to solver tolerance
       DOES_NOT_SOLVE— it does not; this field was not obtained by solving this
                       problem on this mesh
-      UNSUPPORTED   — OASiS cannot assemble this problem, so nothing was checked
+      UNSUPPORTED   — openPASO cannot assemble this problem, so nothing was checked
       REFUSED       — the declaration or the artefacts were unusable
 
     Never raises: a gate that dies on a malformed declaration is a gate an agent
@@ -307,7 +307,7 @@ def check_run_residual(spec: str | dict, result_files) -> dict:
     wanted = parsed["field"]
     if wanted and wanted not in fields:
         return {"verdict": "REFUSED",
-                "detail": (f"field '{wanted}' is not in {chosen.name}; OASiS "
+                "detail": (f"field '{wanted}' is not in {chosen.name}; openPASO "
                            f"does not substitute another")}
     name = wanted or next(iter(fields))
     values = np.asarray(fields[name], float)

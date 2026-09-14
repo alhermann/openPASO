@@ -1,6 +1,6 @@
 """Tier-2: PARTICLE_FRICTION is not a Kratos variable; friction is STATIC_/DYNAMIC_.
 
-Pitfall (kratos.dem): the OASiS DEM template used to emit PARTICLE_FRICTION into
+Pitfall (kratos.dem): the openPASO DEM template used to emit PARTICLE_FRICTION into
 both the mdpa Properties block and MaterialsDEM.json. The name appears in ZERO
 files of the installed Kratos distribution, compiled libraries included. Kratos
 DEM spells per-contact friction STATIC_FRICTION and DYNAMIC_FRICTION, and both

@@ -7,7 +7,7 @@ names the hole had been defining, or how many.
 
 Measured on the served skfem participant before this: 22 names are used and
 never defined anywhere in the payload, and not one is named as the reader's
-responsibility. The consequence shows in the runs — 73% of the coupled OASiS
+responsibility. The consequence shows in the runs — 73% of the coupled openPASO
 runs that gave up never got both sides to exchange interface data even once,
 dying in a write-run-error-rewrite loop on the participant script, 205
 rewrites and 51 in-place patches inside the final fifteen tool calls alone.

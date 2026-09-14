@@ -2,7 +2,7 @@
 
 Three location rules, each the fix for a defect that actually happened:
 
-* **The answers are located by OASIS_BLIND_KEYS.** They live outside the
+* **The answers are located by OPENPASO_BLIND_KEYS.** They live outside the
   repository on purpose. A hardcoded path here once pointed at a SECOND, older
   copy of the campaign, so grading found stale answers beside a stale grader.
 
@@ -91,17 +91,17 @@ def keyvault_mod():
 def keys_dir(override: Path | str | None = None) -> Path:
     if override:
         return Path(override)
-    env = os.environ.get("OASIS_BLIND_KEYS")
+    env = os.environ.get("OPENPASO_BLIND_KEYS")
     return Path(env) if env else CAMPAIGN / "keys"
 
 
 def problems_dir(override: Path | str | None = None) -> Path:
     """Where the question sheets come from.
 
-    OASIS_BLIND_PROBLEMS IS HONOURED, AND WAS NOT. Keys have always been
-    relocatable through OASIS_BLIND_KEYS; problems were hardcoded. That
+    OPENPASO_BLIND_PROBLEMS IS HONOURED, AND WAS NOT. Keys have always been
+    relocatable through OPENPASO_BLIND_KEYS; problems were hardcoded. That
     asymmetry produced a silent false pass: checking a freshly drawn instance
-    with `OASIS_BLIND_PROBLEMS=problems_dev3 OASIS_BLIND_KEYS=.../keys_dev3
+    with `OPENPASO_BLIND_PROBLEMS=problems_dev3 OPENPASO_BLIND_KEYS=.../keys_dev3
     check_grader_accepts.py C2` read the NEW key against the OLD task text, and
     reported "1/1 instances would accept a correct submission" — a green result
     from mismatched inputs. The give-away was the reported interface count, 44,
@@ -113,7 +113,7 @@ def problems_dir(override: Path | str | None = None) -> Path:
     """
     if override:
         return Path(override)
-    env = os.environ.get("OASIS_BLIND_PROBLEMS")
+    env = os.environ.get("OPENPASO_BLIND_PROBLEMS")
     return Path(env) if env else PROBLEMS
 
 
@@ -179,7 +179,7 @@ def load_key(problem_id: str, keys: Path | str | None = None,
                 f"could not decrypt {enc}: {type(ex).__name__}: {ex}")
     raise GraderConfigError(
         f"no key for {problem_id} under {kdir} (looked for key.json and "
-        f"key.json.enc). Keys are located by OASIS_BLIND_KEYS "
+        f"key.json.enc). Keys are located by OPENPASO_BLIND_KEYS "
         f"(currently {keys_dir(keys)}); a cell without a key cannot be "
         f"graded and must not be silently skipped.")
 

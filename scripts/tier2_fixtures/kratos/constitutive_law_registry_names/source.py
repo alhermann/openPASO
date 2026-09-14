@@ -1,4 +1,4 @@
-"""Tier-2: constitutive-law NAME drift between the OASiS catalog and the
+"""Tier-2: constitutive-law NAME drift between the openPASO catalog and the
 installed Kratos 10.4.0 registry.
 
 Ten law names the catalog listed before 2026-08-03 do not resolve to anything

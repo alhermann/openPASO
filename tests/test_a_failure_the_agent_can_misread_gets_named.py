@@ -37,7 +37,7 @@ invocations, measured:
                                           a valid section name.
     mpirun -np 1            2164 bytes    the same
 
-OASiS's own runner has wrapped 4C in `stdbuf -oL` for a long time
+openPASO's own runner has wrapped 4C in `stdbuf -oL` for a long time
 (src/backends/fourc/backend.py). An agent that invokes the binary itself never
 saw it. That is the recurring shape: a mechanism exists, is instrumented, and
 does not reach the case it was built for.
@@ -82,17 +82,17 @@ REAL_ABORT = (
     "4C return code: 1\n")
 
 
-def _tools(tmp_path, *, oasis_arm: bool):
-    rw = _read_write_tools_for(tmp_path, audit_on_submit=oasis_arm)
+def _tools(tmp_path, *, openpaso_arm: bool):
+    rw = _read_write_tools_for(tmp_path, audit_on_submit=openpaso_arm)
     write = next(t for t in rw if t.name == "write_file")
-    shell = _bash_tool_for(tmp_path, audit_on_submit=oasis_arm)
+    shell = _bash_tool_for(tmp_path, audit_on_submit=openpaso_arm)
     return write, shell
 
 
 # ─────────────────────────── the registry truth ───────────────────────────
 
 def test_the_attribute_form_is_named_when_the_agent_writes_it(tmp_path):
-    write, _ = _tools(tmp_path, oasis_arm=True)
+    write, _ = _tools(tmp_path, openpaso_arm=True)
     reply = write.invoke({"path": "participant_B.py", "content": ATTR_CALL})
     assert "IS NOT HOW A REGISTERED KRATOS COMPONENT IS REACHED" in reply
     assert "CreateNewCondition(\"ThermalFace2D2N\"" in reply
@@ -174,16 +174,16 @@ def test_a_successful_run_with_x11_noise_says_nothing():
 # ───────────────────────── the bare arm is untouched ─────────────────────
 
 def test_neither_check_reaches_the_bare_arm(tmp_path):
-    write, shell = _tools(tmp_path, oasis_arm=False)
+    write, shell = _tools(tmp_path, openpaso_arm=False)
     reply = write.invoke({"path": "participant_B.py", "content": ATTR_CALL})
     assert "REGISTERED KRATOS COMPONENT" not in reply
     out = shell.invoke({"command": "printf '%s' " + repr(REAL_ABORT)})
     assert "NOT AN MPI OR ENVIRONMENT PROBLEM" not in out
 
 
-def test_the_oasis_arm_gets_it_through_the_shell(tmp_path):
+def test_the_openpaso_arm_gets_it_through_the_shell(tmp_path):
     """The abort arrives as command OUTPUT, so the shell tool must carry it."""
-    _, shell = _tools(tmp_path, oasis_arm=True)
+    _, shell = _tools(tmp_path, openpaso_arm=True)
     script = tmp_path / "fake_4c.sh"
     script.write_text("#!/bin/sh\ncat <<'EOF'\n" + REAL_ABORT + "EOF\n")
     script.chmod(0o755)
@@ -225,7 +225,7 @@ def test_a_give_up_written_by_heredoc_is_contradicted(tmp_path):
     """The channel seed1202 actually used."""
     w = tmp_path / "work"
     _plant_finished_work(w)
-    _, shell = _tools(w, oasis_arm=True)
+    _, shell = _tools(w, openpaso_arm=True)
     out = shell.invoke({"command": "cat > RESULT.txt <<'XEOF'\n" + GIVEUP
                                    + "XEOF"})
     assert "FILING A GIVE-UP ON TOP OF WORK THAT IS ON DISK" in out
@@ -236,7 +236,7 @@ def test_a_give_up_written_by_heredoc_is_contradicted(tmp_path):
 def test_the_bare_arm_is_not_told_by_the_shell_either(tmp_path):
     w = tmp_path / "work"
     _plant_finished_work(w)
-    _, shell = _tools(w, oasis_arm=False)
+    _, shell = _tools(w, openpaso_arm=False)
     out = shell.invoke({"command": "cat > RESULT.txt <<'XEOF'\n" + GIVEUP
                                    + "XEOF"})
     assert "FILING A GIVE-UP" not in out
@@ -245,7 +245,7 @@ def test_the_bare_arm_is_not_told_by_the_shell_either(tmp_path):
 def test_a_real_submission_by_heredoc_is_not_called_a_give_up(tmp_path):
     w = tmp_path / "work"
     _plant_finished_work(w)
-    _, shell = _tools(w, oasis_arm=True)
+    _, shell = _tools(w, openpaso_arm=True)
     out = shell.invoke({"command": "cat > RESULT.txt <<'XEOF'\nLEVELS = 3\n"
                                    "ORDER = 1.98\nXEOF"})
     assert "FILING A GIVE-UP" not in out
@@ -293,7 +293,7 @@ def test_the_real_seed1202_side_a_fires_and_side_b_does_not():
 
 # ════════════════ the proof that was captured and then dropped ══════════════
 #
-# C2_27b_MCP_seed1301 is the furthest any OASiS run has reached on the coupled
+# C2_27b_MCP_seed1301 is the furthest any openPASO run has reached on the coupled
 # cell: both participants really ran, the partitioned iteration converged
 # 1.3901141511 -> 4.3834e-07 in eight iterations at level 1, and the graded
 # order came out 1.9367. Its participant_A.py invoked the binary correctly --
@@ -316,7 +316,7 @@ CAPTURED_KRATOS = (
 
 
 def test_a_log_of_the_agents_own_prose_is_named(tmp_path):
-    write, _ = _tools(tmp_path, oasis_arm=True)
+    write, _ = _tools(tmp_path, openpaso_arm=True)
     reply = write.invoke({"path": "run_level1_A.log", "content": PROSE_LOG})
     assert "CARRIES YOUR OWN WORDS, NOT THE SOLVER'S OUTPUT" in reply
     assert "capture_output=True" in reply
@@ -326,7 +326,7 @@ def test_a_log_of_the_agents_own_prose_is_named(tmp_path):
 
 
 def test_a_real_capture_is_left_alone(tmp_path):
-    write, _ = _tools(tmp_path, oasis_arm=True)
+    write, _ = _tools(tmp_path, openpaso_arm=True)
     for name, body in (("run_level1_A.log", CAPTURED_4C),
                        ("run_level1_B.log", CAPTURED_KRATOS)):
         reply = write.invoke({"path": name, "content": body})
@@ -353,7 +353,7 @@ def test_the_real_seed1301_logs_all_fire_and_the_reference_does_not():
 
 
 def test_the_bare_arm_never_hears_about_it(tmp_path):
-    write, _ = _tools(tmp_path, oasis_arm=False)
+    write, _ = _tools(tmp_path, openpaso_arm=False)
     reply = write.invoke({"path": "run_level1_A.log", "content": PROSE_LOG})
     assert "CARRIES YOUR OWN WORDS" not in reply
 
@@ -413,14 +413,14 @@ def test_a_wrappers_own_argument_is_not_mistaken_for_the_program():
 
 
 def test_neither_new_check_reaches_the_bare_arm(tmp_path):
-    write, shell = _tools(tmp_path, oasis_arm=False)
+    write, shell = _tools(tmp_path, openpaso_arm=False)
     out = shell.invoke({"command": "stdbuf -oL -eL FOO=1 /bin/echo hi"})
     assert "AS THE PROGRAM" not in out
 
 
 # ═════ past halfway with nothing gradeable on disk, fired once ══════════════
 #
-# Measured over the nine OASiS runs of the coupled cell in rounds 12-14, by
+# Measured over the nine openPASO runs of the coupled cell in rounds 12-14, by
 # file mtime as a fraction of each run's own wall clock: three never wrote a
 # solution file at all (seed1201, seed1203, seed1401), and the six that did
 # started at 27%, 32%, 49%, 72%, 75% and 78%. The two earliest both produced
@@ -439,7 +439,7 @@ def test_neither_new_check_reaches_the_bare_arm(tmp_path):
 # its own prose, DURING the MCP call. The discarded-proof check was wired to
 # run_bash and write_file, so the artefact appeared between hook points and
 # nothing fired. The MCP tools are now wrapped with the same before/after
-# artefact hook; the check bodies stay in OASiS.
+# artefact hook; the check bodies stay in openPASO.
 
 def test_a_prose_log_written_during_an_mcp_call_is_named(tmp_path):
     import asyncio

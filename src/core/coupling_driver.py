@@ -113,7 +113,7 @@ class Participant:
     data_files: list[str] = field(default_factory=list)
     # Extra process environment for THIS participant, merged over the server's.
     # Data plumbing only (the multi-level call passes each level's mesh keys this
-    # way); OASiS writes no file of the agent's to do it.
+    # way); openPASO writes no file of the agent's to do it.
     env: dict | None = None
 
 
@@ -1092,7 +1092,7 @@ def probe_interface_sensitivity(participants: list[Participant],
 def _snapshot_tree(work_dir: Path) -> Optional[Path]:
     """Copy every regular file under `work_dir` into a temp tree."""
     try:
-        dest = Path(tempfile.mkdtemp(prefix="oasis_probe_snap_"))
+        dest = Path(tempfile.mkdtemp(prefix="openpaso_probe_snap_"))
         for src in work_dir.rglob("*"):
             if not src.is_file():
                 continue

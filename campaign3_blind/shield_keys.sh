@@ -6,9 +6,9 @@
 # 1. IT WAS SEALING A DIRECTORY THAT DOES NOT EXIST. `D` was the SCRIPT's own
 #    directory, so it acted on <repo>/campaign3_blind/keys -- and there is no
 #    such directory: the keys deliberately live outside the repository, at
-#    $OASIS_BLIND_KEYS. Every `chmod` was suppressed by `2>/dev/null` and every
+#    $OPENPASO_BLIND_KEYS. Every `chmod` was suppressed by `2>/dev/null` and every
 #    `stat` printed an error, so `seal` did nothing at all to the real vault.
-#    OASIS_BLIND_KEYS is the single authority, exactly as in the grader, the
+#    OPENPASO_BLIND_KEYS is the single authority, exactly as in the grader, the
 #    runner and loading.py.
 #
 # 2. IT ONLY EVER KNEW ABOUT "keys". A copy of the keys is a copy of the
@@ -21,14 +21,14 @@
 #
 #    So every sibling whose name starts with `keys` is treated as a key store.
 set -u
-KEYS="${OASIS_BLIND_KEYS:-}"
+KEYS="${OPENPASO_BLIND_KEYS:-}"
 if [ -z "$KEYS" ]; then
-  echo "REFUSING: OASIS_BLIND_KEYS is not set. The keys live outside the" >&2
+  echo "REFUSING: OPENPASO_BLIND_KEYS is not set. The keys live outside the" >&2
   echo "repository and this script must not guess where." >&2
   exit 2
 fi
 if [ ! -d "$KEYS" ]; then
-  echo "REFUSING: \$OASIS_BLIND_KEYS=$KEYS is not a directory. Absence is" >&2
+  echo "REFUSING: \$OPENPASO_BLIND_KEYS=$KEYS is not a directory. Absence is" >&2
   echo "not a seal -- a missing keys tree means nothing to grade against." >&2
   exit 2
 fi
@@ -62,6 +62,6 @@ case "${1:-}" in
     [ "$n_open" -gt 0 ] && exit 1
     exit 0 ;;
   *)
-    echo "usage: OASIS_BLIND_KEYS=<dir> shield_keys.sh {seal|unseal|status}"
+    echo "usage: OPENPASO_BLIND_KEYS=<dir> shield_keys.sh {seal|unseal|status}"
     exit 2 ;;
 esac

@@ -321,14 +321,14 @@ def render(backend_name: str) -> str:
     if not e:
         return ""
     # The paths below are this machine's. That is deliberate and useful — an
-    # agent talking to THIS OASiS runs on THIS machine — but the old header said
+    # agent talking to THIS openPASO runs on THIS machine — but the old header said
     # only "VERIFIED by running here", and "here" is unreadable to anyone else.
     # An audit measured 240 host absolute paths across all 48 served 4C payloads,
-    # stated as fact. OASiS is going to be cloned, so a reader elsewhere must be
+    # stated as fact. openPASO is going to be cloned, so a reader elsewhere must be
     # told these are local observations and how to find their own install,
     # rather than being handed one person's filesystem as universal truth.
     out = [f"## Installed-version API reference — {backend_name} {e['version']}",
-           "*Measured on the machine hosting this OASiS server. The absolute "
+           "*Measured on the machine hosting this openPASO server. The absolute "
            "paths below are LOCAL OBSERVATIONS, not universal facts: on any "
            "other machine locate your own install (see "
            "`knowledge(topic='install')` for the environment variable that "

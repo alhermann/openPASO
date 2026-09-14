@@ -26,7 +26,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
-logger = logging.getLogger("oasis.autodiscovery")
+logger = logging.getLogger("openpaso.autodiscovery")
 
 CONFIG_PATH = Path(__file__).parent.parent.parent / "data" / "discovered_config.json"
 

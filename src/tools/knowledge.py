@@ -347,7 +347,7 @@ IF YOU HAVE DELIVERED AND WANT TO KNOW WHETHER IT IS RIGHT
 
 WHERE THE DELIVERABLE HAS TO END UP
 ──────────────────────────────────
-OASiS's run tools write their results into a TIMESTAMPED directory of their own,
+openPASO's run tools write their results into a TIMESTAMPED directory of their own,
 e.g. work/simulation_outputs/ngsolve_20260821_113326/. That is convenient for
 you and invisible to whoever verifies your results, who looks for the files the
 task names.
@@ -489,7 +489,7 @@ about to claim, the extraction is the defect, not the solver.
 # run that solves quickly naturally makes fewer heavy knowledge calls, which is
 # reverse causation and equally consistent with the numbers.
 #
-# So this was an experiment, not a fix: with OASIS_LEAN_PHYSICS=1 the physics
+# So this was an experiment, not a fix: with OPENPASO_LEAN_PHYSICS=1 the physics
 # reply carries the CORE plus a pointer to the elaboration, instead of the full
 # block.
 #
@@ -520,7 +520,7 @@ about to claim, the extraction is the defect, not the solver.
 def _physics_tail() -> str:
     """What a topic="physics" reply appends: the full block, or core + offer."""
     import os
-    if os.environ.get("OASIS_LEAN_PHYSICS", "") not in ("1", "true", "TRUE"):
+    if os.environ.get("OPENPASO_LEAN_PHYSICS", "") not in ("1", "true", "TRUE"):
         return _UNIVERSAL
     return _UNIVERSAL_CORE + (
         "\nTHE LONGER FORM OF THE ABOVE — how to evaluate at the prescribed probe\n"
@@ -1560,7 +1560,7 @@ direction, which is not what "one-way TSI" usually means.
         """Complete knowledge for preCICE coupling via `couple_precice`.
 
         With no solver: when to use preCICE instead of `couple`, what you supply
-        versus what OASiS generates, the HARD LIMITS of the generated config,
+        versus what openPASO generates, the HARD LIMITS of the generated config,
         the participant loop, and the launch traps.
         With a solver name: whether that backend CAN be a preCICE participant on
         this install, and its backend-specific traps.

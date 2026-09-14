@@ -130,7 +130,7 @@ def test_the_dealii_door_names_no_shipped_cpp_solver():
     for name in ("participant_dealii.py", "participant_dealii_elastic.py", "participant_dealii_transient.py"):
         text = (ROOT / "data" / "coupling_participants" / name).read_text()
         assert "THAT YOU\nWRITE AND BUILD YOURSELF" in text, name
-        assert ".cc)" not in text.split("OASiS DOES NOT SERVE THIS")[0], name   # nothing served names a .cc
+        assert ".cc)" not in text.split("openPASO DOES NOT SERVE THIS")[0], name   # nothing served names a .cc
 
 
 @pytest.mark.parametrize("solver,module,const,physics", [

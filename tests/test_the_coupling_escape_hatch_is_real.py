@@ -1,4 +1,4 @@
-"""OASiS promised the truncated remainder on request. It did not deliver it.
+"""openPASO promised the truncated remainder on request. It did not deliver it.
 
 The coupling payload is capped, and the notice at the cut tells the agent, in
 as many words: "The rest is available on request -- ask

@@ -1,4 +1,4 @@
-"""Falsify/confirm the OASiS structural_dynamics pitfall:
+"""Falsify/confirm the openPASO structural_dynamics pitfall:
   'Linear quad4 shear-locks in bending — use quad8/quad9. Cantilever tip
    deflection 20-40% smaller than analytic; quadratic recovers it.'
 

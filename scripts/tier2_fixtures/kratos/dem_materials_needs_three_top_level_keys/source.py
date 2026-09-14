@@ -1,7 +1,7 @@
 """Tier-2: MaterialsDEM.json needs materials + material_relations + assignation table.
 
 Pitfall (kratos.dem): MaterialsDEM.json is NOT the StructuralMechanics materials
-schema. The OASiS DEM generator emitted the FEM shape --
+schema. The openPASO DEM generator emitted the FEM shape --
 
     {"properties": [{"model_part_name": ..., "properties_id": ...,
                      "Material": {"Variables": {...},

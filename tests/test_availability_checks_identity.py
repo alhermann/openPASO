@@ -255,7 +255,7 @@ def test_an_invalid_binary_override_is_not_silently_ignored(monkeypatch):
     """A stale override must not resolve to a different binary.
 
     Both FEBio and 4C used to accept `FEBIO_BINARY=/nonexistent` and fall
-    through to the search path, so the binary OASiS tested was not the one the
+    through to the search path, so the binary openPASO tested was not the one the
     user named. An audit hit this while trying to verify that fixtures go red
     with no binary: setting the override to a nonexistent path found the REAL
     binary and everything passed, so the verification measured nothing. A silent

@@ -81,7 +81,7 @@ MESH_MONO = (160, 40)
 #   tol=1e-13  the strain block sits on its 2e-12 floor, limit 1e-12 -> FINDING
 # The middle one is the only setting where the run is converged in every block
 # it exchanges. Neither of the other two is "wrong" — they are runs whose
-# per-block convergence OASiS declines to certify, which is the check working.
+# per-block convergence openPASO declines to certify, which is the check working.
 TOL = 1e-12
 
 

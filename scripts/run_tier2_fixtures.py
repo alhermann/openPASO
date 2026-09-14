@@ -314,21 +314,21 @@ def _eval_fixture(fixture_dir: Path,
     # solver. In place they find it by walking up from __file__, but the
     # mutation harness stages a copy into a scratch tree that has no such
     # ancestor, so the walk fails and the fixture aborts with
-    # FIXTURE_ABORT=no_oasis_checkout — which the harness scores
+    # FIXTURE_ABORT=no_openpaso_checkout — which the harness scores
     # VACUOUS_BASELINE, i.e. "this verdict would mean nothing".
     #
     # Measured before this line: 7 of the 11 Kratos fixtures that ship a
     # `_mutation` block reported VACUOUS_BASELINE on every run, so the ledger
     # carried NO machine discrimination evidence for them even though each had
-    # been proved KILLED by hand with OASIS_REPO exported on the command line.
+    # been proved KILLED by hand with OPENPASO_REPO exported on the command line.
     # The runner knows where the checkout is; the staged fixture cannot. It is
     # the runner's job to say so.
     #
-    # Deliberately does NOT override an OASIS_REPO the caller already set, and
+    # Deliberately does NOT override an OPENPASO_REPO the caller already set, and
     # deliberately points at the REAL checkout rather than the scratch copy:
     # these fixtures audit the SHIPPED catalog, and their mutation lives in
     # their own source, not in the catalog.
-    env.setdefault("OASIS_REPO", str(REPO_ROOT))
+    env.setdefault("OPENPASO_REPO", str(REPO_ROOT))
     extra_env = meta.get("env", {})
     if isinstance(extra_env, dict):
         for k, v in extra_env.items():
@@ -711,7 +711,7 @@ def _eval_fixture(fixture_dir: Path,
         # `mcp` is the honest requirement; probing any one backend is a claim
         # about what the fixture runs that is not true.
         if fixture_dir.parent.name == "cross_backend":
-            cand = _route_to_repo_venv("OASIS_PYTHON", "OASiS server", "mcp")
+            cand = _route_to_repo_venv("OPENPASO_PYTHON", "openPASO server", "mcp")
             if cand is None:
                 return result
             python = cand
@@ -752,7 +752,7 @@ def _eval_fixture(fixture_dir: Path,
             # the driver, exactly as a real coupling does it. Probing `mcp` is
             # the honest requirement; probing any one backend would be a lie
             # about what the fixture runs.
-            cand = _route_to_repo_venv("OASIS_PYTHON", "OASiS server", "mcp")
+            cand = _route_to_repo_venv("OPENPASO_PYTHON", "openPASO server", "mcp")
             if cand is None:
                 return result
             python = cand
@@ -986,7 +986,7 @@ def main():
     if blind and not args.allow_unrun:
         hint = {"kratos": "KRATOS_PYTHON", "fenics": "FENICS_PYTHON",
                 "dune": "DUNE_PYTHON", "febio": "FEBIO_BINARY",
-                "cross_backend": "OASIS_PYTHON"}
+                "cross_backend": "OPENPASO_PYTHON"}
         print("\nREFUSING TO WRITE. These backends were skipped in their "
               "entirety, so this run cannot say anything about them:")
         for be in blind:

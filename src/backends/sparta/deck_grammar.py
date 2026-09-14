@@ -2,7 +2,7 @@
 
 WHY THIS EXISTS. SPARTA is a BINARY driven by a command script, so the script is
 this backend's run interface in exactly the way exports.json is the coupling
-driver's: it cannot be guessed, and no run happens without it. OASiS elides "the
+driver's: it cannot be guessed, and no run happens without it. openPASO elides "the
 solve" by design — correct for a Python library, and for a file-driven code it
 leaves the agent with nothing to start from.
 

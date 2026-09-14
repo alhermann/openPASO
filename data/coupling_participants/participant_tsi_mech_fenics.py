@@ -36,12 +36,12 @@ import json
 from pathlib import Path
 
 import numpy as np
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 import ufl
 from dolfinx import default_scalar_type, fem, mesh as dmesh
 from dolfinx.fem.petsc import LinearProblem
 from mpi4py import MPI
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
@@ -89,18 +89,18 @@ def sample(imp, key, fallback, pts):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
                                 [NX, NY], dmesh.CellType.triangle)
 Vu = fem.functionspace(domain, ("Lagrange", 2, (domain.geometry.dim,)))
 Vt = fem.functionspace(domain, ("Lagrange", 1))
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 pts = Vt.tabulate_dof_coordinates()[:, :2]      # where fields are exchanged
 
 theta = fem.Function(Vt)
 theta.x.array[:] = sample(imp, "values", THETA_INIT, pts)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 u, v = ufl.TrialFunction(Vu), ufl.TestFunction(Vu)
 eu, ev = ufl.sym(ufl.grad(u)), ufl.sym(ufl.grad(v))
 a = (2.0 * MU * ufl.inner(eu, ev) + LAM * ufl.tr(eu) * ufl.tr(ev)) * ufl.dx
@@ -128,7 +128,7 @@ bcs = [_bc(0, lambda x: np.isclose(x[0], X0, atol=GEOM_TOL)),
 uh = LinearProblem(a, L, bcs=bcs, petsc_options_prefix="tsi_me",
                    petsc_options={"ksp_type": "preonly",
                                   "pc_type": "lu"}).solve()
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # volumetric strain, L2-projected onto P1 so it lands on the exchange nodes
 p_, q_ = ufl.TrialFunction(Vt), ufl.TestFunction(Vt)

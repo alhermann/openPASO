@@ -61,7 +61,7 @@ FREEZE_MARKER = HERE / "FROZEN.json"
 # looks like, which default changed. Never a solution, never a measured result
 # from one of our own runs, never a parameter tuned for one geometry.
 #
-# That is enforced separately and continuously, not here: OASiS's own
+# That is enforced separately and continuously, not here: openPASO's own
 # `tests/test_knowledge_not_contaminated.py` is a merge gate, and it caught
 # exactly these three shapes during development — measured convergence tables
 # served through `prepare_simulation`, an exact solution `T(x) = 100*(1-x)`
@@ -231,7 +231,7 @@ def held_out_spec(seed: int) -> dict:
                       "probe-grid output contract", "grading rule"],
         "must_not_reuse": sorted(DEVELOPMENT),
         # The geometry constraint that already applies to the coupled set: it
-        # must not be a case OASiS ships a pre-built solver for, or the
+        # must not be a case openPASO ships a pre-built solver for, or the
         # comparison measures whether the tool contains the test.
         "coupled_geometry": "not the unit square split at x = 1/2, which is "
                             "what `coupled_solve` hard-codes",

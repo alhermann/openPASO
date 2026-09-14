@@ -1,4 +1,4 @@
-"""FEniCSx (dolfinx) FLUID participant for the OASiS `couple` driver — FSI.
+"""FEniCSx (dolfinx) FLUID participant for the openPASO `couple` driver — FSI.
 
 CONTRACT (do not change): runs in its work_dir with no arguments, reads
 imports.json (written every iteration; it is `{}` on iteration 1), writes
@@ -46,14 +46,14 @@ import sys
 from pathlib import Path
 
 import numpy as np
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 import ufl
 import basix.ufl
 from dolfinx import fem, mesh as dmesh
 from dolfinx.fem.petsc import LinearProblem, NonlinearProblem
 from mpi4py import MPI
 from petsc4py import PETSc
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
 #    Replace ALL of them with your problem's geometry, material and BCs.
@@ -113,7 +113,7 @@ def sample_vec(imp, x_targets, fallback, ncomp=2):
     return out
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def _signed_areas(msh) -> np.ndarray:
     """Twice the signed area of every (P1, triangular) cell, from the geometry
     as it stands. Sign is per-cell and arbitrary — dolfinx does not orient all
@@ -124,11 +124,11 @@ def _signed_areas(msh) -> np.ndarray:
     v0 = px[cells[:, 1]] - px[cells[:, 0]]
     v1 = px[cells[:, 2]] - px[cells[:, 0]]
     return v0[:, 0] * v1[:, 1] - v0[:, 1] * v1[:, 0]
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 def main():
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     comm = MPI.COMM_SELF
     msh = dmesh.create_rectangle(
         comm, [np.array([0.0, 0.0]), np.array([LX, HY])], [NX, NY],
@@ -145,7 +145,7 @@ def main():
         raise RuntimeError(
             "P1 dof ordering does not match the geometry node ordering; the "
             "in-place mesh move would scramble the mesh")
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
     # REFERENCE interface node coordinates (Lagrangian parametrisation)
     tol = 1e-9
@@ -160,7 +160,7 @@ def main():
     imp = read_imports()
     d_iface = sample_vec(imp, x_iface, D_INIT, ncomp=2)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     # ── facet tags: 1 inflow, 2 outflow, 3 fixed wall, 4 FSI interface ─────
     def _inflow(x):
         return np.isclose(x[0], 0.0)
@@ -311,15 +311,15 @@ def main():
     if reason <= 0:
         raise RuntimeError(f"fluid Newton did not converge (reason={reason}, "
                            f"{nit} iterations)")
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
     # ── variationally consistent traction on the interface ─────────────────
     #   t = sigma_f . n_s = -sigma_f . n_f    (see the module docstring)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     uh, ph = w.sub(0), w.sub(1)
     sigma = -ph * ufl.Identity(gdim) + MU * (ufl.grad(uh) + ufl.grad(uh).T)
     tt, vv = ufl.TrialFunction(V1), ufl.TestFunction(V1)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
     a_m = ufl.inner(tt, vv) * ds(4)
     L_t = ufl.inner(-ufl.dot(sigma, n), vv) * ds(4)
 

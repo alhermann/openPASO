@@ -50,11 +50,11 @@ from pathlib import Path
 
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 from skfem import (Basis, BilinearForm, ElementTriP1, LinearForm, MeshTri,
                    asm, condense, solve)
 from skfem.helpers import dot, grad
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
 #    Replace ALL of them with your problem's geometry, material and BCs.
@@ -113,15 +113,15 @@ def sample(imp, key, fallback, pts):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 mesh = MeshTri.init_tensor(np.linspace(X0, X1, NX + 1),
                            np.linspace(Y0, Y1, NY + 1))
 basis = Basis(mesh, ElementTriP1(), intorder=4)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 pts = basis.doflocs.T                      # (ndof, 2) node coordinates
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 @BilinearForm
 def lhs(T, s, w):
     return RHO_C / DT * T * s + K_COND * dot(grad(T), grad(s))
@@ -134,7 +134,7 @@ def mass(T, s, w):
 
 A = asm(lhs, basis)
 M = asm(mass, basis)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # volumetric strain imported from the structural participant, at THIS mesh's nodes
 evol = sample(imp, "values", EVOL_INIT, pts)
@@ -143,7 +143,7 @@ evol = sample(imp, "values", EVOL_INIT, pts)
 b = (RHO_C / DT) * (M @ np.full(basis.N, float(T_OLD))) \
     - COUPLING * (T_REF * BETA / DT) * (M @ (evol - float(EVOL_OLD)))
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 sol = basis.zeros()
 hot = np.where(np.abs(pts[:, 0] - X0) < TOL)[0]
 cold = np.where(np.abs(pts[:, 0] - X1) < TOL)[0]
@@ -152,7 +152,7 @@ sol[cold] = T_COLD
 D = np.unique(np.concatenate([hot, cold]))
 
 sol = solve(*condense(A, b, x=sol, D=D))
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 print(f"[skfem thermal] n={basis.N} coupling={COUPLING} "
       f"e_in=[{evol.min():.6e},{evol.max():.6e}] "

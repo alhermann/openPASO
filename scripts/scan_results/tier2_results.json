@@ -437,7 +437,7 @@
       "status": "passed",
       "expect_matched": [
         "kratos_interpreter_found=True",
-        "kratos_runs_outside_the_oasis_interpreter=True",
+        "kratos_runs_outside_the_openpaso_interpreter=True",
         "pair_kratos_skfem_converged=True",
         "pair_kratos_skfem_meshes_nonmatching=True",
         "pair_kratos_skfem_interface_T_matches_reference=True",
@@ -451,7 +451,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "checkout=~/Schreibtisch/ofa-v2\nkratos_interpreter_found=True\nkratos_runs_outside_the_oasis_interpreter=True\n--- pair_kratos_skfem: left=kratos/dirichlet right=skfem/neumann theta=0.692308\nparticipant[left]=kratos interpreter=/usr/bin/python3\nparticipant[right]=skfem interpreter=~/Schreibtisch/open-fem-agent/.venv/bin/python\npair_kratos_skfem_iterations=29\npair_kratos_skfem_residual=5.655e-09\npair_kratos_skfem_converged=True\npair_kratos_skfem_n_points=33/13\npair_kratos_skfem_meshes_nonmatching=True\npair_kratos_skfem_left_T_span=[306.1538455,306.1538455]\npair_kratos_skfem_left_T_err=6.225e-07\npair_kratos_skfem_right_T_span=[306.1538463,306.1538463]\npair_kratos_skfem_right_T_err=1.853e-07\npair_kratos_skfem_interface_T_matches_reference=True\npair_kratos_skfem_left_q_span=[18.46153929,18.461539"
+      "captured_head": "checkout=~/Schreibtisch/ofa-v2\nkratos_interpreter_found=True\nkratos_runs_outside_the_openpaso_interpreter=True\n--- pair_kratos_skfem: left=kratos/dirichlet right=skfem/neumann theta=0.692308\nparticipant[left]=kratos interpreter=/usr/bin/python3\nparticipant[right]=skfem interpreter=~/Schreibtisch/open-fem-agent/.venv/bin/python\npair_kratos_skfem_iterations=29\npair_kratos_skfem_residual=5.655e-09\npair_kratos_skfem_converged=True\npair_kratos_skfem_n_points=33/13\npair_kratos_skfem_meshes_nonmatching=True\npair_kratos_skfem_left_T_span=[306.1538455,306.1538455]\npair_kratos_skfem_left_T_err=6.225e-07\npair_kratos_skfem_right_T_span=[306.1538463,306.1538463]\npair_kratos_skfem_right_T_err=1.853e-07\npair_kratos_skfem_interface_T_matches_reference=True\npair_kratos_skfem_left_q_span=[18.46153929,18.461539"
     },
     "coupling::pair_ngsolve_skfem::1": {
       "key": "coupling::pair_ngsolve_skfem::1",
@@ -968,7 +968,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "checkout=~/Schreibtisch/ofa-v2\ndealii_vector_solver_built=/tmp/claude-1001/-home-alexander-4C/sweeptmp2/oasis_dealii_participant_build_0540a217ed/elast_iface_dealii\n--- dealii_D_fenics_N: left=dealii/dirichlet right=fenics/neumann theta=0.714286 rho_x=0.400000 rho_y=0.400000\nparticipant[left]=dealii interpreter=~/Schreibtisch/open-fem-agent/.venv/bin/python\nparticipant[right]=fenics interpreter=~/miniconda3/envs/fenics/bin/python\ndealii_D_fenics_N_iterations=39\ndealii_D_fenics_N_residual=7.623e-10\ndealii_D_fenics_N_converged=True\ndealii_D_fenics_N_vector_exchange=True\ndealii_D_fenics_N_n_points=17/12\ndealii_D_fenics_N_meshes_nonmatching=True\ndealii_D_fenics_N_left_ux_max=0.000884796 tx_max=2.16034\ndealii_D_fenics_N_left_uy_max=0.000556429 ty_max=0.364635\ndealii_D_fenics_N_interface_u_sprea"
+      "captured_head": "checkout=~/Schreibtisch/ofa-v2\ndealii_vector_solver_built=/tmp/claude-1001/-home-alexander-4C/sweeptmp2/openpaso_dealii_participant_build_0540a217ed/elast_iface_dealii\n--- dealii_D_fenics_N: left=dealii/dirichlet right=fenics/neumann theta=0.714286 rho_x=0.400000 rho_y=0.400000\nparticipant[left]=dealii interpreter=~/Schreibtisch/open-fem-agent/.venv/bin/python\nparticipant[right]=fenics interpreter=~/miniconda3/envs/fenics/bin/python\ndealii_D_fenics_N_iterations=39\ndealii_D_fenics_N_residual=7.623e-10\ndealii_D_fenics_N_converged=True\ndealii_D_fenics_N_vector_exchange=True\ndealii_D_fenics_N_n_points=17/12\ndealii_D_fenics_N_meshes_nonmatching=True\ndealii_D_fenics_N_left_ux_max=0.000884796 tx_max=2.16034\ndealii_D_fenics_N_left_uy_max=0.000556429 ty_max=0.364635\ndealii_D_fenics_N_interface_u_sprea"
     },
     "coupling::vector_pair_fenics_skfem::0": {
       "key": "coupling::vector_pair_fenics_skfem::0",

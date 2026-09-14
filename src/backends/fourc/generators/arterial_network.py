@@ -158,9 +158,9 @@ class ArterialNetworkGenerator(BaseGenerator):
                     },
                 },
             },
-            "oasis_level_inputs": {
+            "openpaso_level_inputs": {
                 "AREA0": (
-                    "OASiS-level convenience input ONLY - it is NOT a 4C "
+                    "openPASO-level convenience input ONLY - it is NOT a 4C "
                     "key and must never be written into a deck.  If you "
                     "prefer to think in reference cross-sectional area, "
                     "give AREA0 and convert it with "
@@ -486,7 +486,7 @@ class ArterialNetworkGenerator(BaseGenerator):
                   TOLERANCE: <result_tolerance>
         """)
 
-    # -- OASiS-level helpers -----------------------------------------------
+    # -- openPASO-level helpers -----------------------------------------------
 
     @staticmethod
     def area0_to_diam(area0: float) -> float:
@@ -561,7 +561,7 @@ class ArterialNetworkGenerator(BaseGenerator):
                     f"DIAM must be a positive number, got {diam!r}."
                 )
 
-        # AREA0 is an OASiS-level convenience input, NOT a 4C key.  It is
+        # AREA0 is an openPASO-level convenience input, NOT a 4C key.  It is
         # accepted here and converted, but it must never reach the deck.
         area0 = params.get("AREA0")
         if area0 is not None:

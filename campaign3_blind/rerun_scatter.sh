@@ -9,10 +9,10 @@
 # 13 coupled MCP + 4 coupled BARE + 2 single BARE. Same model, seed, phase.
 set -u
 cd /home/alexander/Schreibtisch/ofa-v2
-export OASIS_REPO=/home/alexander/Schreibtisch/ofa-v2
-export OASIS_BLIND_KEYS=/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
+export OPENPASO_REPO=/home/alexander/Schreibtisch/ofa-v2
+export OPENPASO_BLIND_KEYS=/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
 set -a; . /home/alexander/Schreibtisch/qwen_uplift_test/.env; set +a
-export OASIS_PYTHON=/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python
+export OPENPASO_PYTHON=/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python
 P=/home/alexander/Schreibtisch/open-fem-agent/.venv-lg/bin/python
 LOG=/tmp/claude-1001/-home-alexander-4C/dev27b.log
 RUNS="C1:MCP C2:MCP C3:MCP C4:MCP C5:MCP C6:MCP C7:MCP C8:MCP C9:MCP C10:MCP C11:MCP C13:MCP C14:MCP C4:BARE C5:BARE C7:BARE C13:BARE FC2:BARE SP1:BARE"

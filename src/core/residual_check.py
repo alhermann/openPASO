@@ -15,7 +15,7 @@ appearance but in whether they SATISFY THE EQUATIONS they claim to solve.
 
 WHAT THIS CHECKS
 ----------------
-Given the delivered mesh and field, OASiS assembles the discrete operator of
+Given the delivered mesh and field, openPASO assembles the discrete operator of
 the stated problem ON THAT MESH and measures
 
     rho = || A u_delivered - b ||  /  || b ||        (interior degrees of freedom)
@@ -153,7 +153,7 @@ def check_elasticity_residual(points, cells, values, *, dim: int,
     mesh = _build_mesh(pts, cells, dim)
     if mesh is None:
         return ResidualVerdict(False, None, None, 0, None,
-                               f"no cells of dimension {dim} that OASiS can "
+                               f"no cells of dimension {dim} that openPASO can "
                                f"assemble on", status="unsupported")
 
     scalar_elem = ElementTriP1() if dim == 2 else ElementTetP1()
@@ -445,7 +445,7 @@ def check_residual(points, cells, values, *, dim: int,
         f"INCONCLUSIVE: the relative residual is {rho:.3e}, between this "
         f"system's round-off floor ({floor:.3e}) and the level no solver "
         f"leaves ({FORGERY_RESIDUAL_MIN:.0e}). A loosely-converged solve and a "
-        f"very fine-mesh analytic field both land here, so OASiS neither "
+        f"very fine-mesh analytic field both land here, so openPASO neither "
         f"certifies nor rejects this field. Solve to a tighter tolerance to "
         f"obtain a verdict",
         status="inconclusive")

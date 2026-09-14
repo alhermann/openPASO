@@ -1,4 +1,4 @@
-"""4C STRUCTURE participant for the OASiS `couple` driver — FSI.
+"""4C STRUCTURE participant for the openPASO `couple` driver — FSI.
 
 Drop-in replacement for the scikit-fem structure participant: same
 imports.json / exports.json contract, same physics, same sign convention.
@@ -171,7 +171,7 @@ def import_samples(imp, fallback, ncomp=2):
     return xu, acc / cnt[:, None]
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def pwlin_expr(xs, vs):
     """EXACT symbolic form of np.interp(x, xs, vs), end values held flat
     outside [xs[0], xs[-1]] just as np.interp does."""
@@ -195,7 +195,7 @@ def poly_expr(xs, vs, deg):
     c = np.polyfit(xs, vs, int(min(deg, len(xs) - 1)))[::-1]
     return "+".join(f"({v:.16e})*x^{i}" if i else f"({v:.16e})"
                     for i, v in enumerate(c))
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 def eval_expr(e, x):
@@ -218,7 +218,7 @@ def eval_expr(e, x):
     return np.broadcast_to(np.asarray(v, float), x.shape).copy()
 
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def build_deck(exprs, monitor):
     """Inline QUAD4 mesh + deck.  Node ids are ordered so that the HIGHEST node
     id is an interior node: Solid::MonitorDbc hard-codes DIM=3 and asks every
@@ -257,7 +257,7 @@ def build_deck(exprs, monitor):
            if monitor else "")
 
     deck = f"""TITLE:
-  - "OASiS FSI structure participant (4C plane-strain linear elasticity)"
+  - "openPASO FSI structure participant (4C plane-strain linear elasticity)"
 PROBLEM SIZE:
   DIM: 2
 PROBLEM TYPE:
@@ -325,7 +325,7 @@ def run_4c(deck, outprefix):
     # exactly like a clean run.
     return subprocess.run(["stdbuf", "-oL", FOURC_BIN, "input.4C.yaml", outprefix],
                           capture_output=True, text=True, env=env)
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 
 def neumann_resultant(exprs):
@@ -365,7 +365,7 @@ def main():
         rng = float(np.ptp(vals[:, c])) or float(np.max(np.abs(vals[:, c]))) or 1.0
         fit[nm] = {"max_abs_dev": float(d.max()), "max_rel_dev": float(d.max() / rng)}
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
     monitor = bool(MONITOR_REACTION) and NXS >= 2
     deck, n_nodes = build_deck(exprs, monitor)
     t0 = time.time()
@@ -399,7 +399,7 @@ def main():
     m = meshio.read(str(max(vtus, key=step)))
     pts = np.asarray(m.points)[:, :2]
     dsp = np.asarray(m.point_data["displacement"])[:, :2]
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
     mask = np.abs(pts[:, 1] - Y0) < 1e-9
     if not mask.any():

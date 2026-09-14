@@ -14,7 +14,7 @@ iteration produces when the interface update never reaches the solve. That
 deficiency is already reported by two other honest rules, so the submission
 still CONTRADICTS; it simply is not called a forgery.
 
-The paper claims fabrication is near zero in the OASiS arm. A false accusation
+The paper claims fabrication is near zero in the openPASO arm. A false accusation
 costs that claim more than a miss, so both directions are pinned here.
 """
 

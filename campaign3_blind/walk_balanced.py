@@ -36,14 +36,14 @@ import sympy as sp
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-REPO = Path(os.environ.get("OASIS_REPO",
+REPO = Path(os.environ.get("OPENPASO_REPO",
                            "/home/alexander/Schreibtisch/ofa-balanced"))
 sys.path.insert(0, str(REPO / "src"))
 
 import build_balanced as B                                       # noqa: E402
 from core.coupling_driver import Participant, run_coupling       # noqa: E402
 
-TMP = Path(os.environ.get("OASIS_WALK_TMP",
+TMP = Path(os.environ.get("OPENPASO_WALK_TMP",
                           "/tmp/claude-1001/-home-alexander-4C/balancedtmp/walk"))
 
 PY = {

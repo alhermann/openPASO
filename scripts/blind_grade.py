@@ -45,7 +45,7 @@ from pathlib import Path
 # for a non-rectangular subdomain's excluded probes) and would have graded
 # against question sheets whose probe count the grader rejects.
 #
-# The answers are located by OASIS_BLIND_KEYS, which is what grade_blind.py now
+# The answers are located by OPENPASO_BLIND_KEYS, which is what grade_blind.py now
 # reads. The code always comes from here.
 CAMPAIGN = Path(__file__).resolve().parents[1] / "campaign3_blind"
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))

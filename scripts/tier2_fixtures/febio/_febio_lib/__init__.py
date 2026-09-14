@@ -391,12 +391,12 @@ def template(name: str, **params) -> str:
     # fixture is STAGED into a scratch directory, where walking up from
     # __file__ leaves the checkout entirely.
     #
-    # OASIS_REPO is exported by scripts/run_tier2_fixtures.py for exactly this
+    # OPENPASO_REPO is exported by scripts/run_tier2_fixtures.py for exactly this
     # reason. Prefer it, fall back to the corrected parents[4], and refuse to
     # guess: importing the wrong generator silently is what produced the
     # symptom this comment exists to explain.
     cands = []
-    env_repo = os.environ.get("OASIS_REPO")
+    env_repo = os.environ.get("OPENPASO_REPO")
     if env_repo:
         cands.append(Path(env_repo))
     cands.append(Path(__file__).resolve().parents[4])
@@ -409,7 +409,7 @@ def template(name: str, **params) -> str:
     if src is None:
         die("cannot locate this checkout's src/backends/febio/generators. "
             "Tried: " + ", ".join(str(c) for c in cands) +
-            ". Set OASIS_REPO to the checkout root. Refusing to import a "
+            ". Set OPENPASO_REPO to the checkout root. Refusing to import a "
             "generator from an unknown tree — that returns a deck this "
             "fixture was not written against and fails as if the fixture "
             "were wrong.")

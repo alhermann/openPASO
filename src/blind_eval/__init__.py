@@ -1,4 +1,4 @@
-"""Blind evaluation harness for the OASiS campaign.
+"""Blind evaluation harness for the openPASO campaign.
 
 Separation of roles, enforced structurally:
 

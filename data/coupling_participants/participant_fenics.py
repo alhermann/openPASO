@@ -1,4 +1,4 @@
-"""FEniCSx (dolfinx) participant for the OASiS `couple` driver.
+"""FEniCSx (dolfinx) participant for the openPASO `couple` driver.
 
 CONTRACT (do not change): runs in its work_dir with no arguments, reads
 imports.json (written every iteration; it is `{}` on iteration 1), writes
@@ -87,10 +87,10 @@ Q_INIT    = 0.0           # iteration-1 fallback interface flux
 #    next to this script overrides NX, NY and names the level; the per-level
 #    dumps below carry that level so the coarse levels survive the fine ones.
 LEVEL = 1
-if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
     try:
         _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
-        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         NX = int(_cfg.get("nx", NX))
         NY = int(_cfg.get("ny", NY))
@@ -165,7 +165,7 @@ def sample(imp, key, fallback, where):
 
 imp = read_imports()
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
                                 [NX, NY], dmesh.CellType.triangle)
 V = fem.functionspace(domain, ("Lagrange", 1))
@@ -255,7 +255,7 @@ uh = LinearProblem(a, L, bcs=bcs, petsc_options_prefix="cpl",
 # into a density the partner can interpolate pointwise.
 p_, w_ = ufl.TrialFunction(V), ufl.TestFunction(V)
 
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 # ONE FORMULA, BOTH SIDES. An earlier version of this file used the reaction
 # only on the Dirichlet side and an L2-projected gradient on the Neumann side,
 # on the reasoning that the Neumann interface DOFs are free, so the discrete

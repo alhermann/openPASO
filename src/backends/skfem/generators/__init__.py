@@ -78,7 +78,7 @@ KNOWLEDGE["_general"] = {
         "50+ element types including Argyris, Morley, Nedelec, Raviart-Thomas",
         "meshio integration for any mesh format",
         "JAX-based automatic differentiation via skfem.autodiff "
-        "(OPTIONAL — skfem does not depend on jax; on the OASiS "
+        "(OPTIONAL — skfem does not depend on jax; on the openPASO "
         "venv `import skfem.autodiff` raises ModuleNotFoundError, "
         "checked 2026-08-03)",
         "Mortar / non-matching interfaces for domain "
@@ -408,7 +408,7 @@ KNOWLEDGE["_general"] = {
             "linearizes a user form at a point x via "
             "jax.linearize + jax.jvp, returning the Jacobian K "
             "and the (negated) residual F). "
-            "AVAILABILITY (checked 2026-08-03 on the OASiS "
+            "AVAILABILITY (checked 2026-08-03 on the openPASO "
             "venv): jax is NOT installed, so "
             "`import skfem.autodiff` raises "
             "ModuleNotFoundError(\"No module named 'jax'\") at "

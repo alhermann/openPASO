@@ -3,7 +3,7 @@
 
 THE NUMBER THIS EXISTS TO PRODUCE
 ---------------------------------
-OASiS can say "1245 of 1377 knowledge warnings have a proof fixture" — 90%. Two
+openPASO can say "1245 of 1377 knowledge warnings have a proof fixture" — 90%. Two
 independent audits established what that sentence means: **a fixture exists**.
 Not that it ran. Not that it passed.
 

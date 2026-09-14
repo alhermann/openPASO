@@ -547,7 +547,7 @@ EXECUTED_API: dict = {
             "starts from a cold cache in $HOME and pays the full "
             "build again, while an interactive `conda activate` "
             "session reuses the env cache — two caches, silently. "
-            "OASiS's own _dune_subprocess_env() in "
+            "openPASO's own _dune_subprocess_env() in "
             "src/backends/dune/backend.py already sets "
             "CONDA_DEFAULT_ENV, which is what keeps the two paths "
             "in agreement; pin DUNE_PY_DIR if you want certainty."),

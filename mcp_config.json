@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "oasis": {
+    "openpaso": {
       "command": "python",
       "args": ["-m", "server"],
       "cwd": "${workspaceFolder}/src",

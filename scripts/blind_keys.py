@@ -240,14 +240,14 @@ def cmd_exposure(args):
         # rather than a finding, which is how a control gets switched off. Take
         # the passphrase from the environment if the operator exported it, and
         # otherwise run the STRUCTURAL rule alone and say so.
-        pw = os.environ.get("OASIS_KEY_PASSPHRASE")
+        pw = os.environ.get("OPENPASO_KEY_PASSPHRASE")
         if enc and pw is None:
             if sys.stdin is not None and sys.stdin.isatty():
                 pw = getpass.getpass("key passphrase (to know what to look "
                                      "for; blank to skip the literal rule): ")
                 pw = pw or None
             else:
-                print("no TTY and no OASIS_KEY_PASSPHRASE: encrypted keys "
+                print("no TTY and no OPENPASO_KEY_PASSPHRASE: encrypted keys "
                       "cannot be opened, so the LITERAL rule is disabled. The "
                       "STRUCTURAL rule still applies. Coverage is PARTIAL.")
         for kp in sorted(list(KEYS.rglob("key.json.enc")) + list(KEYS.rglob("key.json"))):

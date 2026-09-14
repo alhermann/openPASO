@@ -1,6 +1,6 @@
 """Tests for the verification-gate verdict (_stamp_verification).
 
-OASiS enforces verification IN SOFTWARE: it verifies via numerical checks on the
+openPASO enforces verification IN SOFTWARE: it verifies via numerical checks on the
 RUN (completed, produced output, finite / converged / balanced) but does not
 validate. It does NOT currently bind a reported NUMBER to that run — an audit
 showed an invented value attached to a real run still passes — so these tests
@@ -84,7 +84,7 @@ def test_no_evidence_is_not_verified_and_flagged():
 
 
 def test_critic_is_mandatory_for_trust():
-    """The whole point of OASiS: verification is enforced in software. A run that
+    """The whole point of openPASO: verification is enforced in software. A run that
     passes every automated check but was NOT reviewed by the mandatory critic is
     still NOT verified — enforced by verdict, not by an error."""
     _review_on_record("skfem", "mandatory-critic-deck")
@@ -141,8 +141,8 @@ def test_no_environment_variable_lifts_the_mandatory_critic_requirement():
     an environment-variable off-switch is not mandatory: a stray export, a
     harness default, or a copied shell script silently converts every verdict in
     a campaign, and nothing in the output says so. The switch is removed, and
-    the ablation arm it existed for is not run — the design is OASiS or no
-    OASiS. What is asserted here is that setting it now changes nothing.
+    the ablation arm it existed for is not run — the design is openPASO or no
+    openPASO. What is asserted here is that setting it now changes nothing.
     """
     assert _trust_under_env(OFA_DISABLE_CRITIC="1") == "False"
     assert _trust_under_env() == "False"

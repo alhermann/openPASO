@@ -1,7 +1,7 @@
 """The critic requirement, exercised through the real MCP tools.
 
 The unit tests in test_critic_gate.py prove the registry refuses forged, stale,
-reused and mismatched tokens. They say nothing about whether OASiS ASKS it. An
+reused and mismatched tokens. They say nothing about whether openPASO ASKS it. An
 audit found exactly that gap: `critic_gate` existed, was tested, and was wired
 into nothing, so `run_simulation(..., critic_approved=True)` still stamped a
 result VERIFIED with no critic anywhere in the process.
@@ -198,19 +198,19 @@ async def test_an_expired_review_does_not_verify(tools):
 # ── numbers come from the data, not from what the run said ────────────────
 @needs_skfem
 @pytest.mark.asyncio
-async def test_oasis_computes_the_numbers_from_the_runs_own_data(tools):
+async def test_openpaso_computes_the_numbers_from_the_runs_own_data(tools):
     """The gate bound its verdict to the RUN but never to a NUMBER.
 
     A deck that solves honestly and then prints a flattering value used to be
     indistinguishable from one that printed the true one — nothing recomputed
     it. Here the script prints a false L2 norm and writes real data; the value
-    OASiS reports must come from the data.
+    openPASO reports must come from the data.
     """
     lying = DECK + "\nprint('L2 error = 1.0000e-12')\nprint('max u = 999.0')\n"
     out = json.loads(await tools["run_simulation"](
         solver="skfem", input_content=lying, job_name="attest_vs_narration"))
 
-    computed = out["oasis_computed"]
+    computed = out["openpaso_computed"]
     assert computed["max_abs"]["available"] is True, computed
     # -laplace(u)=1 on the unit square with u=0 on the boundary peaks at about
     # 0.0737; P1 on this mesh lands just under it. Nowhere near the 999 claimed.
@@ -231,8 +231,8 @@ async def test_a_run_with_no_data_output_attests_nothing(tools):
         job_name="attest_no_data"))
     # No artefacts at all, so the run is not verified and nothing is computed.
     assert out["trustworthy_result"] is False
-    assert "oasis_computed" not in out or not any(
-        v.get("available") for v in out["oasis_computed"].values()
+    assert "openpaso_computed" not in out or not any(
+        v.get("available") for v in out["openpaso_computed"].values()
         if isinstance(v, dict))
 
 
@@ -329,7 +329,7 @@ async def test_an_unsupported_problem_is_not_checked_rather_than_passed(tools):
         verify_pde=json.dumps({"operator": "navier_stokes", "source": "0",
                                "dim": 2})))
     assert out["residual_check"]["verdict"] == "REFUSED"
-    assert "not one OASiS can assemble" in out["residual_check"]["detail"]
+    assert "not one openPASO can assemble" in out["residual_check"]["detail"]
 
 
 @needs_skfem

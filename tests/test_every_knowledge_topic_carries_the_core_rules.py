@@ -2,8 +2,8 @@
 
 WHY THIS TEST EXISTS. `_UNIVERSAL` was appended on exactly ONE of the 31 return
 paths of `knowledge()` — the topic="physics" path. Measured over this campaign's
-995 knowledge calls from 193 OASiS-arm runs: topic="pitfalls" was 66.3% of calls
-and topic="physics" 11.5%, so 75.6% of OASiS-arm runs received NONE of the
+995 knowledge calls from 193 openPASO-arm runs: topic="pitfalls" was 66.3% of calls
+and topic="physics" 11.5%, so 75.6% of openPASO-arm runs received NONE of the
 universal guidance. Every rule written during development — where the deliverable
 goes, that a deck is not Python, that a "broken" solver is usually an unread log,
 the refinement ladder — reached at most a quarter of the runs it was aimed at.
@@ -106,7 +106,7 @@ def test_a_topic_agents_actually_call_comes_back_with_the_core(topic, knowledge_
     assert isinstance(out, str) and out, f"topic={topic!r} returned {out!r}"
     assert _has_core(out), (
         f"topic={topic!r} returned {len(out)} characters WITHOUT the core rules. "
-        f"This is the defect that left 75.6% of OASiS-arm runs unguided."
+        f"This is the defect that left 75.6% of openPASO-arm runs unguided."
     )
 
 
@@ -164,7 +164,7 @@ def test_the_core_is_cheap_enough_to_send_every_time(knowledge_tool):
     # THE BOUND IS A DELIBERATE TRADE, RAISED ONCE, WITH THE NUMBERS.
     #
     # The core rides on every knowledge call, so it costs the arm that already
-    # accumulates context fastest. Measured: OASiS runs take a median 39 tool
+    # accumulates context fastest. Measured: openPASO runs take a median 39 tool
     # calls against bare's 95, at 91k input tokens per call against 60k, so
     # ACTIONS are the binding constraint. At ~5 knowledge calls per run this
     # block costs roughly 6k tokens of a 262k window.
@@ -179,7 +179,7 @@ def test_the_core_is_cheap_enough_to_send_every_time(knowledge_tool):
     # anything further should displace something, not push this again.
     assert len(_UNIVERSAL_CORE) < 5500, (
         f"the core is {len(_UNIVERSAL_CORE)} chars; it rides on EVERY knowledge "
-        f"call, and the OASiS arm already accumulates context faster than bare. "
+        f"call, and the openPASO arm already accumulates context faster than bare. "
         f"Displace something rather than raising this bound again."
     )
     assert len(_UNIVERSAL_CORE) < len(_UNIVERSAL), "the core must be a subset"

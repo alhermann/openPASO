@@ -39,7 +39,7 @@ from .generators import (  # noqa: F401
     READING_OUTPUT, SILENTLY_ACCEPTED,
 )
 
-logger = logging.getLogger("oasis.sparta")
+logger = logging.getLogger("openpaso.sparta")
 
 _KNOWLEDGE_FILE = Path(__file__).parent / "sparta_knowledge.json"
 _PRECICE_LIB = "/opt/precice/lib"   # libprecice.so.3 — needed for coupled runs

@@ -35,7 +35,7 @@ from .generators import GENERATORS, KNOWLEDGE
 # symbol before looking for evidence that one was CALLED.
 _IMPORT_LINE = re.compile(r"\s*(?:from\s+[\w.]+\s+)?import\s")
 
-logger = logging.getLogger("oasis.kratos")
+logger = logging.getLogger("openpaso.kratos")
 
 
 class KratosBackend(SolverBackend):

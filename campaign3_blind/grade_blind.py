@@ -61,10 +61,10 @@ HERE = Path(__file__).resolve().parent
 # question sheets whose probe count the grader rejects. Neither location could
 # both serve a correct question sheet and grade against an answer.
 #
-# OASIS_BLIND_KEYS is the same variable build_coupled_v2.py already writes
+# OPENPASO_BLIND_KEYS is the same variable build_coupled_v2.py already writes
 # them to, so one setting now names one location for both halves.
-KEYS = Path(os.environ.get("OASIS_BLIND_KEYS", "")) if os.environ.get(
-    "OASIS_BLIND_KEYS") else HERE / "keys"
+KEYS = Path(os.environ.get("OPENPASO_BLIND_KEYS", "")) if os.environ.get(
+    "OPENPASO_BLIND_KEYS") else HERE / "keys"
 
 # The question sheets are ALWAYS this checkout's. Never the copy beside the
 # answers — that is how a stale sheet gets served.

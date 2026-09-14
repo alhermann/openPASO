@@ -1,4 +1,4 @@
-/* OASiS WebUI — Alpine.js component.
+/* openPASO WebUI — Alpine.js component.
  *
  * Manages:
  *  - Model / mode / MCP-toggle UI state
@@ -9,7 +9,7 @@
  *
  * Keep this dependency-light — only Alpine + fetch + native WebSocket.
  */
-function oasisApp() {
+function openpasoApp() {
   return {
     // ─── Config from backend
     models: [], mcpServers: [], modes: [],
@@ -17,7 +17,7 @@ function oasisApp() {
 
     // ─── Active session state (mirrors the JSON on disk)
     session: { id: '', model: 'mock', mode: 'accept',
-               mcp_servers: ['oasis'],
+               mcp_servers: ['openpaso'],
                events: [], tokens_in: 0, tokens_out: 0 },
 
     // ─── UI state

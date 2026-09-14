@@ -1,6 +1,6 @@
-"""The served coupling SCAFFOLDS run, with a fill OASiS never serves.
+"""The served coupling SCAFFOLDS run, with a fill openPASO never serves.
 
-Option B elides the solve; what OASiS does serve (handshake, mapped trace,
+Option B elides the solve; what openPASO does serve (handshake, mapped trace,
 UFL constants, mesh access, flux recovery, finish diagnosis, self-checks,
 exports) must be executable and RIGHT. This test fills each scaffold's holes
 with a minimal solve kept here, runs it on a manufactured solution, and
@@ -25,7 +25,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-BAR = "# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─────────────────────────────────────\n"
+BAR = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─────────────────────────────────────\n"
 FOURC = Path("/home/alexander/4C/build/4C")
 FOURC_PY = Path("/home/alexander/miniconda3/envs/fenics/bin/python")
 DUNE_PY = Path("/home/alexander/miniconda3/envs/dune-py313/bin/python")

@@ -1,6 +1,6 @@
 """Two different codes prepared in one session get the coupled must-read.
 
-MEASURED, round 18 of the coupled development cell. Two of the three OASiS
+MEASURED, round 18 of the coupled development cell. Two of the three openPASO
 runs called prepare_simulation twice -- once per prescribed code -- and never
 opened any knowledge door. The coupled must-read (the couple() recipe, the
 fields-vs-evidence hierarchy, the measured-not-modelled history rule, the

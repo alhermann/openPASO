@@ -127,7 +127,7 @@ def cmd_commit(args):
             if restore is not None:
                 os.chmod(p, restore)
     man = {
-        "schema": "oasis-blind-campaign-commitment/1",
+        "schema": "openpaso-blind-campaign-commitment/1",
         "campaign": "campaign3_blind",
         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "note": "Committed BEFORE any evaluation run. Proves that the grader "

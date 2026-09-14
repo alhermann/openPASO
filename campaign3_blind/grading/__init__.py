@@ -4,7 +4,7 @@ One module per concern, every constant in `constants.py`, every check
 exercised by a firing test in `tests/test_grader_v2_fires.py`:
 
     constants   every number, with its derivation or an honest TO-DERIVE
-    loading     locations (OASIS_BLIND_KEYS / this checkout), hard errors,
+    loading     locations (OPENPASO_BLIND_KEYS / this checkout), hard errors,
                 checkout-pinned helper imports
     probes      the grader-owned evaluation set; task/grader grid agreement
     submission  CSV and RESULT.txt reading; claim semantics

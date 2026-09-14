@@ -1,4 +1,4 @@
-"""The text OASiS gives every client about itself: the server's `instructions`.
+"""The text openPASO gives every client about itself: the server's `instructions`.
 
 ONE SOURCE. server.py hands this to FastMCP, and any harness that has to put
 the same text in front of a model (MCP clients fold or drop a server's
@@ -15,7 +15,7 @@ _CRITIC_BLOCK = (
     "to validate against published literature and benchmarks. Only proceed to the "
     "next step once the critic approves. This is not optional — always do it.\n"
     "- THIS IS ENFORCED, NOT REQUESTED. Setting critic_approved=True does NOT "
-    "make a result verified: OASiS looks the review up in its own record rather "
+    "make a result verified: openPASO looks the review up in its own record rather "
     "than taking your word for it. After the critic reports, call "
     "`submit_critic_review(solver=..., setup=<the exact deck you will run>, "
     "findings=<what the critic actually checked and concluded>)`, then run. The "
@@ -27,7 +27,7 @@ _CRITIC_BLOCK = (
     "- PROVE THE OUTPUT SOLVES THE PROBLEM. run_simulation and run_with_generator "
     "take `verify_pde`: a JSON declaration of the problem, e.g. "
     '{\"operator\": \"diffusion\", \"source\": \"2*pi**2*sin(pi*x)*sin(pi*y)\", '
-    '\"dim\": 2, \"domain_measure\": 1.0}. OASiS then assembles that operator on '
+    '\"dim\": 2, \"domain_measure\": 1.0}. openPASO then assembles that operator on '
     "the mesh your run produced and measures whether the field satisfies it. Use "
     "it whenever the problem is a scalar diffusion/Poisson-type equation. The "
     "source term is part of the problem statement, not the answer, so declaring "
@@ -48,15 +48,15 @@ _CRITIC_BLOCK = (
     "names the defect and the step. The critic reviews what a worker produced, not a "
     "plan. Never judge the whole job at once: the one thing measured to sink coupled "
     "runs is a give-up over the size of the job, while every single step is small.\n"
-    "- REPORT NUMBERS OASiS COMPUTED. Every completed run returns "
-    "`oasis_computed`, with the L2 norm and maximum taken from the run's own "
+    "- REPORT NUMBERS openPASO COMPUTED. Every completed run returns "
+    "`openpaso_computed`, with the L2 norm and maximum taken from the run's own "
     "data files together with the file and its hash. Report those. Do not report "
     "a number you read out of your script's print statements, and never one you "
     "did not obtain from a run.\n"
 )
 
 INSTRUCTIONS = (
-"You are connected to the OASiS — a multi-solver MCP server for "
+"You are connected to openPASO — a multi-solver MCP server for "
         "finite element simulations across 8 independent FEM codes.\n\n"
         # The critic requirement is safety-critical, so it goes FIRST: some MCP
         # clients truncate a server's instructions string when folding it into
@@ -97,7 +97,7 @@ INSTRUCTIONS = (
         "rate your own numbers contradict, and a non-monotone sequence. "
         "Calibrated against 93 independently-checked correct runs it "
         "raised no false alarm on any of them. It costs one call and it works "
-        "whether you ran through OASiS or through your own shell.\n"
+        "whether you ran through openPASO or through your own shell.\n"
         "6. Cross-solver coupling: `discover(query='coupling')`, then `couple(participants, ...)`\n\n"
         "Other tools: `knowledge(topic, solver, physics)`, `discover(query)`, "
         "`examples(keyword, solver)`, `developer(action, solver)`, `generate_mesh(geometry)`\n\n"
@@ -142,7 +142,7 @@ INSTRUCTIONS = (
         "- `couple(participants, max_iter, tol, accelerator, theta, noise_replicates)` — "
         "GENERAL partitioned "
         "coupling for ANY physics. You write one solver script per subdomain that reads "
-        "imports.json / writes exports.json; OASiS runs the fixed-point iteration, the "
+        "imports.json / writes exports.json; openPASO runs the fixed-point iteration, the "
         "relaxation and convergence-or-fail. Use this for any coupling. A non-converged "
         "run is reported as FAILURE, never a result. Keep the default "
         "accelerator='auto' (Aitken for a single-field exchange, Anderson mixing for a "
@@ -156,7 +156,7 @@ INSTRUCTIONS = (
         "`noise_floor`, and no tolerance you apply to it — including an acceptance "
         "tolerance — may be tighter than that.\n"
         "- `couple_levels(participants, levels)` — every prescribed mesh level in ONE call: "
-        "hands each side its level's mesh keys in the process environment (OASIS_CONFIG_JSON), "
+        "hands each side its level's mesh keys in the process environment (OPENPASO_CONFIG_JSON), "
         "warm-starts each level from the previous one, keeps every level's history, console and "
         "interface tables; it writes nothing into your directories.\n"
         "- `check_input(solver, input_path)` — the setup checks as a standalone gate for a deck "

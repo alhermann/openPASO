@@ -1,4 +1,4 @@
-"""FEniCSx (dolfinx) THERMO-ELASTIC participant for the OASiS `couple` driver.
+"""FEniCSx (dolfinx) THERMO-ELASTIC participant for the openPASO `couple` driver.
 
 Steady thermoelasticity on ONE rectangular subdomain of a domain split by a
 straight interface at x = IFACE_X, plane strain, small strain:
@@ -78,10 +78,10 @@ Q_INIT    = (0.0, 0.0, 0.0)                # iteration-1 fallback flux/traction
 #    next to this script overrides NX, NY and names the level; the per-level
 #    dumps below carry that level so the coarse levels survive the fine ones.
 LEVEL = 1
-if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
     try:
         _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
-        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
         LEVEL = int(_cfg.get("level", LEVEL))
         NX = int(_cfg.get("nx", NX))
         NY = int(_cfg.get("ny", NY))
@@ -129,12 +129,12 @@ imp = read_imports()
 #    element tuple ("Lagrange", 1, (2,)) -- there is NO fem.VectorFunctionSpace
 #    on this install (AttributeError, measured).
 #    LEAVE BEHIND: domain, ST, SU.
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
                                 [NX, NY], dmesh.CellType.triangle)
 ST = fem.functionspace(domain, ("Lagrange", 1))
 SU = fem.functionspace(domain, ("Lagrange", 1, (2,)))
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # ── THE INTERFACE AND OUTER DOF SETS (served: the handshake onto the dofs) ──
 # tabulate_dof_coordinates() has ONE ROW PER NODE; in SU's array component c of
@@ -226,7 +226,7 @@ else:
 #    with bcs = bcs_U + bcs_if_U into Uh. Keep L_T_vol and L_U_vol apart from
 #    the interface terms: the recovery below subtracts the VOLUME loads alone.
 #    LEAVE BEHIND: aT, au, L_T_vol, L_U_vol, Th, Uh.
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ begin
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 aT = K * ufl.inner(ufl.grad(tT), ufl.grad(vT)) * ufl.dx
 fT_h = fem.Function(ST)
 fT_h.interpolate(lambda X: F_T(X[0], X[1]))
@@ -252,7 +252,7 @@ Th = LinearProblem(aT, L_T_vol + L_T_if, bcs=bcs_T + bcs_if_T, petsc_options_pre
 L_U_vol = ufl.inner(fU_h, vu) * ufl.dx + BETA * Th * ufl.div(vu) * ufl.dx
 Uh = LinearProblem(au, L_U_vol + L_U_if, bcs=bcs_U + bcs_if_U, petsc_options_prefix="teU",
                    petsc_options={"ksp_type": "preonly", "pc_type": "lu"}).solve()
-# ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end
+# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 
 # ── DID THE INTERFACE DATA ENTER THE SOLVE? (served) ──────────────────────
 if SIDE == "dirichlet" and len(iface_bc_T):

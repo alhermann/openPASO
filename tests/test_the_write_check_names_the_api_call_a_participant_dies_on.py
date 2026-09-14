@@ -66,7 +66,7 @@ def test_it_would_have_named_half_the_fills_that_died_before_exporting():
 
 
 def test_the_harness_surfaces_it_on_a_write():
-    """Plumbing only: the harness calls the check, the check lives in OASiS."""
+    """Plumbing only: the harness calls the check, the check lives in openPASO."""
     agent = (ROOT / "langgraph_eval" / "agent.py").read_text()
     assert "_participant_write_check(p, content)" in agent
     assert "_participant_write_check)" in agent or "_participant_write_check," in agent

@@ -110,7 +110,7 @@ class TestTheShieldingScript(unittest.TestCase):
     def _run(self, arg, env_keys):
         return subprocess.run(
             ["bash", str(SHIELD), arg], capture_output=True, text=True,
-            env={"PATH": "/usr/bin:/bin", "OASIS_BLIND_KEYS": str(env_keys)})
+            env={"PATH": "/usr/bin:/bin", "OPENPASO_BLIND_KEYS": str(env_keys)})
 
     def test_it_seals_every_sibling_store_not_just_the_primary(self):
         with TemporaryDirectory() as t:
@@ -168,7 +168,7 @@ class TestTheLiveVaultRightNow(unittest.TestCase):
         """The one that asks about the real machine rather than a fixture."""
         import os
         live = os.environ.get(
-            "OASIS_BLIND_KEYS",
+            "OPENPASO_BLIND_KEYS",
             "/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys")
         p = Path(live)
         if not p.parent.is_dir():

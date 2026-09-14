@@ -103,7 +103,7 @@ def test_the_diagnosis_also_runs_at_exit_when_the_worker_stops_early():
     from tools import consolidated as C
     text = C._coupling_participant_script("fourc")
     assert "atexit.register(_diagnose_at_exit)" in text
-    assert text.index("atexit.register(_diagnose_at_exit)") < text.index("OASiS DOES NOT SERVE THIS")
+    assert text.index("atexit.register(_diagnose_at_exit)") < text.index("openPASO DOES NOT SERVE THIS")
 
 
 def test_the_4c_contract_takes_either_role_from_its_config():

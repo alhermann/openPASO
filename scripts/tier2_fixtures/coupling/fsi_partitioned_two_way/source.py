@@ -102,7 +102,7 @@ def body() -> None:
             f"only {swing:.3%}; at that size this case is effectively one-way "
             f"and must not be reported as two-way FSI")
 
-    #     THE TWO-WAY PROOF, from OASiS's own checks: with the fluid ignoring
+    #     THE TWO-WAY PROOF, from openPASO's own checks: with the fluid ignoring
     #     the displacement its export cannot move when its imports do, so the
     #     interface-sensitivity probe must object without being told.
     #     Asserted on the NUMBER the probe returns, not on the wording of the

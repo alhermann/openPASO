@@ -41,7 +41,7 @@ claim needs all three:
 RUNNING IT. Each cell is its own process, so one bad cell cannot take the grid
 with it and an interrupted grid resumes:
 
-    OASIS_REPO=<checkout> \
+    OPENPASO_REPO=<checkout> \
     PYTHONPATH=<checkout>/scripts/tier2_fixtures/coupling/_lib \
     OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
     python scripts/sweep_accelerators.py --out /tmp/sweep --workers 8
@@ -220,7 +220,7 @@ def run_grid(out: Path, workers: int, max_iter: int, tol: float) -> None:
     print(f"{len(jobs)} cells to run, {workers} workers, "
           f"max_iter={max_iter} tol={tol:g}", flush=True)
     env = dict(os.environ)
-    env.setdefault("OASIS_REPO", str(REPO))
+    env.setdefault("OPENPASO_REPO", str(REPO))
     env.setdefault("PYTHONPATH", str(LIB))
     running: list = []
     done = 0

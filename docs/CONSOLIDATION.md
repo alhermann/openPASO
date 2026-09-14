@@ -899,7 +899,7 @@ stochastic coupling, measured:
     noise_floor      1.039e-02
     tol_effective    1.039e-02
     verification     NOT VERIFIED — the coupling did not converge, or failed
-                     one of OASiS's silent-wrong checks
+                     one of openPASO's silent-wrong checks
 
 Neither branch's tests could catch it. coupling-revision's assert on the driver
 result, one level below `couple()`. coupling-robustness's never set

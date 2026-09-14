@@ -21,7 +21,7 @@ to the two codes its task prescribed. Its participants contain 0 references to
 are a structural match to the heat.py template -- the same node_map[(i,j)]
 loop, the same two-triangles-per-quad split [n1,n2,n4]/[n2,n3,n4], the same
 `area = 0.5*abs(...)` and the same b/c gradient rows. The agent did not invent
-a solver. OASiS served one, the agent used what it was served, and the
+a solver. openPASO served one, the agent used what it was served, and the
 attribution gate then recorded per_code_attribution=UNPROVEN and graded the
 numbers anyway. Disclosure in a docstring cannot fix that: a submission is
 attributable or it is not, and a task that names a code is failed by an

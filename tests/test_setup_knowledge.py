@@ -61,7 +61,7 @@ _SUBKINDS = ("[Integration][Install]", "[Integration][Discovery]",
 class TestCoverage(unittest.TestCase):
 
     def test_every_registered_backend_has_setup_knowledge(self):
-        """A backend OASiS advertises but cannot tell you how to install is a
+        """A backend openPASO advertises but cannot tell you how to install is a
         backend a stranger cannot use. Derived from the registry, not from a
         hardcoded list, so adding a backend fails here until it is covered."""
         from core.registry import all_backends, load_all_backends

@@ -26,14 +26,14 @@ from core.backend import (
 from core.registry import register_backend
 from .generators import GENERATORS as _TEMPLATES, KNOWLEDGE as _FEBIO_KNOWLEDGE
 
-logger = logging.getLogger("oasis.febio")
+logger = logging.getLogger("openpaso.febio")
 
 
 class FebioBinaryOverrideError(RuntimeError):
     """FEBIO_BINARY names something that is not a file.
 
     Raised rather than ignored, because silently searching elsewhere means the
-    binary OASiS tests is not the binary the user named.
+    binary openPASO tests is not the binary the user named.
     """
 
 

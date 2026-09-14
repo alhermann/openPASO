@@ -167,17 +167,17 @@ if __name__ == "__main__":
 
 
 class TestLeadingNaNIsOurOwnBookkeeping(unittest.TestCase):
-    """OASiS's driver writes history[0] = NaN; copying it must not read as forgery.
+    """openPASO's driver writes history[0] = NaN; copying it must not read as forgery.
 
     Iteration 1 has no previous iterate to difference against, so the driver
     records NaN. An agent that copies `history` verbatim into the graded
     residual_level<k>.csv writes "1,nan", and a non-finite residual used to be
     read as a history that could not have come from a real iteration —
     FABRICATED_NO_RUN, the forgery verdict, for faithfully copying a number
-    OASiS handed it.
+    openPASO handed it.
 
     Measured across the campaign: 20 runs wrote a NaN into a residual file, 13
-    were graded fabrications, and 11 of those 13 were OASiS-arm runs. The
+    were graded fabrications, and 11 of those 13 were openPASO-arm runs. The
     served text now tells agents not to write it; this keeps the label honest
     for the runs that already did.
 

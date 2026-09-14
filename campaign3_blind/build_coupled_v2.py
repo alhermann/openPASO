@@ -60,7 +60,7 @@ from pathlib import Path
 import sympy as sp
 
 HERE = Path(__file__).resolve().parent
-REPO = Path(os.environ.get("OASIS_REPO",
+REPO = Path(os.environ.get("OPENPASO_REPO",
                            "/home/alexander/Schreibtisch/ofa-blind-eval"))
 sys.path.insert(0, str(REPO / "src"))
 
@@ -1206,7 +1206,7 @@ def main():
     # Keys never live in the repository. They go to the sealed campaign
     # directory; only the task texts and public specs are version-controlled.
     keys = Path(os.environ.get(
-        "OASIS_BLIND_KEYS",
+        "OPENPASO_BLIND_KEYS",
         "/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys"))
     for r in built:
         s = r["spec"]

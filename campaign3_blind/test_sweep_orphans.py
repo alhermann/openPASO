@@ -44,7 +44,7 @@ live = subprocess.Popen(
      "--problems", "CC1", "--seed", "9"], cwd=HERE)
 time.sleep(2)
 
-env = dict(os.environ, OASIS_RUNS_DIR=str(RUNS))
+env = dict(os.environ, OPENPASO_RUNS_DIR=str(RUNS))
 out = subprocess.run([PY, SWEEP], env=env, capture_output=True, text=True)
 print(out.stdout.rstrip())
 flagged = {c for c in cells if c in out.stdout}

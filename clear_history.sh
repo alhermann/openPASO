@@ -26,7 +26,7 @@ HISTORY_DIR="$HOME/.claude/projects/-$ENCODED_PATH"
 
 if [ ! -d "$HISTORY_DIR" ]; then
     echo "No history directory found at: $HISTORY_DIR"
-    echo "Run this script from the oasis project root."
+    echo "Run this script from the openpaso project root."
     exit 0
 fi
 

@@ -4,8 +4,8 @@ Python envs live.
 Three layers, last-wins:
 
   1. Built-in defaults (hardcoded scan roots)
-  2. Global config:       ~/.config/oasis/sources.json
-  3. Repo config:         <repo>/.oasis.json
+  2. Global config:       ~/.config/openpaso/sources.json
+  3. Repo config:         <repo>/.openpaso.json
   4. Session config:      $OFA_SOURCE_CONFIG=/path/to/file.json  (env var)
   5. Direct env-var pins: $OFA_<BACKEND>_SOURCE / _BUILD / _PYTHON_ENV
                           $OFA_EXTRA_SOURCE_PATHS  (colon-separated)
@@ -42,9 +42,9 @@ from typing import Optional
 
 
 _REPO = Path(__file__).resolve().parent.parent.parent
-_GLOBAL_CONFIG_PATH = Path.home() / ".config" / "oasis" / "sources.json"
-# Pre-rebrand location (project renamed Open-FEM-agent -> OASiS
-# 2026-06-04). The rename sed moved this constant to ~/.config/oasis/
+_GLOBAL_CONFIG_PATH = Path.home() / ".config" / "openpaso" / "sources.json"
+# Pre-rebrand location (project renamed Open-FEM-agent -> openPASO
+# 2026-06-04). The rename sed moved this constant to ~/.config/openpaso/
 # but existing installs keep their config at the old path — without a
 # fallback the rename silently orphans a working setup (found
 # 2026-06-12: setup_status() showed every backend pathless although
@@ -52,7 +52,7 @@ _GLOBAL_CONFIG_PATH = Path.home() / ".config" / "oasis" / "sources.json"
 # fall back to the legacy path; writers always use the NEW path.
 _LEGACY_GLOBAL_CONFIG_PATH = (Path.home() / ".config" / "open-fem-agent"
                               / "sources.json")
-_REPO_CONFIG_PATH = _REPO / ".oasis.json"
+_REPO_CONFIG_PATH = _REPO / ".openpaso.json"
 _ENV_CONFIG_VAR = "OFA_SOURCE_CONFIG"
 _EXTRA_PATHS_VAR = "OFA_EXTRA_SOURCE_PATHS"
 

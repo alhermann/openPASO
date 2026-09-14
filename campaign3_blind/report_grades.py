@@ -146,7 +146,7 @@ def main(argv) -> int:
             a += m and not bb
             b += bb and not m
         print(f"  {kind:8s} pairs={len(pairs)}  both={both} neither={neither} "
-              f"OASiS-only={a} bare-only={b}")
+              f"openPASO-only={a} bare-only={b}")
         if a + b:
             # exact binomial two-sided, no scipy needed
             from math import comb

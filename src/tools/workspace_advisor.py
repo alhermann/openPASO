@@ -1,4 +1,4 @@
-"""Workspace advisor: OASiS's checks on what an agent leaves behind.
+"""Workspace advisor: openPASO's checks on what an agent leaves behind.
 
 EVERY CHECK IN THIS MODULE IS PRODUCT CODE, NOT EVALUATION CODE. The external
 harness that drives development runs (langgraph_eval/agent.py) fires these at
@@ -6,7 +6,7 @@ its hook points -- a file written, a shell command's output, a result set
 delivered -- but defines none of them:
 the boundary, set explicitly on 2026-09-03, is that the harness carries no
 domain or contract knowledge of its own, because any capability that lives
-only in the runner is not OASiS's and cannot be claimed, shipped, or exercised
+only in the runner is not openPASO's and cannot be claimed, shipped, or exercised
 by a fresh draw. Sibling of tools/result_audit.py, which owns the numeric
 self-consistency audit; this module owns the earlier, cheaper moments -- the
 script as written, the artefact as it lands, the error as it is read.
@@ -542,7 +542,7 @@ def _eaten_error_check(output: str) -> str:
     bytes carrying `Section 'NOT_A_REAL_SECTION' is not a valid section name.`;
     `mpirun -np 1` 2164 bytes, identical.
 
-    OASiS's own runner has wrapped 4C in `stdbuf -oL` for a long time. An agent
+    openPASO's own runner has wrapped 4C in `stdbuf -oL` for a long time. An agent
     that invokes the binary itself never saw that, which is the same shape of
     defect as the four before it: the mechanism existed and did not reach the
     case it was built for.
@@ -582,7 +582,7 @@ def _script_noop_check(written: Path, content: str) -> str:
     paragraph of advice. Over 18 development runs on this problem that were
     served the fact: 18 of 18 called a knowledge door, 18 of 18 set
     FACE_HEAT_FLUX, and ZERO of
-    18 created the condition that makes it do anything. They find OASiS, they
+    18 created the condition that makes it do anything. They find openPASO, they
     read it, they get the concept, and the one line that turns a nodal value
     into a boundary condition does not survive into the code.
 

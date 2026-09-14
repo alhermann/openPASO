@@ -1,5 +1,5 @@
 """A 4C side that already ran the binary gets, as its next step, the deck 4C refused -- 4C's own
-error lines and the defects OASiS names from the deck text -- never the whole participant again.
+error lines and the defects openPASO names from the deck text -- never the whole participant again.
 The lint is a gate: it reads the agent's decks and consoles and writes nothing."""
 from __future__ import annotations
 import json, sys

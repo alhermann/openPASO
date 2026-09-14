@@ -2,7 +2,7 @@
 
 WHY THIS MODULE EXISTS. 4C is a BINARY that consumes a YAML deck, so the deck is
 this backend's run interface in exactly the way exports.json is the coupling
-driver's: it cannot be guessed, and no solve happens without it. OASiS elides
+driver's: it cannot be guessed, and no solve happens without it. openPASO elides
 "the solve" by design, which is right for a Python library and wrong here.
 
 MEASURED. The coupling payload for solver='fourc' contained no PROBLEM TYPE, no

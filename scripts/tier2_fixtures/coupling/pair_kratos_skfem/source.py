@@ -2,7 +2,7 @@
 cell in the sides table, closed.
 
 THE CLAIM UNDER TEST. The sides table said Kratos "yes*" in both columns and
-explained the star as "proven in a SEPARATE Kratos install, not in OASiS's
+explained the star as "proven in a SEPARATE Kratos install, not in openPASO's
 interpreter here", which is a claim nothing on this machine could re-run. The
 Neumann half is re-runnable — `tests/test_coupling_pair_fourc_kratos.py` drives
 the real 4C binary against real Kratos ConvectionDiffusion and checks an
@@ -16,10 +16,10 @@ interface flux, their signs, conservation and the un-split monolithic re-solve.
 
 THE INTERPRETER IS THE WHOLE STORY, and it is the point the payload makes. The
 `command` field is an argv list, so a participant may run under ANY interpreter;
-Kratos does not have to be importable where OASiS itself runs. This fixture
+Kratos does not have to be importable where openPASO itself runs. This fixture
 resolves a Kratos-capable Python by TRYING candidates and importing
 ConvectionDiffusionApplication in each, and prints which one won — because
-`discover(query='list')` probes Kratos in OASiS's own interpreter and so can
+`discover(query='list')` probes Kratos in openPASO's own interpreter and so can
 report it unavailable on a machine where the coupling works, and an agent that
 believes `discover` there will not attempt this at all.
 
@@ -107,7 +107,7 @@ def body() -> None:
     L.require_available("skfem")
     interp = kratos_interpreter()
     print(f"kratos_interpreter_found={bool(interp)}")
-    print(f"kratos_runs_outside_the_oasis_interpreter="
+    print(f"kratos_runs_outside_the_openpaso_interpreter="
           f"{Path(interp).resolve() != Path(sys.executable).resolve()}")
 
     p = L.DEFAULT

@@ -16,7 +16,7 @@ mislabel here is a publication defect. Two conflations produced one:
      produced FABRICATED_NO_RUN. Measured: no C-series task text ever asked a
      participant to write its solver's OWN output — the stated requirement is
      the code-agnostic `NDOF = <integer>` line and nothing more. 102 runs hit
-     that branch, 67 bare and 35 OASiS, all charged with forgery for complying
+     that branch, 67 bare and 35 openPASO, all charged with forgery for complying
      with the contract as written.
 
 Of every check in coupling_evidence(), exactly ONE is positive evidence of
@@ -202,7 +202,7 @@ class TestDeficiencyIsNotCalledForgery(unittest.TestCase):
     # afterwards: 0 of 47 task files in the main draw demand the solver's own
     # captured output — they ask for a run log "containing at least the line
     # NDOF = <integer>" — while 1 of 1 does in each newer draw. 173 coupled
-    # runs, 86 bare and 87 OASiS, were being rejected for writing exactly what
+    # runs, 86 bare and 87 openPASO, were being rejected for writing exactly what
     # they were told to, and the gate's own comment already said "until the
     # task asks, the grader may not punish".
     #

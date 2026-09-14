@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-FF6B4A?style=flat-square" alt="MIT licence"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10%2B-64748B?style=flat-square" alt="Python 3.10+"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10--3.13-64748B?style=flat-square" alt="Python 3.10+"></a>
   <a href="https://doi.org/10.5281/zenodo.20543501"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20543501-64748B?style=flat-square" alt="DOI"></a>
   <a href="#which-solvers-can-it-use"><img src="https://img.shields.io/badge/solvers-9-FF6B4A?style=flat-square" alt="9 solvers"></a>
 </p>
@@ -27,8 +27,8 @@
 ## What openPASO does
 
 > [!TIP]
-> Not a simulation person? Every technical word on this page is explained in one line
-> under [Words used here](#words-used-here) at the bottom.
+> Not a simulation person? Every word you need for the install steps is explained in
+> one line under [Words used here](#words-used-here) at the bottom.
 
 A **solver** is a program that computes how something physically behaves: how a metal
 part bends, how heat spreads through a wall, how air flows around a wing. The method
@@ -59,18 +59,30 @@ specific error message really means, and how to check a result.
 
 Do this first, whichever way you choose afterwards.
 
-You need **Python 3.10, 3.11 or 3.12** (check with `python3 --version`) and **at least
-one** solver.
+You need **Python 3.10 to 3.13** and **at least one** solver. You do not need all nine —
+openPASO tells you what is missing and how to get it.
+
+Check before you start:
+
+```bash
+python3 --version    # 3.10, 3.11 or 3.12 → go straight on. 3.13 → read the box below.
+cc --version         # only matters on 3.13. "not found" → install a compiler first.
+```
 
 > [!IMPORTANT]
-> **Python 3.13 works, but needs a C compiler and about two extra minutes.** openPASO
-> keeps numpy below version 2, because the preCICE coupling library requires that. No
-> ready-made numpy package exists for 3.13 below version 2, so `pip` compiles it from
-> source. On Debian or Ubuntu, install the compiler first with
-> `sudo apt install build-essential`. Without one, the install stops on numpy with
-> `Unknown compiler(s)` and `metadata-generation-failed`.
-> Versions above 3.13 are untested. You do not need all nine.
-openPASO tells you what is missing and how to get it.
+> **On Python 3.13 you need a C compiler, and the install takes about two minutes
+> longer.** openPASO keeps numpy below version 2, because the preCICE coupling library
+> requires that, and no ready-made numpy package exists for 3.13 below version 2 — so
+> `pip` has to compile it from source.
+>
+> - Debian or Ubuntu: `sudo apt install build-essential`
+> - macOS: `xcode-select --install`
+> - Fedora or RHEL: `sudo dnf install gcc gcc-c++ make`
+>
+> Without a compiler the install stops on numpy with `Unknown compiler(s)` and
+> `metadata-generation-failed`.
+>
+> Python 3.14 and newer are untested. Use 3.12 if you can choose.
 
 ```bash
 git clone https://github.com/alhermann/openPASO.git
@@ -113,8 +125,12 @@ If you instead see `ModuleNotFoundError`, your virtual environment is not active
 
 > [!NOTE]
 > **Windows:** the commands above are for Linux and macOS. On Windows use
-> `python -m venv .venv` and then `.venv\Scripts\activate`, and write paths with
-> backslashes. openPASO itself is tested on Linux; several solvers have no Windows build.
+> `python -m venv .venv` and then `.venv\Scripts\activate`. A few other commands differ
+> throughout this page: `copy` instead of `cp`, `dir` instead of `ls`, `set` instead of
+> `export`, and `cd` (Command Prompt) or `pwd` (PowerShell) to print the current folder.
+> openPASO is developed and tested on Linux. It should work on Windows, but that is not
+> something we measure, and the solvers that build from source (4C, SPARTA, deal.II) are
+> the least likely to.
 
 ### Which solvers can it use?
 
@@ -177,7 +193,7 @@ sudo apt install libdeal.ii-dev
 
 Ubuntu 20.04 ships deal.II 9.1.1, which is old enough to miss many current functions.
 Check yours with `grep DEAL_II_PACKAGE_VERSION /usr/include/deal.II/base/config.h`.
-9.3 or newer is fine. If it prints 9.1.x, openPASO will still use it, but some
+9.3 or newer is fine. Below 9.3, openPASO will still use it, but some
 deal.II examples will not compile — build a newer one from source, or use one of
 the other solvers instead.
 If you build it yourself, use `-DCMAKE_BUILD_TYPE=DebugRelease` — a `Release` build
@@ -199,6 +215,15 @@ line at the end of `~/.bashrc` (or `~/.zshrc`) and open a new terminal.
 export FENICS_PYTHON=/path/to/env/bin/python
 export DUNE_PYTHON=/path/to/env/bin/python
 ```
+
+**4C and SPARTA** are built from source and take hours. They have their own
+instructions, and you do not need them to start:
+
+- 4C: <https://github.com/4C-multiphysics/4C> (build guide in its documentation)
+- SPARTA: <https://sparta.github.io/>
+
+Afterwards tell openPASO where they are: `export FOURC_BINARY=/path/to/4C` and
+`export SPARTA_BINARY=/path/to/spa_serial`.
 
 **If a solver will not install**, ask openPASO. Once it is connected (next section),
 write to the AI in plain words:
@@ -362,6 +387,10 @@ enough. Until you do this, openPASO is simply not there, with no message.
 2. The file is not valid JSON. Paste it into any online JSON checker.
 3. The `command` path does not exist. In a terminal run
    `ls /path/to/openPASO/.venv/bin/python` — if that errors, the path is wrong.
+   On Windows: `dir C:\Users\you\openPASO\.venv\Scripts\python.exe`.
+
+On Windows, search the block for `\you\` instead of `/path/to/` — same check, same
+reason.
 
 These are full paths for the same reason as above: the app starts openPASO from its own
 folder. `VIRTUAL_ENV` is needed because some solvers build helper code at run time and
@@ -545,6 +574,10 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 | **Gmsh** | the program openPASO uses to build meshes |
 | **preCICE** | a separate library for coupling two solvers; an alternative to openPASO's own `couple` |
 | **wheel** | a ready-built Python package that `pip` downloads instead of compiling |
+| **YAML**, **XML** | two other text formats for settings; some solvers use these instead of JSON |
+| **MPI** / **mpi4py** | the standard way programs split work across many processors |
+| **ldd** | a command that prints which system libraries your machine has |
+| **DSMC** | a particle method for gas so thin that the usual flow equations stop working |
 | **JSON** | a text format for settings. Every bracket, quote and comma must match, or the whole file is ignored |
 | **binary** | a program you can run, already compiled — you do not build it yourself |
 | **interpreter** | the `python` program itself; several can be installed side by side |

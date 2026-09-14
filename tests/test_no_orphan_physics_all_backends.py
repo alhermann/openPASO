@@ -112,8 +112,33 @@ def _backend_dk_keys(backend_name: str) -> set[str]:
                 except Exception:  # noqa: BLE001
                     continue
                 K = getattr(m, "KNOWLEDGE", None)
-                if isinstance(K, dict):
-                    keys.update(
+                if not isinstance(K, dict):
+                    continue
+                # A GENERATOR MODULE HOLDS ONE PHYSICS, NOT A CATALOG OF THEM.
+                #
+                # backends/fenics/generators/poisson.py has
+                # KNOWLEDGE = {description, function_space, materials,
+                # pitfalls, solver, weak_form} -- that is the knowledge FOR
+                # poisson, and its top-level keys are its sections. Reading
+                # them as physics names reported function_space, solver,
+                # weak_form and parallel as orphaned FEniCSx physics: sections
+                # of Poisson and Stokes, demanded as entries in
+                # supported_physics(). The physics is the module stem.
+                #
+                # A module whose KNOWLEDGE is a catalog -- physics name ->
+                # knowledge -- has no physics-level fields of its own at the
+                # top, and there the keys ARE physics names. That is how
+                # kratos _auxiliary_overview reaches this collector.
+                if any(f in K for f in ("pitfalls", "description", "weak_form")):
+                    # Nothing to add. This module's knowledge is reached
+                    # through whatever physics name the backend exposes, and
+                    # the file name is not that name: fenics/generators/
+                    # elasticity.py is served as `linear_elasticity`. Adding
+                    # the stem invents an orphan; adding its section names
+                    # invents four. Catalogs (below) are where physics names
+                    # actually live, and branches 1 and 2 cover the rest.
+                    continue
+                keys.update(
                         k for k, v in K.items()
                         if isinstance(v, dict) and "pitfalls" in v
                     )

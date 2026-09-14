@@ -28,6 +28,7 @@ SUBDOMAIN A: the rectangle (0, 0.6) x (0, 1), scalar diffusion with k = 1:  -div
 SOURCE TERM: f(x, y) = pi**2*x*sin(pi*y)   (as written)
 OUTER BOUNDARY (x = 0, y = 0, y = 1): u = 0 (Dirichlet)
 INTERFACE (x = 0.6): this side is the DIRICHLET side; it reads the partner's interface values from ./imports.json (partner name "right"), imposes them as an essential condition on the interface, and exports its own interface trace and its own consistent outward normal flux to ./exports.json.
+INTERFACE CORNERS: at the points where the interface meets the outer boundary, the outer boundary condition above applies on BOTH subdomains. Those points belong to the outer boundary, not to the interface, on either side.
 MESH LEVEL 1: 6 x 10 elements.
 The interpreter is {INTERP}.
 Write the COMPLETE, RUNNABLE script participant_A.py (run as `python participant_A.py` in its own directory with imports.json present). Copy the served DIRICHLET-side contract, edit only its placeholder block (geometry, K, F_SRC, outer value, NX, NY, PARTNER) for this subdomain, keep every served line as given, and write only the marked SOLVE holes yourself. Output ONLY the Python inside one ```python fenced block."""
@@ -43,6 +44,7 @@ SUBDOMAIN B: the rectangle (0.6, 1.4) x (0, 1), scalar diffusion with k = 5:  -d
 SOURCE TERM: f(x, y) = 5*pi**2*(1.4 - x)*sin(pi*y)   (as written)
 OUTER BOUNDARY (x = 1.4, y = 0, y = 1): u = 0 (Dirichlet)
 INTERFACE (x = 0.6): this side is the NEUMANN side; it reads the partner's outward normal flux from ./imports.json (partner name "left"), applies it as its own natural (load) condition on the interface, and exports its own interface trace and its own consistent outward normal flux to ./exports.json.
+INTERFACE CORNERS: at the points where the interface meets the outer boundary, the outer boundary condition above applies on BOTH subdomains. Those points belong to the outer boundary, not to the interface, on either side.
 MESH LEVEL 1: 8 x 10 elements.
 The interpreter is {INTERP}.
 Write the COMPLETE, RUNNABLE script participant_B.py (run as `python participant_B.py` in its own directory with imports.json present). Copy the served NEUMANN-side contract, edit only its placeholder block (geometry, K, F_SRC, outer value, NX, NY, PARTNER) for this subdomain, keep every served line as given, and write only the marked SOLVE holes yourself. Output ONLY the Python inside one ```python fenced block."""

@@ -651,6 +651,27 @@ def contract_findings(work: Path) -> list[dict]:
                 f"freedom (`NDOF = 1234`) from that side's own dof count; a level-and-side "
                 f"without that log cannot be shown to have run, however good its numbers are.")})
 
+    # 1a. A COUPLED SUBMISSION WITHOUT ITS ITERATION HISTORY.
+    #
+    # Measured on a round-48 cell: both codes PROVEN, the interface satisfied, three levels of fields
+    # and interface tables -- and no residual_level<k>.csv anywhere, so the coupling itself could not
+    # be shown and the submission was read as malformed. The audit named everything except the thing
+    # that decided it. Fires only when the work LOOKS coupled (side-tagged files), so a single-code
+    # run is never told to produce a history it has no reason to have.
+    if levels and sides:
+        hist = {kk for _q, kind, kk, _s in _level_files(work, "csv") if kind.startswith("residual")}
+        gap = sorted(levels - hist)
+        if gap:
+            out.append({"sequence": "coupling evidence", "values": [],
+                        "finding": (
+                f"NO ITERATION HISTORY for level(s) {gap} of what looks like a COUPLED run "
+                f"(this work carries side-tagged files for {', '.join(sides)}). Each coupled level "
+                f"needs its own residual_level<k>.csv listing every iteration of the partitioned "
+                f"scheme and the interface mismatch at it, from the first to the last. Fields and "
+                f"interface tables do not show that two codes exchanged anything: a coupled run "
+                f"that cannot produce that history cannot be read as coupled at all, however good "
+                f"its numbers are.")})
+
     # 1b. IS THE DISCRETISATION THE ONE THE TASK ASKED FOR?
     #
     # Both numbers come from the agent's own two files, so this needs no key,

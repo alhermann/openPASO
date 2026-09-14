@@ -1,4 +1,7 @@
-"""The run-log contract is graded per SIDE, so the audit has to check it per side.
+"""Two deliverables that decided round-48 cells, and that the audit did not name.
+
+The run-log contract is graded per SIDE, so the audit has to check it per side; and a coupled run
+without its iteration history cannot be read as coupled at all.
 
 Measured on a round-48 cell: both codes PROVEN, the coupling PROVEN, three levels of fields, and it
 lost anyway -- "side A: no NDOF contract line for level(s) [2, 3]", the same for side B. The audit
@@ -57,3 +60,40 @@ def test_a_single_code_run_is_still_judged_per_level(tmp_path):
     _three_levels(tmp_path, dof_at={(1, "")}, sides=("",))
     txt = _audit_text(tmp_path)
     assert "NO DOF-COUNT LINE" in txt and "level(s)" in txt
+
+
+def _coupled(w: Path, with_history: bool):
+    for k in (1, 2, 3):
+        for side in ("A", "B"):
+            (w / f"solution_level{k}_{side}.csv").write_text("x,y,u\n0.1,0.1,1.0\n0.2,0.2,2.0\n")
+            (w / f"interface_level{k}_{side}.csv").write_text("x,y,u,qn\n0.6,0.1,1.0,2.0\n")
+            (w / f"run_level{k}_{side}.log").write_text("console line\nNDOF = 425\n")
+        if with_history:
+            (w / f"residual_level{k}.csv").write_text("iteration,interface_residual\n1,1e-3\n2,1e-7\n")
+    (w / "RESULT.txt").write_text("LEVELS = 3\nINTERFACE_RESIDUAL = 1e-7\nMESH_INDEPENDENCE = CONVERGED\n")
+
+
+def test_a_coupled_run_without_its_iteration_history_is_named(tmp_path):
+    """Measured on a round-48 cell: both codes PROVEN, the interface satisfied, three levels of fields
+    and interface tables, and no residual_level<k>.csv anywhere. It was read as malformed, and the
+    audit had named everything except the thing that decided it."""
+    _coupled(tmp_path, with_history=False)
+    txt = _audit_text(tmp_path)
+    assert "NO ITERATION HISTORY" in txt
+    assert "residual_level" in txt
+    for k in ("1", "2", "3"):
+        assert k in txt.split("NO ITERATION HISTORY")[1][:80]
+
+
+def test_a_coupled_run_with_its_history_is_not_flagged(tmp_path):
+    _coupled(tmp_path, with_history=True)
+    assert "NO ITERATION HISTORY" not in _audit_text(tmp_path)
+
+
+def test_a_single_code_run_is_never_asked_for_a_coupling_history(tmp_path):
+    """No side-tagged files: there is no partner, and demanding a history would be noise."""
+    for k in (1, 2, 3):
+        (tmp_path / f"solution_level{k}.csv").write_text("x,y,u\n0.1,0.1,1.0\n0.2,0.2,2.0\n")
+        (tmp_path / f"run_level{k}.log").write_text("console line\nNDOF = 425\n")
+    (tmp_path / "RESULT.txt").write_text("LEVELS = 3\nMESH_INDEPENDENCE = CONVERGED\n")
+    assert "NO ITERATION HISTORY" not in _audit_text(tmp_path)

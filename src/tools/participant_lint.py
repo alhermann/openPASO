@@ -97,6 +97,21 @@ _TRAPS: tuple[tuple[str, str, str, str], ...] = (
     ("dune", r"\binfo\.converged\b",
      "AttributeError: 'dict' object has no attribute 'converged'",
      "scheme.solve returns a DICT: read info['converged']"),
+    ("dune", r"\.geometry\.point\b",
+     "AttributeError: the Geometry object has no attribute 'point'",
+     "a vertex's coordinates are vertex.geometry.center (or .corner(0))"),
+    ("dune", r"\bspace\.dim\b|\.space\.dim\b",
+     "AttributeError: the space has no attribute 'dim'",
+     "a discrete space counts its dofs with space.size (or len(space))"),
+    ("dune", r"\bdofCoordinates\s*\(",
+     "AttributeError: the space has no attribute 'dofCoordinates'",
+     "dof coordinates come from the grid: iterate gridView.vertices and read v.geometry.center, "
+     "numbering with gridView.indexSet.index(v)"),
+    # ── deal.II (C++, but the trap is what the build dies on) ─────────────
+    ("dealii", r"\bFEEvaluation\s*<",
+     "a page of template errors inside the deal.II headers (synchronous_iterator.h), not in your file",
+     "assemble with FEValues<2> fe_values(fe, quadrature, update_flags), not FEEvaluation -- that is "
+     "the matrix-free class and has a different contract"),
     # ── Kratos ────────────────────────────────────────────────────────────
     ("kratos", r"LaplacianElement2D4N",
      "Kratos error: LaplacianElement2D4N is not registered",
@@ -109,6 +124,7 @@ _IMPORT_MARKERS = {
     "fenics": ("from dolfinx", "import dolfinx"),
     "dune": ("from dune", "import dune"),
     "kratos": ("import KratosMultiphysics", "from KratosMultiphysics"),
+    "dealii": ("#include <deal.II/", "dealii::", "using namespace dealii"),
 }
 
 
@@ -275,6 +291,17 @@ _ERROR_FIXES: tuple = (
      "DUNE-fem: a UFL form is immutable -- build the second one by writing the expression again"),
     ("has no attribute 'converged'",
      "DUNE-fem: scheme.solve returns a DICT -- read info['converged']"),
+    ("has no attribute 'dim'",
+     "DUNE-fem: a discrete space counts its dofs with space.size (or len(space))"),
+    ("has no attribute 'dofCoordinates'",
+     "DUNE-fem: dof coordinates come from the grid -- gridView.vertices with v.geometry.center, "
+     "numbered by gridView.indexSet.index(v)"),
+    ("synchronous_iterator.h",
+     "deal.II: that wall of template errors is a constructor mistake in YOUR file, usually "
+     "FEEvaluation where FEValues belongs"),
+    ("request for member \u2018unsubscribe\u2019",
+     "deal.II: read the FIRST error and check your constructor -- FEValues<2>(fe, quadrature, "
+     "update_flags), in that order"),
     ("is not registered",
      "Kratos: 2-D conduction is P1 TRIANGLES (LaplacianElement2D3N); 3-D is LaplacianElement3D4N"),
 )

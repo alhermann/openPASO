@@ -7759,6 +7759,22 @@ def _is_thermoelastic(physics: str) -> bool:
                                 "thermo_structure")) or p in ("tsi",)
 
 
+def _is_fsi_physics(physics: str) -> bool:
+    """Does the physics word name a fluid-structure exchange?
+
+    THE FSI CONTRACTS WERE REACHABLE ONLY BY PASSING THE PHYSICS AS A SOLVER NAME. Measured
+    2026-09-14: knowledge(topic='coupling', solver='fsi') serves the fluid and structure participants,
+    while solver='fourc' or solver='fenics' -- what an agent coupling those two codes actually calls --
+    serves the scalar heat contract, with nothing saying an FSI contract exists. One development
+    problem is exactly that coupling.
+    """
+    p = _norm_physics(physics)
+    if not p:
+        return False
+    return ("fluid_structure" in p or "fluid-structure" in p or p in ("fsi",)
+            or ("fsi" in p.split("_")))
+
+
 def _norm_physics(physics: str) -> str:
     return (physics or "").strip().lower().replace("-", "_").replace(" ", "_")
 
@@ -7897,6 +7913,24 @@ def _get_coupling_knowledge(solver: str = "", signal: str = "", physics: str = "
             if text.startswith(lead):
                 return lead + _facts + text[len(lead):]
         return _facts + text
+    if _is_fsi_physics(physics) and (solver or "").strip().lower() not in ("fsi", "fluid_structure",
+                                                                          "fluid-structure"):
+        _named = (solver or "").strip().lower()
+        _which = {"fourc": "participant_fsi_solid_fourc.py", "4c": "participant_fsi_solid_fourc.py",
+                  "fenics": "participant_fsi_fluid_fenics.py (fluid) and participant_fsi_solid_fenics.py "
+                            "(structure)", "fenicsx": "participant_fsi_fluid_fenics.py (fluid) and "
+                            "participant_fsi_solid_fenics.py (structure)",
+                  "dolfinx": "participant_fsi_fluid_fenics.py (fluid) and participant_fsi_solid_fenics.py "
+                             "(structure)",
+                  "skfem": "participant_fsi_solid_skfem.py", "scikit-fem": "participant_fsi_solid_skfem.py"}
+        _lead = ("[YOU ASKED FOR A FLUID-STRUCTURE COUPLING, so this is the FSI contract rather than the "
+                 f"single-field one for {solver!r}."
+                 + (f" The participant in it that runs under {solver!r} is {_which[_named]}."
+                    if _named in _which else "")
+                 + " The scalar contract for that code is still one call away: ask again without "
+                   "physics='fsi'.]\n\n")
+        return _with_facts(_front_load_coupling(_lead + _capture_knowledge_fn(
+            "get_coupling_knowledge", "fsi", signal), solver, must_read=not _MUST_READ_STATE["served"]))
     # THE ESCAPE HATCH HAD TO BE MADE REAL.
     #
     # The truncation notice tells the agent, verbatim, that "the rest is

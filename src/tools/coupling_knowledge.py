@@ -2267,6 +2267,15 @@ def _thermo_notice(script_name: str) -> str:
                       "time window per call and exchanges the trace)", "transient"),
         ("3d", "the domain is THREE-DIMENSIONAL with a planar interface", "3d"))
         if (_PARTICIPANT_DIR / f"participant_{script_name}_{key}.py").is_file()]
+    # THE FSI CONTRACTS ARE NAMED THE OTHER WAY ROUND -- participant_fsi_solid_<code>.py -- so the
+    # loop above cannot see them, and until 2026-09-14 the only way to reach them was to pass 'fsi'
+    # as if it were a SOLVER name. An agent coupling a fluid to a structure calls this door with its
+    # own code and, without this line, is handed the single-field contract with nothing to suggest
+    # otherwise.
+    if any((_PARTICIPANT_DIR / f"participant_fsi_{part}_{script_name}.py").is_file()
+           for part in ("solid", "fluid")):
+        have.append(("the interface carries a FLUID TRACTION and a STRUCTURAL DISPLACEMENT "
+                     "(a fluid-structure task)", "fsi"))
     if not have:
         return ""
     # Same defect for every variant, measured 2026-09-11 (thermo-elastic) and

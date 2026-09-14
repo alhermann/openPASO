@@ -187,3 +187,30 @@ def test_the_first_handshake_block_arrives_whole_through_the_tool(solver, physic
         assert "THIS PAYLOAD IS TRUNCATED HERE" in out or "THIS REPLY IS CUT AT" in out, \
             "the reply ends inside a code block and never says it was cut"
         assert out.rindex("```") > out.index(m.group(1)), "the FIRST block is the one that was cut"
+
+
+@pytest.mark.parametrize("solver", ["fourc", "fenics", "skfem"])
+def test_a_fluid_structure_task_reaches_the_fsi_contracts(solver):
+    """They were reachable only by passing the physics as a SOLVER name.
+
+    Measured 2026-09-14: knowledge(topic='coupling', solver='fsi') served the fluid and structure
+    participants, while solver='fourc' or solver='fenics' -- what an agent coupling those two codes
+    actually calls -- served the scalar heat contract with nothing saying an FSI contract exists. One
+    development problem is exactly a 4C structure against a FEniCSx fluid."""
+    K = _knowledge()
+    out = K(topic="coupling", solver=solver, physics="fsi")
+    assert "THE FLUID PARTICIPANT" in out and "THE STRUCTURE PARTICIPANT" in out
+    assert "YOU ASKED FOR A FLUID-STRUCTURE COUPLING" in out
+    long_word = K(topic="coupling", solver=solver, physics="fluid_structure_interaction")
+    assert "THE FLUID PARTICIPANT" in long_word
+    # and the physics-less reply has to say the word exists
+    plain = K(topic="coupling", solver=solver)
+    assert "physics='fsi'" in plain, "the physics-less reply never names the FSI word"
+
+
+def test_the_fsi_reply_names_the_participant_that_runs_under_the_asked_code():
+    K = _knowledge()
+    out = K(topic="coupling", solver="fourc", physics="fsi")
+    assert "participant_fsi_solid_fourc.py" in out
+    out2 = K(topic="coupling", solver="skfem", physics="fsi")
+    assert "participant_fsi_solid_skfem.py" in out2

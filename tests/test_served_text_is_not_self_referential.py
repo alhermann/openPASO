@@ -144,11 +144,21 @@ def test_no_specific_element_is_named_as_an_evaluation_cell():
     t = _tools()
     text = _call(t["knowledge"], topic="physics", solver="skfem",
                  physics="poisson")
-    assert "NONCONFORMING" in text or "nonconforming" in text, (
-        "the element rule itself must survive")
     assert "Morley" not in text, (
         "the served rule still names Morley, which is an evaluation cell's "
         "prescribed element")
+    # THE RULE MOVED, IT WAS NOT LOST. The universal block was cut from 34,814
+    # to 12,624 characters for the instruction budget, and its closing line
+    # sends the reader to knowledge(topic='universal_full') for the long form.
+    # Asserting the rule in the PHYSICS reply tested the contract as it stood
+    # before that cut; asserting it where the reply points is the same
+    # protection against losing the knowledge, and it is true.
+    assert "universal_full" in text, (
+        "the physics reply no longer points at the long form")
+    long_form = _call(t["knowledge"], topic="universal_full")
+    assert "NONCONFORMING" in long_form or "nonconforming" in long_form, (
+        "the element rule itself must survive")
+    assert "Morley" not in long_form
 
 
 def test_the_lesson_survived_the_edit():
@@ -156,14 +166,17 @@ def test_the_lesson_survived_the_edit():
     t = _tools()
     text = _call(t["knowledge"], topic="physics", solver="fenics",
                  physics="poisson")
+    assert "Morley" not in text
+    assert "universal_full" in text, "the reply must say where the long form is"
+    long_form = _call(t["knowledge"], topic="universal_full")
     # stopping early
-    assert "wall budget" in text and "VOLUNTARILY" in text
+    assert "wall budget" in long_form and "VOLUNTARILY" in long_form
     # the wiring rule
-    assert "INERT UNTIL IT IS WIRED IN" in text
+    assert "INERT UNTIL IT IS WIRED IN" in long_form
     # the prescribed-element rule, WITHOUT naming the element an evaluation
     # cell prescribes — the rule is the knowledge, the name was the leak
-    assert "NONCONFORMING" in text or "nonconforming" in text
-    assert "Morley" not in text
+    assert "NONCONFORMING" in long_form or "nonconforming" in long_form
+    assert "Morley" not in long_form
 
 
 if __name__ == "__main__":

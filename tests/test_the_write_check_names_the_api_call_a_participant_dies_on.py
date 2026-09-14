@@ -99,3 +99,34 @@ r = f_vol.vec.vec
     assert "mesh.vertices" in out                      # the lowercase iterators
     assert "BaseVector" in out
     assert out.count("\n  - ") >= 3                    # one bullet per trap
+
+
+def test_a_module_used_without_its_import_is_named():
+    """Measured: a FEniCSx worker followed both the task and the served facts, wrote
+    dolfinx.log.set_log_level(...) and died with NameError, because `from dolfinx import fem` binds no
+    module. The served contracts bind it now; a script written from scratch still may not."""
+    from tools.participant_lint import participant_findings
+    bad = """
+from dolfinx import fem
+import json
+# imports.json exports.json
+dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO)
+"""
+    f = participant_findings(bad)
+    assert any("never imports the module" in x and "dolfinx" in x for x in f), f
+    good = bad.replace("from dolfinx import fem", "from dolfinx import fem\nimport dolfinx")
+    assert participant_findings(good) == []
+
+
+def test_an_import_line_is_not_a_use():
+    """`from dolfinx.fem.petsc import LinearProblem` contains 'dolfinx.' and binds nothing by that
+    name; reading it as a use flagged four correct served contracts."""
+    from tools.participant_lint import participant_findings
+    script = """
+from dolfinx.fem.petsc import LinearProblem
+from dolfinx import fem
+import json
+# imports.json exports.json
+p = LinearProblem(a, L, bcs=[], petsc_options_prefix="run")
+"""
+    assert participant_findings(script) == []

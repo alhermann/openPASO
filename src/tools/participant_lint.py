@@ -131,6 +131,44 @@ def _strip_strings_and_comments(text: str) -> str:
     return out
 
 
+_MODULE_USE = (
+    ("dolfinx", r"\bdolfinx\.[A-Za-z_]", "import dolfinx",
+     "NameError: name 'dolfinx' is not defined",
+     "`from dolfinx import fem, mesh` does NOT bind the module: add a bare `import dolfinx` when you "
+     "call dolfinx.log.set_log_level(...)"),
+    ("ngsolve", r"\bngsolve\.[A-Za-z_]", "import ngsolve",
+     "NameError: name 'ngsolve' is not defined",
+     "`from ngsolve import ...` does NOT bind the module: add a bare `import ngsolve` when you set "
+     "ngsolve.ngsglobals.msg_level"),
+    ("logging", r"\blogging\.[A-Za-z_]", "import logging",
+     "NameError: name 'logging' is not defined",
+     "add `import logging` before logging.basicConfig(level=logging.INFO)"),
+)
+
+
+def _module_findings(body: str, source: str) -> list:
+    """A module used by name that the script never imported.
+
+    Measured 2026-09-14: a FEniCSx worker followed both the task and the served facts, wrote
+    dolfinx.log.set_log_level(...) at the top of the contract, and died with NameError -- the served
+    contracts did `from dolfinx import fem` and never bound the module. They bind it now; a script
+    written from scratch still may not."""
+    # AN IMPORT LINE IS NOT A USE. `from dolfinx.fem.petsc import LinearProblem` contains
+    # "dolfinx." and binds nothing by that name -- scanning it flagged four served contracts that
+    # are correct (measured while writing this).
+    body = "\n".join(l for l in body.split("\n")
+                     if not re.match(r"\s*(from|import)\s", l))
+    out = []
+    for mod, use, imp, error, fix in _MODULE_USE:
+        if not re.search(use, body):
+            continue
+        if re.search(rf"^\s*{imp}\b", source, re.M) or re.search(rf"^\s*import\s+[^\n]*\b{mod}\s+as\b", source, re.M):
+            continue
+        out.append(f"{mod}: this script calls `{mod}....` but never imports the module -- "
+                   f"the run stops with {error}. {fix}. Measured on this install.")
+    return out
+
+
 def participant_findings(text: str) -> list:
     """Measured API traps present in this script, named with the error and the working call."""
     if not isinstance(text, str) or not text.strip():
@@ -139,7 +177,7 @@ def participant_findings(text: str) -> list:
     if not codes:
         return []
     body = _strip_strings_and_comments(text)
-    out, seen = [], set()
+    out, seen = _module_findings(body, text), set()
     for backend, pattern, error, fix in _TRAPS:
         if backend not in codes or (backend, pattern) in seen:
             continue

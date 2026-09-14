@@ -26,6 +26,10 @@
 
 ## What openPASO does
 
+> [!TIP]
+> Not a simulation person? Every technical word on this page is explained in one line
+> under [Words used here](#words-used-here) at the bottom.
+
 A **solver** is a program that computes how something physically behaves: how a metal
 part bends, how heat spreads through a wall, how air flows around a wing. The method
 most of these programs use is called the **finite element method** — it cuts the object
@@ -130,13 +134,19 @@ pip install ngsolve scikit-fem meshio
 examples use.
 
 ```bash
-# Kratos: install the metapackage, NOT "KratosMultiphysics" on its own.
-# Installing KratosMultiphysics alone lets pip take the newest wheel, and the
-# 10.4.x wheels are labelled for a system library version they do not actually
-# work with: they install without error and then fail to import.
-# Check your system with: ldd --version | head -1
-# If it prints 2.32 or higher, either package works. Below 2.32, you need
-# the metapackage line below, which pins a build that runs on your system.
+# Kratos. First check your system C library version:
+#     ldd --version | head -1
+# It prints one line, for example:
+#     ldd (Ubuntu GLIBC 2.31-0ubuntu9.18) 2.31
+# The number at the END of the line is the one that counts. Here it is 2.31.
+#
+#   2.32 or higher -> pip install KratosMultiphysics
+#   below 2.32     -> pip install KratosMultiphysics-all
+#
+# Why: the 10.4.x "KratosMultiphysics" wheels are labelled for an older system
+# library than they really need. On an older system they install with no error
+# and then fail to import. "-all" resolves to a build that runs, and is safe
+# on both, so use it if you are unsure.
 pip install KratosMultiphysics-all
 
 # DUNE-fem: from PyPI. mpi4py is a hidden requirement; without it the first
@@ -199,6 +209,11 @@ settings it checks rather than trusts.
 
 ## See it work
 
+> [!NOTE]
+> The example below is **Option B**, one of the two ways to use openPASO. It needs an
+> OpenRouter key. If you use Claude Code, Claude Desktop or Cursor, you never type this
+> command — you ask in the app instead. Both ways are in [Start here](#start-here).
+
 ```console
 $ python run_agent.py "Use the discover tool to list available solvers, then answer in one sentence."
 
@@ -217,10 +232,6 @@ scikit-fem 12.0.1, Kratos Multiphysics 10.3, DUNE-fem, and SPARTA (DSMC).
 ────────────────────────────────────────────────────────────────────────
   done
 ```
-
-> [!NOTE]
-> This example uses **Option B** below. If you use Claude Code, Claude Desktop or
-> Cursor, you never type this command — you ask in the app instead.
 
 ---
 
@@ -272,8 +283,14 @@ Check that it worked:
 claude mcp list          # openpaso should be listed, and connected
 ```
 
-**Claude Desktop** — open Settings → Developer → Edit Config and add the block below.
-Replace `/path/to/openPASO` with the real folder on your computer, twice:
+**Claude Desktop** — first get your full path. In the openPASO folder run:
+
+```bash
+pwd        # prints something like /home/you/openPASO — copy it
+```
+
+Then open Settings → Developer → Edit Config and add the block below.
+**`/path/to/openPASO` appears three times. Replace all three.**
 
 ```json
 {
@@ -291,13 +308,16 @@ Replace `/path/to/openPASO` with the real folder on your computer, twice:
 }
 ```
 
+Before you save, search the block for `/path/to/` — if it still finds anything, you
+missed one. That is the most common way this goes wrong, and it fails silently.
+
 These are full paths for the same reason as above: the app starts openPASO from its own
 folder. `VIRTUAL_ENV` is needed because some solvers build helper code at run time and
 pick their Python from the environment; without it they can pick the wrong one.
 
-**Cursor, Windsurf, or any other MCP app** — use the same three values: the command
-`/path/to/openPASO/.venv/bin/python`, the arguments `-m server`, and the two settings
-above. Restart the app afterwards.
+**Cursor, Windsurf, or any other MCP app** — use the command
+`/path/to/openPASO/.venv/bin/python`, the arguments `-m server`, and **all three**
+settings from the `env` block above. Restart the app afterwards.
 
 Then simply ask, inside the app:
 
@@ -347,7 +367,8 @@ do. The most common cases:
 
 | Message | What to do |
 |---|---|
-| `OPENROUTER_API_KEY is empty` | You are not in the openPASO folder, or the key is not in `.env` |
+| `there is no .env file yet` | Run `cp .env.example .env` from the openPASO folder, then paste your key into it |
+| `OPENROUTER_API_KEY is empty in ...` | The `.env` file exists but the key line is blank. Paste your key after `OPENROUTER_API_KEY=` |
 | `OpenRouter rejected the key` | The key is wrong — check it at <https://openrouter.ai/keys> |
 | `your OpenRouter account is out of credit` | Add credit at <https://openrouter.ai/credits> |
 | `the chosen model cannot use tools` | Pick a model marked with tool support on <https://openrouter.ai/models> |
@@ -465,6 +486,13 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 | **validation** | checking that the model matches the real world — **not** done here |
 | **MCP** | the standard plug that connects tools to AI apps |
 | **venv** | a private Python folder for one project's packages |
+| **`pip install -e .`** | install the project in this folder (`.`) so your edits take effect straight away (`-e`) |
+| **PYTHONPATH** | tells Python which folder to find openPASO's code in |
+| **VIRTUAL_ENV** | tells programs which private Python folder to use |
+| **PYVISTA_OFF_SCREEN** | draws pictures without opening a window, so it works on a machine with no screen |
+| **langgraph** | the library that lets an AI model use tools in a loop; only Option B needs it |
+| **Gmsh** | the program openPASO uses to build meshes |
+| **preCICE** | a separate library for coupling two solvers; an alternative to openPASO's own `couple` |
 | **conda** | another such tool, needed for FEniCSx |
 | **agent** | an AI model that can use tools by itself, not only write text |
 | **server** | the background program the AI app talks to; openPASO is one |

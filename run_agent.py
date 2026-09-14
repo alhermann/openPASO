@@ -140,10 +140,18 @@ def main() -> int:
 
     api_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not api_key:
+        env_file = REPO / ".env"
+        if not env_file.is_file():
+            explain_and_exit(
+                "there is no .env file yet, so openPASO has no API key",
+                "from the openPASO folder run\n"
+                "             cp .env.example .env\n"
+                "           then open .env and paste your key from\n"
+                "           https://openrouter.ai/keys after OPENROUTER_API_KEY=")
         explain_and_exit(
-            "OPENROUTER_API_KEY is empty",
-            "run  cp .env.example .env  and paste your key from\n"
-            "           https://openrouter.ai/keys  into the .env file")
+            f"OPENROUTER_API_KEY is empty in {env_file}",
+            "open that file and paste your key from\n"
+            "           https://openrouter.ai/keys after OPENROUTER_API_KEY=")
 
     model_id = (args.model or os.environ.get("OPENPASO_MODEL", "")).strip()
     if not model_id:

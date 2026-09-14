@@ -79,3 +79,23 @@ def test_the_check_is_quiet_on_a_file_that_is_not_python():
     sys.path.insert(0, str(ROOT / "src"))
     from tools.workspace_advisor import _participant_write_check
     assert _participant_write_check(Path("deck.yaml"), "SOME: yaml\n") == ""
+
+
+def test_the_formatted_write_check_reads_as_one_actionable_block():
+    from tools.workspace_advisor import _participant_write_check
+    script = """
+from ngsolve import Mesh, H1
+import json
+# imports.json / exports.json
+geo.AddVertex((0, 0))
+for f in mesh.Faces():
+    pass
+r = f_vol.vec.vec
+"""
+    out = _participant_write_check(Path("participant_A.py"), script)
+    assert out.startswith("\n[write check] participant_A.py:")
+    assert "known to stop the run" in out
+    assert "AddVertex" in out and "AddRectangle" in out
+    assert "mesh.vertices" in out                      # the lowercase iterators
+    assert "BaseVector" in out
+    assert out.count("\n  - ") >= 3                    # one bullet per trap

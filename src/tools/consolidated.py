@@ -2522,6 +2522,17 @@ def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
     # including three added that morning after workers died on those calls.
     # So: lift the block out, cap the corpus around it, put it back where it
     # was. Same rule as the deck skeletons and the first contract block.
+    # THE FIRST CONTRACT BLOCK IS NEVER CUT HERE EITHER. The front-loader keeps it whole and the 4C
+    # branch keeps it whole, and this cap -- the last thing every reply passes through -- then cut it
+    # anyway. Measured 2026-09-14 on knowledge(topic='coupling', solver='dune', physics='3d'): the
+    # served text ended mid-block, with an opening ```python and no closing fence, so the worker was
+    # handed a truncated participant. All three C10 cells of round 49 failed on exactly that side.
+    # A block the agent copies is reference, not instruction; the budget bends around it.
+    _end = _contract_block_end(out, 0)
+    if _end > limit:
+        limit = _end
+        if len(out) <= limit:
+            return out
     _fa, _fb = _deciding_block_span(out, solver)
     if _fa >= 0 and (_fb - _fa) < limit // 2:
         facts = out[_fa:_fb]

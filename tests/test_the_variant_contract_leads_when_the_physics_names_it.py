@@ -158,3 +158,32 @@ def test_the_source_knob_says_how_a_numpy_function_enters_the_form():
     assert "interpolate" in block and "SpatialCoordinate" in block
     _first, ngv = _replies("ngsolve", "linear_elasticity")
     assert "CoefficientFunction(B_SRC) is a TypeError" in _first_block(ngv)
+
+
+WHOLE_BLOCK_CASES = [("dune", "3d"), ("kratos", "3d"), ("fenics", "transient"), ("dealii", "transient"),
+                     ("skfem", "elasticity"), ("ngsolve", "elasticity"), ("febio", "elasticity"),
+                     ("fenics", ""), ("fourc", "thermoelastic"), ("sparta", "")]
+
+
+@pytest.mark.parametrize("solver,physics", WHOLE_BLOCK_CASES)
+def test_the_first_handshake_block_arrives_whole_through_the_tool(solver, physics):
+    """The reply an agent actually receives must not end inside the contract it is told to copy.
+
+    Measured 2026-09-14 on knowledge(topic='coupling', solver='dune', physics='3d'): the served text
+    ended with an opening ```python and NO closing fence -- the 3-D participant was cut mid-block by the
+    last cap every reply passes through, after the front-loader had kept it whole. All three C10 cells
+    of round 49 failed on that exact side, and none of them ever ran it."""
+    import re
+    K = _knowledge()
+    for _ in range(2):          # the session's first reply, then a worker's own call
+        out = K(topic="coupling", solver=solver, physics=physics) if physics else K(topic="coupling", solver=solver)
+    m = re.search(r"```python\n(.*?)```", out, re.S)
+    assert m, f"{solver}/{physics or 'base'}: no complete fenced block in a {len(out)}-character reply"
+    block = m.group(1)
+    assert "imports.json" in block and "exports.json" in block, "the first block is not the handshake"
+    # A LATER section may still be cut -- that is what the cap is for -- but then the reply has to say
+    # so. What must never happen is the reply ending inside the block the agent was told to copy.
+    if out.count("```") % 2:
+        assert "THIS PAYLOAD IS TRUNCATED HERE" in out or "THIS REPLY IS CUT AT" in out, \
+            "the reply ends inside a code block and never says it was cut"
+        assert out.rindex("```") > out.index(m.group(1)), "the FIRST block is the one that was cut"

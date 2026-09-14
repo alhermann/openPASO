@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmperazjlb5/participant_A.py\", line 112, in <module>\n    iface_v = [v for v in mesh.vertices if iface_mask[v.nr - 1]]\n                                           ~~~~~~~~~~^^^^^^^^^^\nIndexError\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 263.0,
+  "lines": 189
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmp_ffz6vy9/participant_A.py\", line 152, in <module>\n    tris = np.array([[el.vertexnr(i) for i in range(3)] for el in mesh.Elements()])\n                      ^^^^^^^^^^^\nAttributeError: 'ngsolve.comp.Ngs_Element' object has no attribute 'vertexnr'\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 94.1,
+  "lines": 267
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmp08w5u3o9/participant_A.py\", line 192, in <module>\n    all_dofs = fes.GetDofNrs()\n               ^^^^^^^^^^^^^^^\nTypeError: GetDofNrs(): incompatible function arguments. The following argument types are supported:\n    1. (self: ngsolve.comp.FESpace, ei: ngsolve.comp.ElementId) -> tuple\n    2. (self: ngsolve.comp.FESpace, ni: ngsolve.comp.NodeId) -> tuple\n\nInvoked with: <ngsolve.comp.H1 object at 0x7f2da17e47d0>\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 188.6,
+  "lines": 281
+ }
+]

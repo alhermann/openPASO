@@ -718,7 +718,7 @@ def main():
     #
 
 ──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 44,172 OF 48,714 CHARACTERS (topic='coupling', solver='dune', physics='heat_3d'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
+THIS REPLY IS CUT AT 37,195 OF 41,737 CHARACTERS (topic='coupling', solver='dune', physics='heat_3d'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
 
 
 ────────────────────────────────────────

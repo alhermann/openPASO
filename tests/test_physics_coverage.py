@@ -250,7 +250,14 @@ class TestSolverFreshness(unittest.TestCase):
                 pass  # Skip if git not available
 
     def test_pip_solvers_installed(self):
-        """Key pip-installed solvers should be importable."""
+        """Every pip solver that IS here must import cleanly.
+
+        This used to demand at least two of the three, which is a statement
+        about the machine and not about openPASO. The README tells a newcomer
+        to install ONE solver, so on a correct minimal install this failed and
+        said "openPASO is broken" when nothing was. What is worth asserting is
+        the other half: a solver openPASO believes in must actually import.
+        """
         solvers = {
             "ngsolve": "NGSolve",
             "skfem": "scikit-fem",
@@ -263,11 +270,14 @@ class TestSolverFreshness(unittest.TestCase):
                 installed.append(name)
             except ImportError:
                 pass
-        # At least 2 pip solvers should be installed
-        self.assertGreaterEqual(
-            len(installed), 2,
-            f"Only {len(installed)} pip solvers installed: {installed}"
-        )
+        if not installed:
+            self.skipTest("no pip solver is installed here; install one "
+                          "(scikit-fem is the easiest) to run this test")
+        # Whatever openPASO reports as available must really work.
+        from backend_probe import backend_state
+        for backend in ("ngsolve", "skfem", "kratos"):
+            state, detail = backend_state(backend)
+            self.assertNotEqual(state, "broken", detail)
 
     def test_check_script_exists(self):
         """The freshness check script should exist and be executable."""

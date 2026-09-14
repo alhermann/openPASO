@@ -594,7 +594,13 @@ def _collect_kratos_application_mentions() -> set[str]:
             m for m in _KRATOS_BARE_RE.findall(text)
             if not m.startswith("Kratos")
         )
-    return out
+    # Names that are deliberately not real. The served text teaches that
+    # you cannot reach an element through an application object by writing
+    # `SomeApplication.ThermalFace2D2N(...)`, and the placeholder is the
+    # point of the sentence. Counting it as a catalog claim is a false
+    # positive of the same shape as reading "/home/user/4C" in a docstring
+    # as somebody's real home directory.
+    return out - {"SomeApplication", "MyApplication", "YourApplication"}
 
 
 class TestKratosApplications(unittest.TestCase):

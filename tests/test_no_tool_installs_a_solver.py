@@ -38,6 +38,31 @@ def _tool_functions(tree: ast.AST):
                 break
 
 
+def _writes_captured_output(call: ast.Call) -> bool:
+    """couple() keeps each side's OWN console per level, and that is evidence.
+
+    The driver retains a participant's captured console in
+    participant_output.log, which the next level overwrites; measured on four
+    cells, every per-level run log then carried the finest level's DOF count.
+    So the console is also copied to participant_output_level<k>.log. What is
+    written is what the solver printed -- the anti-fabrication route, exactly
+    like the residual CSV below, and the opposite of handing over a solve.
+
+    Exempt exactly that shape: the destination is a `.log` AND the content is
+    read back from a file. A participant SCRIPT is never written to a .log, and
+    a log the tool composed itself is not captured output, so neither can slip
+    through. test_the_gate_still_fires_on_a_real_hand_over proves both.
+    """
+    target = call.func.value if isinstance(call.func, ast.Attribute) else None
+    literals = ([n.value for n in ast.walk(target)
+                 if isinstance(n, ast.Constant) and isinstance(n.value, str)]
+                if target is not None else [])
+    if not any(".log" in s for s in literals):
+        return False
+    return any(isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+               and n.func.attr == "read_text" for n in ast.walk(call))
+
+
 def _writes_measured_csv(call: ast.Call) -> bool:
     """couple() writes the driver's MEASURED residual history to the path the
     agent asked for (`iteration,interface_residual` rows): numbers the run
@@ -72,7 +97,9 @@ def test_no_mcp_tool_copies_a_participant_file():
                     name = getattr(f, "attr", None) or getattr(f, "id", None)
                     if name in COPY_CALLS:
                         offenders.append(f"{path.name}::{fn.name} calls {name}()")
-                    if name == "write_text" and not _writes_measured_csv(node):
+                    if (name == "write_text"
+                            and not _writes_measured_csv(node)
+                            and not _writes_captured_output(node)):
                         offenders.append(
                             f"{path.name}::{fn.name} calls write_text() while "
                             f"handling participants")
@@ -123,3 +150,34 @@ def test_the_sign_lesson_survived_the_removal():
 if __name__ == "__main__":
     import pytest
     sys.exit(pytest.main([__file__, "-q"]))
+
+
+def test_the_gate_still_fires_on_a_real_hand_over():
+    """Calibration. Both exemptions are narrow on purpose, so prove they are.
+
+    A gate nobody has watched fire is not a gate. Neither a participant script
+    written as .py, nor a .log whose content the tool composed rather than read
+    back from the solver, may slip past the exemptions.
+    """
+    import textwrap
+
+    def flagged(src: str) -> bool:
+        tree = ast.parse(textwrap.dedent(src).strip())
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "write_text"):
+                if (not _writes_measured_csv(node)
+                        and not _writes_captured_output(node)):
+                    return True
+        return False
+
+    assert flagged('(Path(w) / "participant_A.py").write_text(src.read_text())'), \
+        "a participant script copied out must still be caught"
+    assert flagged('(Path(w) / "run_level1.log").write_text("NDOF = 693")'), \
+        "a log the tool wrote itself is not captured output"
+    assert not flagged(
+        '(Path(w) / "participant_output_level1.log").write_text(src.read_text())'), \
+        "the solver's own console, kept per level, is evidence of a real run"
+    assert not flagged('tmp.write_text("iteration,interface_residual" + rows)'), \
+        "the measured residual history is evidence"

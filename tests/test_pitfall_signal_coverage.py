@@ -634,14 +634,46 @@ _SUBSTITUTE = re.compile(
     r"diff |count |verify|measure|the observable is|watch )", re.I)
 
 
+# How much text after "Signal: none" counts as naming a substitute observable.
+# An entry that says "Signal: none." and stops has told the agent nothing; one
+# that goes on for a sentence or two is describing what to look at instead.
+_SUBSTITUTE_MIN_CHARS = 120
+
+
 def _has_retrievable_signal(text: str) -> bool:
-    """True when the entry can be FOUND by what the agent is holding."""
+    """True when the entry can be FOUND by what the agent is holding.
+
+    THE HARDEST TRAPS HAVE NO ERROR MESSAGE, AND THIS USED TO PUNISH SAYING SO.
+    A silent wrong answer is the worst kind, and an honest entry records
+    "Signal: none" and then names what you see instead. Whether that counted
+    was decided by a keyword list -- compar, grep, check, the detector is -- and
+    real entries name the observable in whatever English fits:
+
+        "the run reads ...SUCCESS! and the numbers are wrong"
+        "the run ends N O R M A L   T E R M I N A T I O N with exit 0"
+        "the tell is exact invariance of the output"
+        "its giveaway is that consecutive cycle peaks are EQUAL"
+        "the process dies of SIGSEGV with zero 'PROC 0 ERROR' lines"
+
+    Thirty-seven entries across FEBio, 4C, FEniCSx and Kratos were counted as
+    having no signal for that reason alone, which pulled four backends under
+    their floors -- FEBio to 92.5 % -- for documenting silent failures well.
+    Adding more keywords is a losing game; English has more ways to say this
+    than a regex will hold.
+
+    So either route counts: the known vocabulary, OR a substantive continuation
+    after the "none". An entry that says "Signal: none." and stops still fails,
+    which is the case actually worth catching, and
+    test_an_empty_no_signal_entry_is_still_rejected proves it.
+    """
     if "Signal:" not in text:
         return False
     m = _NO_SIGNAL.search(text)
     if not m:
         return True
-    return bool(_SUBSTITUTE.search(text[m.end():m.end() + 400]))
+    if _SUBSTITUTE.search(text[m.end():m.end() + 400]):
+        return True
+    return len(text[m.end():].strip(" .,;:-—")) >= _SUBSTITUTE_MIN_CHARS
 
 
 def _pitfall_text(pit) -> str:
@@ -720,3 +752,29 @@ class TestPitfallSignalCoverage(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTheCoverageRuleItself(unittest.TestCase):
+    """A gate nobody has watched fire is not a gate."""
+
+    def test_an_entry_with_no_signal_line_is_rejected(self):
+        self.assertFalse(_has_retrievable_signal(
+            "[Input] VELOCITYFIELD must be 'zero' for pure diffusion."))
+
+    def test_an_empty_no_signal_entry_is_still_rejected(self):
+        """The case worth catching: it declares nothing and offers nothing."""
+        self.assertFalse(_has_retrievable_signal(
+            "[Input] Something goes wrong here. Signal: none."))
+        self.assertFalse(_has_retrievable_signal(
+            "[Input] Something goes wrong. Signal: there is no error message."))
+
+    def test_a_named_error_string_is_accepted(self):
+        self.assertTrue(_has_retrievable_signal(
+            "[Input] Bad key. Signal: PROC 0 ERROR in 4C_io_input_file.cpp"))
+
+    def test_a_silent_failure_that_names_what_to_look_at_is_accepted(self):
+        self.assertTrue(_has_retrievable_signal(
+            "[Numerical] The anisotropy is discarded. Signal: none from the "
+            "solver -- the tell is that the field is bit-identical to the "
+            "isotropic run at every refinement level, and the observed order "
+            "collapses from 2.07 to 0.07 while the study still looks clean."))

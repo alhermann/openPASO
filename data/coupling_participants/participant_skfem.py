@@ -27,6 +27,13 @@ IFACE_AXIS = "x"          # WHICH straight line the interface is: "x" -> the lin
                           # (the subdomains sit side by side) | "y" -> the line y = IFACE_X
                           # (they are stacked). Everything below follows from it.
 IFACE_X   = 0.6           # shared interface (X0/X1 for axis "x", Y0/Y1 for axis "y")
+IFACE_SEGMENTS = ()       # EMPTY: the interface is the single straight line named above. For an
+                          # interface that BENDS -- one subdomain's corner cut out of the other --
+                          # list its legs in order instead, each ("x"|"y", position, from, to):
+                          #     IFACE_SEGMENTS = (("x", 0.5, 0.0, 0.5), ("y", 0.5, 0.5, 1.0))
+                          # is the vertical leg x = 1/2 from y = 0 to 1/2, then the horizontal leg
+                          # y = 1/2 from x = 1/2 to 1. Both sides must list the SAME legs in the
+                          # SAME order: the exchange is matched by distance along them.
 K         = 0.8           # conductivity
 
 
@@ -80,16 +87,48 @@ def read_imports():
     return d.get(PARTNER) or None
 
 
-def sample(imp, key, fallback, y):
-    """Interpolate the partner's samples onto this participant's y-coordinates."""
+def arc_length(pts):
+    """Distance along the interface, measured from its start, for each point of `pts` (an (n, 2)
+    array). This is what makes a BENT interface exchangeable: the two sides meet on a curve, not on a
+    coordinate, and a leg's own coordinate is not monotone along the whole thing. With
+    IFACE_SEGMENTS empty this is exactly the coordinate along the single line, so the straight case is
+    unchanged."""
+    pts = np.atleast_2d(np.asarray(pts, float))
+    if not IFACE_SEGMENTS:
+        return pts[:, AL] - (ALO if ON_RIGHT or True else ALO)
+    s_out = np.full(len(pts), np.nan)
+    base = 0.0
+    for axis, pos, a, b in IFACE_SEGMENTS:
+        ax = 0 if axis == "x" else 1
+        al = 1 - ax
+        lo, hi = (a, b) if a <= b else (b, a)
+        on = (np.abs(pts[:, ax] - pos) < TOL) & (pts[:, al] >= lo - TOL) & (pts[:, al] <= hi + TOL)
+        s_out[on] = base + np.abs(pts[on, al] - a)
+        base += abs(b - a)
+    # a point on no leg (a rounding miss, or a partner that listed different legs) falls back to the
+    # nearest leg end rather than poisoning the interpolation with NaN
+    return np.where(np.isnan(s_out), 0.0, s_out)
+
+
+def sample(imp, key, fallback, where):
+    """Interpolate the partner's samples onto this participant's interface points.
+
+    `where` is either this side's coordinate ALONG a straight interface (the usual case) or, for a
+    bent one, its (n, 2) interface points -- in which case both sides are matched by distance along
+    IFACE_SEGMENTS."""
+    where = np.asarray(where, float)
+    bent = where.ndim == 2
+    n = len(where)
     if not imp or not imp.get("coordinates"):
-        return np.full(len(y), float(fallback))
-    ys = np.array([c[AL] for c in imp["coordinates"]], float)   # the coordinate ALONG the interface
+        return np.full(n, float(fallback))
+    pc = np.atleast_2d(np.asarray(imp["coordinates"], float))
+    ys = arc_length(pc) if bent else pc[:, AL]
+    target = arc_length(where) if bent else where
     vs = np.asarray(imp.get(key, []), float).ravel()
     if vs.size != ys.size:
-        return np.full(len(y), float(fallback))
+        return np.full(n, float(fallback))
     o = np.argsort(ys)
-    return np.interp(y, ys[o], vs[o])
+    return np.interp(target, ys[o], vs[o])
 
 
 imp = read_imports()
@@ -277,8 +316,10 @@ if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size 
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",
     "n_points": int(len(iface_dofs)),
-    "coordinates": [([float(IFACE_X), float(yy)] if AX == 0 else [float(yy), float(IFACE_X)])
-                    for yy in y_if],
+    "coordinates": (np.atleast_2d(np.asarray(y_if, float)).tolist()
+                    if np.asarray(y_if).ndim == 2 else
+                    [([float(IFACE_X), float(yy)] if AX == 0 else [float(yy), float(IFACE_X)])
+                     for yy in y_if]),
     "values": [float(t) for t in sol[iface_dofs]],
     "normal_fluxes": [float(q) for q in Q],
 }, indent=2))

@@ -209,8 +209,10 @@ for f in (SURF_FILE, SPECIES, VSS):
         src = Path(DATA_DIR) / f
         if not src.is_file():
             sys.stderr.write(f"missing SPARTA data file {f} (not in cwd, not in "
-                             f"{DATA_DIR}). The OASiS `couple` tool does NOT stage "
-                             f"data files -- place them in work_dir yourself.\n")
+                             f"{DATA_DIR}). couple() DOES stage files a deck in work_dir "
+                             f"references -- searching data_dir and data_files first, then "
+                             f"SPARTA_DATA_DIR, then the distribution -- so this is a STANDALONE "
+                             f"run: put the file beside the deck yourself, or pass data_dir.\n")
             sys.exit(3)
         Path(f).write_bytes(src.read_bytes())
 # ── SOLVE ─ OASiS DOES NOT SERVE THIS ─ end

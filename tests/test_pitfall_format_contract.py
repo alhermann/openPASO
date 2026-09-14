@@ -91,11 +91,42 @@ def _entries() -> list[tuple[Path, str]]:
                         and isinstance(body[0].value, ast.Constant)
                         and isinstance(body[0].value.value, str)):
                     docstrings.add(id(body[0].value))
+        # A REGEX PATTERN IS NOT AN ENTRY, AND NEITHER IS A WHOLE DOCUMENT.
+        # Same reasoning as the docstring exclusion above: the gate demands a
+        # [Category] tag on a pitfall entry, and the only way to satisfy it on
+        # something that is not one is to damage correct code.
+        #   * `re.search(r"Signal:\s*Segmentation fault|...", blob)` in
+        #     fourc/backend.py is a pattern that MATCHES 4C's output. Tagging it
+        #     would change what it matches.
+        #   * FOURC_DECK_GRAMMAR in fourc/deck_grammar.py is the whole deck
+        #     grammar document, which mentions the Signal: convention while
+        #     explaining it. It is one constant, not one entry.
+        patterns = set()
+        for call in ast.walk(tree):
+            if (isinstance(call, ast.Call)
+                    and isinstance(call.func, ast.Attribute)
+                    and isinstance(call.func.value, ast.Name)
+                    and call.func.value.id == "re"):
+                for arg in call.args:
+                    if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                        patterns.add(id(arg))
+        documents = set()
+        for assign in ast.walk(tree):
+            if not isinstance(assign, ast.Assign):
+                continue
+            names = {tgt.id for tgt in assign.targets if isinstance(tgt, ast.Name)}
+            if any(n.endswith(("_GRAMMAR", "_DOC", "_DOCUMENT", "_MANUAL"))
+                   for n in names):
+                if isinstance(assign.value, ast.Constant):
+                    documents.add(id(assign.value))
+
         for node in ast.walk(tree):
             if (isinstance(node, ast.Constant)
                     and isinstance(node.value, str)
                     and "Signal:" in node.value
-                    and id(node) not in docstrings):
+                    and id(node) not in docstrings
+                    and id(node) not in patterns
+                    and id(node) not in documents):
                 k = (str(py), node.value)
                 if k not in seen:
                     seen.add(k)

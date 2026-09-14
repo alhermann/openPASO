@@ -281,8 +281,11 @@ _ERROR_FIXES: tuple = (
      "FEniCSx: build spaces with fem.functionspace(mesh, ('Lagrange', 1))"),
     ("has no attribute 'VectorFunctionSpace'",
      "FEniCSx: fem.functionspace(mesh, ('Lagrange', 1, (mesh.geometry.dim,)))"),
-    ("petsc_options_prefix",
-     "FEniCSx: LinearProblem REQUIRES the keyword petsc_options_prefix on this install"),
+    ("missing 1 required keyword-only argument: 'petsc_options_prefix'",
+     "FEniCSx: LinearProblem requires petsc_options_prefix='<any name>' on this install (measured "
+     "exactly this message)"),
+    ("'LinearProblem' object has no attribute '_solver'",
+     "FEniCSx: the solver is the PUBLIC p.solver; touching p._solver raises"),
     ("has no attribute 'geometry.point'",
      "DUNE-fem: a vertex's coordinates are vertex.geometry.center (or .corner(0))"),
     ("'Geometry' object has no attribute 'point'",

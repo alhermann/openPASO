@@ -201,6 +201,7 @@ def test_the_error_table_covers_what_the_fills_actually_printed():
         "AttributeError: 'FunctionSpace' object has no attribute 'subset_dofs'",
         "AttributeError: 'Geometry' object has no attribute 'point'",
         "AttributeError: 'Form' object has no attribute 'copy'",
+        "TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'",
     ]
     for line in printed:
         assert findings_from_output(line), f"no fix named for a failure that was measured: {line}"
@@ -210,3 +211,20 @@ def test_the_harness_surfaces_the_run_check_too():
     agent = (ROOT / "langgraph_eval" / "agent.py").read_text()
     assert "_participant_run_check(out)" in agent
     assert "_participant_run_check)" in agent or "_participant_run_check," in agent
+
+
+def test_the_run_check_is_silent_on_what_the_rounds_actually_printed():
+    """A gate on run output must not fire on ordinary traffic. Measured over the 2,525 tool results in
+    rounds 48 and 49: zero fires. One earlier needle (the bare word petsc_options_prefix) fired on a
+    KNOWLEDGE reply that merely mentioned it, so the needle is the exact message instead."""
+    from tools.participant_lint import findings_from_output
+    innocent = [
+        "# WHAT DECIDES THIS RUN - fenics/heat\n# LinearProblem REQUIRES the keyword petsc_options_prefix",
+        "wrote 12609 chars to /abs/side_A/participant_A.py",
+        "Boundaries: ('outer_bottom', 'interface')\nNDOF: 60\nInterface vertices: 7",
+        "processor 0 finished normally",
+    ]
+    for text in innocent:
+        assert findings_from_output(text) == [], f"the run check fired on ordinary output: {text[:60]}"
+    real = "TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'"
+    assert findings_from_output(real), "the real message is no longer caught"

@@ -7,7 +7,7 @@ ImportError, skip -- also swallows the case that actually matters, where the
 solver IS there and does NOT work. Then the suite is green and the product is
 broken, which is the worst of both.
 
-So conftest.backend_state has three answers, not two, and this file holds it to
+So backend_probe.backend_state has three answers, not two, and this file holds it to
 them. It is the gate on the gate: without it, nobody has ever watched the
 "broken" branch fire.
 """
@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import conftest as C  # noqa: E402
+import backend_probe as C  # noqa: E402
 
 
 def test_every_backend_answers_with_one_of_the_three_states():

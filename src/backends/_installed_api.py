@@ -335,11 +335,13 @@ def render(backend_name: str) -> str:
     # "<your dolfinx Python -- set FENICS_PYTHON>" is worth more than a
     # confident path that does not exist here.
     out = [f"## Installed-version API reference — {backend_name} {e['version']}",
-           "*The API shapes, versions and gotchas below were measured by "
-           "actually running each solver. The paths are filled in for THIS "
-           "machine; where one reads `<...set VARIABLE>`, openPASO could not "
-           "find that install — set the named variable, or ask "
-           "`knowledge(topic='install')`.*",
+           "*Measured by actually running each solver on the machine hosting "
+           "this openPASO server. The paths below are filled in for THAT "
+           "machine — they are local observations, not universal facts. Where "
+           "one reads `<...set VARIABLE>`, openPASO could not find the "
+           "install: set the named environment variable, or ask "
+           "`knowledge(topic='install')`. The API shapes, versions and "
+           "gotchas are the transferable part.*",
            f"Run (on this host): `{e['run']}`",
            "Minimal smoke test that ACTUALLY RUNS on this install (adapt this API; do not guess from memory):",
            "```", e["verified_smoke_test"].rstrip(), "```",

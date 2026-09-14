@@ -161,7 +161,18 @@ try:
 except ImportError as e:
     print(json.dumps({"ok": False, "error": str(e)}))
 '''
-    ok, stdout, stderr = _run_script(sys.executable, script, timeout=60)
+    # DUNE LIVES IN ITS OWN INTERPRETER, AND THIS RAN IN OURS.
+    #
+    # This was `sys.executable`, the Python running openPASO. DUNE-fem is
+    # installed in a separate environment by design -- that is what DUNE_PYTHON
+    # and the conda auto-detection are for -- so the script could only ever
+    # report "No module named 'dune'" unless openPASO itself happened to run
+    # inside the DUNE env. A correct install therefore failed its own smoke
+    # test, which is worse than having no smoke test: it says the solver is
+    # broken when the solver is fine. The backend already resolves this.
+    from backends.dune.backend import _find_dune_python
+    interpreter = _find_dune_python() or sys.executable
+    ok, stdout, stderr = _run_script(interpreter, script, timeout=60)
     dt = (time.time() - t0) * 1000
     if ok:
         try:

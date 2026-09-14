@@ -2332,7 +2332,8 @@ _DECIDING_FACTS = {
              "7. Verbosity for a captured log: logging.basicConfig(level=logging.INFO) makes skfem print \"Assembling 'laplace'.\" -- TO STDERR. Redirect with 2>&1 or the run log carries none of it.\n"
              "8. INSIDE A FORM THE COORDINATES ARE w.x[0] AND w.x[1]. There is no w.y -- AttributeError: Attribute 'y' not found in 'w' (measured; three step-trial fills died on it). `w.x` is the (dim, nelems, nqp) array of global quadrature-point coordinates, so a source written with it is evaluated where the rule needs it.\n"
              "9. A RECTANGLE IS MeshTri.init_tensor(np.linspace(x0, x1, nx + 1), np.linspace(y0, y1, ny + 1)). There is no MeshTri.init_rect (AttributeError: type object 'MeshTri1' has no attribute 'init_rect', measured).\n"
-             "10. Basis(mesh, element) takes NO doforder keyword (TypeError: CellBasis.__init__() got an unexpected keyword argument 'doforder'), and a FacetBasis has NO find_dofs (AttributeError) -- it has get_dofs, like every other basis.",
+             "10. Basis(mesh, element) takes NO doforder keyword (TypeError: CellBasis.__init__() got an unexpected keyword argument 'doforder'), and a FacetBasis has NO find_dofs (AttributeError) -- it has get_dofs, like every other basis.\n"
+             "11. THE MESH ARRAYS ARE p (2 x n_nodes), t (3 x n_elements) and facets (2 x n_facets), with t2f and f2t joining them; there is no mesh.f (AttributeError: 'MeshTri1' object has no attribute 'f', measured). The node indices of facet k are mesh.facets[:, k] and their coordinates mesh.p[:, mesh.facets[:, k]]; whole-boundary sets are mesh.boundary_facets() and mesh.boundary_nodes().",
     "kratos": (
         "1. `LaplacianElement2D3N` exists; `LaplacianElement2D4N` does NOT "
         "('is not registered'). 2D is P1 TRIANGLES.\n"

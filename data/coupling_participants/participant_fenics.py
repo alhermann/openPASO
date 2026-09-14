@@ -32,7 +32,10 @@ SIDE      = "dirichlet"   # "dirichlet" (import T, export flux) | "neumann"
 PARTNER   = "right"       # the partner's `name` in your couple(...) call
 X0, X1    = 0.0, 0.6      # this subdomain's x-extent
 Y0, Y1    = 0.0, 0.4      # this subdomain's y-extent
-IFACE_X   = 0.6           # the shared interface; must equal X0 or X1
+IFACE_AXIS = "x"          # WHICH straight line the interface is: "x" -> the line x = IFACE_X
+                          # (the subdomains sit side by side) | "y" -> the line y = IFACE_X
+                          # (they are stacked). Everything below follows from it.
+IFACE_X   = 0.6           # the shared interface; X0/X1 for axis "x", Y0/Y1 for axis "y"
 K         = 0.8           # conductivity
 
 
@@ -87,8 +90,12 @@ if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
     except (ValueError, TypeError, json.JSONDecodeError):
         pass
 
-OUTER_X = X0 if IFACE_X == X1 else X1
-S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at interface = S*e_x
+AX = 0 if IFACE_AXIS == "x" else 1         # the coordinate the interface FIXES
+AL = 1 - AX                                # the coordinate that RUNS ALONG it
+LO, HI = (X0, X1) if AX == 0 else (Y0, Y1)         # this subdomain, across the interface
+ALO, AHI = (Y0, Y1) if AX == 0 else (X0, X1)       # this subdomain, along it
+OUTER_X = LO if abs(IFACE_X - HI) < abs(IFACE_X - LO) else HI
+S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at interface = S * e_AX
 
 
 def read_imports():
@@ -108,7 +115,7 @@ def sample(imp, key, fallback, y):
     The driver does no interpolation — non-matching meshes are handled here."""
     if not imp or not imp.get("coordinates"):
         return np.full(len(y), float(fallback))
-    ys = np.array([c[1] for c in imp["coordinates"]], float)
+    ys = np.array([c[AL] for c in imp["coordinates"]], float)   # the coordinate ALONG the interface
     vs = np.asarray(imp.get(key, []), float).ravel()
     if vs.size != ys.size:
         return np.full(len(y), float(fallback))
@@ -356,7 +363,8 @@ with open(f"interface_level{LEVEL}.csv", "w") as _f:
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",
     "n_points": int(len(iface_dofs)),
-    "coordinates": [[float(IFACE_X), float(y)] for y in y_if],
+    "coordinates": [([float(IFACE_X), float(y)] if AX == 0 else [float(y), float(IFACE_X)])
+                    for y in y_if],
     "values": [float(t) for t in T],
     "normal_fluxes": [float(q) for q in Q],
 }, indent=2))

@@ -52,7 +52,10 @@ SIDE      = "dirichlet"   # "dirichlet" (import u, export traction) | "neumann"
 PARTNER   = "right"       # the partner's `name` in your couple(...) call
 X0, X1    = 0.0, 0.55     # this subdomain's x-extent
 Y0, Y1    = 0.0, 0.4      # this subdomain's y-extent
-IFACE_X   = 0.55          # the shared interface; must equal X0 or X1
+IFACE_AXIS = "x"          # WHICH straight line the interface is: "x" -> the line x = IFACE_X
+                          # (the subdomains sit side by side) | "y" -> the line y = IFACE_X
+                          # (they are stacked). Everything below follows from it.
+IFACE_X   = 0.55          # the shared interface; X0/X1 for axis "x", Y0/Y1 for axis "y"
 E_MOD     = 1000.0        # Young's modulus
 NU        = 0.3           # Poisson ratio (PLANE STRAIN)
 # Prescribed displacement on this subdomain's WHOLE non-interface boundary
@@ -103,8 +106,12 @@ if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
 LAM = E_MOD * NU / ((1.0 + NU) * (1.0 - 2.0 * NU))   # plane strain
 MU = E_MOD / (2.0 * (1.0 + NU))
 
-OUTER_X = X0 if abs(IFACE_X - X1) < abs(IFACE_X - X0) else X1
-S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at interface = S*e_x
+AX = 0 if IFACE_AXIS == "x" else 1         # the coordinate the interface FIXES
+AL = 1 - AX                                # the coordinate that RUNS ALONG it
+LO, HI = (X0, X1) if AX == 0 else (Y0, Y1)         # this subdomain, across the interface
+ALO, AHI = (Y0, Y1) if AX == 0 else (X0, X1)       # this subdomain, along it
+OUTER_X = LO if abs(IFACE_X - HI) < abs(IFACE_X - LO) else HI
+S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at interface = S * e_AX
 
 
 def read_imports():
@@ -133,7 +140,7 @@ def sample(imp, key, fallback, y):
     fb = np.asarray(fallback, float).ravel()
     if not imp or not imp.get("coordinates"):
         return np.tile(fb, (len(y), 1))
-    ys = np.array([c[1] for c in imp["coordinates"]], float)
+    ys = np.array([c[AL] for c in imp["coordinates"]], float)   # the coordinate ALONG the interface
     vs = np.asarray(imp.get(key) or [], float)
     if vs.ndim == 1:
         vs = vs.reshape(-1, 1)
@@ -369,7 +376,8 @@ with open(f"interface_level{LEVEL}.csv", "w") as _f:
 Path("exports.json").write_text(json.dumps({
     "field_name": "displacement",
     "n_points": int(len(iface_n)),
-    "coordinates": [[float(IFACE_X), float(y)] for y in y_if],
+    "coordinates": [([float(IFACE_X), float(y)] if AX == 0 else [float(y), float(IFACE_X)])
+                    for y in y_if],
     "values": [[float(a_), float(b_)] for a_, b_ in U],
     "normal_fluxes": [[float(a_), float(b_)] for a_, b_ in Q],
 }, indent=2))

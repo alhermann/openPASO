@@ -51,7 +51,10 @@ PARTNER   = "right"       # name of the partner participant in couple(...)
 X0, X1    = 0.0, 0.5      # this subdomain, x-extent
 Y0, Y1    = 0.0, 1.0      # cross-section (y)
 Z0, Z1    = 0.0, 0.1      # cross-section (z), one element thick
-IFACE_X   = 0.5           # shared interface (must equal X0 or X1)
+IFACE_AXIS = "x"          # WHICH straight line the interface is: "x" -> the line x = IFACE_X
+                          # (the subdomains sit side by side) | "y" -> the line y = IFACE_X
+                          # (they are stacked). Everything below follows from it.
+IFACE_X   = 0.5           # shared interface (X0/X1 for axis "x", Y0/Y1 for axis "y")
 E_MOD     = 1000.0        # Young's modulus
 NU        = 0.3           # Poisson ratio
 U_OUTER   = 0.0           # prescribed u_x on the NON-interface x-face
@@ -61,8 +64,12 @@ Q_INIT    = 0.0           # iteration-1 fallback interface flux (traction)
 FEBIO     = "febio4"      # the FEBio binary path `discover(query='list')` prints
 # ─────────────────────────────────────────────────────────────────────────
 
-OUTER_X = X0 if IFACE_X == X1 else X1
-S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at interface = S * e_x
+AX = 0 if IFACE_AXIS == "x" else 1         # the coordinate the interface FIXES
+AL = 1 - AX                                # the coordinate that RUNS ALONG it
+LO, HI = (X0, X1) if AX == 0 else (Y0, Y1)         # this subdomain, across the interface
+ALO, AHI = (Y0, Y1) if AX == 0 else (X0, X1)       # this subdomain, along it
+OUTER_X = LO if abs(IFACE_X - HI) < abs(IFACE_X - LO) else HI
+S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at interface = S * e_AX
 LAM = E_MOD * NU / ((1.0 + NU) * (1.0 - 2.0 * NU))
 MU = E_MOD / (2.0 * (1.0 + NU))
 M_MOD = LAM + 2.0 * MU                     # the effective 1D "conductivity"
@@ -96,7 +103,7 @@ def sample(imp, key, fallback, y):
     """Interpolate the partner's samples onto this participant's y-coordinates."""
     if not imp or not imp.get("coordinates"):
         return np.full(len(y), float(fallback))
-    ys = np.array([c[1] for c in imp["coordinates"]], float)
+    ys = np.array([c[AL] for c in imp["coordinates"]], float)   # the coordinate ALONG the interface
     vs = np.asarray(imp.get(key, []), float).ravel()
     if vs.size != ys.size:
         return np.full(len(y), float(fallback))
@@ -333,7 +340,8 @@ if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size 
 Path("exports.json").write_text(json.dumps({
     "field_name": "displacement_x",
     "n_points": int(len(iface_nodes)),
-    "coordinates": [[float(IFACE_X), float(yy), float(Z0)] for yy in y_if],
+    "coordinates": [([float(IFACE_X), float(yy), float(Z0)] if AX == 0 else
+                     [float(yy), float(IFACE_X), float(Z0)]) for yy in y_if],
     "values": [float(v) for v in u_out],
     "normal_fluxes": [float(v) for v in q_out],
 }, indent=2))

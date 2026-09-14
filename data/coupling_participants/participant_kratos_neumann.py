@@ -62,7 +62,10 @@ import KratosMultiphysics.ConvectionDiffusionApplication  # noqa: F401
 PARTNER   = "left"        # the partner's `name` in your couple(...) call
 X0, X1    = 0.6, 1.0      # this subdomain's x-extent
 Y0, Y1    = 0.0, 0.4      # this subdomain's y-extent
-IFACE_X   = 0.6           # the shared interface; must equal X0 or X1
+IFACE_AXIS = "x"          # WHICH straight line the interface is: "x" -> the line x = IFACE_X
+                          # (the subdomains sit side by side) | "y" -> the line y = IFACE_X
+                          # (they are stacked). Everything below follows from it.
+IFACE_X   = 0.6           # the shared interface; X0/X1 for axis "x", Y0/Y1 for axis "y"
 K         = 1.6           # conductivity of THIS subdomain
 
 
@@ -114,8 +117,12 @@ if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
     except (ValueError, TypeError, json.JSONDecodeError):
         pass
 
-ON_MAX_X = abs(IFACE_X - X1) < abs(IFACE_X - X0)   # interface is this side's x-max?
-OUTER_X = X0 if ON_MAX_X else X1
+AX = 0 if IFACE_AXIS == "x" else 1         # the coordinate the interface FIXES
+AL = 1 - AX                                # the coordinate that RUNS ALONG it
+LO, HI = (X0, X1) if AX == 0 else (Y0, Y1)         # this subdomain, across the interface
+ALO, AHI = (Y0, Y1) if AX == 0 else (X0, X1)       # this subdomain, along it
+ON_MAX_X = abs(IFACE_X - HI) < abs(IFACE_X - LO)   # interface at this side's MAX of that axis?
+OUTER_X = LO if ON_MAX_X else HI
 S = 1.0 if ON_MAX_X else -1.0          # outward normal at the interface = S * e_x
 TOL = 1e-9 * max(X1 - X0, Y1 - Y0)
 
@@ -137,7 +144,7 @@ def sample(imp, key, fallback, y):
     The driver does no interpolation — non-matching meshes are handled here."""
     if not imp or not imp.get("coordinates"):
         return np.full(len(y), float(fallback))
-    ys = np.array([c[1] for c in imp["coordinates"]], float)
+    ys = np.array([c[AL] for c in imp["coordinates"]], float)   # the coordinate ALONG the interface
     # `or []` and not `.get(key, [])`: a partner that writes the key with an
     # explicit null gets [] here instead of a TypeError out of np.asarray, and
     # falls through to the fallback like any other unusable import.

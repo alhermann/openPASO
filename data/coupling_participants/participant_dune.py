@@ -26,6 +26,9 @@ SIDE      = "dirichlet"   # "dirichlet" | "neumann"
 PARTNER   = "right"       # name of the partner participant in couple(...)
 X0, X1    = 0.0, 0.6
 Y0, Y1    = 0.0, 0.4
+IFACE_AXIS = "x"          # WHICH straight line the interface is: "x" -> the line x = IFACE_X
+                          # (the subdomains sit side by side) | "y" -> the line y = IFACE_X
+                          # (they are stacked). Everything below follows from it.
 IFACE_X   = 0.6
 K         = 0.8
 
@@ -59,8 +62,12 @@ T_INIT    = 310.0
 Q_INIT    = 0.0           # iteration-1 fallback interface flux
 # ─────────────────────────────────────────────────────────────────────────
 
-OUTER_X = X0 if IFACE_X == X1 else X1
-S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at interface = S * e_x
+AX = 0 if IFACE_AXIS == "x" else 1         # the coordinate the interface FIXES
+AL = 1 - AX                                # the coordinate that RUNS ALONG it
+LO, HI = (X0, X1) if AX == 0 else (Y0, Y1)         # this subdomain, across the interface
+ALO, AHI = (Y0, Y1) if AX == 0 else (X0, X1)       # this subdomain, along it
+OUTER_X = LO if abs(IFACE_X - HI) < abs(IFACE_X - LO) else HI
+S = 1.0 if IFACE_X > OUTER_X else -1.0     # outward normal at interface = S * e_AX
 EPS = 1e-8                                 # boundary-indicator tolerance
 
 
@@ -79,7 +86,7 @@ def sample(imp, key, fallback, y):
     """Interpolate the partner's samples onto this participant's y-coordinates."""
     if not imp or not imp.get("coordinates"):
         return np.full(len(y), float(fallback))
-    ys = np.array([c[1] for c in imp["coordinates"]], float)
+    ys = np.array([c[AL] for c in imp["coordinates"]], float)   # the coordinate ALONG the interface
     vs = np.asarray(imp.get(key, []), float).ravel()
     if vs.size != ys.size:
         return np.full(len(y), float(fallback))
@@ -266,7 +273,8 @@ if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size 
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",
     "n_points": int(len(iface_dofs)),
-    "coordinates": [[float(IFACE_X), float(yy)] for yy in y_if],
+    "coordinates": [([float(IFACE_X), float(yy)] if AX == 0 else [float(yy), float(IFACE_X)])
+                    for yy in y_if],
     "values": [float(t) for t in T_dofs[iface_dofs]],
     "normal_fluxes": [float(q) for q in Q],
 }, indent=2))

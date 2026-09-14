@@ -19,8 +19,11 @@ ROOT = Path(__file__).resolve().parents[1]
 PARTICIPANTS = ROOT / "data" / "coupling_participants"
 VENV = Path("/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python")
 
-AXIS_AWARE = ["participant_skfem.py", "participant_ngsolve.py", "participant_skfem_elastic.py",
-              "participant_ngsolve_elastic.py", "participant_dune_elastic.py", "participant_febio_elastic.py"]
+AXIS_AWARE = ["participant_skfem.py", "participant_ngsolve.py", "participant_fenics.py",
+              "participant_dune.py", "participant_febio.py", "participant_kratos_neumann.py",
+              "participant_skfem_elastic.py", "participant_ngsolve_elastic.py",
+              "participant_fenics_elastic.py", "participant_dune_elastic.py",
+              "participant_febio_elastic.py"]
 
 
 @pytest.mark.parametrize("name", AXIS_AWARE)

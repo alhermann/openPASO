@@ -35,6 +35,7 @@ import pathlib
 import re
 
 import pytest
+from pathlib import Path as _P  # noqa: E402
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 GATE = REPO / "scripts" / "verify_signal_clauses.py"
@@ -105,13 +106,37 @@ def _evidence_links(backend: str) -> set[str] | None:
     # not the package directory, so that is where to look. A DUNE process
     # printing `[0]PETSC ERROR: Caught signal number 15` settled it beyond
     # linkage: PETSc is initialised at runtime.
+    # DERIVED FROM THE INSTALL, NOT WRITTEN DOWN.
+    #
+    # These were absolute paths with a username in them, and every one is
+    # guarded by `p.is_dir()` below -- so on any machine where they do not
+    # exist this check quietly looks at nothing and reports nothing, which is
+    # exactly the self-certification the file is named after. The DUNE entry
+    # had already gone stale that way: it names dune-fem-env while the install
+    # on this host is dune-py313.
+    import sys as _s
+    _s.path.insert(0, str(_P(__file__).resolve().parent))
+    import backend_probe as _bp
+
+    def _env_of(interpreter):
+        """<env>/ from <env>/bin/python."""
+        return _P(interpreter).parent.parent
+
+    _fenics_env = _env_of(_bp.fenics_python())
+    try:
+        _s.path.insert(0, str(_P(__file__).resolve().parents[1] / "src"))
+        from backends.dune.backend import _find_dune_python
+        _dune_env = _env_of(_find_dune_python() or _s.executable)
+    except Exception:                                    # noqa: BLE001
+        _dune_env = _env_of(_s.executable)
+
     roots = {
-        "fenics": ["/home/user/miniconda3/envs/fenics/lib"],
-        "dune": ["/home/user/miniconda3/envs/dune-fem-env/lib",
-                 "/home/user/miniconda3/envs/dune-fem-env/.cache/"
-                 "dune-py/python/dune/generated"],
-        "febio": ["/home/user/Schreibtisch/febio-src/cbuild/lib"],
-        "fourc": ["/home/user/4C/build"],
+        "fenics": [str(_fenics_env / "lib")],
+        "dune": [str(_dune_env / "lib"),
+                 str(_dune_env / ".cache" / "dune-py" / "python"
+                     / "dune" / "generated")],
+        "febio": [str(_bp.febio_src() / "cbuild" / "lib")],
+        "fourc": [str(_bp.fourc_root() / "build")],
     }.get(backend)
     if not roots:
         return None

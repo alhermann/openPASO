@@ -48,6 +48,9 @@ import sys
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
@@ -55,7 +58,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 DECK = (Path(__file__).parent / "fixtures" / "fourc_running_deck"
         / "C2_sideA_from_served_grammar.4C.yaml")
-FOURC = Path("/home/user/4C/build/4C")
+FOURC = backend_probe.fourc_binary()
 
 
 def _served():

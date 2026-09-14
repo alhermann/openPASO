@@ -15,9 +15,12 @@ import sys
 from pathlib import Path
 import numpy as np
 import pytest
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 PARTICIPANTS = ROOT / "data" / "coupling_participants"
-VENV = Path("/home/user/Schreibtisch/open-fem-agent/.venv/bin/python")
+VENV = backend_probe.openpaso_python()
 
 AXIS_AWARE = ["participant_skfem.py", "participant_ngsolve.py", "participant_fenics.py",
               "participant_dune.py", "participant_febio.py", "participant_kratos_neumann.py",
@@ -164,7 +167,7 @@ outer_dofs = n2d[np.where((np.abs(py - 0.0) < TOL) | (np.abs(px - 1.0) < TOL))[0
     assert np.all(np.diff(s_of) > -1e-12), "the exported points are not ordered along the polyline"
 
 
-FENICS = Path("/home/user/miniconda3/envs/fenics/bin/python")
+FENICS = backend_probe.fenics_python()
 
 
 @pytest.mark.skipif(not FENICS.is_file(), reason="the FEniCSx interpreter is not on this machine")
@@ -232,8 +235,16 @@ y_if = xy[iface_dofs, :2]"""
     assert len(xs) > 2, "the interface dump still writes one x for every row"
 
 
-@pytest.mark.skipif(not VENV.is_file(), reason="the NGSolve interpreter is not on this machine")
+# VENV existing is not the same as NGSolve being in it. The guard used to be
+# "is there an interpreter", and the interpreter it named happened to carry
+# NGSolve on the machine this was written on. On a clone whose venv has
+# scikit-fem and not NGSolve the participant fails on the import, which says
+# nothing about the horizontal-interface contract this test is for.
+# backend_probe asks openPASO whether NGSolve is really there, and fails rather
+# than skips if it is there and broken.
+@pytest.mark.skipif(not VENV.is_file(), reason="no interpreter to run the participant with")
 def test_the_ngsolve_vector_contract_runs_on_a_horizontal_interface(tmp_path):
+    backend_probe.need_backend("ngsolve")
     """The vector problem with a horizontal interface puts NGSolve on the side whose TOP edge is the
     interface. That path -- vector exchange, axis 'y', Neumann role -- is the one a round would use, so
     it is executed here rather than inferred from the axis knob being present."""

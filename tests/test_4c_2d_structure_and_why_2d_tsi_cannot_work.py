@@ -34,13 +34,16 @@ import sys
 from pathlib import Path
 
 import pytest
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 FIX = ROOT / "tests" / "fixtures" / "fourc_2d"
-FOURC = Path("/home/user/4C/build/4C")
-TSI_SRC = Path("/home/user/4C/src/tsi/4C_tsi_utils.cpp")
+FOURC = backend_probe.fourc_binary()
+TSI_SRC = Path(str(backend_probe.fourc_root()) + "/src/tsi/4C_tsi_utils.cpp")
 
 
 def _grammar():

@@ -26,6 +26,9 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 _REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO / "src"))
@@ -962,7 +965,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         root = Path(__file__).resolve().parent.parent
         candidates_2d = [
             root / "upstream_sources/febio/FEAMR/FEHexRefine2D.cpp",
-            Path("/home/user/Schreibtisch/FEBioStudio-src/"
+            backend_probe.febio_studio_src() / (""
                  "FEAMR/FEHexRefine2D.cpp"),
         ]
         candidates_3d = [
@@ -1327,7 +1330,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/apps/"
+            backend_probe.fourc_src() / ("apps/"
                  "post_processor/4C_post_processor_"
                  "single_field_writers.cpp"),
             Path(__file__).resolve().parent.parent / (
@@ -1396,7 +1399,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         apps/post_processor/4C_post_processor.cpp 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/apps/"
+            backend_probe.fourc_src() / ("apps/"
                  "post_processor/4C_post_processor.cpp"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/fourc/apps/post_processor/"
@@ -1467,7 +1470,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         4C_post_processor_structure_stress.cpp 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/apps/"
+            backend_probe.fourc_src() / ("apps/"
                  "post_processor/"
                  "4C_post_processor_structure_stress.cpp"),
             Path(__file__).resolve().parent.parent / (
@@ -1570,7 +1573,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         (File walk cmake/setup_install.cmake 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/cmake/"
+            backend_probe.fourc_src() / ("cmake/"
                  "setup_install.cmake"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/fourc/cmake/setup_install.cmake"),
@@ -1620,7 +1623,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         (File walk cmake/setup_global_options.cmake 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/cmake/"
+            backend_probe.fourc_src() / ("cmake/"
                  "setup_global_options.cmake"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/fourc/cmake/"
@@ -1705,7 +1708,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         (File walk cmake/setup_py4C.cmake 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/cmake/"
+            backend_probe.fourc_src() / ("cmake/"
                  "setup_py4C.cmake"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/fourc/cmake/setup_py4C.cmake"),
@@ -1773,7 +1776,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/cmake/"
+            backend_probe.fourc_src() / ("cmake/"
                  "checks/01_detect_linkers.cmake"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/fourc/cmake/checks/"
@@ -1832,7 +1835,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         files.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/cmake/"
+            backend_probe.fourc_src() / ("cmake/"
                  "configure/configure_ArborX.cmake"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/fourc/cmake/configure/"
@@ -1901,7 +1904,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         (File walk cmake/setup_tests.cmake 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/cmake/"
+            backend_probe.fourc_src() / ("cmake/"
                  "setup_tests.cmake"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/fourc/cmake/setup_tests.cmake"),
@@ -2055,7 +2058,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         4C_post_processor_thermo_heatflux.cpp 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/apps/"
+            backend_probe.fourc_src() / ("apps/"
                  "post_processor/"
                  "4C_post_processor_thermo_heatflux.cpp"),
             Path(__file__).resolve().parent.parent / (
@@ -2166,7 +2169,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         apps/post_monitor/4C_post_monitor.cpp 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/4C-src/4C/apps/"
+            backend_probe.fourc_src() / ("apps/"
                  "post_monitor/4C_post_monitor.cpp"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/fourc/apps/post_monitor/"
@@ -2231,7 +2234,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         macro_deal_ii_setup_target.cmake 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/dealii-src/cmake/macros/"
+            backend_probe.dealii_src() / ("cmake/macros/"
                  "macro_deal_ii_setup_target.cmake"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/dealii/cmake/macros/"
@@ -2303,7 +2306,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         localcontribution.hh + python/dune/fem/space/__init__.py
         2026-06-03.)"""
         from pathlib import Path
-        roots = [Path("/home/user/Schreibtisch/dune-src/dune-fem"),
+        roots = [backend_probe.dune_src() / ("dune-fem"),
                  Path(__file__).resolve().parent.parent / (
                      "upstream_sources/dune/dune-fem")]
         root = next((r for r in roots if r.exists()), None)
@@ -2374,7 +2377,7 @@ class TestPitfallFalsificationLive(unittest.TestCase):
         macro_deal_ii_query_git_information.cmake 2026-06-03.)"""
         from pathlib import Path
         candidates = [
-            Path("/home/user/Schreibtisch/dealii-src/cmake/macros/"
+            backend_probe.dealii_src() / ("cmake/macros/"
                  "macro_deal_ii_query_git_information.cmake"),
             Path(__file__).resolve().parent.parent / (
                 "upstream_sources/dealii/cmake/macros/"

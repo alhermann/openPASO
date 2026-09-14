@@ -22,6 +22,9 @@ DECK = """
 import skfem
 from skfem import Basis, BilinearForm, ElementTriP1, LinearForm, asm, condense, solve
 from skfem.helpers import dot, grad
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 mesh = skfem.MeshTri().refined(2)
 basis = Basis(mesh, ElementTriP1())
@@ -137,8 +140,7 @@ def test_mcp_couple_persists_native_participant_output(tmp_path):
     pytest.importorskip("langchain_mcp_adapters")
     import agent
 
-    runtime_python = (
-        "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python")
+    runtime_python = str(backend_probe.openpaso_python())
     participants = []
     for name, marker in (("A", "NATIVE_A_SIGNATURE = 17"),
                          ("B", "NATIVE_B_SIGNATURE = 23")):

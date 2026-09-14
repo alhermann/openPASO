@@ -9,7 +9,10 @@ from pathlib import Path
 import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-FOURC = Path("/home/user/4C/build/4C")
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
+FOURC = backend_probe.fourc_binary()
 
 FAILING_4C_SIDE = '''import subprocess, sys
 from pathlib import Path
@@ -17,10 +20,16 @@ deck = ('PROBLEM TYPE:\\n  PROBLEMTYPE: "Scalar_Transport"\\nSCALAR TRANSPORT DY
         'THERMO FLUX CALC LINE CONDITIONS:\\n  - E: 2\\nDESIGN LINE DIRICH CONDITIONS:\\n  - E: 1\\n    NUMDOF: 1\\n'
         'DLINE-NODE TOPOLOGY:\\n  - "NODE 1 DLINE 1"\\n')
 Path("slab.4C.yaml").write_text(deck)
-subprocess.run("stdbuf -oL -eL /home/user/4C/build/4C slab.4C.yaml out > slab.4C.yaml.log 2>&1", shell=True)
+subprocess.run("stdbuf -oL -eL __FOURC_BIN__ slab.4C.yaml out > slab.4C.yaml.log 2>&1", shell=True)
 print("NDOF = 9")
 sys.exit(1)
 '''
+# The participant runs in its own process and cannot reach this module's
+# helpers, so the binary goes in as a literal path. It must be the real one:
+# the point of this test is that 4C runs, REFUSES the deck, and that its own
+# stop line reaches the agent -- a missing binary would fail for the wrong
+# reason and prove nothing.
+FAILING_4C_SIDE = FAILING_4C_SIDE.replace("__FOURC_BIN__", str(FOURC))
 QUIET_SIDE = '''import json
 from pathlib import Path
 Path("exports.json").write_text(json.dumps({"field_name": "thermoelastic", "n_points": 3,

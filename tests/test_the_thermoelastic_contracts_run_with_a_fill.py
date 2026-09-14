@@ -24,14 +24,17 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 PART = ROOT / "data" / "coupling_participants"
 BEGIN = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin"
 END = "# ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end"
-FOURC = Path("/home/user/4C/build/4C")
-FENICS_PY = Path("/home/user/miniconda3/envs/fenics/bin/python")
+FOURC = backend_probe.fourc_binary()
+FENICS_PY = backend_probe.fenics_python()
 LX, LY = 0.8, 1.0
 KV, LAM, MU, BETA = 2.0, 500.0, 300.0, 1.0
 

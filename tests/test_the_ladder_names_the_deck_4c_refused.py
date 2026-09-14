@@ -4,6 +4,9 @@ The lint is a gate: it reads the agent's decks and consoles and writes nothing."
 from __future__ import annotations
 import json, sys
 from pathlib import Path
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -93,7 +96,7 @@ def test_the_real_binary_grammar_judges_a_worker_section(tmp_path):
     (measured on te4c9 sample 0: 'IO/RUNTIME VTK OUTPUT/THERMO')."""
     import os, pytest
     from tools.fourc_deck_lint import grammar, unknown_sections
-    binp = Path("/home/user/4C/build/4C")
+    binp = backend_probe.fourc_binary()
     if not binp.is_file():
         pytest.skip("4C binary not on this host")
     g = grammar(str(binp), "/opt/4C-dependencies/lib"); valid = g["sections"]
@@ -193,7 +196,7 @@ def test_material_parameters_are_judged_by_the_grammar():
     parameter list, an unknown material name gets the closest known ones."""
     import pytest
     from tools.fourc_deck_lint import grammar, material_defects
-    binp = Path("/home/user/4C/build/4C")
+    binp = backend_probe.fourc_binary()
     if not binp.is_file():
         pytest.skip("4C binary not on this host")
     g = grammar(str(binp), "/opt/4C-dependencies/lib"); mats = g["materials"]
@@ -215,7 +218,7 @@ def test_a_vector_parameter_written_as_a_number_and_a_deck_without_vtk_output_ar
     this input'), and a TSI run that finished normally without the structure/thermo VTU the recovery reads."""
     import pytest
     from tools.fourc_deck_lint import grammar, material_defects, lint_deck
-    binp = Path("/home/user/4C/build/4C")
+    binp = backend_probe.fourc_binary()
     if not binp.is_file():
         pytest.skip("4C binary not on this host")
     mats = grammar(str(binp), "/opt/4C-dependencies/lib")["materials"]

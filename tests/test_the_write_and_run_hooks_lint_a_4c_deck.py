@@ -9,8 +9,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from tools.workspace_advisor import _fourc_deck_write_check, _fourc_run_check, _fourc_after_shell_check   # noqa: E402
 from tools.fourc_deck_lint import run_command_deck, looks_like_deck             # noqa: E402
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
-FOURC = Path("/home/user/4C/build/4C")
+FOURC = backend_probe.fourc_binary()
 BAD = ('PROBLEM TYPE:\n  PROBLEMTYPE: "Thermo_Structure_Interaction"\nIO/RUNTIME VTK OUTPUT/THERMO:\n  OUTPUT_THERMO: true\n'
        'SOLIDSCATRA ELEMENTS:\n  - "1 SOLIDSCATRA HEX8 1 2 3 4 5 6 7 8 MAT 1 KINEM linear TYPE Undefined"\n'
        'MATERIALS:\n  - MAT: 1\n    MAT_Struct_ThermoStVenantK:\n      YOUNGNUM: 1\n'

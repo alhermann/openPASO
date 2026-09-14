@@ -38,17 +38,20 @@ import sys
 from pathlib import Path
 
 import pytest
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 
-FOURC = Path(os.environ.get("FOURC_BINARY", "/home/user/4C/build/4C"))
+FOURC = Path(os.environ.get("FOURC_BINARY", str(backend_probe.fourc_binary())))
 # The SOURCE directories, not the checkout root: `.git` is compressed objects
 # that a text grep would read as noise, and a junk token scraped out of a
 # packfile would land in the "real key" set and reject a legitimate stopword.
-KRATOS_SRC = Path("/home/user/Kratos/kratos")
-KRATOS_APPS = Path("/home/user/Kratos/applications")
-FEBIO_SRC = Path("/home/user/Schreibtisch/febio-src")
+KRATOS_SRC = backend_probe.kratos_root() / "kratos"
+KRATOS_APPS = backend_probe.kratos_root() / "applications"
+FEBIO_SRC = backend_probe.febio_src()
 
 # A name whose presence proves the extractor worked. If the control is missing,
 # the grammar was not really read and the result is not evidence of anything.

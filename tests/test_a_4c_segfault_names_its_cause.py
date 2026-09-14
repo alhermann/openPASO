@@ -32,12 +32,15 @@ import sys
 from pathlib import Path
 
 import pytest
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 FIX = ROOT / "tests" / "fixtures" / "fourc_failure_logs"
-FOURC = Path("/home/user/4C/build/4C")
+FOURC = backend_probe.fourc_binary()
 
 
 def test_the_diagnostic_names_the_cause_of_the_real_crash():

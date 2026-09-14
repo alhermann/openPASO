@@ -39,10 +39,17 @@ import sys
 from pathlib import Path
 
 import pytest
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = ("/opt/4C-dependencies/lib", "/opt/precice/lib")
-VENV_PY = Path("/home/user/Schreibtisch/open-fem-agent/.venv/bin/python")
+# The interpreter that actually carries the preCICE binding, found by trying to
+# import it rather than by assuming sys.executable has it -- this clone's venv
+# does not, and the test would then fail on a missing module instead of on the
+# composed library path it exists to check.
+VENV_PY = backend_probe.precice_python() or backend_probe.openpaso_python()
 
 
 def _composed() -> list[str]:
@@ -97,7 +104,7 @@ def test_the_other_solvers_still_load_under_the_same_path():
     r = subprocess.run([str(VENV_PY), "-c", "import KratosMultiphysics"],
                        capture_output=True, text=True, timeout=300, env=env)
     assert r.returncode == 0, r.stderr[-400:]
-    fourc = Path("/home/user/4C/build/4C")
+    fourc = backend_probe.fourc_binary()
     if not fourc.is_file():
         pytest.skip("4C binary absent")
     r = subprocess.run([str(fourc), "-p"], capture_output=True, text=True,

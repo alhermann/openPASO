@@ -17,6 +17,9 @@ sys.path.insert(0, str(ROOT))
 pytest.importorskip("langchain_core")
 
 from langgraph_eval import agent as A  # noqa: E402
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 
 def _tool(tools, name):
@@ -63,7 +66,7 @@ def test_shell_cannot_read_an_adjacent_cell(tmp_path):
 
     run_bash = A._bash_tool_for(work)
     runtime_python = (
-        "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python")
+        str(backend_probe.openpaso_python()))
     pair_params = json.loads((
         ROOT / "benchmarks/coupling_pairs/fourc_kratos_cht/params.json"
     ).read_text())

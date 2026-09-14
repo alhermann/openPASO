@@ -45,8 +45,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from backends.fourc.backend import _fourc_diagnostic  # noqa: E402
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
-FOURC = Path("/home/user/4C/build/4C")
+FOURC = backend_probe.fourc_binary()
 
 # Recorded verbatim from a real failing run.
 REAL_STDOUT = """Invalid MIT-MAGIC-COOKIE-1 key

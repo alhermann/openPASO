@@ -151,8 +151,13 @@ def _wrap_tool(tool, *, emitter, get_mode, gate, agent_label="agent"):
             return result
 
         def _run(self, *args, **kwargs):
-            return asyncio.get_event_loop().run_until_complete(
-                self._arun(*args, **kwargs))
+            # asyncio.get_event_loop() is deprecated and, from Python 3.12, raises
+            # "There is no current event loop" once anything in the process has
+            # already run asyncio.run() and closed the loop behind itself. The
+            # failure therefore depends on what ran before, which is the worst
+            # kind. asyncio.run() makes and closes its own loop, and refuses just
+            # the same as the old code did if one is already running.
+            return asyncio.run(self._arun(*args, **kwargs))
 
     return Gated()
 

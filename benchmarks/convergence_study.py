@@ -30,7 +30,7 @@ from backends.fourc.inline_mesh import matched_poisson_input
 
 
 def _run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+    return asyncio.run(coro)          # see webui/runner.py: 3.12+ raises otherwise
 
 
 def extract_max_scalar(vtu_path):

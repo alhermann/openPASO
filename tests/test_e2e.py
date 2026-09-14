@@ -37,7 +37,7 @@ from core.backend import BackendStatus
 
 def _run_async(coro):
     """Run an async coroutine in a sync test."""
-    return asyncio.get_event_loop().run_until_complete(coro)
+    return asyncio.run(coro)          # see webui/runner.py: 3.12+ raises otherwise
 
 
 # ═══════════════════════════════════════════════════════════════════════════

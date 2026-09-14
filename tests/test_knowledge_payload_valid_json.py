@@ -192,7 +192,7 @@ class TestKnowledgePayloadValidJson(unittest.TestCase):
 
         mcp = FastMCP("payload-test")
         register_consolidated_tools(mcp)
-        tools = asyncio.get_event_loop().run_until_complete(mcp.list_tools())
+        tools = asyncio.run(mcp.list_tools())
         if not any(t.name == "prepare_simulation" for t in tools):
             self.skipTest("prepare_simulation not registered")
 
@@ -211,7 +211,7 @@ class TestKnowledgePayloadValidJson(unittest.TestCase):
             self.C._PREPARED_SOLVERS.clear()
             self.C._MUST_READ_STATE["served"] = False
             try:
-                out = asyncio.get_event_loop().run_until_complete(
+                out = asyncio.run(
                     mcp.call_tool("prepare_simulation",
                                   {"solver": name, "physics": phys}))
             except Exception:

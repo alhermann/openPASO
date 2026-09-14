@@ -69,7 +69,7 @@ def _call_transfer_field(**kwargs) -> str:
     tools = mcp._tool_manager._tools  # type: ignore[attr-defined]
     handle = tools["transfer_field"]
     coro = handle.fn(**kwargs)
-    return asyncio.get_event_loop().run_until_complete(coro)
+    return asyncio.run(coro)          # see webui/runner.py: 3.12+ raises otherwise
 
 
 class TestTransferFieldTargetFormat(unittest.TestCase):

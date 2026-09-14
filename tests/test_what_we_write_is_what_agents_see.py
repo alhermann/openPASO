@@ -55,7 +55,7 @@ def _live_tools():
 def _call(fn, **kw):
     r = fn(**kw)
     if asyncio.iscoroutine(r):
-        r = asyncio.get_event_loop().run_until_complete(r)
+        r = asyncio.run(r)            # see webui/runner.py: 3.12+ raises otherwise
     return str(r)
 
 

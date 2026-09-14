@@ -1,0 +1,23 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False ::            parameters={'linear.verbose': True})\n  File \"/home/alexander/miniconda3/envs/dune-py313/lib/python3.13/site-packages/dune/fem/scheme/_schemes.py\", line 627, in galerkin\n    return _galerkin(integrands, space=space, solver=solver,\n                     parameters=parameters, errorMeasure=errorMeasure,\n                     virtualize=virtualize, _schemeName='GalerkinScheme', **kwargs)\n  File \"/home/alexander/miniconda3/envs/dune-py313/lib/python3.13/site-packages/dune/fem/scheme/_schemes.py\", line 543, in _galerkin\n    integrands = makeIntegrands(space.gridView,integrands)\n                                ^^^^^^^^^^^^^^\nAttributeError: 'DirichletBC' object has no attribute 'gridView'\n",
+  "attempts": 2,
+  "secs": 802.3
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False :: _configureWithMake( moduleName, source, pythonName )\n  File \"/home/alexander/miniconda3/envs/dune-py313/lib/python3.13/site-packages/dune/generator/cmakebuilder.py\", line 714, in _configureWithMake\n    code = str(source)\n  File \"/home/alexander/miniconda3/envs/dune-py313/lib/python3.13/site-packages/dune/models/integrands/load.py\", line 137, in __str__\n    integrands = _compileUFL(self.integrands, self.form, *self.args, tempVars=self.tempVars)\n  File \"/home/alexander/miniconda3/envs/dune-py313/lib/python3.13/site-packages/dune/models/integrands/ufl.py\", line 365, in _compileUFL\n    if bc.subDomain in bySubDomain:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'numpy.ndarray'\n",
+  "attempts": 2,
+  "secs": 381.3
+ },
+ {
+  "i": 2,
+  "ok": true,
+  "info": "n=49 interior=25 trace_rel=0.00e+00 flux_rel=0.00e+00",
+  "attempts": 1,
+  "secs": 388.1
+ }
+]

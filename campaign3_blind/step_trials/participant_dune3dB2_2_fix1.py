@@ -1,70 +1,3 @@
-THE COUPLED MUST-READ (the couple() call recipe, history_path, the fields-vs-evidence rule, the measured-not-modelled history rule, the sign convention, the rho budget, the silent no-flux trap) was served earlier in this session and is not repeated here, to leave you the context for your own work. To see it again: knowledge(topic='coupling', signal='must-read').
-
-# WHAT DECIDES THIS RUN — dune/coupled side
-# (read this before the corpus below; each line was measured by execution)
-
-1. `ufl.Eq` NO LONGER EXISTS in this ufl (ImportError; five hits in one round). The lowercase `ufl.eq` does, and it is ONLY a conditional's test: ufl.conditional(ufl.eq(a, b), val_true, val_false). The equation handed to galerkin is written with Python's `==`: `scheme = galerkin([a == L, dbc], solver='cg')` -- passing `eq(a, L)` or a bare form dies with `ValueError: first argument should be a ufl equation (not only a form) or an 'integrands' model` (measured: one of three trial scripts read the `eq` line above as the equation builder).
-2. `DirichletBC` takes (functionSpace, value, subDomain=None) -- there is NO `marker` keyword (TypeError). Measured signature on this install.
-3. A VERTEX'S COORDINATES ARE vertex.geometry.center (or .corner(0)) -- there is no .geometry.point (AttributeError, measured; a step-trial worker writing the 3-D side died on it). The dof array of a discrete function is u.as_numpy.
-4. A UFL Form HAS NO .copy() (AttributeError, measured). A form is immutable and cheap: build the second one by writing the expression again, e.g. keep the volume load as its own form rather than copying the full one.
-5. `scheme.solve(target=uh)` returns a DICT with keys converged, iterations, linear_iterations, timing -- read info['converged'], never info.converged (AttributeError on dict; one round hit it three times). Measured: a 4x4 Laplace solve returns converged=True with max|u| = 7.768e-02.
-6. Solver verbosity for a captured log: parameters={'linear.verbose': True} on galerkin(...) -- the old 'newton.linear.verbose' spelling is deprecated and warns.
-7. Create functions with a name -- space.interpolate(0.0, name='uh') -- because a plain UFL expression has no .name and downstream I/O that asks for one dies on AttributeError.
-8. FIRST USE COMPILES. 'DUNE-INFO: Compiling Integrands (new)' means dune-fem is JIT-compiling your UFL forms -- minutes on a loaded machine, and again for every new form. Do NOT wrap the run in a short `timeout` and do NOT pipe it into `head`: a PETSc 'Caught signal number 15 Terminate' printed after those lines means the process was killed from OUTSIDE (a timeout or a closed pipe), not that the solver crashed (measured: one run wrapped its participant in `timeout 120`, read the signal-15 message as 'DUNE crashes on every attempt' and gave up with a working install). Run each participant once standalone with a generous timeout so the compiled modules are cached; the coupling iterations then start in seconds.
-9. THE IMPORT LINES, EXACTLY (measured by execution; three of three trial scripts written without them invented `dune.gdt`, `dune.fem.Grid` or `from dune.fem import galerkin`, none of which exist): import json; from pathlib import Path; import numpy as np; from dune.grid import structuredGrid; from dune.fem import assemble; from dune.fem.space import lagrange; from dune.fem.scheme import galerkin; from dune.fem.operator import galerkin as operator_galerkin; from dune.ufl import DirichletBC; from ufl import (TrialFunction, TestFunction, SpatialCoordinate,. `galerkin` lives in dune.fem.scheme, `lagrange` in dune.fem.space, `structuredGrid` in dune.grid, `DirichletBC` and `Constant` in dune.ufl; there is no dune.gdt.
-10. THE GRID CALL, EXACTLY: `gridView = structuredGrid([X0, Y0], [X1, Y1], [NX, NY])` -- lower corner, upper corner, cell counts, in that order (measured: a trial that passed the cell counts first died with `EquidistantOffsetCoordinates(...) Invoked with: array([6., 10.]), ...`).
-11. `abs`, `min`, `max` are NOT importable from ufl in this version (ImportError); the Python built-ins work on UFL expressions, and `ufl.conditional(ufl.lt(a, b), x, y)` is the branch.
-12. A grid entity has no `.index`: use `gridView.indexSet.index(entity)` (or `subIndex(entity, i, codim)` for its vertices); vertex coordinates come from `entity.geometry.center` / `corner(i)`, and the vertex-ordered nodal values of a Lagrange P1 function from `uh.as_numpy` (measured: `e.index` raises AttributeError on the generated Entity type).
-13. IN dune-fem's UFL THE SPACE CARRIES THE DOMAIN: `TrialFunction(space)`, `TestFunction(space)`, `SpatialCoordinate(space)`, and every integrand must contain one of them before `* dx` / `* ds`. Measured in three of three trial scripts: passing the grid gives `LeafGrid has no attribute ufl_domain`, a bare `dx` on a space-free expression gives `This integral is missing an integration domain`, and `space.domain` does not exist (`dimDomain` does).
-14. THE SPACE COUNTS ITS DOFS WITH .size (or len(space)) -- there is no space.dim and no space.dofCoordinates() (both AttributeErrors, measured; two step-trial workers writing the 3-D side died on exactly those two). Coordinates come from the grid, not the space: see the mesh access below.
-15. MESH ACCESS, EXACTLY (measured): `for v in gridView.vertices` / `for e in gridView.elements` iterate; `gridView.indexSet.index(v)` numbers a vertex and `gridView.indexSet.subIndex(e, i, 2)` numbers corner i of element e; `e.geometry.corners` is a TUPLE of the corner points (`len()` counts them) and `e.geometry.center` a point. There is no `gridView.entity(i)`, no `gridView.entitySet(...)`, no `gridView.corner(e, j)` and no `geometry.corner(i)` -- each was invented by a trial script and each raises AttributeError/TypeError. A SIMPLEX grid: `from dune.grid import cartesianDomain; from dune.alugrid import aluConformGrid; gridView = aluConformGrid(cartesianDomain([X0, Y0], [X1, Y1], [NX, NY]))` (6 x 10 -> 120 triangles, 77 vertices; `structuredGrid` makes 60 quadrilaterals). On this install a P1 Lagrange dof order equalled the vertex order on both grids, but never rely on it: map through interpolated coordinate fields.
-16. COEFFICIENTS GO IN AS `dune.ufl.Constant(value, name='k')`, never as a bare Python number: `0.0 * u * v * dx` (a zero reaction written as a float) folds to a domainless UFL Zero and dies with `This integral is missing an integration domain` (measured; the same fold hits a zero source).
-17. POWERS ARE `**`: `x[1]^2` is Python's XOR on a UFL expression and dies in as_tensor with `Expecting a tuple of Index objects` (measured).
-18. UFL CONDITIONS DO NOT COMBINE WITH `|` OR `&`: `lt(...) | lt(...)` dies with `unsupported operand type(s) for |: 'LT' and 'LT'` (measured). Build 0/1 indicators with `conditional(lt(abs(x[0] - X0), eps), 1, 0)`, ADD them for a union of edges, and take `1 - ind` for the complement (the outer boundary is `1 - <interface indicator>`); `ufl.Or(a, b)` / `ufl.And(a, b)` also exist. There is NO `SubDomain` in ufl (`from ufl import SubDomain` is an ImportError; two of three trial scripts reached for one) and none is needed: `DirichletBC(space, value, <that 0/1 UFL indicator>)` takes the indicator directly.
-
-* READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST NODE. Measured against an independent reference: one solve exported two ways gave order 1.9796 by interpolation and 0.9815 by nearest-node sampling of nearest node. Free self-check: nearest-node sampling can only return (N-1)^2+1 distinct values, so 1936 probes collapse to 50/226/962 at N=8/16/32.
-* GATE BEFORE YOU HAND IN, at EVERY level: the solver REPORTED convergence (not merely that nothing raised), peak|u| > 0, and your load is not constant. Then compute log2(|L1-L2|/|L2-L3|) yourself.
-* ON A COUPLED SIDE, the consistent outward flux is q = -(K u - b_volume)/h with h the node's tributary length. The FACE load must NOT go into that residual -- include it and the reported flux comes out identically zero.
-
-----------------------------------------------------------------------
-
-## If your client truncates long replies: fetch this contract in parts
-
-Call `knowledge(topic='coupling', solver='dune', signal='participant:part1')`, then request each next part named in that response and concatenate only the fenced code contents in order. For another role insert it before the part, for example `signal='participant:neumann:part1'`. The parts are the same contract as below, solve elided; there is no complete program to reconstruct.
-
-# Coupling participant: DUNE-fem
-## Sides this backend can take
-
-**Either side, in either subdomain.** All four role/position combinations were run as real couplings on this install — against FEniCSx and against deal.II, with non-matching interface meshes — and all converged.
-
-## The contract, in case you landed here first
-
-Your script runs in `work_dir` with no arguments. It reads `imports.json`
-(`{partner_name: InterfaceData}` — ABSENT or empty on iteration 1, so it must
-have a fallback) and writes `exports.json` (ONE InterfaceData:
-`{"field_name","n_points","coordinates","values","normal_fluxes"}`). Export the
-same number of points in the same order every iteration, write `exports.json`
-last, and EXIT 0 — the driver requires the file AND a zero exit code, so a
-solver that writes its last iterate and then aborts ends the run instead of
-being coupled on. The driver does NOT copy your script into `work_dir` and does
-NOT interpolate between the two meshes.
-
-Dirichlet side = imports a VALUE, exports the resulting FLUX.
-Neumann side  = imports a FLUX, exports the resulting VALUE.
-Apply the partner's flux number UNCHANGED; export your own flux with respect to
-YOUR outward normal, so the two sides' fluxes carry opposite signs.
-
-Full contract, relaxation guidance and failure modes: `knowledge(topic='coupling')`.
-
-## THE 3-D PARTICIPANT — a plane interface, not a line
-
-Three things differ from 2-D, each measured rather than asserted:
-
-  * QUADRATURE WEIGHTS ARE FACE AREAS, not edge lengths. On the same converged solve the area weights give the interface integral as -22.154 against an exact -22.026, while the 2-D edge formula gives -0.923 AND DIVERGES under refinement — scaled by ~h — while the flux field itself still looks smooth and the right shape. That is the failure mode where conservation breaks and nothing else looks wrong.
-  * RESAMPLING ORDER MATTERS TO THE PARTNER, NOT TO YOU. Cubic against bilinear interpolation between non-matching interface grids, everything else identical: the VOLUME field converges at 1.98 either way, but the interface flux the partner consumes falls from 1.97 to 1.32. Your own answer does not notice; the coupling does.
-  * THE RIM IS A BIGGER SHARE OF A PLANE THAN THE ENDS ARE OF A LINE. Nodes on the interface rim that also sit on an outer boundary carry that boundary's reaction too: 96 of 625 nodes (15%) at n=24 in 3-D against 2 of 25 (8%) in 2-D. Unguarded, the whole-interface flux loses its order outright (0.52) and the L2 error inflates by 19x to 83x.
-
-```python
 """DUNE-fem participant for the OASiS `couple` driver — 3-D scalar conduction
 across a PLANAR interface.  Serves either side of the split.
 
@@ -193,21 +126,21 @@ from ufl import (TrialFunction, TestFunction, SpatialCoordinate,
 SIDE       = "neumann"       # "dirichlet" (import T, export flux) | "neumann"
 PARTNER    = "left"          # the partner's `name` in your couple(...) call
 
-X0, X1     = 0.5, 1.0        # this subdomain's box
+X0, X1     = 0.625, 1.5      # this subdomain's box
 Y0, Y1     = 0.0, 1.0
 Z0, Z1     = 0.0, 1.0
 
 IFACE_AXIS = 0               # interface plane normal: 0=x, 1=y, 2=z
-IFACE_POS  = 0.5             # its position; must equal this box's lo or hi on that axis
+IFACE_POS  = 0.625           # its position; must equal this box's lo or hi on that axis
 
-K          = 3.2             # conductivity of THIS subdomain (constant)
-NX, NY, NZ = 8, 8, 8         # this subdomain's OWN mesh; need NOT match the partner
+K          = 4.0             # conductivity of THIS subdomain (constant)
+NX, NY, NZ = 6, 6, 6         # this subdomain's OWN mesh; need NOT match the partner
 
 # Which outer faces carry a Dirichlet condition.  Names are "<axis><0|1>" with
 # 0 = the low face and 1 = the high face, e.g. "x1" is the plane x = X1.  Every
 # face NOT listed here (and not the interface) is natural, i.e. insulated.
 # The interface face itself must not appear.
-DIRICHLET_FACES = ("x1",)
+DIRICHLET_FACES = ("x1", "y0", "y1", "z0", "z1")
 
 
 
@@ -227,9 +160,9 @@ def F_SRC(x, y, z):
         return 3.0 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y) \
                * np.sin(np.pi * z)
     """
-    return np.zeros_like(x)
+    return 8.0 * np.pi**2 * np.sin(np.pi * y) * np.sin(np.pi * z)
 
-T_INIT     = 300.0           # iteration-1 fallback interface temperature
+T_INIT     = 0.0             # iteration-1 fallback interface temperature
 Q_INIT     = 0.0             # iteration-1 fallback interface flux density
 
 
@@ -256,7 +189,7 @@ def outer_value(x, y, z):
     FORM never changes between iterations and DUNE never re-JITs).  Return a
     scalar for a constant temperature or any expression for a graded one.
     """
-    return 300.0 + 0.0 * x
+    return 0.0
 # ─────────────────────────────────────────────────────────────────────────
 
 LO = np.array([X0, Y0, Z0], float)
@@ -500,6 +433,101 @@ def main():
 #   * the assembled operator and the VOLUME load separately, because the flux
 #     recovery below subtracts the volume load alone.
 # ─────────────────────────────────────────────────────────────────────────
+    # Build the mesh and function space
+    gridView = structuredGrid([X0, Y0, Z0], [X1, Y1, Z1], [NX, NY, NZ])
+    space = lagrange(gridView, 1)
+    
+    # Trial, test, coordinate functions
+    u = TrialFunction(space)
+    v = TestFunction(space)
+    x = SpatialCoordinate(space)
+    
+    # Source term as discrete function - MUST pass .as_numpy arrays, not the discrete functions themselves
+    xd = [space.interpolate(x[i], name=f"coord_{i}") for i in range(3)]
+    ffun = source_function(space, [d.as_numpy for d in xd])
+    
+    # Weak form: a(u,v) = (K grad u, grad v)
+    k_const = Constant(K, name="K")
+    a_form = dot(k_const * grad(u), grad(v)) * dx
+    
+    # Volume load: b_vol(v) = (f, v)
+    b_vol = ffun * v * dx
+    
+    # Dirichlet boundary conditions on outer faces
+    dbc = []
+    for face in DIRICHLET_FACES:
+        ax, val = face[0], int(face[1])
+        ax_idx = "xyz".index(ax)
+        pos = LO[ax_idx] if val == 0 else HI[ax_idx]
+        ind = conditional(lt(abs(x[ax_idx] - float(pos)), EPS), 1.0, 0.0)
+        bc_val = outer_value(xd[0].as_numpy, xd[1].as_numpy, xd[2].as_numpy)
+        dbc.append(DirichletBC(space, bc_val, ind))
+    
+    # Interface indicator (for flux recovery and Neumann BC)
+    iface_ind = conditional(lt(abs(x[AX] - float(IFACE_POS)), EPS), 1.0, 0.0)
+    
+    # Outer boundary mask (which dofs are on Dirichlet faces)
+    outer_mask = np.zeros(space.dim, dtype=bool)
+    for face in DIRICHLET_FACES:
+        ax, val = face[0], int(face[1])
+        ax_idx = "xyz".index(ax)
+        pos = LO[ax_idx] if val == 0 else HI[ax_idx]
+        for i, dof in enumerate(space.dofs):
+            dof_geom = space.interpolationPoints()[i]
+            if abs(dof_geom[ax_idx] - pos) < EPS:
+                outer_mask[i] = True
+    
+    # Interface dofs (on the interface plane)
+    iface_dofs = []
+    pts_all = []
+    for i, dof in enumerate(space.dofs):
+        dof_geom = space.interpolationPoints()[i]
+        if abs(dof_geom[AX] - IFACE_POS) < EPS:
+            iface_dofs.append(i)
+            pts_all.append(dof_geom)
+    iface_dofs = np.array(iface_dofs, dtype=int)
+    pts_all = np.array(pts_all)
+    
+    # Initial solution
+    uh = space.interpolate(0.0, name="uh")
+    
+    # Dirichlet values array
+    gd = space.interpolate(0.0, name="gd")
+    
+    # Full load (volume only for now; Neumann interface load added below)
+    b_form = b_vol
+    
+    # Additional required variables
+    a = a_form
+    t = 0.0
+    ind = None
+    
+    # Solve the linear system
+    scheme = galerkin([a_form == b_form] + dbc, solver='cg',
+                      parameters={'linear.verbose': False})
+    info = scheme.solve(target=uh)
+    
+    if not info['converged']:
+        print(f"[dune3d {SIDE}] WARNING: solver did not converge")
+
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
+#
+# Build the mesh, the function space, the weak form and the linear solve for
+# the problem you were given, in this backend, however you judge best. That is
+# ordinary finite-element work and OASiS has no business dictating it.
+#
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# recovery below. Those are this tool's own interface, not your method.
+#
+# At this point you are expected to have produced:
+#   * the discrete solution on this subdomain, with the partner's interface
+#     data applied according to SIDE, and
+#   * the assembled operator and the VOLUME load separately, because the flux
+#     recovery below subtracts the volume load alone.
+# ─────────────────────────────────────────────────────────────────────────
     order = order_plane(pts_all[:, TAN])
     iface_dofs = iface_dofs[order]
     pts3 = pts_all[order]
@@ -567,7 +595,7 @@ def main():
 
     if SIDE == "dirichlet":
         free = iface_dofs[~edge]
-        gd[free] = resample_plane(imp, "values", T_INIT, pts[~edge])
+        gd.as_numpy[free] = resample_plane(imp, "values", T_INIT, pts[~edge])
         ind = iface_ind if ind is None else ind + iface_ind
     else:
         # APPLY the partner's number UNCHANGED: + int_Gamma g v ds  (see the
@@ -580,7 +608,7 @@ def main():
         gf[:] = 0.0
         q_in = resample_plane(imp, "normal_fluxes", Q_INIT, pts)
         gf[iface_dofs] = q_in
-        b_form = b_form + conditional(lt(abs(x[AX] - float(IFACE_POS)), EPS),
+        b_form = b_vol + conditional(lt(abs(x[AX] - float(IFACE_POS)), EPS),
                                       gflx * v, 0.0) * ds
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -800,80 +828,3 @@ if __name__ == "__main__":
 # shape each one has to have -- they are already indexed, assembled
 # or written out there. OASiS does not serve the solve itself, but
 # it will not make you guess which variables the hole was filling.
-```
-
-
-
-──────────────────────────────────────────────────────────────────────
-THIS PAYLOAD IS TRUNCATED HERE. 45,366 further characters exist and are NOT lost.
-
-──────────────────────────────────────────────────────────────────────
-THIS REPLY IS CUT AT 40,769 OF 41,737 CHARACTERS (topic='coupling', solver='dune', physics='heat_3d'). Nothing is lost: ask again with a NARROWER request -- a physics= name, a signal= symptom (the error text you saw), or index=True on the pitfalls topic -- and the part you need comes back within the limit. Reading everything costs the actions you need to solve the problem.
-
-
-────────────────────────────────────────
-TEN RULES THAT APPLY WHATEVER YOU ASKED FOR
-(the long form, with the measured evidence behind each: knowledge(topic='universal_full'))
-────────────────────────────────────────
-
-1. THE DELIVERABLE GOES IN THE DIRECTORY YOU WERE GIVEN: results, scripts and
-   solver output under the working directory your task names -- never a temp
-   dir, the tool's tree or $HOME. Work that cannot be found counts as absent.
-
-2. A SOLVER'S INPUT LANGUAGE IS NOT PYTHON. In decks and expression strings
-   powers are `^` not `**`, constants are the solver's own (lowercase `pi`),
-   and a wrong operator is often SILENT: the numeric prefix is taken, the rest
-   dropped, and the run succeeds with the wrong load. Rewrite every term of a
-   source you copied out of the task text.
-
-3. DO NOT CONCLUDE A SOLVER IS BROKEN. Nearly every "broken solver" seen in
-   development was an unread log: capture BOTH streams (`cmd > out.log 2>&1`),
-   read the log rather than the exit code (codes print their fatal error and
-   still exit 0), re-run with the backend's verbose flag, and ask
-   knowledge(topic='pitfalls', solver=...) before reporting a failure.
-
-4. THE MOST COMMON FAILURE IS NEVER PRODUCING THE NUMBERS: 36% of 464 measured
-   runs wrote no probe output, and the largest slice of those SOLVED and never
-   read the field back at the required points. Do ONE coarse level end to end
-   -- solve, extract at the prescribed points, write the file -- before
-   refining anything.
-
-5. MEASURE, DO NOT GUESS. Whether your field satisfies the equation you were
-   given is falsifiable with no reference answer:
-       verify_pde_consistency(solution_files=..., source_term=...,
-                              coefficient=..., domain=...)
-   Fields that solve the stated problem shrink at order ~2 across levels;
-   wrong ones stay flat. On a coupled task run it on EACH side with that
-   side's own source and coefficient. Report NOT_CONVERGED with the largest
-   relative change rather than a convergence you cannot show.
-
-6. IF YOUR SOLVER IS A BINARY, ITS INPUT FILE IS THE RUN INTERFACE and you
-   cannot guess it: the full deck grammar for 4C, FEBio and SPARTA is served
-   by knowledge(topic='physics', solver=<name>, physics=<name>) and by no
-   other topic -- ask before deciding a deck cannot be written.
-   4C DOES ACCEPT PER-NODE DIRICHLET VALUES (DESIGN POINT DIRICH CONDITIONS
-   with a DNODE-NODE TOPOLOGY block); its design entity ids are ONE-based, and an `E: 0`
-   segfaults with no message.
-
-7. REFINEMENT COUNTS HALVINGS, NOT CELLS: each level halves h (2-D: ~4x the
-   DOFs, 3-D: ~8x); `refined(k)` (scikit-fem), `refine_global(k)` (deal.II)
-   and their kin halve k times, so a task's levels 1, 2, 3 are k = 0, 1, 2
-   from the coarse mesh.
-
-8. YOUR SOLVER WILL ACCEPT A SETTING AND THEN IGNORE IT -- the single most
-   common silent failure: a source, coefficient or boundary value that parses
-   and is never consumed. A driven problem whose field is identically zero is
-   this bug until proven otherwise. THE CHECK COSTS ONE COMMAND: grep your own
-   input for the ingredient's name and confirm something CONSUMES it.
-
-9. GATE ON THREE THINGS BEFORE YOU WRITE YOUR SUMMARY FILE, at EVERY level:
-   the field is non-trivial (distinct values, plausible size), the boundary
-   values come back at the boundary, and the mesh actually changed.
-
-10. READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST
-    NODE: nearest-node caps the measured order at 1 whatever the solver did.
-    It is post-processing -- re-read the field, do not re-solve.
-
-BEFORE YOU HAND IN, RUN `audit_results(work_dir=<your results directory>,
-claimed_order=<the order you are about to claim>)` and act on what it names;
-it reads only your own files.

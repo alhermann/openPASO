@@ -77,6 +77,10 @@ _TRAPS: tuple[tuple[str, str, str, str], ...] = (
     ("fenics", r"\.subset_dofs\s*\(",
      "AttributeError: 'FunctionSpace' object has no attribute 'subset_dofs'",
      "fem.locate_dofs_topological(V, fdim, facets) or fem.locate_dofs_geometrical(V, marker)"),
+    ("fenics", r"ufl\.Constant\s*\(\s*[-\d.]",
+     "AttributeError: 'float' object has no attribute 'ufl_domain'",
+     "ufl.Constant takes a DOMAIN, not a value: a boundary value is a plain scalar "
+     "(default_scalar_type(0.0)) and a constant inside a form is fem.Constant(mesh, value)"),
     ("fenics", r"ufl\.FiniteElement\s*\(",
      "AttributeError: module 'ufl' has no attribute 'FiniteElement'",
      "fem.functionspace(mesh, ('Lagrange', 1)), or basix.ufl.element(...)"),
@@ -277,6 +281,9 @@ _ERROR_FIXES: tuple = (
      "in the BilinearForm"),
     ("has no attribute 'subset_dofs'",
      "FEniCSx: fem.locate_dofs_topological(V, fdim, facets) or fem.locate_dofs_geometrical(V, marker)"),
+    ("'float' object has no attribute 'ufl_domain'",
+     "FEniCSx: ufl.Constant takes a DOMAIN, not a value -- use a plain scalar for a boundary value, "
+     "or fem.Constant(mesh, value) inside a form"),
     ("has no attribute 'FiniteElement'",
      "FEniCSx: build spaces with fem.functionspace(mesh, ('Lagrange', 1))"),
     ("has no attribute 'VectorFunctionSpace'",

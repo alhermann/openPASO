@@ -201,6 +201,7 @@ def test_the_error_table_covers_what_the_fills_actually_printed():
         "AttributeError: 'FunctionSpace' object has no attribute 'subset_dofs'",
         "AttributeError: 'Geometry' object has no attribute 'point'",
         "AttributeError: 'Form' object has no attribute 'copy'",
+        "AttributeError: 'float' object has no attribute 'ufl_domain'",
         "TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'",
     ]
     for line in printed:

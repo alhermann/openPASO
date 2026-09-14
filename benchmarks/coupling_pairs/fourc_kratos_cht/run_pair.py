@@ -41,7 +41,8 @@ def build_participants(base: Path, params_file: Path, params: dict):
     )
     pb = Participant(
         name="KratosSlabB",
-        command=[params["kratos_python"], str(PAIR_DIR / "participant_kratos.py")],
+        command=[_host_roots.expand(params["kratos_python"]),
+                 str(PAIR_DIR / "participant_kratos.py")],
         work_dir=base / "slabB_kratos",
         imports_from=["FourCSlabA"],
         data_files=[str(params_file)],

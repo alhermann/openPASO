@@ -16,15 +16,15 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "langgraph_eval"))
+import sys as _sys; from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
+import backend_probe  # noqa: E402
 
 
 DECK = """
 import skfem
 from skfem import Basis, BilinearForm, ElementTriP1, LinearForm, asm, condense, solve
 from skfem.helpers import dot, grad
-import sys as _sys; from pathlib import Path as _P
-_sys.path.insert(0, str(_P(__file__).resolve().parent))
-import backend_probe  # noqa: E402
 
 mesh = skfem.MeshTri().refined(2)
 basis = Basis(mesh, ElementTriP1())

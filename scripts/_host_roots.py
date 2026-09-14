@@ -50,3 +50,30 @@ def openpaso_python() -> str:
     scripts actually meant, and it is right everywhere.
     """
     return os.environ.get("OPENPASO_PYTHON", "").strip() or sys.executable
+
+
+# Tokens a data file may carry instead of one machine's absolute path.
+_TOKENS = {
+    "${OPENPASO_PYTHON}": openpaso_python,
+    "${FOURC_BINARY}": fourc_binary,
+    "${FOURC_ROOT}": fourc_root,
+    "${FENICS_PYTHON}": fenics_python,
+    "${SPARTA_BINARY}": sparta_binary,
+}
+
+
+def expand(value):
+    """Resolve host-path tokens in a string read from a data file.
+
+    benchmarks/coupling_pairs/fourc_kratos_cht/params.json used to name one
+    machine's interpreter and one machine's 4C binary outright. A parameter file
+    that hard-codes somebody's home directory works on exactly one computer and
+    publishes their username; a token resolves on whichever computer reads it.
+    Anything that is not a known token is returned unchanged.
+    """
+    if not isinstance(value, str):
+        return value
+    for token, resolve in _TOKENS.items():
+        if token in value:
+            value = value.replace(token, str(resolve()))
+    return value

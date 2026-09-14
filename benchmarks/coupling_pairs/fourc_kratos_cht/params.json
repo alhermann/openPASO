@@ -10,7 +10,8 @@
   "nx": 10,
   "ny": 2,
   "T_if_initial_guess": 300.0,
-  "fourc_binary": "/home/user/4C/build/4C",
+  "fourc_binary": "${FOURC_BINARY}",
   "fourc_ld_library_path": "/opt/4C-dependencies/lib",
-  "kratos_python": "/home/user/Schreibtisch/open-fem-agent/.venv/bin/python"
+  "kratos_python": "${OPENPASO_PYTHON}",
+  "comment_paths": "fourc_binary and kratos_python are tokens, not paths: scripts/_host_roots.expand() resolves them on whichever machine reads this file. They used to name one person's home directory, which works on one computer and publishes a username."
 }

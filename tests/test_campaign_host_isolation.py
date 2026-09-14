@@ -70,7 +70,11 @@ def test_shell_cannot_read_an_adjacent_cell(tmp_path):
     pair_params = json.loads((
         ROOT / "benchmarks/coupling_pairs/fourc_kratos_cht/params.json"
     ).read_text())
-    assert pair_params["kratos_python"] == runtime_python
+    # params.json carries a token, not a path -- see scripts/_host_roots.expand.
+    import sys as _s2
+    _s2.path.insert(0, str(ROOT / "scripts"))
+    import _host_roots
+    assert _host_roots.expand(pair_params["kratos_python"]) == runtime_python
     out = run_bash.invoke({
         "command": (
             f"{runtime_python} -c 'import KratosMultiphysics; "

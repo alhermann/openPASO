@@ -2463,6 +2463,39 @@ def _deciding_block(solver: str, physics: str) -> str:
 _KNOWLEDGE_REPLY_LIMIT = 48_000
 
 
+def _deciding_block_span(text: str, solver: str) -> tuple:
+    """Where the deciding-facts block sits in a built reply, or (-1, -1).
+
+    THE FACTS ARE REFERENCE, NOT INSTRUCTION, AND THE CAP WAS EATING THEM.
+    Measured 2026-09-14 on knowledge(topic='coupling', solver='ngsolve'): the
+    block began at 41,720 characters of a 47,874-character reply and the 48k
+    cap cut FOUR of its nine lines off the end -- including the three added
+    that morning after step-trial workers died on exactly those calls. The
+    same rule the deck skeletons already have applies here: cap the corpus,
+    never the measured facts. They are 2-4k per code.
+    """
+    if not isinstance(text, str) or not solver:
+        return (-1, -1)
+    head = f"# WHAT DECIDES THIS RUN \u2014 {solver}"
+    i = text.find(head)
+    if i < 0:
+        i = text.find("# WHAT DECIDES THIS RUN")
+        if i < 0:
+            return (-1, -1)
+    # THE CLOSING RULE, WITH OR WITHOUT ITS TRAILING BLANK LINE. The deck-grammar
+    # branch rstrips the body before capping it, which ate the block's final
+    # "\n\n" and made an exact match fail -- so FEBio's and SPARTA's facts were
+    # still cut after the protection landed (measured 2026-09-14).
+    rule = "\n" + "-" * 70
+    j = text.find(rule, i)
+    if j < 0:
+        return (-1, -1)
+    end = j + len(rule)
+    while end < len(text) and text[end] in "\n":
+        end += 1
+    return (i, end)
+
+
 def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
                          physics: str = "", signal: str = "",
                          limit: int | None = None) -> str:
@@ -2471,6 +2504,21 @@ def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
         return out
     if (signal or "").strip().lower().startswith("participant"):
         return out
+    # THE MEASURED FACTS ARE NEVER THE THING THAT GETS CUT. They are short
+    # (2-4k), they are the reason a weak model's first attempt runs at all,
+    # and _with_facts puts them at the END of a session's first reply -- which
+    # is exactly where a cap bites. Measured 2026-09-14 on
+    # knowledge(topic='coupling', solver='ngsolve'): the block started at
+    # 41,720 of a 47,874-character reply and FOUR of its nine lines were cut,
+    # including three added that morning after workers died on those calls.
+    # So: lift the block out, cap the corpus around it, put it back where it
+    # was. Same rule as the deck skeletons and the first contract block.
+    _fa, _fb = _deciding_block_span(out, solver)
+    if _fa >= 0 and (_fb - _fa) < limit // 2:
+        facts = out[_fa:_fb]
+        rest = _cap_knowledge_reply(out[:_fa] + out[_fb:], topic, solver, physics,
+                                    signal, limit=limit - len(facts))
+        return rest[:_fa] + facts + rest[_fa:] if _fa <= len(rest) else rest + "\n\n" + facts
     head = out[:limit]
     cuts = [head.rfind(m) for m in ("\n────", "\n\n#", "\n\n", "\n")]
     cut = max([c for c in cuts if c > limit // 2], default=-1)

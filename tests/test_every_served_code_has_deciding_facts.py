@@ -99,3 +99,45 @@ def test_the_facts_name_the_trap_a_worker_actually_died_on(code, trap):
     from tools.consolidated import _DECIDING_FACTS
     assert trap in _DECIDING_FACTS[code], (
         f"{code}: the served facts no longer name {trap!r}, which a step-trial worker died on")
+
+
+
+class _StubMCP:
+    def __init__(self):
+        self.tools = {}
+
+    def tool(self, *a, **k):
+        def deco(fn):
+            self.tools[fn.__name__] = fn
+            return fn
+        return deco
+
+
+def _knowledge():
+    from core.registry import load_all_backends
+    load_all_backends()
+    from tools.consolidated import register_consolidated_tools
+    mcp = _StubMCP()
+    register_consolidated_tools(mcp)
+    return mcp.tools["knowledge"]
+
+
+CODES_WITH_FACTS = ["fourc", "fenics", "dealii", "ngsolve", "skfem", "kratos", "dune", "febio", "sparta"]
+
+
+@pytest.mark.parametrize("code", CODES_WITH_FACTS)
+def test_the_facts_arrive_whole_in_both_reply_shapes(code):
+    """The cap must never be what removes a measured fact.
+
+    Measured 2026-09-14: knowledge(topic='coupling', solver='ngsolve') put the block at 41,720
+    characters of a 47,874-character reply and the 48,000 cap cut four of its nine lines -- three of
+    them added that morning after step-trial workers died on exactly those calls. The facts are 2-4k
+    and they are reference, like the deck skeletons and the first contract block."""
+    from tools.consolidated import _DECIDING_FACTS
+    K = _knowledge()
+    facts = [l.strip() for l in _DECIDING_FACTS[code].split("\n") if l.strip()]
+    first = K(topic="coupling", solver=code)        # the session's first reply (facts close it)
+    pointer = K(topic="coupling", solver=code)      # a worker's own call (facts lead it)
+    for shape, out in (("first", first), ("pointer", pointer)):
+        missing = [l[:40] for l in facts if l[:40] not in out]
+        assert not missing, f"{code} ({shape} reply, {len(out)} chars): the cap removed {missing}"

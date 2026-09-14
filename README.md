@@ -59,8 +59,17 @@ specific error message really means, and how to check a result.
 
 Do this first, whichever way you choose afterwards.
 
-You need **Python 3.10 or newer** (check with `python3 --version`) and **at least one**
-solver. You do not need all nine.
+You need **Python 3.10, 3.11 or 3.12** (check with `python3 --version`) and **at least
+one** solver.
+
+> [!IMPORTANT]
+> **Python 3.13 works, but needs a C compiler and about two extra minutes.** openPASO
+> keeps numpy below version 2, because the preCICE coupling library requires that. No
+> ready-made numpy package exists for 3.13 below version 2, so `pip` compiles it from
+> source. On Debian or Ubuntu, install the compiler first with
+> `sudo apt install build-essential`. Without one, the install stops on numpy with
+> `Unknown compiler(s)` and `metadata-generation-failed`.
+> Versions above 3.13 are untested. You do not need all nine.
 openPASO tells you what is missing and how to get it.
 
 ```bash

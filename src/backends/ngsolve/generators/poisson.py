@@ -149,7 +149,7 @@ KNOWLEDGE = {
             "also not matrices — they are 4-vectors (dims [4]) — "
             "and a numpy array raises outright, which is the only "
             "spelling that fails loudly. "
-            "Signal, and it is one line: print(K.dims) and "
+            "Signal: print(K.dims) and "
             "require [2, 2]; a scalar prints [] and a flat "
             "vector prints [4]. "
             "Measured on -div(K grad u) = f with "

@@ -67,11 +67,36 @@ def test_the_default_is_the_full_block_unchanged():
     )
 
 
-def test_lean_is_substantially_smaller():
+def test_the_lean_switch_no_longer_cuts_anything_and_is_retired():
+    """The premise of the experiment is gone: the DEFAULT was cut instead.
+
+    This test used to require lean < 40 % of the default, which was the point
+    when the default carried 22,501 characters of universal block. It no longer
+    holds, and not because lean grew: the default was cut to 4,099 by the later
+    size reduction, which moved the long form behind
+    knowledge(topic='universal_full'). Lean is _UNIVERSAL_CORE plus an offer
+    paragraph -- 4,266 -- so the switch now returns MORE text than leaving it
+    off, and there is nothing left for it to cut.
+
+    The experiment it existed for was also already run, and refuted. NG1, KR1
+    and FC1, one seed each per arm, only the flag differing: the full block gave
+    CORRECT, CORRECT, CORRECT at orders 2.063, 2.005 and 2.000, and lean gave
+    CONFIDENTLY_WRONG (0.071), MALFORMED and CONFIDENTLY_WRONG (-0.033). The
+    elaboration lean removes is load-bearing.
+
+    So this records the outcome rather than asserting a cut that cannot happen.
+    Turning the switch on today serves more text AND the worse text. Whether to
+    delete it is Alexander's call, not something to do while fixing a test --
+    the remaining tests in this file still pin that the default is the full
+    block, that lean carries every core rule, and that the route it offers
+    works.
+    """
     full, lean = _tail(""), _tail("1")
-    assert len(lean) < 0.4 * len(full), (
-        f"lean is {len(lean)} against {len(full)}; the point is a large cut"
-    )
+    assert len(lean) >= len(full), (
+        f"lean is {len(lean)} against a default of {len(full)}. If lean has "
+        f"become a real cut again, the default must have grown back -- check "
+        f"whether the long form has returned to the physics reply, and restore "
+        f"the original assertion with the measured sizes.")
 
 
 def test_lean_still_carries_every_core_rule():

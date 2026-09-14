@@ -86,6 +86,24 @@ def test_superseded_registrars_are_not_the_live_path():
 
 
 def test_every_universal_rule_reaches_every_backend_through_the_live_tool():
+    """Every rule must be reachable by an agent, on the path the reply names.
+
+    THE LONG FORM MOVED; IT DID NOT DISAPPEAR. These four phrases live in the
+    long universal block. The physics reply used to carry that block whole and
+    was deliberately cut -- 34,814 characters to 12,624 -- with the short block
+    now stating the same ten rules in condensed form and naming where the long
+    form is: knowledge(topic='universal_full'). Looking for the long phrases in
+    the physics reply alone therefore reports every rule as unreachable, when
+    what changed is which call returns them.
+
+    The guard's purpose survives intact. It exists because three rules were
+    written into _UNIVERSAL and none ever reached an agent -- server.py
+    registers only register_consolidated_tools, so a check that called
+    get_physics_knowledge was verifying a path agents never take. So: the
+    physics reply must still come back for every backend AND name the way to
+    the long form, and the long form must deliver every rule. Both halves go
+    through the live tool.
+    """
     fn = _live_tools()["knowledge"]
     missing = []
     for be in BACKENDS:
@@ -94,9 +112,16 @@ def test_every_universal_rule_reaches_every_backend_through_the_live_tool():
             s = _call(fn, topic="physics", solver=be, physics=ph)
             if not s.startswith(("No knowledge", "Unknown")):
                 served += s
-        for phrase, label in REQUIRED:
-            if phrase not in served:
-                missing.append(f"{be}: {label}")
+        assert served, f"{be}: the live tool returned nothing for any probe"
+        if "universal_full" not in served:
+            missing.append(f"{be}: the reply does not name the long form, so "
+                           f"the rules below are unreachable from it")
+
+    long_form = _call(fn, topic="universal_full")
+    for phrase, label in REQUIRED:
+        if phrase not in long_form:
+            missing.append(f"universal_full: {label}")
+
     assert not missing, (
         "rules that never reach an agent through the live tool:\n  "
         + "\n  ".join(missing))

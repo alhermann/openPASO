@@ -144,16 +144,32 @@ class TestAConvergedRunIsNeverToldBothThings(unittest.TestCase):
         _stamp_verification(r, evidence_ok=False, reason=reason)
         return r["verification"]
 
+    # The two branches must say opposite things, and the test should turn on
+    # WHAT THEY SAY rather than one spelling of it. This looked for the literal
+    # "WRITE YOUR DELIVERABLES FIRST"; the message was reworded to
+    # "CONVERGED - THIS IS A RESULT, SAVE IT NOW", which carries exactly the
+    # same instruction and goes on to say "SAVE THOSE VERBATIM as this level's
+    # deliverables". The test failed on the wording while the behaviour was
+    # right. `SAVE` versus `must NOT be reported` is the real distinction and
+    # survives the next rewording.
+    SAVE_IT = "SAVE"
+    HARD_STOP = "must NOT be reported"
+
     def test_the_real_reason_gets_deliverables_first_and_no_contradiction(self):
         v = self._stamp(self.REAL)
-        self.assertIn("WRITE YOUR DELIVERABLES FIRST", v)
-        self.assertNotIn("must NOT be reported", v)
+        self.assertIn(self.SAVE_IT, v,
+                      "a converged run with a caveat must tell the agent to "
+                      "save what it has")
+        self.assertNotIn(self.HARD_STOP, v,
+                         "and must not also forbid reporting it")
 
     def test_a_genuinely_unconverged_run_keeps_the_hard_stop(self):
         v = self._stamp("the solver did not converge "
                         "(residual 3e-2 > tol 1e-6)")
-        self.assertIn("must NOT be reported", v)
-        self.assertNotIn("WRITE YOUR DELIVERABLES FIRST", v)
+        self.assertIn(self.HARD_STOP, v)
+        self.assertNotIn(self.SAVE_IT, v,
+                         "a run that did not converge must not be described as "
+                         "something to save")
 
     def test_an_unbound_claim_keeps_the_hard_stop(self):
         v = self._stamp("the result is not bound to a check-passing run")

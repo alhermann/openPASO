@@ -210,9 +210,30 @@ class TestSpartaVerifiedKnowledge(unittest.TestCase):
             self.assertIn("key_commands", kn)
             self.assertIn("deck_skeleton", kn)
             self.assertIn("pitfalls", kn)
+            # WHAT MAKES A DUMP IS ITS SHAPE, NOT ITS TOTAL.
+            #
+            # The defect this guards is a verbatim manual section pasted in:
+            # the old payload was ~43 KB per physics, 27 KB of it a copy that
+            # never reached the agent. A flat 25 KB total caught that, and then
+            # caught ordinary growth too -- rarefied_flow reached 29 KB as 23
+            # separate measured pitfalls, median 756 characters, largest 1,661.
+            # Refusing those means refusing to learn anything new about SPARTA.
+            #
+            # So test the shape. A pasted manual section is ONE enormous entry;
+            # measured pitfalls are many small categorised ones. The total bound
+            # stays, well below the 43 KB that made this test necessary, so a
+            # real dump still cannot hide behind many-small-entries.
+            entries = kn.get("pitfalls") or []
+            self.assertTrue(entries, f"{cap.name}: no pitfalls at all")
+            biggest = max(len(str(e)) for e in entries)
             self.assertLess(
-                len(_all_text(kn)), 25_000,
-                f"{cap.name}: knowledge payload grew back past 25 KB")
+                biggest, 4_000,
+                f"{cap.name}: one pitfall entry is {biggest} characters. That "
+                f"is the shape of a pasted manual section, not a measured trap")
+            self.assertLess(
+                len(_all_text(kn)), 35_000,
+                f"{cap.name}: knowledge payload is heading back toward the "
+                f"43 KB manual dump this test was written for")
 
     def test_knowledge_carries_no_absolute_host_path(self) -> None:
         """'installed_build' used to hard-code four absolute paths from the

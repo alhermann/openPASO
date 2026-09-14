@@ -80,15 +80,36 @@ def test_it_says_not_the_mesh_nodes(coupling_payload):
     )
 
 
-def test_it_survives_the_truncation(coupling_payload):
-    """The coupling payload is cut at a budget; this must be above the cut."""
-    from tools.consolidated import _COUPLING_HEAD_LIMIT
-    at = coupling_payload.find("INTERFACE FILE IS WRITTEN AT THE POINTS")
-    assert 0 <= at < _COUPLING_HEAD_LIMIT, (
-        f"the rule sits at character {at}, at or beyond the "
-        f"{_COUPLING_HEAD_LIMIT}-character head limit, so a truncated payload "
-        f"drops the very thing it was added for"
-    )
+def test_it_survives_the_truncation(knowledge_tool):
+    """The rule must REACH THE AGENT, for every solver, however the text grows.
+
+    This used to assert the rule's POSITION: that it sat inside the first
+    _COUPLING_HEAD_LIMIT characters. That was a proxy for the thing that
+    matters, and the proxy went stale -- the rule drifted to character 32,322
+    of a 28,000-character head budget and the test failed, while the rule was
+    in fact still reaching every agent. It lives in the must-read block, which
+    is appended whole AFTER the head, so the head cut never touches it.
+
+    Asserting the outcome instead is strictly stronger: it holds for all nine
+    solvers, and it keeps holding wherever in the corpus the rule ends up.
+
+    The must-read is served once per session by design -- the first coupling
+    call gets it whole, later calls get a pointer -- so each solver is asked as
+    the first call of its own session, which is how an agent meets it.
+    """
+    from tools import consolidated as C
+
+    rule = "INTERFACE FILE IS WRITTEN AT THE POINTS THE TASK LISTS"
+    missing = []
+    for solver in ("fourc", "fenics", "dealii", "ngsolve", "skfem",
+                   "kratos", "dune", "febio", "sparta"):
+        C._MUST_READ_STATE["served"] = False
+        served = knowledge_tool(topic="coupling", solver=solver)
+        if rule not in served:
+            missing.append(f"{solver} ({len(served):,} chars)")
+    assert not missing, (
+        "the rule that decides whether a converged coupled run counts does not "
+        "reach the agent for: " + ", ".join(missing))
 
 
 def test_adding_it_did_not_evict_the_rest_of_the_must_read(coupling_payload):

@@ -2506,6 +2506,33 @@ def _deciding_block_span(text: str, solver: str) -> tuple:
     return (i, end)
 
 
+def _probe_recipe_span(text: str) -> tuple:
+    """Where the read-back recipe sits in a built reply, or (-1, -1).
+
+    THE RECIPE EXISTS BECAUSE OF THE BIGGEST FAILURE BUCKET, AND THE CAP ATE IT.
+    deal.II's backend adds a `probe_recipe` to every knowledge branch because a
+    solve that worked and was never read back at the prescribed points is the
+    largest single way a run is lost -- 60 development runs, 12.9 %. The
+    backend comment says adding it to one branch would leave the other three
+    silent. It was added to all four, and then the 48,000-character cap cut it
+    off every one of them: measured on
+    knowledge(topic='physics', solver='dealii', physics='heat'), the reply came
+    to 47,731 characters and carried no `VectorTools::point_value` at all.
+
+    Same rule as the deciding-facts block above: cap the corpus, never the
+    short thing the agent is supposed to copy.
+    """
+    if not isinstance(text, str):
+        return (-1, -1)
+    head = "READING YOUR SOLUTION AT A POINT THAT IS NOT A MESH NODE"
+    i = text.find(head)
+    if i < 0:
+        return (-1, -1)
+    # Runs to the next top-level heading, or to the end of the reply.
+    j = text.find("\n\n# ", i + len(head))
+    return (i, len(text) if j < 0 else j)
+
+
 def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
                          physics: str = "", signal: str = "",
                          limit: int | None = None) -> str:
@@ -2534,6 +2561,13 @@ def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
         limit = _end
         if len(out) <= limit:
             return out
+    _pa, _pb = _probe_recipe_span(out)
+    if _pa >= 0 and (_pb - _pa) < limit // 2:
+        recipe = out[_pa:_pb]
+        rest = _cap_knowledge_reply(out[:_pa] + out[_pb:], topic, solver, physics,
+                                    signal, limit=limit - len(recipe))
+        return (rest[:_pa] + recipe + rest[_pa:] if _pa <= len(rest)
+                else rest + "\n\n" + recipe)
     _fa, _fb = _deciding_block_span(out, solver)
     if _fa >= 0 and (_fb - _fa) < limit // 2:
         facts = out[_fa:_fb]

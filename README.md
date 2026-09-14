@@ -26,23 +26,28 @@
 
 ## What openPASO does
 
-Finite element software is powerful and hard to use. Every code has its own input
-format, its own words for the same thing, and its own traps. Learning one takes weeks.
-Learning nine takes years.
+A **solver** is a program that computes how something physically behaves: how a metal
+part bends, how heat spreads through a wall, how air flows around a wing. The method
+most of these programs use is called the **finite element method** — it cuts the object
+into many small pieces, called a **mesh**, and computes the answer piece by piece.
 
-openPASO puts **nine simulation codes behind one door** and lets an AI model open it.
-You write what you want in a normal sentence. The model chooses a suitable code, writes
-the input file for it, starts the solver, reads the real output, and checks whether the
-answer is right.
+These programs are powerful and hard to use. Each one has its own input file format, its
+own words for the same thing, and its own traps. Learning one takes weeks. Learning nine
+takes years.
 
-You do not need to know the input format. openPASO gives the model what it needs: what
-each keyword means **in the version you have installed**, which settings break, what a
-specific error message really means, and how to verify a result.
+openPASO puts **nine such programs behind one door** and lets an AI model open it. You
+write what you want in a normal sentence. The model chooses a suitable program, writes
+the input file for it, starts it, reads the real output, and checks whether the answer is
+right.
+
+You do not need to know any input format. openPASO gives the model what it needs: what
+each setting means **in the version you have installed**, which settings break, what a
+specific error message really means, and how to check a result.
 
 > [!NOTE]
-> openPASO checks whether the **numbers are computed correctly** — the convergence order,
-> the consistency, the evidence that the solver truly ran. It does not check whether your
-> model describes reality. Choosing the right physics is still your work.
+> openPASO checks whether the **numbers are computed correctly** — whether they stop
+> changing as the mesh gets finer, and whether the solver really ran. It does not check
+> whether your model describes reality. Choosing the right physics is still your work.
 
 ---
 
@@ -67,31 +72,196 @@ scikit-fem 12.0.1, Kratos Multiphysics 10.3, DUNE-fem, and SPARTA (DSMC).
   done
 ```
 
+> [!IMPORTANT]
+> This example is **Option B**, which needs a paid API key. If you use Claude Code,
+> Claude Desktop or Cursor, you never type this command — you just ask in the app.
+> Both ways are explained in [Start here](#start-here). First do the install below.
+
+---
+
+## Install
+
+Do this first, whichever way you choose afterwards.
+
+You need **Python 3.10 or newer** and **at least one** solver. You do not need all nine.
+openPASO tells you what is missing and how to get it.
+
+```bash
+git clone https://github.com/alhermann/openPASO.git
+cd openPASO
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e .
+pip install scikit-fem            # the easiest solver to start with
+```
+
+Only if you will use **Option B** (your own API key), also install the agent packages:
+
+```bash
+pip install -r langgraph_eval/requirements-langgraph.txt
+```
+
+Installing them anyway does no harm.
+
+### Check that it works
+
+```bash
+cd src
+python -m server
+```
+
+You should see a list of lines ending with:
+
+```
+INFO: Starting openPASO MCP server
+```
+
+That is success. The program then waits and prints nothing more — this is correct, it is
+waiting for an AI model to talk to it. Press **Ctrl+C** to stop it, then go back up:
+
+```bash
+cd ..            # the next steps expect you here, in the openPASO folder
+```
+
+If you instead see `ModuleNotFoundError`, your virtual environment is not active. Run
+`source .venv/bin/activate` and try again.
+
+> [!NOTE]
+> **Windows:** the commands above are for Linux and macOS. On Windows use
+> `python -m venv .venv` and then `.venv\Scripts\activate`, and write paths with
+> backslashes. openPASO itself is tested on Linux; several solvers have no Windows build.
+
+### Which solvers can it use?
+
+| Solver | What it is good at | How to install |
+|---|---|---|
+| **scikit-fem** | pure Python, full control over the assembly | `pip` — seconds |
+| **NGSolve** | electromagnetics, acoustics, high-order elements | `pip` — seconds |
+| **Kratos Multiphysics** | structures, fluids, coupled problems, particles | `pip`, but see the note below |
+| **DUNE-fem** | discontinuous Galerkin, adaptive meshes | `pip` — minutes |
+| **FEniCSx (dolfinx)** | fast prototyping, fluid flow | `conda` — minutes |
+| **deal.II** | adaptive refinement, very large parallel runs | system package |
+| **FEBio** | biomechanics, soft tissue, muscle | download a binary |
+| **4C Multiphysics** | fluid–structure interaction, contact, beams, particles | build from source (hours) |
+| **SPARTA** | rarefied gas, particle method, experimental | build from source (hours) |
+
+<details>
+<summary><b>Install commands for each solver</b></summary>
+
+Install the `pip` ones into the **same** virtual environment you made above
+(`.venv`, the one you activated).
+
+```bash
+pip install ngsolve scikit-fem meshio
+```
+
+`meshio` is optional. It reads and writes many mesh file formats, which several
+examples use.
+
+```bash
+# Kratos: install the metapackage, NOT "KratosMultiphysics" on its own.
+# Installing KratosMultiphysics alone lets pip take the newest wheel, and the
+# 10.4.x wheels are labelled for a system library version they do not actually
+# work with: they install without error and then fail to import.
+# Check your system with: ldd --version | head -1
+pip install KratosMultiphysics-all
+
+# DUNE-fem: from PyPI. mpi4py is a hidden requirement; without it the first
+# import stops with "Please run pip install mpi4py before rerunning your Dune script."
+pip install dune-fem mpi4py
+```
+
+FEniCSx is the one solver that does **not** go into `.venv`. It needs its own conda
+environment, and openPASO finds it there by itself:
+
+```bash
+conda create -n fenics -c conda-forge fenics-dolfinx
+```
+
+Real and complex numbers are **separate** FEniCSx environments, not a switch you flip
+at run time. Most people only need the real one.
+
+```bash
+# deal.II on Ubuntu/Debian
+sudo apt install libdeal.ii-dev
+```
+
+Ubuntu 20.04 ships deal.II 9.1.1, which is old enough to miss many current functions.
+Check yours with `grep DEAL_II_PACKAGE_VERSION /usr/include/deal.II/base/config.h`.
+If you build it yourself, use `-DCMAKE_BUILD_TYPE=DebugRelease` — a `Release` build
+removes every internal check, so mistakes fail silently instead of telling you what
+went wrong.
+
+```bash
+# FEBio: download the binary from https://febio.org/downloads/ then
+export FEBIO_BINARY=/path/to/febio4
+```
+
+Any `export` line only lasts until you close the terminal. To keep it, put the same
+line at the end of `~/.bashrc` (or `~/.zshrc`) and open a new terminal.
+
+**Conda environments** are found automatically when their name contains `fenics`,
+`dolfinx` or `dune`. For any other name, point openPASO at the interpreter yourself:
+
+```bash
+export FENICS_PYTHON=/path/to/env/bin/python
+export DUNE_PYTHON=/path/to/env/bin/python
+```
+
+**If a solver will not install**, ask openPASO. Once it is connected (next section),
+write to the AI in plain words:
+
+> How do I install 4C on Ubuntu? Use the knowledge tool.
+
+It answers with the route that works, the exact first-run error messages, and which
+settings it checks rather than trusts.
+
+</details>
+
 ---
 
 ## Start here
 
-There are two ways to use openPASO. **Pick one.** Both need the steps in
-[Install](#install) first.
+There are two ways to use openPASO. **Pick one.**
+
+|  | Option A — an AI app | Option B — your own API key |
+|---|---|---|
+| **You need** | Claude Code, Claude Desktop or Cursor | an account at openrouter.ai |
+| **Extra cost** | none beyond your subscription | you pay for what you use |
+| **Choice of model** | whatever the app offers | any model on OpenRouter |
+| **Good for** | trying it out, everyday work | scripting, experiments, cheap models |
+
+Not sure whether your app works? If you have **Claude Code**, type `claude mcp list` in a
+terminal. If the command exists, use Option A.
 
 ### Option A — you already pay for an AI app
 
-If you use **Claude Code**, **Claude Desktop**, **Cursor** or another app that supports
-MCP, this costs you nothing extra. The app brings the AI model. openPASO brings the
-solvers.
+This costs nothing extra. The app brings the AI model. openPASO brings the solvers.
 
-> MCP (Model Context Protocol) is the standard plug that connects tools to AI apps.
-> openPASO is such a tool.
+> **MCP** (Model Context Protocol) is the standard plug that connects tools to AI apps.
+> openPASO is such a tool. Your app only needs to support MCP.
 
-**Claude Code** — run this once, in the openPASO folder:
+**Claude Code** — run this once, from the openPASO folder:
 
 ```bash
-claude mcp add openpaso .venv/bin/python -- -m server \
-  -e PYTHONPATH=src -e PYVISTA_OFF_SCREEN=true
+claude mcp add openpaso \
+  -e PYTHONPATH=src \
+  -e PYVISTA_OFF_SCREEN=true \
+  -- "$PWD/.venv/bin/python" -m server
 ```
 
-**Claude Desktop** — open Settings → Developer → Edit Config, and add this.
-Replace `/path/to/openPASO` with the real folder on your computer:
+> [!WARNING]
+> The `-e` options must come **before** the `--`. Everything after `--` is the command
+> itself. If you put `-e` after the `--`, the settings are handed to Python as arguments
+> and are silently ignored.
+
+Check that it worked:
+
+```bash
+claude mcp list          # openpaso should be listed, and connected
+```
+
+**Claude Desktop** — open Settings → Developer → Edit Config and add the block below.
+Replace `/path/to/openPASO` with the real folder on your computer, twice:
 
 ```json
 {
@@ -99,7 +269,6 @@ Replace `/path/to/openPASO` with the real folder on your computer:
     "openpaso": {
       "command": "/path/to/openPASO/.venv/bin/python",
       "args": ["-m", "server"],
-      "cwd": "/path/to/openPASO/src",
       "env": {
         "PYTHONPATH": "/path/to/openPASO/src",
         "PYVISTA_OFF_SCREEN": "true"
@@ -109,167 +278,78 @@ Replace `/path/to/openPASO` with the real folder on your computer:
 }
 ```
 
-**Cursor, Windsurf, or any other MCP app** — use the same four values:
-command `/path/to/openPASO/.venv/bin/python`, arguments `-m server`, working folder
-`/path/to/openPASO/src`, and the two environment variables above.
+**Cursor, Windsurf, or any other MCP app** — use the same three values: the command
+`/path/to/openPASO/.venv/bin/python`, the arguments `-m server`, and the two settings
+above. Restart the app afterwards.
 
-Then simply ask, in the app:
+Then simply ask, inside the app:
 
 > Solve the Poisson equation on a unit square with a known exact solution,
-> and verify the convergence rate.
+> and check that the error falls at the expected rate.
 
 ### Option B — you have an OpenRouter key
 
-Use this if you do not have such an app, or if you want to choose the model yourself.
 **OpenRouter** gives you one key for many AI models, and you pay for what you use.
-
-**Three steps:**
+Three steps, all from the openPASO folder:
 
 ```bash
-# 1. Copy the settings template
+# 1. Copy the settings file
 cp .env.example .env
 
-# 2. Open .env and paste your key after OPENROUTER_API_KEY=
+# 2. Open .env in any editor. Paste your key after OPENROUTER_API_KEY=
 #    Get a key at https://openrouter.ai/keys
+#    A model is already chosen for you, so you can leave the rest alone.
 
 # 3. Ask for a simulation
-python run_agent.py "Solve -Δu = 1 on the unit square with u = 0 on the boundary
-                     using scikit-fem, and report the maximum value."
+python run_agent.py "Solve the Poisson equation on the unit square with scikit-fem, and report the maximum value."
 ```
 
-Your key lives in the file **`.env`** in the openPASO folder, and nowhere else.
-That file stays on your computer; git never uploads it.
+Your key lives in the file **`.env`** in the openPASO folder and nowhere else. That file
+stays on your computer; git never uploads it.
 
 > [!TIP]
-> Start with a cheap model. `.env.example` lists a few good ones. You can change the
-> model at any time by editing `OPENPASO_MODEL` in `.env`, or by adding
+> Start with a cheap model. `.env.example` lists several and already selects one. To use
+> a different one, either change `OPENPASO_MODEL` in `.env`, or add
 > `--model some/model-id` to the command.
 
-### Which option should I choose?
+### Did it work?
 
-| | Option A — an AI app | Option B — an OpenRouter key |
-|---|---|---|
-| **You need** | Claude Code, Claude Desktop, Cursor, … | an account at openrouter.ai |
-| **Extra cost** | none beyond your subscription | you pay per use |
-| **Choice of model** | whatever the app offers | any model on OpenRouter |
-| **Good for** | trying it out, daily work | scripting, experiments, cheap models |
+`run_agent.py` prints everything as it happens:
 
----
+- `→ toolname(...)` — the model is calling a solver tool
+- `← toolname: N line(s)` — the tool answered
+- plain text — the model talking to you
+- `done` on the last line — the run finished
 
-## Install
+Files the solvers produce are written to the **`simulation_outputs/`** folder inside
+openPASO. (You can change that with `OPENPASO_OUTPUT_DIR` in `.env`.)
 
-You need Python 3.10 or newer, and **at least one** simulation code. You do not need all
-nine. openPASO tells you what is missing and how to get it.
+**If something went wrong**, `run_agent.py` says so in one sentence and tells you what to
+do. The most common cases:
 
-```bash
-git clone https://github.com/alhermann/openPASO.git
-cd openPASO
-python3 -m venv .venv && source .venv/bin/activate
-pip install -e .
-pip install scikit-fem              # the easiest solver to start with
-```
-
-Only for **Option B**, also install the agent packages:
-
-```bash
-pip install -r langgraph_eval/requirements-langgraph.txt
-```
-
-Check that it starts:
-
-```bash
-cd src && python -m server          # stops with Ctrl+C
-```
-
-### Which solvers can it use?
-
-| Solver | What it is good at | How hard to install |
-|---|---|---|
-| **scikit-fem** | pure Python, assembly-level control | `pip` — seconds |
-| **NGSolve** | Maxwell, Helmholtz, high-order, eigenvalues | `pip` — seconds |
-| **Kratos Multiphysics** | structures, fluids, FSI, DEM, MPM | `pip` — seconds |
-| **DUNE-fem** | DG methods, VEM, h/p-adaptivity | `pip` — minutes |
-| **FEniCSx (dolfinx)** | fast prototyping, weak forms, Navier–Stokes | `conda` — minutes |
-| **deal.II** | adaptive refinement, matrix-free, MPI + GPU | system package |
-| **FEBio** | biomechanics, tissue, active contraction | binary download |
-| **4C Multiphysics** | FSI, thermo-mechanics, contact, beams, particles | build from source |
-| **SPARTA** | rarefied gas (DSMC particles), experimental | build from source |
-
-<details>
-<summary><b>Install commands for each solver</b></summary>
-
-```bash
-# pip-installable — into the SAME interpreter that runs openPASO
-pip install ngsolve scikit-fem meshio
-
-# Kratos: use the metapackage. Installing KratosMultiphysics alone lets pip take
-# the newest wheel, and the 10.4.x wheels are tagged manylinux_2_28 while actually
-# requiring GLIBC_2.32 — they install fine and then fail to import.
-# Check your system with: ldd --version | head -1
-pip install KratosMultiphysics-all
-
-# DUNE-fem: from PyPI. mpi4py is an undeclared dependency; without it the first
-# import stops with "Please run pip install mpi4py before rerunning your Dune script."
-pip install dune-fem mpi4py
-
-# FEniCSx: conda-forge is the supported route. Real and complex numbers are
-# SEPARATE environments, not a runtime switch.
-conda create -n fenics -c conda-forge fenics-dolfinx
-
-# deal.II on Ubuntu/Debian. Note that 20.04 ships 9.1.1, which is old enough to
-# miss many current functions. Check yours with:
-#   grep DEAL_II_PACKAGE_VERSION /usr/include/deal.II/base/config.h
-# Build from source with -DCMAKE_BUILD_TYPE=DebugRelease if you want assertion
-# messages — a Release build removes every Assert.
-sudo apt install libdeal.ii-dev
-
-# FEBio: download the binary from https://febio.org/downloads/ and then
-export FEBIO_BINARY=/path/to/febio4
-```
-
-**macOS and deal.II.** Install the official `deal.II.app` bundle and point
-`DEAL_II_DIR` at its `Contents/Resources/Libraries`. If a build then fails inside
-`<complex>` or `<cmath>`, that is an Xcode SDK header clash inside the bundle, not an
-openPASO problem. Fix it with:
-
-```bash
-export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-```
-
-**Conda environments** are found automatically when their name contains `fenics`,
-`dolfinx` or `dune`. For any other layout, name the interpreter yourself — openPASO
-uses it both to find the code and to run it:
-
-```bash
-export FENICS_PYTHON=/path/to/env/bin/python
-export DUNE_PYTHON=/path/to/env/bin/python
-```
-
-**If a solver will not install**, ask openPASO itself. It answers with the route that
-works on your system, the exact first-run error messages, and which environment
-variables it checks rather than trusts:
-
-```
-knowledge(topic='install', solver='fourc')
-```
-
-</details>
+| Message | What to do |
+|---|---|
+| `OPENROUTER_API_KEY is empty` | You are not in the openPASO folder, or the key is not in `.env` |
+| `OpenRouter rejected the key` | The key is wrong — check it at <https://openrouter.ai/keys> |
+| `your OpenRouter account is out of credit` | Add credit at <https://openrouter.ai/credits> |
+| `the chosen model cannot use tools` | Pick a model marked with tool support on <https://openrouter.ai/models> |
+| `a Python package is missing` | Run `pip install -r langgraph_eval/requirements-langgraph.txt` |
+| `the openPASO server has no Python to run in` | Your `.venv` is missing. Redo the [Install](#install) steps |
 
 ---
 
 ## What you can simulate
 
-- **Classic PDEs** — Poisson, heat conduction, diffusion
-- **Solid mechanics** — linear elasticity, large deformation, plasticity, contact, eigenfrequencies
-- **Flow** — Stokes and Navier–Stokes: lid-driven cavity, vortex shedding, channel flow
-- **Transport** — transient heat, reaction–diffusion, convection
-- **Electromagnetics** — Maxwell, cavity resonances, magnetostatics
-- **Particle methods** — SPH, DEM, peridynamics
-- **Two codes on one problem** — split a domain between two different solvers and iterate
-  until they agree: thermo-mechanics, fluid–structure interaction, domain decomposition,
-  even a continuum code coupled to a rarefied-gas particle code
-- **Meshes** — Gmsh geometries: L-shape, plate with a hole, channel, or your own
-- **Convergence studies** — refine the mesh step by step and measure the error
+- **Classic equations** — Poisson, heat conduction, diffusion
+- **Solids** — bending and stretching, large deformation, plasticity, contact, vibration frequencies
+- **Fluids** — slow flow and fast flow: cavity flow, flow past an obstacle, flow in a channel
+- **Transport over time** — heat that changes with time, chemical reactions that spread
+- **Electromagnetics** — wave problems, cavity resonances, magnets
+- **Particle methods** — materials modelled as many interacting particles instead of a mesh
+- **Two solvers on one problem** — split a body in two, give each half to a different
+  program, and repeat until the two halves agree at the boundary between them
+- **Meshes** — generated with Gmsh: an L-shape, a plate with a hole, a channel, or your own
+- **Accuracy studies** — refine the mesh step by step and measure how the error shrinks
 
 ---
 
@@ -277,18 +357,20 @@ knowledge(topic='install', solver='fourc')
 
 A wrong result that looks right is worse than no result. Four things guard against it.
 
-1. **An exact solution to compare against.** For many problems openPASO can construct a
-   source term whose exact answer is known, so the error is a number, not an opinion.
-2. **The convergence order.** Refine the mesh and the error must fall at the rate the
-   theory predicts. If it does not, the run failed, whatever the pictures look like.
-3. **Evidence that the solver really ran.** openPASO reads the solver's own console
-   output and its own data files. A number with no run behind it is reported as such.
-4. **A second AI instance reviews the setup** before the run starts — units, boundary
-   conditions, mesh resolution, material values. The server keeps the record of that
-   review and looks it up instead of believing a claim.
+1. **A known exact answer to compare against.** For many problems openPASO can build the
+   problem backwards from an answer it already knows, so the error is a number and not an
+   opinion.
+2. **The error must shrink at the right speed.** Make the mesh twice as fine and the error
+   must fall by the amount the mathematics predicts. If it does not, the run failed, no
+   matter how good the picture looks.
+3. **Proof that the solver really ran.** openPASO reads the solver's own console output
+   and its own data files. A number with no run behind it is reported as exactly that.
+4. **A second AI instance reviews the setup** before the run starts: units, boundary
+   conditions, mesh fineness, material values. The server keeps the record of that review
+   and looks it up instead of believing a claim.
 
-When two codes are coupled, a coupling that does not converge is reported as a failure.
-It is never presented as a result.
+When two solvers work on one problem together and they never come to agree, that is
+reported as a failure. It is never presented as a result.
 
 ---
 
@@ -296,18 +378,18 @@ It is never presented as a result.
 
 | Tool | What it does |
 |---|---|
-| `discover` | lists the solvers, what is installed, what each can do |
-| `prepare_simulation` | knowledge, real examples and a template in one call — always the first step |
+| `discover` | lists the solvers, what is installed, what each one can do |
+| `prepare_simulation` | knowledge, real examples and a starting file in one call — always the first step |
 | `run_simulation` | runs the Python solvers (FEniCSx, NGSolve, scikit-fem, DUNE-fem) |
 | `run_with_generator` | writes the input file and runs the compiled solvers (4C, deal.II, Kratos) |
 | `verify_mesh_independence` | refines the mesh and reports whether the answer stopped changing |
-| `knowledge` | physics, pitfalls, materials, coupling, and comparisons between codes |
+| `knowledge` | physics, known traps, materials, coupling, and comparisons between solvers |
 | `examples` | real test files from the solvers' own test suites |
-| `couple` | runs one problem across two codes and iterates until they agree |
-| `couple_precice` | the same through the preCICE coupling library |
-| `transfer_field` | moves a field from one solver's output to another |
+| `couple` | runs one problem across two solvers until they agree |
+| `couple_precice` | the same, through the preCICE coupling library |
+| `transfer_field` | moves a result from one solver's output into another solver |
 | `generate_mesh` | builds a mesh with Gmsh |
-| `visualize` | field statistics, plots, automatic checks |
+| `visualize` | statistics, plots, automatic checks |
 | `developer` | reads and changes a solver's own source code, then rebuilds it |
 | `setup_backend` | install help for a solver that is missing |
 
@@ -323,17 +405,36 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 (Python)    (C++)     (YAML)  (Python) (Python)  (JSON)   (Python)  (XML)  (native)
 ```
 
-- **Server** — `src/server.py`, an MCP server over stdio. Backends load as plugins
-  through `src/core/registry.py`.
-- **Backends** — one package per code under `src/backends/`, each with a catalog of the
-  physics it supports and input generators for the compiled codes.
-- **Knowledge** — per-code pitfalls, element catalogs, API references read from the
-  version you actually installed, and a layer that compares the codes with each other.
+- **Server** — `src/server.py`. Solvers load as plugins through `src/core/registry.py`.
+- **Backends** — one package per solver under `src/backends/`, each with a list of the
+  physics it supports and writers for the input files of the compiled solvers.
+- **Knowledge** — known traps per solver, element lists, and settings read from the
+  version you actually installed, not from a manual.
 - **Coupling** — `src/core/coupling_driver.py`. Each side is a black box that reads
   `imports.json` and writes `exports.json` under a fixed contract. openPASO checks the
-  contract, runs the fixed-point iteration with Aitken relaxation, and reports
-  convergence or failure.
+  contract, repeats the exchange until both sides agree, and reports agreement or failure.
 - **preCICE bridge** — `src/core/precice_config.py` and the `couple_precice` tool.
+
+---
+
+## Words used here
+
+| Word | Meaning in one line |
+|---|---|
+| **solver** | a program that computes the physics |
+| **backend** | one such program, as openPASO sees it |
+| **finite element method** | cutting an object into small pieces and solving piece by piece |
+| **mesh** | the set of small pieces |
+| **element** | one piece of the mesh |
+| **boundary condition** | what you fix at the edges: a temperature, a force, a fixed wall |
+| **refine the mesh** | use more and smaller pieces, for a more accurate answer |
+| **mesh independence** | the answer stops changing when you refine further — a good sign |
+| **convergence rate / order** | how fast the error shrinks as you refine |
+| **coupling** | two solvers working on one problem, exchanging values at their shared boundary |
+| **verification** | checking that the numbers are computed correctly |
+| **validation** | checking that the model matches the real world — **not** done here |
+| **MCP** | the standard plug that connects tools to AI apps |
+| **venv** | a private Python folder for one project's packages |
 
 ---
 
@@ -342,8 +443,8 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 Contributions are welcome. One rule stands above the rest: **every improvement must help
 all simulations**, not one example.
 
-Good contributions are solver pitfalls, element catalogs, new backends and new coupling
-generators. Not welcome are databases of parameters for one benchmark, or templates built
+Good contributions are known solver traps, element lists, new solvers and new coupling
+templates. Not welcome are collections of numbers for one benchmark, or templates built
 around one particular problem. Templates use placeholders, never the dimensions of a
 specific case.
 

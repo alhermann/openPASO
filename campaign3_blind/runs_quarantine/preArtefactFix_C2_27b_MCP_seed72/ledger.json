@@ -1,0 +1,18 @@
+{
+  "problem": "C2",
+  "model": "27b",
+  "condition": "MCP",
+  "seed": 72,
+  "wall_s": 1008.3,
+  "tool_calls": 66,
+  "tokens_in": 8009038,
+  "tokens_out": 48804,
+  "error": null,
+  "truncated_replies": 0,
+  "continuations": 1,
+  "graded": false,
+  "note": "grading is offline: run grade_blind.py",
+  "problems_root": "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/problems_dev3",
+  "task_path": "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/problems_dev3/C2/task.txt",
+  "task_sha256": "ce260eda6002982257bbc13f6109538931ecde813cbbd4d7513f75d24ec9757e"
+}

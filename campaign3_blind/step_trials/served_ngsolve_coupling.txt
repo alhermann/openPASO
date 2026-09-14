@@ -1,0 +1,775 @@
+
+YOU ARE THE ORCHESTRATOR OF THIS COUPLING, NOT ITS AUTHOR. Participant scripts
+are written by role='worker' sub-agents, one ladder step each, never by you in
+your own turn. Your NEXT action after reading this reply -- before any plan,
+estimate, critic or file of your own -- is spawn_subagent(role='worker',
+task=<the brief under "YOUR FIRST SUB-AGENT, NOW" below, with its <...>
+block replaced by your task's data>).
+
+START HERE -- THE WHOLE COUPLING IS ONE TOOL CALL. Write one script per
+side that reads ./imports.json, runs its own solver once, writes
+./exports.json. Then call:
+
+    couple(participants='[
+      {"name": "A", "command": ["<python>", "side_a.py"],
+       "work_dir": "<ABSOLUTE path of ./side_A>", "imports_from": ["B"]},
+      {"name": "B", "command": ["<python>", "side_b.py"],
+       "work_dir": "<ABSOLUTE path of ./side_B>", "imports_from": ["A"]}]',
+      max_iter=<from the rho guidance below; when unsure use 150>,
+      tol=<the tolerance your task prescribes>)
+
+Create side_A and side_B INSIDE your working directory (`mkdir -p side_A
+side_B`, then `pwd` for the absolute paths); every script, log and
+deliverable belongs under that directory, never under your home directory or
+a project directory elsewhere -- a write outside it is refused, and refusal
+is not a reason to stop.
+
+Pass history_path="<absolute path of the per-level residual-history file your
+task names>" in that call as well, so the tool writes the measured iteration
+history straight to that file; never retype it.
+
+A task that splits the DOMAIN into subdomains joined by interface continuity
+conditions is this partitioned domain decomposition however many fields each
+subdomain carries -- temperature and displacement together included. Exchange
+every interface quantity per point: values = [T, ux, uy] and normal_fluxes =
+[q_n, t_x, t_y] on both sides (one row per interface point, the same order
+every iteration); the driver compares them component by component. A FIELD
+coupling in which both codes own the whole body (the `tsi` route) is a
+different setup and does not apply to a split domain.
+
+WORK THE LADDER, ONE SUB-AGENT PER STEP. audit_results(work_dir) and every
+couple() reply name the next unmet step, read from your own files, as a
+ready sub-agent brief: two participants -> each exports standalone -> couple
+level k -> level k's field and interface files -> its captured run logs ->
+the summary. Hand the brief to spawn_subagent(role='worker', task=<brief>)
+as is; the step ends when its check passes on disk. Never judge the whole
+job at once -- every single step is small. A WORKER THAT REPORTS AN ERROR IS
+NOT RE-BRIEFED BY YOU: call audit_results(work_dir) first. It reads that
+worker's decks and consoles and names the defect and the step -- the code's
+own error line, the sections the installed binary's grammar does not know
+with the closest known names, a condition on an undefined id, the
+participant's own Python stop -- so the next worker starts from the defect,
+not from the whole job again.
+
+YOUR FIRST SUB-AGENT, NOW -- before any plan, estimate or verdict. Copy the
+call below and REPLACE the <...> block with your task's own words; the worker
+sees nothing but this task= string (measured: a worker whose brief kept
+"from the task" and no data wrote placeholder source terms):
+    spawn_subagent(role='worker', task="Write side A's participant script in
+    ./side_A: call knowledge(topic='coupling', solver='<side A's code>')
+    (add physics='thermoelastic' when the interface carries temperature AND
+    displacement together, physics='elasticity' when the exchanged field is a
+    displacement, physics='transient' for a time-dependent problem, physics='3d'
+    for a three-dimensional domain: the reply then leads with that contract) and
+    copy the served CONTRACT for the role the task gives side A into
+    ./side_A/participant_A.py unchanged (the imports.json handshake, sign
+    convention, flux recovery, exports schema and export self-check); fill
+    only its marked hole(s) with the mesh, form, material, source and solve
+    for subdomain A from THIS DATA, which is all you know of the task:
+    <SUBDOMAIN A, COPIED FROM YOUR TASK WORD FOR WORD: geometry and interface
+    position; equations and coefficients; source terms as written; boundary
+    values; the level-1 mesh; the file names the task prescribes for this
+    side>. Write ./side_A/config.json for
+    level 1 and a synthetic ./side_A/imports.json; if the code takes an input deck, run
+    check_input(solver='<side A's code>', input_path=<the deck>) until it
+    names no defect before the binary runs; run the script with that code's
+    own interpreter (generous timeout, first runs compile) until
+    ./side_A/exports.json appears with finite values. CHECK: exports.json
+    exists and the script exited 0. Report DONE or the exact error.")
+Then the same for side B. The critic reviews what a worker produced, not a
+plan. Then audit_results(work_dir) names every further step.
+
+The tool runs the whole iteration -- relaxation, convergence, validation --
+and on success returns your interface tables READY TO SAVE plus the paths of
+the captured solver logs. DO NOT hand-roll this loop yourself: measured
+across the runs that did, the hand-rolled exchange stalls (residuals
+9.92->9.98 over 100 iterations; constant 1.0) and cannot show two codes coupled.
+One couple call per mesh level, on the exact levels your task prescribes --
+or ONE couple_levels(participants=..., levels='[{"level": 1, "A": {"nx": ..,
+"ny": ..}, "B": {...}}, ...]', history_pattern='<the per-level history file
+name your task prescribes, with {k} for the level>') call for the whole
+sequence: it hands each side its level's mesh keys in the environment
+(OASIS_CONFIG_JSON, read by the served contracts -- OASiS writes no file of
+yours), warm-starts each level from the previous one, and keeps every level's
+history, console and interface tables (measured: couplings proven
+at level 1 ran out of wall clock before level 3 when every level cost ten calls).
+
+# Coupling participant: NGSolve
+
+WHICH CONTRACT BELOW IS YOURS. The block below is the single-field STEADY 2-D (scalar) contract. If instead
+  * the exchanged field is a DISPLACEMENT (a traction returned): call knowledge(topic='coupling', solver='ngsolve', physics='elasticity')
+and use the contract THAT reply leads with. Without the physics word this door leads with the single-field (scalar) contract.
+
+## Sides this backend can take
+
+**Either side, in either subdomain.** All four role/position combinations were run as real couplings on this install — against FEniCSx and against scikit-fem, with non-matching interface meshes — and all converged.
+
+
+## PARTICIPANT CONTRACT — COPY THIS INTO ITS OWN FILE NOW (write_file side_<x>.py), then edit the marked block and write the solve where the banner sits. It is the handshake, the interface sign convention, the consistent flux recovery, the exports schema and the export self-check, thinned of its explanations so it is cheap to copy; the annotated version is `signal='participant:part1'`. Measured: every recent coupled run that wrote this file from scratch instead failed on the handshake or the recovery.
+
+```python
+"""NGSolve participant for the OASiS `couple` driver.
+
+Steady heat conduction  -div(k grad T) = f  on one rectangular subdomain.
+CONTRACT (do not change): runs in its work_dir with no arguments, reads
+imports.json (written every iteration; it is `{}` on iteration 1), writes
+exports.json LAST.
+"""
+import json
+from pathlib import Path
+
+import numpy as np
+from netgen.geom2d import SplineGeometry
+from ngsolve import (VERTEX, BilinearForm, GridFunction, H1, LinearForm, Mesh,
+                     NodeId, TaskManager, ds, dx, grad)
+
+# ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
+#    Replace ALL of them with your problem's geometry, material and BCs.
+#    As shipped this is the LEFT / Dirichlet side; the payload that served
+# ... (explanation continues in the annotated block)
+SIDE      = "dirichlet"   # "dirichlet" | "neumann"
+PARTNER   = "right"       # name of the partner participant in couple(...)
+X0, X1    = 0.0, 0.6      # this subdomain
+Y0, Y1    = 0.0, 0.4
+IFACE_X   = 0.6           # shared interface (must be X0 or X1)
+K         = 0.8           # conductivity
+
+
+def F_SRC(x, y):
+    """Volumetric source, as a function of position.
+
+    Returns zero as shipped, which is a PLACEHOLDER like every number above
+    and is almost never what your problem wants. THIS KNOB USED TO BE A SCALAR
+    CONSTANT, AND A CONSTANT CANNOT REPRESENT A SOURCE THAT VARIES WITH
+    POSITION: the source of a manufactured solution is a POLYNOMIAL in x and y,
+    and no single number is that polynomial. Left at zero the temperature is
+    harmonic, the outer Dirichlet values are the only data left in the problem,
+    and the answer degenerates to the 1-D profile between them — the interface
+    flux is one constant along the whole interface, and it is identically zero
+    when the two subdomains carry the same outer value. The coupling will
+    converge beautifully to that, and it is not the problem you were given.
+
+    If your problem states a source, or gives you a manufactured solution whose
+    source term you derived, put it here. `x` and `y` are NumPy arrays, so
+    build the answer with NumPy and return ONE array of the same shape (write
+    `0.0 * x + c` for a genuine constant, never a bare `c`):
+
+        # -div(K grad T) for the manufactured T = x**3 * y**2
+        return -K * (6.0 * x * y**2 + 2.0 * x**3)
+
+    HOW THIS ENTERS NGSolve (your solve below has to do it): NGSolve's symbolic
+    `x`, `y` are CoefficientFunctions and carry NO NumPy ufuncs, so do NOT call
+    this function on them (np.sin(x) raises; np.zeros_like(x) silently returns
+    a 0-d object array and the source collapses to a constant), and do NOT wrap
+    the function -- CoefficientFunction(F_SRC) is a TypeError ("incompatible
+    constructor arguments", measured). Sample it at the mesh vertices instead,
+    np.array([v.point for v in mesh.vertices]), into a P1 GridFunction on your
+    space (gf.vec.FV().NumPy()[vertex_dofs] = F_SRC(vx, vy)); a GridFunction IS
+    a CoefficientFunction and integrates as gf * v * dx -- the P1 interpolant
+    of the source, quadrature error O(h^2), the order of the discretisation.
+    """
+    return np.zeros_like(x)
+T_OUTER   = 320.0         # Dirichlet value on the NON-interface x-boundary
+NX, NY    = 24, 16        # this subdomain's own mesh (netgen maxh derived below)
+T_INIT    = 310.0          # iteration-1 fallback interface temperature
+Q_INIT    = 0.0           # iteration-1 fallback interface flux
+# ─────────────────────────────────────────────────────────────────────────
+
+MAXH  = min((X1 - X0) / NX, (Y1 - Y0) / NY)   # netgen's scalar mesh size
+ORDER = 1                                     # H1 order (nodal == vertex dofs)
+
+ON_RIGHT = abs(IFACE_X - X1) < abs(IFACE_X - X0)   # interface is this side's x-max?
+OUTER_X = X0 if ON_RIGHT else X1
+S = 1.0 if ON_RIGHT else -1.0              # outward normal at interface = S * e_x
+TOL = 1e-9 * max(X1 - X0, Y1 - Y0)
+
+
+def read_imports():
+    p = Path("imports.json")
+    if not p.is_file():
+        return None
+    try:
+        d = json.loads(p.read_text())
+    except json.JSONDecodeError:
+        return None
+    return d.get(PARTNER) or None
+
+
+def sample(imp, key, fallback, y):
+    """Interpolate the partner's samples onto this participant's y-coordinates."""
+    if not imp or not imp.get("coordinates"):
+        return np.full(len(y), float(fallback))
+    ys = np.array([c[1] for c in imp["coordinates"]], float)
+    vs = np.asarray(imp.get(key, []), float).ravel()
+    if vs.size != ys.size:
+        return np.full(len(y), float(fallback))
+    o = np.argsort(ys)
+    return np.interp(y, ys[o], vs[o])
+
+
+imp = read_imports()
+
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
+#
+# Build the mesh, the function space, the weak form and the linear solve for
+# ... (explanation continues in the annotated block)
+# ordinary finite-element work and OASiS has no business dictating it.
+#
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# ... (explanation continues in the annotated block)
+
+if SIDE == "dirichlet":
+    T_if = sample(imp, "values", T_INIT, y_if)
+    for d, t in zip(iface_dofs, T_if):
+        gfu.vec[int(d)] = float(t)
+else:
+    q_if = sample(imp, "normal_fluxes", Q_INIT, y_if)
+    gfun = GridFunction(fes)               # P1 trace of the partner's samples
+    gfun.vec[:] = 0.0
+    for d, q in zip(iface_dofs, q_if):
+        gfun.vec[int(d)] = float(q)
+    f += gfun * v * ds("interface")        # APPLY the partner's number unchanged
+
+with TaskManager():
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
+#
+# Build the mesh, the function space, the weak form and the linear solve for
+# ... (explanation continues in the annotated block)
+# ordinary finite-element work and OASiS has no business dictating it.
+#
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# ... (explanation continues in the annotated block)
+
+    # Outward normal flux density q = -(k grad T).n on the interface.
+    #
+    # ... (explanation continues in the annotated block)
+    rvec = f.vec.CreateVector()
+    rvec.data = a.mat * gfu.vec - f_vol.vec    # r = A u_h - b_vol, no bc
+    fw = LinearForm(fes)
+    fw += v * ds("interface")                  # w_i = int_Gamma phi_i ds
+    fw.Assemble()
+
+    r_if = np.array([rvec[int(d)] for d in iface_dofs], float)
+    w_if = np.array([fw.vec[int(d)] for d in iface_dofs], float)
+    Q = np.zeros(len(iface_dofs))
+    ok = np.abs(w_if) > 1e-14
+    Q[ok] = -r_if[ok] / w_if[ok]
+
+    # An interface node that ALSO lies on the outer Dirichlet boundary
+    # carries the OUTER reaction as well, so its residual is not this
+    # ... (explanation continues in the annotated block)
+    suspect = np.isin(iface_dofs, outer_dofs) | ~ok
+    good = np.where(~suspect)[0]
+    if len(good):
+        for i in np.where(suspect)[0]:
+            Q[i] = Q[good[np.argmin(np.abs(good - i))]]
+# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+#    fine and are worthless: a non-finite field; a Neumann side whose imported
+#    load never entered the assembled system (it returns the no-load answer and
+# ... (explanation continues in the annotated block)
+_chk_vals = np.asarray([gfu.vec[int(d)] for d in iface_dofs], float).ravel()
+_chk_flux = np.asarray(Q, float).ravel()
+if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or fluxes; "
+                     "the solve did not produce a usable field, so nothing was "
+                     "exported")
+_chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+            if Path("imports.json").is_file() else {})
+_chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                            for _d in _chk_imp.values()])
+            if _chk_imp else np.zeros(0))
+if SIDE == "neumann" and _chk_qin.size and np.abs(_chk_qin).max() > 0 \
+        and np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max():
+    raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 "
+                     "against a nonzero imported flux: the imported load never "
+                     "entered the assembled system (the facet term / boundary "
+                     "condition that integrates it is missing). Fix the "
+                     "application; do not couple on")
+# (Dirichlet role only: a Neumann side's consistent recovery of a CONSTANT
+#  applied flux can legitimately reproduce it to the last bit.)
+if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size \
+        and np.array_equal(_chk_flux, -_chk_qin):
+    raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's "
+                     "array negated, bit for bit: a copy, not a recovery from "
+                     "this side's own assembled system")
+
+Path("exports.json").write_text(json.dumps({
+    "field_name": "temperature",
+    "n_points": int(len(iface_v)),
+    "coordinates": [[float(IFACE_X), float(yy)] for yy in y_if],
+    "values": [float(gfu.vec[int(d)]) for d in iface_dofs],
+    "normal_fluxes": [float(q) for q in Q],
+}, indent=2))
+
+# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ─────────────────────────
+# The code above and below the elided block uses these names. Your
+# block has to define every one of them, or the rest will not run:
+#
+#     a
+#     d
+#     f
+#     f_vol
+#     fes
+#     gfu
+#     i
+#     iface_dofs
+#     iface_v
+#     outer_dofs
+#     v
+#     y_if
+#
+# That is the whole contract. Read the surviving lines to see the
+# shape each one has to have -- they are already indexed, assembled
+# or written out there. OASiS does not serve the solve itself, but
+# it will not make you guess which variables the hole was filling.
+```
+
+## Launching it
+
+1. Make TWO copies of the script, one per subdomain, and write each into that
+   participant's own `work_dir` (an absolute path). Name them whatever you
+
+──────────────────────────────────────────────────────────────────────
+THIS PAYLOAD IS TRUNCATED HERE (this code's coupling text): 21,950 further characters (its traps, the other role, launch notes) exist and are NOT lost -- knowledge(topic='coupling', solver='ngsolve') again, or with signal='<what you are stuck on>', returns them. The must-read continues below.
+──────────────────────────────────────────────────────────────────────
+
+DO NOT WRITE THE PARTICIPANT'S HANDSHAKE FROM SCRATCH -- THE CONTRACT EXISTS
+FOR YOUR CODE. For EACH of your two codes call `knowledge(topic='coupling',
+solver='<that code>')` -- with physics='thermoelastic' when the interface
+carries temperature AND displacement together: the reply then leads with the
+thermo-elastic contract ([T, ux, uy] in, [qn, qx, qy] out), served for 4C
+and FEniCSx. Likewise physics='elasticity' (a displacement exchanged, a
+traction returned), physics='transient' (a time-dependent problem: the served
+contract marches the WHOLE time window per call and exchanges the trace) and
+physics='3d' (a planar interface in a box) lead with that variant where the
+code ships one; without the word the reply leads with the steady scalar
+contract. THE ROLES COME FROM THE TASK: when it says which
+subdomain is the Dirichlet side and which the Neumann side, that is fixed.
+Each served contract states which side it is (some carry both behind a SIDE
+switch, some are one side); take the one for the role your task gives that
+code, and if the code's served text has no contract for that role, say so in
+your first worker brief and keep the served handshake, flux recovery and
+exports schema of the other side as the pattern to follow.
+It returns that code's participant CONTRACT: how to read
+./config.json for the level and ./imports.json, the interface sign convention,
+the consistent outward-flux recovery you apply to your OWN assembled system, the
+exact ./exports.json schema, and the one-field-file-per-level rule. The mesh,
+the weak form, the material, the source and the solve itself are deliberately
+NOT in it: you write those, using `prepare_simulation(solver='<that code>',
+physics='<your physics>')` for that code's API, gotchas and a generic worked
+pattern. The same reply lists that code's measured traps (JIT form caching,
+dof-vs-vertex ordering, boundary-id selection, the code's native boundary-flux
+call), each of which has sunk a coupling that was otherwise correct. Write the
+solve, keep the served handshake and recovery as given, and let the checks
+below tell you what to fix.
+
+PARAMETERIZE BY LEVEL, OR THE BUDGET EATS YOU. Have each participant read
+its mesh size from a tiny ./config.json ({"level": 1, "nx": 5, "ny": 8})
+instead of hard-coding it; advancing a level is then: DOUBLE nx and ny
+(halve h) and set the next level in each side's config, call couple again,
+save that level's outputs. The level key is a label; only nx and ny change
+the mesh (measured: three runs raised the label alone and coupled the same
+mesh three times). Measured
+both ways: participants built this way ran all three levels in under two
+minutes of compute; sessions that regenerated their meshes by hand inside
+the participant spent their whole budget on level 1. Build the config
+route FIRST -- it costs one extra minute at level 1 and buys the other
+two levels.
+
+THE FIELDS ARE THE RESULT; THE HISTORY IS THE EVIDENCE. Export interface rows AT THE EXACT PROBE POINTS THE TASK PRINTS -- generate them from the task's own formula, verbatim. A uniform sampling of the whole interface is NOT equivalent: prescribed probe sets deliberately exclude regions (interface ends are Dirichlet-Neumann corners whose recovered flux does not converge), and rows at unprescribed points are refused wholesale -- measured: a coupling with converged evidence at every level counted for nothing because all 44 of its interface rows sat at self-chosen coordinates. What counts is the field and interface files at the prescribed probe points, for every level and both sides -- a run that converges its coupling and writes no field files counts for NOTHING (measured: one run drove level 1 to 6.37e-07 and delivered only its level-1 residual history; read as failed, no field files). Alongside them, a task that names a per-level residual-history file wants one row per partitioned-iteration step, per mesh level. That file IS the evidence that two
+codes iterated against each other; nothing else you deliver can show it.
+
+THE NEUMANN SIDE'S IMPORTED FLUX IS SILENTLY IGNORED WITHOUT A CONDITION.
+
+This is the single defect that has sunk the most nearly-correct coupled
+runs, and it leaves no trace: the solver runs, converges, exits 0, and
+returns exactly the answer it would have returned with no flux at all.
+
+In Kratos, setting FACE_HEAT_FLUX on the interface NODES does nothing unless
+`ThermalFace2D2N` conditions exist on the interface EDGES -- the nodal value is
+only ever integrated BY a condition. Measured on one mesh, three runs differing
+only in this:
+
+    zero flux, conditions present     max|T| = 2.307291e-03
+    flux on nodes, NO conditions      max|T| = 2.307291e-03   BIT-IDENTICAL
+    flux on nodes AND conditions      max|T| = 3.605675e-03
+
+Two real runs died exactly here: side A correct to three digits, side B
+reporting 2.367e-03 and 2.342e-03 against a true 3.670e-03 -- the no-flux
+answer -- with the interface FIELD matching across the seam to 0.000e+00, so
+only the flux jump betrayed it, growing 8.139e-01, 9.066e-01, 9.530e-01 under
+refinement instead of shrinking.
+
+THE SHAPE IS GENERAL, not Kratos-specific: a boundary value attached to nodes
+but never integrated over a facet contributes nothing. 4C has the same trap
+twice -- the `DESIGN ... THERMO ...` condition sections are never evaluated in a
+standalone Thermo problem, and a body source must sit on the condition whose
+geometry type matches the ELEMENT DIMENSION (LINE 1D / SURF 2D / VOL 3D).
+
+HOW TO CATCH IT IN ONE STEP, before any coupling iteration: solve the Neumann
+side ONCE with the imported flux set to zero, then ONCE with your real flux,
+and compare. If the two fields are identical, the flux never reached the
+operator. That costs one extra solve and is the only check that sees this.
+
+THE DIRICHLET SIDE RETURNS A MEASURED FLUX, NEVER A PLACEHOLDER. Recover it from your OWN system, in this order: (1) the CONSISTENT residual recovery q = -(A u - b_vol)/w on the interface rows -- second order, valid on BOTH sides; (2) the code's native boundary-flux output ONLY on a side whose interface is Dirichlet (on a Neumann-loaded line it echoes the applied load); (3) one-sided quadratic extrapolation of -k*du/dn from three field points along the normal as a CROSS-CHECK, not the exported value on a high-diffusivity side (measured: routes 1 and 3 agree to 2.7% rel-RMS at h=1/8 on the low-k side; route 3 alone missed by 6.5% on a k=200 side). A constant or invented exchanged quantity turns the partitioned update into a no-op -- measured: a driver that sent a hard-coded 0.0 flux fell 9x in 50 iterations and never approached tolerance; a real recovered flux on the same arrangement converged in 4 iterations to 3.2e-08. If the residual is not contracting, check FIRST that the data you SEND changes between iterations.
+
+THE RECOVERY, READY TO COPY (P1 triangles; split quads into two triangles first; works for any interface axis) -- verified by execution, 9.3e-4 max relative error against an analytic outward flux at h=1/16, second order under refinement. A first-order recovery here caps the whole coupled field at order ~1 however good the elements are. FOR ELASTICITY (vector interface) the same identity holds PER COMPONENT: t_c(x_i) = (K u - F_vol)_(i,c) / w_i with K the elastic stiffness assembled with NO boundary conditions, F_vol the volume load only, w_i the tributary interface length; export q = -t per the sign convention (measured on a manufactured plane-strain case: component orders 1.91-2.10 across the ladder):
+
+def consistent_interface_flux(nodes, tris, k, u, f_vol, iface_ids, h_trib):
+    # Second-order outward interface flux from YOUR OWN P1 system.
+    # nodes (N,2); tris (M,3) int; k conductivity (scalar or per-node);
+    # u solution (N,); f_vol volumetric source at nodes (N,);
+    # iface_ids interior interface node indices; h_trib tributary length.
+    # Returns q of len(iface_ids): q_i = -(K u - b_vol)_i / h_trib.
+    import numpy as np
+    resid = np.zeros(len(nodes))
+    kn = np.full(len(nodes), float(k)) if np.isscalar(k) else np.asarray(k, float)
+    for el in np.asarray(tris, int):
+        P = nodes[el]
+        area = 0.5 * abs((P[1,0]-P[0,0])*(P[2,1]-P[0,1]) - (P[1,1]-P[0,1])*(P[2,0]-P[0,0]))
+        g = np.array([[P[1,1]-P[2,1], P[2,0]-P[1,0]],
+                      [P[2,1]-P[0,1], P[0,0]-P[2,0]],
+                      [P[0,1]-P[1,1], P[1,0]-P[0,0]]]) / (2.0*area)
+        ke = float(kn[el].mean()) * area * (g @ g.T)
+        resid[el] += ke @ u[el] - area/3.0 * float(np.mean(f_vol[el]))
+    return np.array([-resid[i]/h_trib for i in iface_ids])
+
+
+    couple(participants='[{"name": "A", "command": "<run side A>",
+                           "work_dir": "<ABSOLUTE path>", "imports_from": ["B"]},
+                          {"name": "B", "command": "<run side B>",
+                           "work_dir": "<ABSOLUTE path>", "imports_from": ["A"]}]',
+           max_iter=100, tol=1e-6,
+           history_path="<ABSOLUTE path of the per-level residual-history file your task names>")
+
+returns `history` and writes its finite measured values directly to the requested
+CSV. Do not retype or synthesize that sequence. Report `iterations` (also copied
+to `history_file.driver_iterations`) as your coupling-iteration count; `rows_written` is
+normally one smaller because iteration 1 has no previous iterate and therefore
+no residual. Get ONE participant writing exports.json standalone first, then the
+second, then call couple: that order costs the fewest attempts.
+
+A RESIDUAL THAT COLLAPSES IN A FEW STEPS IS USUALLY A DEAD PARTICIPANT.
+
+If the driver reports a participant as UNRESPONSIVE, it means its exports were
+BYTE-IDENTICAL across iterations in which its imports changed -- so its output
+is not a function of its input, and the coupling is not coupled. The residual
+then falls to ~1e-18 in three or four steps, because nothing is moving. That
+looks like spectacular convergence and is worth nothing.
+
+    a real coupling, even a very stiff one (200:1), took 12 iterations to
+    1.1e-22 with both sides reported responsive
+    a dead one reached 1.5e-18 in 4 steps and was reported unresponsive
+
+Three causes, in the order they occur: the script reads imports.json ONCE at
+import time instead of on every invocation; it caches or re-serves the previous
+exports.json rather than rewriting it; or it never finds the partner key at all
+-- `imports.json` is `{{partner_name: ...}}`, and a wrong name silently yields
+no data and the fallback is used forever. Print the first imported value each
+iteration: if it never changes, that is the bug, not the physics. Do not raise
+max_iter or change the accelerator for this -- neither touches it.
+
+THE RESIDUAL YOU REPORT MUST MEASURE THE TWO SIDES, NOT AN ITERATE.
+
+The interface residual you report is the disagreement between your two subdomains at the
+shared interface probes, computed from the two profiles you exported:
+
+    field:  max|u_A - u_B|  / max(|u_A|, |u_B|)
+    flux:   max|q_A + q_B|  / max(|q_A|, |q_B|)   (outward normals, so they
+                                                   must CANCEL, not match)
+    the reported interface residual = the larger of the two.
+
+An update norm, one side's own solver residual, or the driver's iterate
+difference all fall to 1e-7 while the two codes still disagree completely.
+Reporting one of those is the most common way a coupled answer is lost: of the
+coupled result sets on record that exported both sides, 17 of 31 report a
+residual below 1e-5 that their OWN two files contradict -- one with a 189% flux
+mismatch behind a reported 1.12e-07 -- and it happens whether or not the run
+uses these tools. Recompute the number from the files you just wrote. If it is
+not small, the coupling has not converged, whatever the iteration history says.
+
+IF YOU DRIVE THE LOOP YOURSELF, IT MUST ACTUALLY ITERATE. A closed-form
+sequence written into the residual-history file — 1.0, 0.5, 0.25, 0.125, … or
+any r*q^k — is DETECTED and read as invented, not as a result. Two checks, both
+stated here because an independent check applies them: the per-step ratio of a real
+Dirichlet-Neumann iteration varies as the error's modal composition changes, so
+a constant ratio is a formula; and the history depends on the discretisation, so
+the SAME numbers at two mesh levels cannot both be measurements. A run that
+honestly reports a diverging or stalling iteration is worth more than one that
+reports a clean invented one.
+
+BEFORE ANYTHING ELSE — HOW MANY ITERATIONS TO BUDGET, AND WHEN THIS DIVERGES.
+
+rho = the interface conductance (or stiffness) of the DIRICHLET-side subdomain
+divided by that of the Neumann-side one. Everything below is set by rho, NOT by
+your mesh: measured counts did not move by a single iteration over a fourfold
+interface refinement.
+
+    rho          1/10   1     2     4      10     100
+    iterations   11     37    66    123    299    3311
+
+  * Set max_iter = 100 for rho <= 1 and 400 for rho <= 10, and size each
+    participant's `timeout` for that many solves. The DEFAULT max_iter = 50 is
+    already short at rho = 2.
+  * theta = 0.5 with accelerator="constant" DIVERGES from rho = 4 upward.
+    The DEFAULT accelerator DIVERGES from rho = 10 upward. A rising residual
+    here is the scheme, not your model -- do not rebuild the setup.
+  * With accelerator="constant", theta = 1/(1+rho) is the setting the counts
+    above were measured with.
+  * COMPUTE rho, DO NOT READ IT OFF THE MATERIAL CONTRAST. The interface
+    conductance of a side is its coefficient divided by its own width, so a
+    material contrast of N:1 on subdomains of different widths is NOT rho = N:
+        rho = (k_dirichlet / width_dirichlet) / (k_neumann / width_neumann)
+    Worked with arbitrary numbers: k = 1 across a width of 2/3 on the
+    Dirichlet side and k = 100 across a width of 1/3 on the Neumann side give
+    1.5 and 300, so rho = 0.005 — five hundredths of one percent of the 100:1
+    material contrast, and a case that converges in a few iterations needing
+    nothing special. An agent that reads the contrast as rho concludes the
+    opposite and starts rebuilding a setup that was already fine. Put YOUR
+    numbers in the formula.
+  * IF rho > 10 AND THE TASK LEAVES THE ROLES TO YOU, the budget is the wrong
+    knob: SWAP WHICH SIDE IS DIRICHLET. That replaces rho by 1/rho, and every
+    ratio below 1 converged inside 25 iterations.
+  * IF THE TASK PRESCRIBES WHICH SIDE IS DIRICHLET, DO NOT SWAP THEM. Wording
+    like "these roles are prescribed: solve with them as stated rather than
+    choosing your own" makes the assignment part of the problem, and a run that
+    swaps has solved a different problem however well it converged. Raise
+    max_iter and set theta = 1/(1+rho) instead. Read the task again before
+    reaching for this: the remedy above is for the case where you are free to
+    choose.
+
+
+THE INTERFACE FILE IS WRITTEN AT THE POINTS THE TASK LISTS, NOT AT YOUR NODES.
+
+Its rows are the coordinates the task names, in that order, IDENTICAL at every
+mesh level. Runs with both solvers and the iteration independently proven to
+have run, and the residual down to 1e-7, were still counted as unusable for
+writing their own interface MESH NODES instead:
+
+    what was written   level 1: 7 rows   level 2: 15 rows   level 3: 23 rows
+    what was asked     the same fixed list of points at EVERY level
+
+An order compares the SAME quantity across levels, and node sets move under
+refinement, so there is nothing to compare. Interpolate onto each listed
+coordinate with the shape-function evaluation you already use for the solution
+probes — not the nearest node — all of them, in order, nothing else.
+
+THE ENDS OF THE INTERFACE ARE EXCLUDED ON PURPOSE: a Dirichlet-Neumann split
+has a corner there whose recovered flux does not converge. Do not "complete"
+the list with them.
+
+CHECK EACH SUBDOMAIN AGAINST ITS OWN EQUATION FIRST. A converged interface
+residual says the two sides AGREE, not that either is right, and the two
+failures are independent: one run converged to 8e-07 in 16 steps with a field
+TEN TIMES too small, at order -0.02 against an independent reference. Run
+verify_pde_consistency(...) on each side, with that side's own source and
+coefficient, before spending budget on the iteration.
+
+EXPECT REFUSALS, AND DO NOT READ A REFUSAL AS A FAILURE -- often it answers
+for one side and refuses the other, and on a multi-field or thermo-mechanical
+arrangement it can refuse BOTH sides (measured: boundary-layer ratios 93% and
+100%, both sides refused, while the coupling itself was correct at order ~2).
+A refusal is a statement of scope, never evidence against the run. Its identity needs the field to vanish on the whole
+boundary of the side it is given. The interface carries your partner's data, so
+on the side where that data is comparable to the side's own field the identity
+does not hold and the tool replies NOT_APPLICABLE. Measured on a two-material
+conduction problem with a 200:1 contrast: the low-conductivity side answers
+normally, because its interface values are a few percent of its own scale,
+while on the high-conductivity side the interface trace IS the scale and the
+tool refuses. A refusal there tells you nothing about that side; an
+INCONSISTENT on the side it does answer tells you a great deal.
+
+WHAT YOUR SOLVE MUST LEAVE BEHIND.
+
+OASiS serves the participant with the mesh/form/solve region CUT OUT, and the
+surviving code still uses the names that region defined. It is your solve, but
+it has a contract: whatever you write must leave behind the interface degrees
+of freedom, the assembled operator, and the solution vector the export block
+reads -- the served text names them where the hole is. A participant that runs
+but exports nothing has met the letter of the handshake and none of its point.
+
+That is checked from your own files: `couple` reports a participant as
+UNRESPONSIVE when its exports are byte-identical across iterations in which
+its imports changed, and a residual that falls to ~1e-18 in three or four
+steps is that, not convergence.
+
+THE COUPLING HISTORY IS MEASURED, NOT MODELLED.
+
+The per-level residual-history file your task names holds the mismatch your
+iteration ACTUALLY measured at each step, written from inside the loop -- you
+already compute that number every iteration to decide when to stop, so
+appending it to the file is one line and costs nothing. Do not write a
+plausible-looking decay instead: a modelled history has a step-to-step ratio
+that is constant to machine precision, and that is checked -- three real runs
+wrote 0.1*0.7^k, 8.5e-5*0.85^k scaled by 1/level, and one geometric sequence
+repeated bit-identically at all three levels, and every one reads as invented,
+which is worth LESS than an honest report that the iteration did not converge.
+A real iteration's rate wanders; if your loop never computed a mismatch, it
+never coupled, and the honest entry is a could-not-finish report plus your
+best single-domain fields.
+
+AND WRITE WHAT THE SOLVER SAID, NOT WHAT YOU KNOW IT DID.
+
+Where a task asks for an execution log, it asks for the code's OWN console
+output, captured verbatim, because that is the only thing that establishes
+which code ran on which side. If you invoke the solver through subprocess you
+already hold those bytes; the whole fix is not to drop them:
+
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    Path(log).write_text(dof_line + "\n" + r.stdout + r.stderr)
+
+(dof_line being the DOF-count line your task asks for) or skip the capture and
+redirect, `cmd > <the per-level run log for that code> 2>&1`.
+Measured, on the same problem and the same two codes: a real capture is 2947 and
+1476 bytes and carries the solver's banner; a hand-written summary is 56 and 68
+bytes. One run invoked the binary correctly under `stdbuf -oL -eL`, captured
+its output into a variable, drove the interface iteration to 4.4e-07 and
+reached an order of 1.94 against an independent reference -- then wrote three
+lines of its own prose into the log and could not be credited with any of it.
+Some codes need one line to
+say anything at all: FEniCSx `dolfinx.log.set_log_level(LogLevel.INFO)`,
+deal.II `deallog.depth_console(2)` AND a SolverControl with log_history/
+log_result, NGSolve `ngsglobals.msg_level = 3`, DUNE-fem
+`parameters={"linear.verbose": True}`, scikit-fem `logging.basicConfig(
+level=logging.INFO)` whose output goes to STDERR. Kratos, 4C, FEBio and SPARTA
+print by default.
+
+CHECK THE INTERFACE SIGN BEFORE YOU HAND IN: verify_interface_flux(...).
+
+    verify_interface_flux(interface_files="<all per-level interface files, both sides>",
+                          solution_files="<all per-level field files, both sides>",
+                          interface_axis=0)
+
+It needs no reference solution. For a flux you really computed from your own
+solution, q_n(x) / (-du/dn)(x) equals k at every interface point -- so the
+ratio is CONSTANT along the interface whatever k is, and POSITIVE. A constant
+NEGATIVE ratio means your normal points inward.
+
+THE TRAP IT CATCHES: on the NEUMANN side the flux you IMPORT and the flux you
+REPORT have OPPOSITE signs. Kratos's FACE_HEAT_FLUX is the INWARD normal flux,
+while the task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the
+subdomain -- so the number you write into each per-level interface file is the
+NEGATIVE of the one you applied.
+
+Measured on one coupled development run: a run whose two prescribed codes BOTH
+genuinely ran, whose coupling genuinely iterated over three mesh levels, and
+whose interface FIELD matched to 0.000e+00 across the seam was still WRONG,
+because at the finest level one side's implied
+coefficient came out -250.8 instead of +200. Its relative flux jump went
+8.139e-01, 9.066e-01, 9.530e-01 -- growing, not shrinking. The same tool on a
+correct result set returns +0.98 to +1.30 on the k=1 side and +200.4 to +206.7
+on the k=200 side, without any reference solution. One call would have told the
+run which of the two it was.
+
+EACH SIDE'S PER-LEVEL RUN LOG MUST CARRY THAT SOLVER'S OWN OUTPUT.
+
+A DOF-count line alone is code-agnostic: it cannot show WHICH code produced the
+side, so a coupled claim built on it is unproven no matter how good the numbers
+are. Capture the solver's console output into the log next to your DOF-count
+line -- 4C's banner and git SHA, Kratos's strategy telemetry, whatever your code
+prints. This was measured: a run whose numbers were genuinely second order was
+credited to two prescribed codes it had invoked NEITHER of, on the strength of
+fourteen ten-byte files carrying nothing but a DOF count.
+
+Two ways that capture silently fails, both measured:
+  * redirecting Python's stdout around an in-process solve captures ZERO bytes
+    from a code that prints through C++ streams -- os.dup2 on fd 1 around a
+    Kratos solve produced a 0-byte file. RUN THE SOLVE IN A SUBPROCESS and
+    capture that subprocess's stdout; then the capture cannot miss.
+  * a template that assembles and solves the system itself never prints
+    anything from the named code, because the named code never ran. If a
+    template you were given has no import of, or call to, the code the task
+    names, it is the wrong artefact for a task that names it -- ask for the
+    real route. An independent assembly is a fine CHECK on the solver's answer
+    and a fatal substitute for it.
+
+
+# WHAT DECIDES THIS RUN — ngsolve/coupled side
+# (read this before the corpus below; each line was measured by execution)
+
+1. NEVER EVALUATE A COMPOUND-SPACE GridFunction DIRECTLY. On a product space (H1*H1, mixed), gfu(mesh(x,y)) either raises 'CompoundFESpace does not have an evaluator for VOL!' or -- measured, worse -- silently returns 0.0 while the field is nonzero. Evaluate the component: gfu.components[i](mesh(x,y)) (measured 0.2524 at the same point where the direct call returned 0.0).
+2. FORMS DO NOT SUPPORT -= (TypeError: unsupported operand). Subtract by adding the negated term at definition: a += (-1) * u * v * dx. Same for LinearForm.
+3. grad()/Grad() WORKS ON PROXIES AND GridFunctions, NOT ON ASSEMBLED CoefficientFunctions -- 'Operator grad not overloaded for CF ngfem::VectorialCoefficientFunction' (measured). Take grad(gfu.components[i]) and assemble what you need from those, or differentiate the symbolic expression BEFORE wrapping it in CoefficientFunction.
+4. Verbosity for a captured log: ngsolve.ngsglobals.msg_level = 3, or solvers.CG(..., printrates=True); NGSolve is otherwise quiet on success.
+5. A PYTHON FUNCTION IS NOT A CoefficientFunction. CoefficientFunction(f) for a def/lambda is a TypeError ('incompatible constructor arguments', measured), and calling a NumPy-written source on ngsolve's symbolic x, y fails or -- np.zeros_like(x) -- silently returns a 0-d object array. Sample it at the mesh vertices instead (np.array([v.point for v in mesh.vertices])) into a P1 GridFunction on your space (gf.vec.FV().NumPy()[vertex_dofs] = f(vx, vy)); a GridFunction IS a CoefficientFunction and integrates as gf * v * dx (the P1 interpolant of the source, O(h^2) like the discretisation itself).
+
+* READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST NODE. Measured against an independent reference: one solve exported two ways gave order 1.9796 by interpolation and 0.9815 by nearest-node sampling of nearest node. Free self-check: nearest-node sampling can only return (N-1)^2+1 distinct values, so 1936 probes collapse to 50/226/962 at N=8/16/32.
+* GATE BEFORE YOU HAND IN, at EVERY level: the solver REPORTED convergence (not merely that nothing raised), peak|u| > 0, and your load is not constant. Then compute log2(|L1-L2|/|L2-L3|) yourself.
+* ON A COUPLED SIDE, the consistent outward flux is q = -(K u - b_volume)/h with h the node's tributary length. The FACE load must NOT go into that residual -- include it and the reported flux comes out identically zero.
+
+----------------------------------------------------------------------
+
+
+
+────────────────────────────────────────
+TEN RULES THAT APPLY WHATEVER YOU ASKED FOR
+(the long form, with the measured evidence behind each: knowledge(topic='universal_full'))
+────────────────────────────────────────
+
+1. THE DELIVERABLE GOES IN THE DIRECTORY YOU WERE GIVEN: results, scripts and
+   solver output under the working directory your task names -- never a temp
+   dir, the tool's tree or $HOME. Work that cannot be found counts as absent.
+
+2. A SOLVER'S INPUT LANGUAGE IS NOT PYTHON. In decks and expression strings
+   powers are `^` not `**`, constants are the solver's own (lowercase `pi`),
+   and a wrong operator is often SILENT: the numeric prefix is taken, the rest
+   dropped, and the run succeeds with the wrong load. Rewrite every term of a
+   source you copied out of the task text.
+
+3. DO NOT CONCLUDE A SOLVER IS BROKEN. Nearly every "broken solver" seen in
+   development was an unread log: capture BOTH streams (`cmd > out.log 2>&1`),
+   read the log rather than the exit code (codes print their fatal error and
+   still exit 0), re-run with the backend's verbose flag, and ask
+   knowledge(topic='pitfalls', solver=...) before reporting a failure.
+
+4. THE MOST COMMON FAILURE IS NEVER PRODUCING THE NUMBERS: 36% of 464 measured
+   runs wrote no probe output, and the largest slice of those SOLVED and never
+   read the field back at the required points. Do ONE coarse level end to end
+   -- solve, extract at the prescribed points, write the file -- before
+   refining anything.
+
+5. MEASURE, DO NOT GUESS. Whether your field satisfies the equation you were
+   given is falsifiable with no reference answer:
+       verify_pde_consistency(solution_files=..., source_term=...,
+                              coefficient=..., domain=...)
+   Fields that solve the stated problem shrink at order ~2 across levels;
+   wrong ones stay flat. On a coupled task run it on EACH side with that
+   side's own source and coefficient. Report NOT_CONVERGED with the largest
+   relative change rather than a convergence you cannot show.
+
+6. IF YOUR SOLVER IS A BINARY, ITS INPUT FILE IS THE RUN INTERFACE and you
+   cannot guess it: the full deck grammar for 4C, FEBio and SPARTA is served
+   by knowledge(topic='physics', solver=<name>, physics=<name>) and by no
+   other topic -- ask before deciding a deck cannot be written.
+   4C DOES ACCEPT PER-NODE DIRICHLET VALUES (DESIGN POINT DIRICH CONDITIONS
+   with a DNODE-NODE TOPOLOGY block); its design entity ids are ONE-based, and an `E: 0`
+   segfaults with no message.
+
+7. REFINEMENT COUNTS HALVINGS, NOT CELLS: each level halves h (2-D: ~4x the
+   DOFs, 3-D: ~8x); `refined(k)` (scikit-fem), `refine_global(k)` (deal.II)
+   and their kin halve k times, so a task's levels 1, 2, 3 are k = 0, 1, 2
+   from the coarse mesh.
+
+8. YOUR SOLVER WILL ACCEPT A SETTING AND THEN IGNORE IT -- the single most
+   common silent failure: a source, coefficient or boundary value that parses
+   and is never consumed. A driven problem whose field is identically zero is
+   this bug until proven otherwise. THE CHECK COSTS ONE COMMAND: grep your own
+   input for the ingredient's name and confirm something CONSUMES it.
+
+9. GATE ON THREE THINGS BEFORE YOU WRITE YOUR SUMMARY FILE, at EVERY level:
+   the field is non-trivial (distinct values, plausible size), the boundary
+   values come back at the boundary, and the mesh actually changed.
+
+10. READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST
+    NODE: nearest-node caps the measured order at 1 whatever the solver did.
+    It is post-processing -- re-read the field, do not re-solve.
+
+BEFORE YOU HAND IN, RUN `audit_results(work_dir=<your results directory>,
+claimed_order=<the order you are about to claim>)` and act on what it names;
+it reads only your own files.

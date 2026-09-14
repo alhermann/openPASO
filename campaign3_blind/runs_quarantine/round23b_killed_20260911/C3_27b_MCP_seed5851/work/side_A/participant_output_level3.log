@@ -1,0 +1,88 @@
+iteration: 31
+command: ["/home/alexander/miniconda3/envs/dune-py313/bin/python", "participant_A.py"]
+returncode: 0
+--- stdout ---
+Fem::CG preconditioning=none
+Fem::CG it: 0 : residual 0.0788222
+Fem::CG it: 1 : residual 0.0589588
+Fem::CG it: 2 : residual 0.0505804
+Fem::CG it: 3 : residual 0.0461382
+Fem::CG it: 4 : residual 0.0466019
+Fem::CG it: 5 : residual 0.0497811
+Fem::CG it: 6 : residual 0.0393674
+Fem::CG it: 7 : residual 0.0410797
+Fem::CG it: 8 : residual 0.0332657
+Fem::CG it: 9 : residual 0.0316614
+Fem::CG it: 10 : residual 0.0269531
+Fem::CG it: 11 : residual 0.023543
+Fem::CG it: 12 : residual 0.0203346
+Fem::CG it: 13 : residual 0.0169391
+Fem::CG it: 14 : residual 0.0150981
+Fem::CG it: 15 : residual 0.0125122
+Fem::CG it: 16 : residual 0.0113967
+Fem::CG it: 17 : residual 0.00947071
+Fem::CG it: 18 : residual 0.0086891
+Fem::CG it: 19 : residual 0.00722425
+Fem::CG it: 20 : residual 0.00658747
+Fem::CG it: 21 : residual 0.00543555
+Fem::CG it: 22 : residual 0.00480239
+Fem::CG it: 23 : residual 0.0036346
+Fem::CG it: 24 : residual 0.00253128
+Fem::CG it: 25 : residual 0.00145046
+Fem::CG it: 26 : residual 0.0012402
+Fem::CG it: 27 : residual 0.00179412
+Fem::CG it: 28 : residual 0.0022925
+Fem::CG it: 29 : residual 0.0010385
+Fem::CG it: 30 : residual 0.000637963
+Fem::CG it: 31 : residual 0.000714336
+Fem::CG it: 32 : residual 0.000509681
+Fem::CG it: 33 : residual 0.000368127
+Fem::CG it: 34 : residual 0.000380784
+Fem::CG it: 35 : residual 0.000241232
+Fem::CG it: 36 : residual 0.000224905
+Fem::CG it: 37 : residual 0.000166856
+Fem::CG it: 38 : residual 0.000124119
+Fem::CG it: 39 : residual 0.00010901
+Fem::CG it: 40 : residual 7.56861e-05
+Fem::CG it: 41 : residual 6.76039e-05
+Fem::CG it: 42 : residual 4.85309e-05
+Fem::CG it: 43 : residual 4.05468e-05
+Fem::CG it: 44 : residual 3.06275e-05
+Fem::CG it: 45 : residual 2.37083e-05
+Fem::CG it: 46 : residual 1.86001e-05
+Fem::CG it: 47 : residual 1.32634e-05
+Fem::CG it: 48 : residual 1.03679e-05
+Fem::CG it: 49 : residual 6.93868e-06
+Fem::CG it: 50 : residual 5.24455e-06
+Fem::CG it: 51 : residual 3.48946e-06
+Fem::CG it: 52 : residual 2.92141e-06
+Fem::CG it: 53 : residual 2.45922e-06
+Fem::CG it: 54 : residual 2.40554e-06
+Fem::CG it: 55 : residual 1.78228e-06
+Fem::CG it: 56 : residual 1.15243e-06
+Fem::CG it: 57 : residual 6.53369e-07
+Fem::CG it: 58 : residual 4.39843e-07
+Fem::CG it: 59 : residual 3.50707e-07
+Fem::CG it: 60 : residual 2.54373e-07
+Fem::CG it: 61 : residual 1.6009e-07
+Fem::CG it: 62 : residual 1.25165e-07
+Fem::CG it: 63 : residual 1.02859e-07
+Fem::CG it: 64 : residual 6.82405e-08
+Fem::CG it: 65 : residual 5.81629e-08
+Fem::CG it: 66 : residual 5.08574e-08
+Fem::CG it: 67 : residual 4.14764e-08
+Fem::CG it: 68 : residual 3.83682e-08
+Fem::CG it: 69 : residual 3.39905e-08
+Fem::CG it: 70 : residual 2.56535e-08
+Fem::CG it: 71 : residual 2.13063e-08
+Fem::CG it: 72 : residual 1.52004e-08
+Fem::CG it: 73 : residual 1.12615e-08
+Fem::CG it: 74 : residual 8.03714e-09
+Solver converged: True
+Iterations: 0
+NDOF = 693
+DUNE Dirichlet participant: NDOF = 693  max|u| = 3.893422e-02
+
+--- stderr ---
+No protocol specified
+

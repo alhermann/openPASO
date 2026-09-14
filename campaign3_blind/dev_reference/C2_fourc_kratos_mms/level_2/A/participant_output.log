@@ -1,0 +1,112 @@
+iteration: 12
+command: ["/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python", "participant.py"]
+returncode: 0
+--- stdout ---
+
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+Number of procs used for redistribution: 1
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
++--------------------------------------------------------------------+
+
+Number of procs used for redistribution: 1
+Redistributing using hypergraph .........
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
++--------------------------------------------------------------------+
+Read/generate conditions                          in....0.00246278 secs
+
+Total wall time for INPUT:        5.300e-02 sec 
+
+###################################################
+# YOUR PROBLEM TYPE: Scalar_Transport
+###################################################
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+Flux output is performed for 1 scalars: 1 
+
+Vtk Files 'scatra-00000' written. Time: 0.00000000000000e+00
+
+TIME:           1/1  DT = 1    Stationary    STEP = 1/1
+Solvertype linear_full (ts= 2.144E-03,te= 1.510E-03)
+
+Vtk Files 'scatra-00001' written. Time: 1.00000000000000e+00
+
+Checking results of 0 tests:
+
+OK (0)
+======================================================================================
+
+                         TimeMonitor results over 1 processor
+
+Timer Name                                                 Global time (num calls)    
+--------------------------------------------------------------------------------------
+Core::FE::Discretization::Evaluate                         0.003488 (5)               
+Core::FE::Discretization::set_state                        3.95e-05 (10)              
+Core::LinAlg::Solver:  0)   translate_solver_parameters    2.194e-05 (1)              
+Core::LinAlg::Solver:  1)   Setup                          0.0005477 (1)              
+Core::LinAlg::Solver:  2)   Solve                          0.001588 (1)               
+Core::LinAlg::SparseMatrix::Complete                       5.952e-05 (1)              
+Rebalance::rebalance_graph                                 0.00148 (1)                
+Rebalance::rebalance_node_maps                             0.001531 (1)               
+SCATRA:       + apply DBC to system                        1.23e-05 (1)               
+SCATRA:       + element calls                              0.001515 (1)               
+--------------------------------------------------------------------------------------
+SCATRA:       + solver calls                               0.002171 (1)               
+SCATRA:      + apply dirich cond.                          0.0001917 (2)              
+SCATRA:    + output of solution                            0.006849 (2)               
+SCATRA:    + prepare time step                             0.0003045 (1)              
+SCATRA:  + time loop                                       0.01195 (1)                
+======================================================================================
+
+Total wall time for CALCULATION:  1.600e-02 sec 
+
+
+Memory High Water Mark Summary:		Total
+(in GB)					1.7960e-01
+
+processor 0 finished normally
+[4C dirichlet] interface n=17 T=[-0.00368762,0] q=[-0.83812,0] projected_q=[-0.752327,-0.0497348]
+NDOF = 187
+
+--- stderr ---
+Invalid MIT-MAGIC-COOKIE-1 key

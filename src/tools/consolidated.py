@@ -2304,7 +2304,7 @@ _DECIDING_FACTS = {
     "febio": '1. READING RESULTS BACK IS ONE DECK LINE, and a solve that is never read back counts for nothing. Put inside <Output><logfile>:\n       <node_data data="x;y;z;ux;uy;uz" delim="," file="nodal_out.csv"/>\n   FEBio then writes one block PER TIME STEP, each headed *Step/*Time/*Data lines (measured: 51 blocks for 50 steps, header \'*Data  = x;y;z;ux;uy;uz\'); parse the LAST block for the final state and interpolate those nodal values at your probe points (scipy LinearNDInterpolator on the coordinate columns works). Runs that reached NORMAL TERMINATION and still delivered nothing all skipped this line.\n2. THE VISCOELASTIC WRAPPER FAMILY MUST MATCH THE NESTED ELASTIC\'S FAMILY (measured on FEBio 4.12): type="uncoupled viscoelastic" REFUSES a coupled child like isotropic elastic -- the error says \'Component ... needs to have property "elastic" defined\' even though <elastic> is present, because its FAMILY does not fit the slot. The coupled wrapper type="viscoelastic" accepts <elastic type="isotropic elastic"> (E, v) and runs to NORMAL TERMINATION. Uncoupled wrappers take uncoupled children (Mooney-Rivlin with k, etc.).\n3. \'negative jacobians detected\' during a solve is usually NOT the mesh: a hex8 grid whose first element has positive centroid jacobian can still invert under too-large load steps or a too-stiff/soft material pairing. Before rebuilding the mesh, halve the step (<time_steps> up, <step_size> down) and re-check the material family pairing of fact 2.\n4. FEBio prints its banner and \'N O R M A L   T E R M I N A T I O N\' letter-spaced -- grep for \'N O R M A L\', not \'NORMAL\'.',
     # Every line measured by execution on this install (NGSolve 6.2.2604)
     # on 2026-09-04. repr-generated literal.
-    "ngsolve": "1. NEVER EVALUATE A COMPOUND-SPACE GridFunction DIRECTLY. On a product space (H1*H1, mixed), gfu(mesh(x,y)) either raises 'CompoundFESpace does not have an evaluator for VOL!' or -- measured, worse -- silently returns 0.0 while the field is nonzero. Evaluate the component: gfu.components[i](mesh(x,y)) (measured 0.2524 at the same point where the direct call returned 0.0).\n2. FORMS DO NOT SUPPORT -= (TypeError: unsupported operand). Subtract by adding the negated term at definition: a += (-1) * u * v * dx. Same for LinearForm.\n3. grad()/Grad() WORKS ON PROXIES AND GridFunctions, NOT ON ASSEMBLED CoefficientFunctions -- 'Operator grad not overloaded for CF ngfem::VectorialCoefficientFunction' (measured). Take grad(gfu.components[i]) and assemble what you need from those, or differentiate the symbolic expression BEFORE wrapping it in CoefficientFunction.\n4. Verbosity for a captured log: ngsolve.ngsglobals.msg_level = 3, or solvers.CG(..., printrates=True); NGSolve is otherwise quiet on success.",
+    "ngsolve": "1. NEVER EVALUATE A COMPOUND-SPACE GridFunction DIRECTLY. On a product space (H1*H1, mixed), gfu(mesh(x,y)) either raises 'CompoundFESpace does not have an evaluator for VOL!' or -- measured, worse -- silently returns 0.0 while the field is nonzero. Evaluate the component: gfu.components[i](mesh(x,y)) (measured 0.2524 at the same point where the direct call returned 0.0).\n2. FORMS DO NOT SUPPORT -= (TypeError: unsupported operand). Subtract by adding the negated term at definition: a += (-1) * u * v * dx. Same for LinearForm.\n3. grad()/Grad() WORKS ON PROXIES AND GridFunctions, NOT ON ASSEMBLED CoefficientFunctions -- 'Operator grad not overloaded for CF ngfem::VectorialCoefficientFunction' (measured). Take grad(gfu.components[i]) and assemble what you need from those, or differentiate the symbolic expression BEFORE wrapping it in CoefficientFunction.\n4. Verbosity for a captured log: ngsolve.ngsglobals.msg_level = 3, or solvers.CG(..., printrates=True); NGSolve is otherwise quiet on success.\n5. A PYTHON FUNCTION IS NOT A CoefficientFunction. CoefficientFunction(f) for a def/lambda is a TypeError ('incompatible constructor arguments', measured), and calling a NumPy-written source on ngsolve's symbolic x, y fails or -- np.zeros_like(x) -- silently returns a 0-d object array. Sample it at the mesh vertices instead (np.array([v.point for v in mesh.vertices])) into a P1 GridFunction on your space (gf.vec.FV().NumPy()[vertex_dofs] = f(vx, vy)); a GridFunction IS a CoefficientFunction and integrates as gf * v * dx (the P1 interpolant of the source, O(h^2) like the discretisation itself).",
     # deal.II facts measured by execution on the coupled elasticity
     # walk of 2026-09-07 (deal.II 9.8.0-pre, ~/dealii/build).
     "dealii": '1. deal.II prints NOTHING by default: a run whose log must carry the code own output needs BOTH deallog.depth_console(2); AND a SolverControl ctl(max_it, tol, true, true); (log_history, log_result) -- depth_console alone prints nothing. Then the console carries DEAL:cg lines per iteration.\n2. Print the DOF count yourself, on whatever line your task asks for: std::cout << "DOF count = " << dof_handler.n_dofs() << std::endl; -- nothing else emits it.\n3. Evaluate the solution at arbitrary (off-node) points with VectorTools::point_value(dof_handler, solution, Point<2>(x, y)) -- nearest-vertex lookup is the export defect that turns a converged solve into a wrong answer.\n4. Build against the local install with a 6-line CMakeLists (find_package(deal.II) + deal_ii_setup_target) and cmake -DDEAL_II_DIR=$HOME/dealii/build . -- measured: configures and builds first try on this machine; compile ~20 s.',
@@ -3239,6 +3239,16 @@ def register_consolidated_tools(mcp: FastMCP):
                 return body + "\n\n" + gram + after + _UNIVERSAL_CORE
             except Exception:                            # noqa: BLE001
                 pass
+        # THE SAME RULE FOR THE OTHER BINARIES. A FEBio or SPARTA side is driven by a
+        # deck / input script exactly as a 4C side is; its grammar (3.4k / 2.8k) is
+        # appended after the contract and would be the first thing this cap cut.
+        _dg = _deck_grammar_text(solver) if (topic or "").strip().lower() == "coupling" else ""
+        if _dg and _dg in out:
+            body = out.replace(_dg, "").rstrip("\n")
+            room = _KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE) - len(_dg) - 2
+            room = max(room, _contract_block_end(body, 0))
+            body = _cap_knowledge_reply(body, topic, solver, physics, signal, limit=max(8000, room))
+            return body + "\n\n" + _dg + _UNIVERSAL_CORE
         body = _cap_knowledge_reply(out, topic, solver, physics, signal,
                                     limit=_KNOWLEDGE_REPLY_LIMIT - len(_UNIVERSAL_CORE))
         return body + _UNIVERSAL_CORE
@@ -7621,6 +7631,23 @@ def _capture_knowledge_fn(fn_name: str, *args) -> str:
 
 
 _THERMOELASTIC_HEADING = "\n## THERMO-ELASTIC VARIANT"
+# THE OTHER VARIANT CONTRACTS A BACKEND MAY SHIP, keyed by the physics word the
+# agent passes. The thermo-elastic block had this defect first (2026-09-11) and
+# the three others had it still: the variant sat behind the traps, past every
+# cut, and physics='transient' / 'elasticity' / '3d' served the steady scalar
+# heat contract first. Measured 2026-09-13 on every backend that ships one: the
+# fenics reply with physics='transient_heat' was 37,171 characters, identical
+# to the physics-less reply; kratos with 'heat_3d' 45,137, identical; dune the
+# same. A time-dependent, vector or 3-D task therefore started from the wrong
+# contract however it asked.
+_VARIANT_HEADINGS = {
+    "thermoelastic": _THERMOELASTIC_HEADING,
+    "elastic": "\n## VECTOR (ELASTICITY) VARIANT",
+    "transient": "\n## THE TRANSIENT PARTICIPANT",
+    "3d": "\n## THE 3-D PARTICIPANT",
+}
+_VARIANT_PHYSICS_WORD = {"thermoelastic": "thermoelastic", "elastic": "elasticity",
+                         "transient": "transient", "3d": "3d"}
 
 
 def _is_thermoelastic(physics: str) -> bool:
@@ -7634,22 +7661,73 @@ def _is_thermoelastic(physics: str) -> bool:
                                 "thermo_structure")) or p in ("tsi",)
 
 
+def _norm_physics(physics: str) -> str:
+    return (physics or "").strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def _is_vector_physics(physics: str) -> bool:
+    """Does the physics word name a displacement/traction exchange (and not a
+    thermo-elastic or a fluid-structure one, which have their own doors)?"""
+    p = _norm_physics(physics)
+    if not p or _is_thermoelastic(p) or "fluid" in p or p in ("fsi",):
+        return False
+    return any(t in p for t in ("elast", "structur", "solid", "displacement", "traction",
+                                "plane_strain", "plane_stress", "hooke", "mechanic"))
+
+
+def _is_transient_physics(physics: str) -> bool:
+    """Does the physics word name a time-dependent problem?"""
+    p = _norm_physics(physics)
+    return bool(p) and any(t in p for t in ("transient", "unsteady", "time_dependent",
+                                            "parabolic", "dynamic"))
+
+
+def _is_threed_physics(physics: str) -> bool:
+    """Does the physics word name a three-dimensional domain?"""
+    p = _norm_physics(physics)
+    return bool(p) and (p.startswith("3d") or p.endswith("3d") or "_3d" in p or "3d_" in p
+                        or "three_d" in p or "3_d" in p)
+
+
+def _variant_for(physics: str) -> str:
+    """The shipped variant a physics word asks for: 'thermoelastic', 'elastic',
+    'transient', '3d' or '' for the single-field steady 2-D contract. A vector
+    word wins over a transient one (no transient-vector participant ships) and
+    over a 3-D one (no 3-D vector participant ships)."""
+    if _is_thermoelastic(physics):
+        return "thermoelastic"
+    if _is_vector_physics(physics):
+        return "elastic"
+    if _is_transient_physics(physics):
+        return "transient"
+    if _is_threed_physics(physics):
+        return "3d"
+    return ""
+
+
 def _strip_notice(text: str) -> str:
     """Drop the physics-less notice paragraph (see coupling_knowledge._thermo_notice)."""
     import re as _re
-    return _re.sub(r"\n\nIF YOUR INTERFACE CARRIES TEMPERATURE AND DISPLACEMENT TOGETHER.*?scalar\) contract\.\n", "", text, count=1, flags=_re.S)
+    text = _re.sub(r"\n\nIF YOUR INTERFACE CARRIES TEMPERATURE AND DISPLACEMENT TOGETHER.*?scalar\) contract\.\n", "", text, count=1, flags=_re.S)
+    return _re.sub(r"\n\nWHICH CONTRACT BELOW IS YOURS\..*?leads with the single-field \(scalar\) contract\.\n", "", text, count=1, flags=_re.S)
 
 
 def _promote_thermoelastic(payload: str) -> str:
-    """Move the thermo-elastic section (heading, paragraph, fenced contract)
-    in front of the scalar contract, so the first reply of a session and the
-    28k pointer-mode head carry IT as the contract. Measured 2026-09-11: the
-    block sat behind the traps, the vector and the transient sections, past
-    every cut, and the thermo-mechanical cell's workers copied the scalar
-    heat contract instead."""
-    if not isinstance(payload, str):
+    return _promote_variant(payload, "thermoelastic")
+
+
+def _promote_variant(payload: str, key: str) -> str:
+    """Move a variant section (heading, paragraph, fenced contract) in front of
+    the scalar contract, so the first reply of a session and the 28k
+    pointer-mode head carry IT as the contract. Measured 2026-09-11 for the
+    thermo-elastic block (it sat behind the traps, the vector and the transient
+    sections, past every cut, and the thermo-mechanical cell's workers copied
+    the scalar heat contract instead) and 2026-09-13 for the vector, transient
+    and 3-D blocks, which were never promoted at all."""
+    heading = _VARIANT_HEADINGS.get(key or "", "")
+    if not isinstance(payload, str) or not heading:
         return payload
-    a = payload.find(_THERMOELASTIC_HEADING)
+    a = payload.find(heading)
     if a < 0:
         return payload
     f = payload.find("```python", a)
@@ -7678,13 +7756,15 @@ def _get_coupling_knowledge(solver: str = "", signal: str = "", physics: str = "
     # THE PARTS DOOR FOLLOWS THE PHYSICS TOO. Measured 2026-09-11: a worker that
     # had the thermo-elastic contract asked for `participant:dirichlet:part1`
     # and got the scalar heat contract in parts, five calls long.
-    if (signal or "").strip().lower().startswith("participant") and _is_thermoelastic(physics) \
-            and "thermoelastic" not in (signal or "").lower():
-        signal = signal.strip() + ":thermoelastic"
+    _vk = _variant_for(physics)
+    if (signal or "").strip().lower().startswith("participant") and _vk \
+            and _vk not in (signal or "").lower():
+        signal = signal.strip() + ":" + _vk
     payload = _capture_knowledge_fn("get_coupling_knowledge", solver, signal)
-    # A THERMO-ELASTIC EXCHANGE GETS THE THERMO-ELASTIC CONTRACT FIRST.
-    if _is_thermoelastic(physics) and isinstance(payload, str):
-        payload = _promote_thermoelastic(payload)
+    # THE EXCHANGE THE PHYSICS NAMES GETS ITS CONTRACT FIRST (thermo-elastic,
+    # vector, transient or 3-D), where the backend ships one.
+    if _vk and isinstance(payload, str):
+        payload = _promote_variant(payload, _vk)
     # THE PARTS DOOR IS SERVED AS IS. `signal='participant[:role]:partN'`
     # exists for clients that truncate long replies, so its bounded chunk of
     # the elided contract must reach the agent whole: no must-read prepended,
@@ -7790,6 +7870,13 @@ def _coupling_participant_script(solver: str, physics: str = "") -> str:
         te = [c for c in cands if '"field_name": "thermoelastic"' in c[1]]
         if te:
             cands = te
+    _vk = _variant_for(physics)
+    _vh = _VARIANT_HEADINGS.get(_vk, "") if _vk and _vk != "thermoelastic" else ""
+    if _vh and payload.find(_vh) >= 0:
+        # the variant's own block is the first fence after its heading
+        _after = [c for c in cands if c[0] > payload.find(_vh)]
+        if _after:
+            cands = _after[:1]
     fence, block = next((c for c in cands if "config.json" in c[1]), cands[0])
     # THE PUSHED COPY IS THE LEAN ONE: comment blocks thinned to a line, code
     # untouched, so copying it into a file costs half the output tokens. The
@@ -7823,7 +7910,24 @@ def _coupling_participant_script(solver: str, physics: str = "") -> str:
 #
 # Appended AFTER the front-loader, for the same reason the continuation is:
 # material added before the cut is the first thing the head trims.
-_DECK_DRIVEN = {"fourc": ("backends.fourc.deck_grammar", "FOURC_DECK_GRAMMAR")}
+_DECK_DRIVEN = {"fourc": ("backends.fourc.deck_grammar", "FOURC_DECK_GRAMMAR"),
+                "febio": ("backends.febio.deck_grammar", "FEBIO_DECK_GRAMMAR"),
+                "sparta": ("backends.sparta.deck_grammar", "SPARTA_INPUT_GRAMMAR")}
+
+
+def _deck_grammar_text(solver: str) -> str:
+    """The deck grammar a coupling reply carries for a binary-driven side other
+    than 4C (whose grammar and skeletons have their own budget rule), '' else."""
+    key = (solver or "").strip().lower()
+    where = _DECK_DRIVEN.get(key)
+    if not where or key == "fourc":
+        return ""
+    try:
+        mod = __import__(where[0], fromlist=[where[1]])
+        block = getattr(mod, where[1], "")
+    except Exception:                                   # noqa: BLE001
+        return ""
+    return block if isinstance(block, str) and block.strip() else ""
 
 
 def _append_deck_grammar(payload: str, solver: str) -> str:
@@ -8019,7 +8123,9 @@ sees nothing but this task= string (measured: a worker whose brief kept
     spawn_subagent(role='worker', task="Write side A's participant script in
     ./side_A: call knowledge(topic='coupling', solver='<side A's code>')
     (add physics='thermoelastic' when the interface carries temperature AND
-    displacement together) and
+    displacement together, physics='elasticity' when the exchanged field is a
+    displacement, physics='transient' for a time-dependent problem, physics='3d'
+    for a three-dimensional domain: the reply then leads with that contract) and
     copy the served CONTRACT for the role the task gives side A into
     ./side_A/participant_A.py unchanged (the imports.json handshake, sign
     convention, flux recovery, exports schema and export self-check); fill
@@ -8058,7 +8164,12 @@ FOR YOUR CODE. For EACH of your two codes call `knowledge(topic='coupling',
 solver='<that code>')` -- with physics='thermoelastic' when the interface
 carries temperature AND displacement together: the reply then leads with the
 thermo-elastic contract ([T, ux, uy] in, [qn, qx, qy] out), served for 4C
-and FEniCSx. THE ROLES COME FROM THE TASK: when it says which
+and FEniCSx. Likewise physics='elasticity' (a displacement exchanged, a
+traction returned), physics='transient' (a time-dependent problem: the served
+contract marches the WHOLE time window per call and exchanges the trace) and
+physics='3d' (a planar interface in a box) lead with that variant where the
+code ships one; without the word the reply leads with the steady scalar
+contract. THE ROLES COME FROM THE TASK: when it says which
 subdomain is the Dirichlet side and which the Neumann side, that is fixed.
 Each served contract states which side it is (some carry both behind a SIDE
 switch, some are one side); take the one for the role your task gives that
@@ -8494,7 +8605,11 @@ def _front_load_coupling(payload: str, solver: str = "",
         # first reply keeps the contract's prose and says where the block comes from.
         _fence = payload.find("```python")
         if 0 <= _fence < budget and len(_lead) + budget + len(_tail) > _KNOWLEDGE_REPLY_LIMIT:
-            _phys = " physics='thermoelastic'," if "THERMO-ELASTIC VARIANT" in payload[:_fence] else ""
+            _phys = ""
+            for _k, _h in _VARIANT_HEADINGS.items():
+                if _h.strip() in payload[:_fence]:
+                    _phys = f" physics='{_VARIANT_PHYSICS_WORD[_k]}',"
+                    break
             note = (f"\n[THE SERVED CONTRACT BLOCK ({budget - _fence:,} characters) IS NOT REPEATED IN THIS "
                     f"FIRST REPLY so the must-read below arrives whole. Your WORKER's own call "
                     f"knowledge(topic='coupling', solver='{solver}',{_phys} ...) leads with the complete "

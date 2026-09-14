@@ -1,0 +1,61 @@
+- metadata:
+    created_by: "alexander"
+    host: "kevin"
+    time: "11-09-2026 12-49-07"
+    sha: "89519cfe76251fc668617c4ab1a70b94fd86ec52"
+    version: "2026.2.0-dev"
+
+- general:
+    input_file: "deck.4C.yaml"
+    problem_type: "Scalar_Transport"
+    spatial_approximation: "Polynomial"
+    ndim: 2
+
+- field:
+    field: "scatra"
+    time: 0
+    step: 0
+    num_nd: 1089
+    max_nodeid: 1088
+    num_ele: 1024
+    num_dof: 1089
+    num_dim: 2
+    mesh_file: "out.mesh.scatra.s0"
+
+- field:
+    field: "scatra"
+    time: 1
+    step: 1
+    num_nd: 1089
+    max_nodeid: 1088
+    num_ele: 1024
+    num_dof: 1089
+    num_dim: 2
+    mesh_file: "out.mesh.scatra.s0"
+
+- result:
+    field: "scatra"
+    time: 1
+    step: 1
+    result_file: "out.result.scatra.s1"
+    phinp:
+      type: "dof"
+      columns: 1
+      values: "/step1/phinp.values"
+      ids: "/step1/phinp.ids"
+    phin:
+      type: "dof"
+      columns: 1
+      values: "/step1/phin.values"
+      ids: "/step1/phinp.ids"
+    phinm:
+      type: "dof"
+      columns: 1
+      values: "/step1/phinm.values"
+      ids: "/step1/phinp.ids"
+    phidtn:
+      type: "dof"
+      columns: 1
+      values: "/step1/phidtn.values"
+      ids: "/step1/phinp.ids"
+

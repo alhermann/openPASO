@@ -1,0 +1,3 @@
+NDOF = 54
+NDOF = 54
+DUNE Dirichlet participant: NDOF = 54  max|u| = 3.965855e-02

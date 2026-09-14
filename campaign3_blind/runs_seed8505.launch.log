@@ -1,0 +1,33 @@
+[source build] 701b6f8fd73f sha256=9e50dfee37a5a96f... (immutable)
+2026-09-05 23:18:25,776 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-05 23:18:25,786 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-05 23:18:25,790 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-05 23:18:25,794 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-05 23:18:25,814 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-05 23:18:25,827 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-05 23:18:25,827 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-05 23:18:25,841 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-05 23:18:25,841 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-05 23:18:25,862 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-05 23:18:25,862 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-05 23:18:25,876 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-05 23:18:25,876 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-05 23:18:25,890 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-05 23:18:25,890 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-05 23:18:25,890 [oasis] INFO: Starting OASiS MCP server
+2026-09-05 23:18:25,919 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-05 23:18:34,517 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:18:39,688 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:20:15,924 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:20:19,612 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:20:19,617 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:29:41,918 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:29:56,931 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:30:06,652 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:33:07,522 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:34:46,932 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 23:50:23,381 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_caca59f5-63e2-4525-b030-20ca13f226d7.json (8 events)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s8505] done  calls=64 tok=6099646/51483 1920.3s

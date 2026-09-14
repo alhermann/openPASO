@@ -1,0 +1,749 @@
+THE COUPLED MUST-READ (the couple() call recipe, history_path, the fields-vs-evidence rule, the measured-not-modelled history rule, the sign convention, the rho budget, the silent no-flux trap) was served earlier in this session and is not repeated here, to leave you the context for your own work. To see it again: knowledge(topic='coupling', signal='must-read').
+
+# WHAT DECIDES THIS RUN — kratos/coupled side
+# (read this before the corpus below; each line was measured by execution)
+
+1. `LaplacianElement2D3N` exists; `LaplacianElement2D4N` does NOT ('is not registered'). 2D is P1 TRIANGLES.
+2. CONDUCTIVITY, DENSITY, SPECIFIC_HEAT and HEAT_FLUX are read NODALLY through ConvectionDiffusionSettings, NOT from Properties. Setting conductivity only on Properties gives a singular system (measured: nodal 999 + Properties 1 -> 999).
+3. The reaction-carrying DOF overload is `AddDof(var, reaction, mp)`; there is no AddDofWithReaction. Omitting the reaction and then asking the strategy for reactions aborts in EVERY worker thread.
+4. SETTING FACE_HEAT_FLUX ON NODES DOES NOTHING WITHOUT A CONDITION on those edges. The nodal value is only integrated BY a condition. This is the line, and it is the whole fix:
+       for c in range(len(iface) - 1):
+           mp.CreateNewCondition("ThermalFace2D2N", c + 1,
+                                 [iface[c] + 1, iface[c+1] + 1], prop)
+   Measured on one mesh: zero flux -> max|T| 2.307291e-03; flux on nodes with no condition -> 2.307291e-03, BIT-IDENTICAL; flux with conditions -> 3.605675e-03. FluxCondition2D2N works too. Two real runs died here, reporting the no-flux answer with their interface field matching to 0.000e+00, and a third quoted this very paragraph back in its give-up note without ever adding the line.
+4b. THE NAME GOES IN A STRING, THROUGH THE FACTORY. Elements and conditions live in a C++ registry and NONE is a Python attribute, so `SomeApplication.ThermalFace2D2N(...)` raises `has no attribute` for every name that exists. Measured on this install: LaplacianElement2D3N, ThermalFace2D2N and FluxCondition2D2N are all python-attribute=False and factory-by-name=True. That AttributeError is never evidence a component is missing -- one run read it as "not available in version 10.3.0" and went looking for a different code. A name that genuinely is absent fails differently, with `The Condition "X" is not registered!` from CreateNewCondition itself.
+5. FACE_HEAT_FLUX is the INWARD normal flux, while a task's q_n is OUTWARD -- so the number you REPORT is the negative of the one you APPLY.
+6. The volumetric HEAT_FLUX is the NODAL value at one centroid point (mean(f)*A/3); the exact mass matrix is 50% off.
+7. Kratos prints from C++ streams: an in-process stdout redirect captures ZERO bytes. Run the solve in a SUBPROCESS if the log has to show which code ran.
+8. THE MODEL PART IDIOM, EXACTLY (measured): `model = KM.Model(); mp = model.CreateModelPart('thermal')`, then `mp.AddNodalSolutionStepVariable(...)`, `mp.CreateNewNode(id, x, y, 0.0)` and `mp.CreateNewElement('LaplacianElement2D3N', id, [n1, n2, n3], mp.GetProperties()[1])`. There is no `KM.MainModelPart` and no `KM.ModelPart(...)` constructor to call yourself (`Module KratosMultiphysics has no attribute MainModelPart` -- a trial script died there twice, before and after a repair).
+9. THE SOLVE STACK LIVES IN THE CORE NAMESPACE, EXACTLY (measured): `KM.VariableUtils().AddDof(KM.TEMPERATURE, KM.REACTION_FLUX, mp)` (there is no `KM.AddDof`); `scheme = KM.ResidualBasedIncrementalUpdateStaticScheme()`; `builder = KM.ResidualBasedBlockBuilderAndSolver(KM.SkylineLUFactorizationSolver())`; `strategy = KM.ResidualBasedLinearStrategy(mp, scheme, builder, True, False, False, False)`; `strategy.Initialize(); strategy.Solve()`. None of these is in StructuralMechanicsApplication (`cannot import name ResidualBasedLinearStrategy from ...StructuralMechanicsApplication` -- a trial script died there; its repair died on `KM.AddDof`).
+10. DIRICHLET VALUES ARE NODAL, NOT A CONDITION (measured): `n.SetSolutionStepValue(KM.TEMPERATURE, value); n.Fix(KM.TEMPERATURE)` on every outer-boundary node; there is no Dirichlet condition to create (`The Condition "ThermalDirichlet2D2N" is not registered!` -- a trial repair died there). Conditions are for FLUXES (ThermalFace2D2N / FluxCondition2D2N on the interface edges, fact 4) and for nothing else here.
+11. THE MODEL SETUP ORDER, EXACTLY (measured on the tested program): `mp.ProcessInfo[KM.DOMAIN_SIZE] = 2`; `settings = KM.ConvectionDiffusionSettings()` with `SetUnknownVariable(KM.TEMPERATURE)`, `SetDiffusionVariable(KM.CONDUCTIVITY)`, `SetVolumeSourceVariable(KM.HEAT_FLUX)`, `SetSurfaceSourceVariable(KM.FACE_HEAT_FLUX)` and `mp.ProcessInfo.SetValue(KM.CONVECTION_DIFFUSION_SETTINGS, settings)`; then `mp.AddNodalSolutionStepVariable(v)` for EACH of TEMPERATURE, CONDUCTIVITY, HEAT_FLUX, FACE_HEAT_FLUX, REACTION_FLUX BEFORE the first `CreateNewNode` (a node created earlier cannot hold them: `This container only can store the variables specified in its variables list ... CONDUCTIVITY` -- a trial repair died there); `mp.SetBufferSize(1)`; `props = mp.CreateNewProperties(1)`. The application is loaded by `import KratosMultiphysics.ConvectionDiffusionApplication` and referenced only through that module path -- a bare `ConvectionDiffusionApplication` is a NameError (measured). A variable list WITHOUT CONDUCTIVITY does not fail at setup: the solve SEGFAULTS with no message (exit 139, measured on a trial repair that listed the other four). `Properties` has no `AddProperty`/`Value`; nodal values carry the material (fact 2).
+12. THE FLUX CONDITION READS ITS LOAD FROM THE NODES. `FluxCondition2D2N` integrates the NODAL value of the surface-source variable (FACE_HEAT_FLUX): `mp.CreateNewCondition('FluxCondition2D2N', id, [n1, n2], props)` WITHOUT `n.SetSolutionStepValue(KM.FACE_HEAT_FLUX, q)` on both of its nodes assembles exactly zero and the run exits 0 (measured: a Neumann side built that way exported the no-load answer at every iteration and couple() reported it UNRESPONSIVE; the served Neumann contract sets the nodal value first). The condition takes no flux property of its own.
+
+* READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST NODE. Measured against an independent reference: one solve exported two ways gave order 1.9796 by interpolation and 0.9815 by nearest-node sampling of nearest node. Free self-check: nearest-node sampling can only return (N-1)^2+1 distinct values, so 1936 probes collapse to 50/226/962 at N=8/16/32.
+* GATE BEFORE YOU HAND IN, at EVERY level: the solver REPORTED convergence (not merely that nothing raised), peak|u| > 0, and your load is not constant. Then compute log2(|L1-L2|/|L2-L3|) yourself.
+* ON A COUPLED SIDE, the consistent outward flux is q = -(K u - b_volume)/h with h the node's tributary length. The FACE load must NOT go into that residual -- include it and the reported flux comes out identically zero.
+
+----------------------------------------------------------------------
+
+## If your client truncates long replies: fetch this contract in parts
+
+Call `knowledge(topic='coupling', solver='kratos', signal='participant:part1')`, then request each next part named in that response and concatenate only the fenced code contents in order. For another role insert it before the part, for example `signal='participant:neumann:part1'`. The parts are the same contract as below, solve elided; there is no complete program to reconstruct.
+
+# Coupling participant: Kratos Multiphysics
+
+WHICH CONTRACT BELOW IS YOURS. The block below is the single-field STEADY 2-D (scalar) contract. If instead
+  * the domain is THREE-DIMENSIONAL with a planar interface: call knowledge(topic='coupling', solver='kratos', physics='3d')
+and use the contract THAT reply leads with. Without the physics word this door leads with the single-field (scalar) contract.
+
+## Sides this backend can take
+
+**Either side — but NOT in OASiS's own interpreter on this install.** Kratos is not importable where OASiS runs here, so its participant was proven in a separate Kratos install: both the Dirichlet and the Neumann role were run against FEniCSx and both converged with non-matching interface meshes. The contract below is the DIRICHLET side; the NEUMANN-side contract follows further down under THE NEUMANN-SIDE PARTICIPANT, and the trap that decides that role is listed under the traps.
+
+## The contract, in case you landed here first
+
+Your script runs in `work_dir` with no arguments. It reads `imports.json`
+(`{partner_name: InterfaceData}` — ABSENT or empty on iteration 1, so it must
+have a fallback) and writes `exports.json` (ONE InterfaceData:
+`{"field_name","n_points","coordinates","values","normal_fluxes"}`). Export the
+same number of points in the same order every iteration, write `exports.json`
+last, and EXIT 0 — the driver requires the file AND a zero exit code, so a
+solver that writes its last iterate and then aborts ends the run instead of
+being coupled on. The driver does NOT copy your script into `work_dir` and does
+NOT interpolate between the two meshes.
+
+Dirichlet side = imports a VALUE, exports the resulting FLUX.
+Neumann side  = imports a FLUX, exports the resulting VALUE.
+Apply the partner's flux number UNCHANGED; export your own flux with respect to
+YOUR outward normal, so the two sides' fluxes carry opposite signs.
+
+Full contract, relaxation guidance and failure modes: `knowledge(topic='coupling')`.
+
+## PARTICIPANT CONTRACT — COPY THIS INTO ITS OWN FILE NOW (write_file side_<x>.py), then edit the marked block and write the solve where the banner sits. It is the handshake, the interface sign convention, the consistent flux recovery, the exports schema and the export self-check, thinned of its explanations so it is cheap to copy; the annotated version is `signal='participant:part1'`. Measured: every recent coupled run that wrote this file from scratch instead failed on the handshake or the recovery.
+
+```python
+"""Kratos Multiphysics participant for the OASiS `couple` driver (DIRICHLET side).
+
+CONTRACT (do not change): runs in its work_dir with no arguments, reads
+imports.json (written every iteration; it is `{}` on iteration 1), writes
+exports.json LAST. Needs KratosMultiphysics + ConvectionDiffusionApplication
+importable in the interpreter named in `command`.
+
+This is the DIRICHLET side: it imports the partner's `values` (interface temperature), applies them as fixed nodal
+TEMPERATURE on the interface, exports temperature + its own outward normal flux.
+
+Slab [X0, X1] x [0, H], conductivity K.
+  x = X0 : Dirichlet T = T_OUTER (hot side)
+  x = X1 : INTERFACE, Dirichlet T = imported partner values (interpolated over y)
+  top/bot: insulated (natural)
+
+The exported outward normal flux density is the CONSISTENT (reaction) flux, not
+a difference quotient of the solution — see the block above the export below.
+"""
+import json
+import os
+from pathlib import Path
+
+import numpy as np
+import KratosMultiphysics as KM
+import KratosMultiphysics.ConvectionDiffusionApplication  # noqa: F401
+
+# ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
+#    Replace ALL of them with your problem's geometry, material and BCs.
+PARTNER = "right"
+X0, X1 = 0.0, 0.5
+H = 1.0
+K = 1.0
+T_OUTER = 100.0
+T_INIT = 50.0            # iteration-1 fallback interface temperature
+nx, ny = 32, 32
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides nx, ny and names the level; the per-level
+# ... (explanation continues in the annotated block)
+LEVEL = 1
+if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
+        LEVEL = int(_cfg.get("level", LEVEL))
+        nx = int(_cfg.get("nx", nx))
+        ny = int(_cfg.get("ny", ny))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+# ─────────────────────────────────────────────────────────────────────────
+
+
+def imported_T(y_coords: np.ndarray) -> np.ndarray:
+    p = Path("imports.json")
+    imp = json.loads(p.read_text() or "{}") if p.is_file() else {}
+    if PARTNER not in imp or "values" not in imp[PARTNER]:
+        return np.full_like(y_coords, float(T_INIT))
+    d = imp[PARTNER]
+    src_y = np.asarray(d["coordinates"], float)[:, 1]
+    src_v = np.asarray(d["values"], float).ravel()
+    o = np.argsort(src_y)
+    return np.interp(y_coords, src_y[o], src_v[o])
+
+
+def solve(T_if_in: np.ndarray):
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
+#
+# Build the mesh, the function space, the weak form and the linear solve for
+# ... (explanation continues in the annotated block)
+# ordinary finite-element work and OASiS has no business dictating it.
+#
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# ... (explanation continues in the annotated block)
+    # TWO THINGS YOUR SOLVE ABOVE MUST DO, or the recovery below reads zeros:
+    #   * AddDof(TEMPERATURE, REACTION_FLUX, mp) -- the SECOND argument gives
+    #     every fixed dof a place to store its reaction; without it the
+    # ... (explanation continues in the annotated block)
+    return mp, nid
+
+
+def main() -> None:
+    y_if = np.array([H * j / ny for j in range(ny + 1)])
+    T_in = imported_T(y_if)
+    mp, nid = solve(T_in)
+
+    T_if = np.array([mp.Nodes[nid[(nx, j)]].GetSolutionStepValue(KM.TEMPERATURE)
+                     for j in range(ny + 1)])
+
+    # Outward normal flux density q = -(K grad T).n on the interface.
+    #
+    # ... (explanation continues in the annotated block)
+    hy = H / ny
+    w = np.full(ny + 1, hy)
+    w[0] = w[-1] = 0.5 * hy
+
+    r = np.array([mp.Nodes[nid[(nx, j)]].GetSolutionStepValue(KM.REACTION_FLUX)
+                  for j in range(ny + 1)])
+    q_out = -r / w
+
+    # An interface node that ALSO lies on the outer Dirichlet boundary carries
+    # the OUTER reaction as well, so its residual is not this interface's flux.
+    # ... (explanation continues in the annotated block)
+    outer_ids = {nid[(0, j)] for j in range(ny + 1)}
+    suspect = np.array([nid[(nx, j)] in outer_ids for j in range(ny + 1)])
+    good = np.where(~suspect)[0]
+    if len(good):
+        for i in np.where(suspect)[0]:
+            q_out[i] = q_out[good[np.argmin(np.abs(good - i))]]
+
+    # ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+    #    fine and are worthless: a non-finite field; a Neumann side whose imported
+    #    load never entered the assembled system (it returns the no-load answer and
+    # ... (explanation continues in the annotated block)
+    _chk_vals = np.asarray(T_if, float).ravel()
+    _chk_flux = np.asarray(q_out, float).ravel()
+    if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
+        raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or fluxes; "
+                         "the solve did not produce a usable field, so nothing was "
+                         "exported")
+    _chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+                if Path("imports.json").is_file() else {})
+    _chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                                for _d in _chk_imp.values()])
+                if _chk_imp else np.zeros(0))
+    if False and _chk_qin.size and np.abs(_chk_qin).max() > 0 \
+            and np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max():
+        raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 "
+                         "against a nonzero imported flux: the imported load never "
+                         "entered the assembled system (the facet term / boundary "
+                         "condition that integrates it is missing). Fix the "
+                         "application; do not couple on")
+    # (Dirichlet role only: a Neumann side's consistent recovery of a CONSTANT
+    #  applied flux can legitimately reproduce it to the last bit.)
+    if True and _chk_qin.shape == _chk_flux.shape and _chk_flux.size \
+            and np.array_equal(_chk_flux, -_chk_qin):
+        raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's "
+                         "array negated, bit for bit: a copy, not a recovery from "
+                         "this side's own assembled system")
+
+    # PER-LEVEL PERSISTENCE: this level's field and interface data, named by
+    # LEVEL; exports.json is overwritten by the next level, these are not.
+    with open(f"field_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u\n")
+        for n in mp.Nodes:
+            _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(n.GetSolutionStepValue(KM.TEMPERATURE)):.11e}\n")
+    with open(f"interface_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u,qn\n")
+        for y, t, q in zip(y_if, T_if, q_out):
+            _f.write(f"{float(X1):.11e},{float(y):.11e},{float(t):.11e},{float(q):.11e}\n")
+    Path("exports.json").write_text(json.dumps({
+        "field_name": "temperature",
+        "n_points": len(T_if),
+        "coordinates": [[X1, float(y)] for y in y_if],
+        "values": [float(v) for v in T_if],
+        "normal_fluxes": [float(v) for v in q_out],
+    }, indent=2))
+    print("kratos DIRICHLET side: T_if(applied)=%.6f q_out(computed)=%.6f"
+          % (float(T_if.mean()), float(q_out.mean())))
+
+
+if __name__ == "__main__":
+    main()
+
+# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ─────────────────────────
+# The code above and below the elided block uses these names. Your
+# block has to define every one of them, or the rest will not run:
+#
+#     mp
+#     n
+#
+# That is the whole contract. Read the surviving lines to see the
+# shape each one has to have -- they are already indexed, assembled
+# or written out there. OASiS does not serve the solve itself, but
+# it will not make you guess which variables the hole was filling.
+```
+
+
+## THE NEUMANN-SIDE PARTICIPANT — a separate contract for the other role (solve elided)
+
+The script above is the DIRICHLET side: it imports the partner's `values`, fixes them, and exports the consistent reaction flux. This one is the other half: it imports the partner's `normal_fluxes`, applies them UNCHANGED as the natural boundary condition, and exports the interface values its solve produced. Use whichever role the problem assigns this subdomain; they are not interchangeable.
+
+```python
+"""Kratos Multiphysics participant for the OASiS `couple` driver (NEUMANN side).
+
+CONTRACT (do not change): runs in its work_dir with no arguments, reads
+imports.json (written every iteration; it is `{}` on iteration 1, so an
+iteration-1 fallback is mandatory), writes exports.json LAST and exits 0.
+Needs KratosMultiphysics + ConvectionDiffusionApplication importable in the
+interpreter named in `command`. DO NOT GUESS THAT INTERPRETER: take it from
+`discover(query='list')`, which reports the one this install actually imports
+Kratos with. A system python3 is a common trap — it usually exists, so nothing
+looks wrong, and it raises ModuleNotFoundError because the Kratos build targets
+a different Python version than the system one.
+
+THE OTHER HALF OF participant_kratos.py. That file is the DIRICHLET side: it
+imports the partner's `values` (interface temperature), fixes them as nodal
+TEMPERATURE, and exports the consistent REACTION_FLUX. This file is the NEUMANN
+side: it imports the partner's `normal_fluxes` and applies them as the natural
+boundary condition, then exports the interface TEMPERATURE its solve produced,
+which is what a Dirichlet partner consumes.
+
+Physics: steady conduction  -div(K grad T) = f  on one rectangular subdomain of
+a domain split by a straight interface at x = IFACE_X. Top and bottom edges are
+natural (zero flux). The non-interface x-boundary carries a Dirichlet value
+T_OUTER.
+
+  x = OUTER_X : Dirichlet T = T_OUTER
+  x = IFACE_X : INTERFACE, natural BC = the partner's imported flux
+  top/bottom  : insulated (natural, nothing to do)
+
+THE SIGN, WHICH IS THE ONLY THING A NEUMANN PARTICIPANT CAN GET SILENTLY WRONG.
+Every participant exports its outward normal flux density with respect to ITS
+OWN outward normal,
+      q = -(K grad T) . n_own,
+so on a shared interface the two sides carry OPPOSITE signs. Integrating the
+weak form on THIS subdomain,
+      int_Omega K grad T . grad v  =  int_Omega f v  +  int_dOmega (K grad T . n) v ds,
+and on the interface n = n_own = -n_partner, so
+      K grad T . n_own = -q_own = +q_partner.
+The partner's number is therefore applied UNCHANGED — no minus sign anywhere.
+Kratos's FluxCondition2D2N enforces exactly  K grad T . n = FACE_HEAT_FLUX
+(verified by a patch test: T fixed to 0 at x=0, FACE_HEAT_FLUX=1 on x=1, K=1,
+no source -> T(1)=+1.000000, i.e. dT/dx=+1 not -1), so
+
+      FACE_HEAT_FLUX  :=  the imported `normal_fluxes`, verbatim.
+
+If you ever flip that sign to "make the temperatures look right", you have
+built a coupling that drives heat the wrong way across the interface and still
+converges. The self-check printed at the end of this script is the guard: it
+evaluates the discrete divergence theorem on this subdomain and must come out
+at round-off.
+"""
+import json
+import os
+import sys
+from pathlib import Path
+
+import numpy as np
+import KratosMultiphysics as KM
+import KratosMultiphysics.ConvectionDiffusionApplication  # noqa: F401
+
+# ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
+#    Replace ALL of them with your problem's geometry, material and BCs.
+PARTNER   = "left"        # the partner's `name` in your couple(...) call
+X0, X1    = 0.6, 1.0      # this subdomain's x-extent
+Y0, Y1    = 0.0, 0.4      # this subdomain's y-extent
+IFACE_X   = 0.6           # the shared interface; must equal X0 or X1
+K         = 1.6           # conductivity of THIS subdomain
+
+
+def F_SRC(x, y):
+    """Volumetric source f in  -div(K grad T) = f, as a function of position.
+
+    Returns zero as shipped, which is a PLACEHOLDER like every number above.
+    A CONSTANT CANNOT REPRESENT A POLYNOMIAL SOURCE: if your problem states
+    one, or you derived it from a manufactured solution, a single number here
+    silently solves a different problem. With the whole outer boundary
+    prescribed and no source, the answer degenerates to the profile between
+    the outer values.
+
+    Unlike its FEniCSx and DUNE siblings, this one is called ONCE PER NODE
+    with SCALAR coordinates (see the SetSolutionStepValue loop below), so
+    write it with plain math or NumPy scalars — do not assume arrays:
+
+        return 2.0 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y)
+    """
+    return 0.0 * x
+
+T_OUTER   = 300.0         # Dirichlet value on the NON-interface x-boundary
+FULL_OUTER_DIRICHLET = False  # True: T_OUTER also on y=Y0,Y1; corners stay outer
+NX, NY    = 20, 16        # this subdomain's OWN mesh; need not match the partner
+Q_INIT    = 0.0           # iteration-1 fallback interface flux density
+
+
+def source(x, y):
+    """Volumetric source at the nodes — the interpolation point for F_SRC.
+
+    Sampling at the nodes is the P1 interpolant of the source, an O(h^2) load
+    error, the same order as the discretization error, so it does not touch
+    the second-order rate.
+    """
+    return F_SRC(x, y)
+# ─────────────────────────────────────────────────────────────────────────
+
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides NX, NY and names the level; the per-level
+#    dumps below carry that level so the coarse levels survive the fine ones.
+LEVEL = 1
+if Path("config.json").is_file() or os.environ.get("OASIS_CONFIG_JSON"):
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OASIS_CONFIG_JSON") or "{}"))   # a multi-level call's level keys
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
+ON_MAX_X = abs(IFACE_X - X1) < abs(IFACE_X - X0)   # interface is this side's x-max?
+OUTER_X = X0 if ON_MAX_X else X1
+S = 1.0 if ON_MAX_X else -1.0          # outward normal at the interface = S * e_x
+TOL = 1e-9 * max(X1 - X0, Y1 - Y0)
+
+
+def read_imports():
+    """imports.json is {partner_name: InterfaceData}; `{}` on iteration 1,
+    so the caller must fall back to an initial guess."""
+    p = Path("imports.json")
+    if not p.is_file():
+        return None
+    try:
+        return json.loads(p.read_text() or "{}").get(PARTNER) or None
+    except json.JSONDecodeError:
+        return None
+
+
+def sample(imp, key, fallback, y):
+    """Map the partner's samples onto THIS participant's interface points.
+    The driver does no interpolation — non-matching meshes are handled here."""
+    if not imp or not imp.get("coordinates"):
+        return np.full(len(y), float(fallback))
+    ys = np.array([c[1] for c in imp["coordinates"]], float)
+    # `or []` and not `.get(key, [])`: a partner that writes the key with an
+    # explicit null gets [] here instead of a TypeError out of np.asarray, and
+    # falls through to the fallback like any other unusable import.
+    vs = np.asarray(imp.get(key) or [], float).ravel()
+    if vs.size != ys.size:
+        return np.full(len(y), float(fallback))
+    o = np.argsort(ys)
+    return np.interp(y, ys[o], vs[o])
+
+
+def build_model():
+    """Structured triangulation of [X0,X1] x [Y0,Y1]; returns (mp, nid)."""
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
+#
+# Build the mesh, the function space, the weak form and the linear solve for
+# the problem you were given, in this backend, however you judge best. That is
+# ordinary finite-element work and OASiS has no business dictating it.
+#
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# recovery below. Those are this tool's own interface, not your method.
+#
+# At this point you are expected to have produced:
+#   * the discrete solution on this subdomain, with the partner's interface
+#     data applied according to SIDE, and
+#   * the assembled operator and the VOLUME load separately, because the flux
+#     recovery below subtracts the volume load alone.
+# ─────────────────────────────────────────────────────────────────────────
+
+
+def main():
+    """Solve once and write exports.json. Returns (model_part, node_index_map)
+    so a verification script can `import` this file, call main(), and integrate
+    the volume field against a manufactured solution — the coupling itself only
+    ever needs the file handshake."""
+    if min(abs(IFACE_X - X0), abs(IFACE_X - X1)) > TOL:
+        sys.exit(f"IFACE_X={IFACE_X} is not an x-boundary of this subdomain "
+                 f"[{X0},{X1}] — nothing is shared with the partner")
+    # NX < 1 would put the interface column and the outer Dirichlet column on
+    # the SAME nodes; the Dirichlet condition wins, the imported flux is
+    # discarded, and the run still exits 0 with a plausible-looking export.
+    if NX < 1 or NY < 1:
+        sys.exit(f"NX,NY = {NX},{NY}: need at least one element in each "
+                 "direction, and NX >= 1 so the interface and the outer "
+                 "Dirichlet boundary do not land on the same nodes")
+
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
+#
+# Build the mesh, the function space, the weak form and the linear solve for
+# the problem you were given, in this backend, however you judge best. That is
+# ordinary finite-element work and OASiS has no business dictating it.
+#
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# recovery below. Those are this tool's own interface, not your method.
+#
+# At this point you are expected to have produced:
+#   * the discrete solution on this subdomain, with the partner's interface
+#     data applied according to SIDE, and
+#   * the assembled operator and the VOLUME load separately, because the flux
+#     recovery below subtracts the volume load alone.
+# ─────────────────────────────────────────────────────────────────────────
+
+    q_in = sample(read_imports(), "normal_fluxes", Q_INIT, y_if)
+
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
+#
+# Build the mesh, the function space, the weak form and the linear solve for
+# the problem you were given, in this backend, however you judge best. That is
+# ordinary finite-element work and OASiS has no business dictating it.
+#
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# recovery below. Those are this tool's own interface, not your method.
+#
+# At this point you are expected to have produced:
+#   * the discrete solution on this subdomain, with the partner's interface
+#     data applied according to SIDE, and
+#   * the assembled operator and the VOLUME load separately, because the flux
+#     recovery below subtracts the volume load alone.
+# ─────────────────────────────────────────────────────────────────────────
+
+    # ── the interface: the partner's flux, applied UNCHANGED (see the header) ──
+    for j in range(NY + 1):
+        # THE NODAL VALUE IS THE LOAD. FluxCondition2D2N integrates FACE_HEAT_FLUX
+        # from its NODES; a condition created without this SetSolutionStepValue
+        # assembles zero, exits 0 and is reported unresponsive (measured 2026-09-11).
+        mp.Nodes[nid[(i_if, j)]].SetSolutionStepValue(
+            KM.FACE_HEAT_FLUX, float(q_in[j]))
+    props = mp.GetProperties()[1]
+    for j in range(NY):
+        mp.CreateNewCondition("FluxCondition2D2N", j + 1,
+                              [nid[(i_if, j)], nid[(i_if, j + 1)]], props)
+
+# ─────────────────────────────────────────────────────────────────────────
+# THE SOLVE ITSELF IS YOURS AND IS NOT SERVED HERE.
+#
+# Build the mesh, the function space, the weak form and the linear solve for
+# the problem you were given, in this backend, however you judge best. That is
+# ordinary finite-element work and OASiS has no business dictating it.
+#
+# What OASiS does document — because you cannot guess it and it is what the
+# interface check compares against — is everything AROUND the solve: the
+# imports/exports handshake above, the interface sign convention, and the flux
+# recovery below. Those are this tool's own interface, not your method.
+#
+# At this point you are expected to have produced:
+#   * the discrete solution on this subdomain, with the partner's interface
+#     data applied according to SIDE, and
+#   * the assembled operator and the VOLUME load separately, because the flux
+#     recovery below subtracts the volume load alone.
+# ─────────────────────────────────────────────────────────────────────────
+    # TWO THINGS YOUR SOLVE ABOVE MUST DO, or the self-check below reads zeros:
+    #   * AddDof(TEMPERATURE, REACTION_FLUX, mp) -- the SECOND argument gives
+    #     every fixed dof a place to store its reaction; without it the
+    #     reaction is silently discarded.
+    #   * run the strategy with CalculateReactionsFlag=True (the 4th positional
+    #     argument of ResidualBasedLinearStrategy); the conservation self-check
+    #     is built from REACTION_FLUX.
+
+    # ── served: the trace is read from the nodes AT x = IFACE_X, checked by
+    #    coordinate before anything is exported. Measured 2026-09-11 on three
+    #    worker scripts written from this contract: two inverted the ON_MAX_X
+    #    test inside their own solve, exported the OUTER column's temperature
+    #    under the interface's coordinates, and nothing else was wrong -- the
+    #    flux, assembled from the conditions, was right in all three. A wrong
+    #    column exits 0 and couples on; this stops it.
+    _if_nodes = [mp.Nodes[nid[(i_if, j)]] for j in range(NY + 1)]
+    _off = [n for n in _if_nodes if abs(n.X - IFACE_X) > TOL]
+    if _off:
+        sys.exit(f"EXPORT SELF-CHECK: {len(_off)} of {len(_if_nodes)} nodes read as the "
+                 f"interface column sit at x={_off[0].X:.6g}, not x={IFACE_X}: i_if names "
+                 f"the wrong column. The interface column is the one whose x equals "
+                 f"IFACE_X: ON_MAX_X = abs(IFACE_X - X1) < abs(IFACE_X - X0), then "
+                 f"i_if = NX if ON_MAX_X else 0 and i_out = 0 if ON_MAX_X else NX")
+    T = np.array([n.GetSolutionStepValue(KM.TEMPERATURE) for n in _if_nodes])
+
+    # ── this side's own outward normal flux, from what the CONDITIONS assembled
+    #
+    # THE ARGUMENT THIS REPLACES WAS HALF RIGHT. It said the reaction formula
+    # must not be used on a Neumann side because those interface dofs are free,
+    # so r = A u - b is ~0 there and -r/w would export zero. True — but only
+    # because Kratos stores REACTION_FLUX on FIXED dofs alone, and only when
+    # the residual is taken against a load that ALREADY CONTAINS the interface
+    # term. It then fell back to an L2 projection of the elementwise P1
+    # gradient, defended as "acceptable here and only here, because a Dirichlet
+    # partner reads this participant's values, never its normal_fluxes".
+    #
+    # The grader reads them. The two-sided interface jump is a GATE on a
+    # coupled cell, and this side's export is half of it.
+    #
+    # MEASURED on the 3-D sibling, which had the identical construction, by
+    # imposing q(y,z) = 2 + 3 sin(4y) cos(3z) and asking for it back:
+    #     gradient averaging  1.27e+00, 8.37e-01, 3.95e-01   order 0.60, 1.08
+    #     assembled conditions 5.16e-01, 1.77e-01, 4.77e-02  order 1.55, 1.89
+    # The projection is O(h) where the field is O(h^2), so it, and not the
+    # physics, sets the graded interface order.
+    #
+    # AN ECHO OF q_in WOULD NOT DO EITHER, though it is algebraically the exact
+    # answer here: FluxCondition2D2N enforces K grad T . n = FACE_HEAT_FLUX and
+    # FACE_HEAT_FLUX is the partner's array verbatim. An echo never passes
+    # through the discretisation, so applied on the wrong facets or with the
+    # wrong sign it reads the same and the balance gate still reports roundoff.
+    # Summing each condition's own right-hand side is a MEASUREMENT of what
+    # entered the linear system: it is int_Gamma g phi_i ds when the interface
+    # is built correctly and something else the moment it is not. On those rows
+    # the discrete equation gives r_i = +(assembled interface load), so the
+    # outward density is -r_i/w_i — the same expression the Dirichlet side uses.
+    info = mp.ProcessInfo
+    rhs_i = np.zeros(len(mp.Nodes) + 1)
+    w_i = np.zeros(len(mp.Nodes) + 1)
+    for cond in mp.Conditions:
+        vec = KM.Vector()
+        cond.CalculateRightHandSide(vec, info)
+        nds = cond.GetNodes()
+        # w_i = int_Gamma phi_i ds: in 2-D the interface facets are segments,
+        # so a node's weight is half of each segment it belongs to.
+        p0, p1 = nds[0], nds[1]
+        seg = ((p1.X - p0.X) ** 2 + (p1.Y - p0.Y) ** 2) ** 0.5
+        for k, nd in enumerate(nds):
+            rhs_i[nd.Id] += float(vec[k])
+            w_i[nd.Id] += 0.5 * seg
+    ids_if = [nid[(i_if, j)] for j in range(NY + 1)]
+    r_if = np.array([rhs_i[i] for i in ids_if])
+    wq = np.array([w_i[i] for i in ids_if])
+    Q = np.where(np.abs(wq) > 1e-14, -r_if / np.maximum(np.abs(wq), 1e-300)
+                 * np.sign(np.where(wq == 0, 1.0, wq)), 0.0)
+    if FULL_OUTER_DIRICHLET:
+        # Corner reactions also contain the perpendicular outer-boundary flux
+        # and cannot be separated into one interface contribution. C2 excludes
+        # them from grading; retain the points for exchange but not that mixed
+        # reaction.
+        Q[[0, -1]] = 0.0
+
+    # ── CONSERVATION SELF-CHECK: the discrete divergence theorem ──────────────
+    # Summing the unconstrained residual r = A u - b over ALL nodes gives
+    # sum_i r_i = -sum_i b_i, because sum_i A_ij = int K grad(sum_i phi_i).grad
+    # phi_j = 0 (the phi_i are a partition of unity). r vanishes on free rows,
+    # so over the fixed rows alone
+    #       sum_{outer} r_i  +  int_Omega f dOmega  +  int_Gamma q_applied ds  =  0
+    # exactly, at round-off, for ANY mesh. It is not a discretisation check: it
+    # fails only if the flux was applied with the wrong sign or magnitude, or
+    # not applied at all — which is precisely the failure mode this side has.
+    hy = (Y1 - Y0) / NY
+    load_iface = float(hy * (0.5 * q_in[0] + q_in[1:-1].sum() + 0.5 * q_in[-1]))
+    load_vol = 0.0
+    for el in mp.Elements:
+        nds = el.GetNodes()
+        x = [n.X for n in nds]
+        y = [n.Y for n in nds]
+        det = (x[1]-x[0])*(y[2]-y[0]) - (x[2]-x[0])*(y[1]-y[0])
+        load_vol += (0.5 * abs(det)) * sum(
+            n.GetSolutionStepValue(KM.HEAT_FLUX) for n in nds) / 3.0
+    react = sum(mp.Nodes[nid[(i_out, j)]].GetSolutionStepValue(KM.REACTION_FLUX)
+                for j in range(NY + 1))
+    imb_abs = abs(react + load_vol + load_iface)
+    scale = max(abs(react), abs(load_vol), abs(load_iface))
+    # On iteration 1 with Q_INIT = 0 and no source there is no heat flow at all,
+    # every term is round-off, and a RATIO of round-off to round-off is O(1)
+    # while meaning nothing. Say "trivial" instead of printing a 1.0 that reads
+    # as a 100% conservation error.
+    if scale <= 1e-10 * K * max(1.0, abs(T_OUTER)) * (Y1 - Y0):
+        bal = f"balance trivial (no heat flow yet, |imbalance|={imb_abs:.3e})"
+    else:
+        bal = (f"balance |sum(reactions)+vol+iface| = {imb_abs:.3e} abs / "
+               f"{imb_abs / scale:.3e} rel")
+
+    print(f"[kratos neumann] interface n={len(T)} "
+          f"q_applied=[{q_in.min():.6g},{q_in.max():.6g}] "
+          f"T=[{T.min():.6g},{T.max():.6g}] {bal}")
+    print(f"NDOF = {len(mp.Nodes)}")
+
+    # PER-LEVEL PERSISTENCE: this level's whole field and its interface trace
+    # and flux, named by LEVEL, never overwritten by the next level (exports.json
+    # is). Build the task's per-level files from these.
+    with open(f"field_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u\n")
+        for n in mp.Nodes:
+            _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(n.GetSolutionStepValue(KM.TEMPERATURE)):.11e}\n")
+    with open(f"interface_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u,qn\n")
+        for n, t, q in zip(_if_nodes, T, Q):
+            _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(t):.11e},{float(q):.11e}\n")
+
+    # exports.json LAST: the driver takes its existence as proof of success.
+    Path("exports.json").write_text(json.dumps({
+        "field_name": "temperature",
+        "n_points": int(len(T)),
+        # the coordinates of the SAME node objects the values were read from
+        "coordinates": [[float(n.X), float(n.Y)] for n in _if_nodes],
+        "values": [float(t) for t in T],
+        "normal_fluxes": [float(q) for q in Q],
+    }, indent=2))
+    return mp, nid
+
+
+if __name__ == "__main__":
+    main()
+
+# ── WHAT YOUR SOLVE MUST LEAVE BEHIND ─────────────────────────
+# The code above and below the elided block uses these names. Your
+# block has to define every one of them, or the rest will not run:
+#
+#     i_if
+#     i_out
+#     mp
+#     n
+#     props
+#     y_if
+#
+# That is the whole contract. Read the surviving lines to see the
+# shape each one has to have -- they are already indexed, assembled
+# or written out there. OASiS does not serve the solve itself, but
+# it will not make you guess which variables the hole was filling.
+```
+## Launching it
+
+1. Make TWO copies of the script, one per subdomain, and write each into that
+   participant's own `work_dir` (an absolute path). Name them whatever you
+
+──────────────────────────────────────────────────────────────────────
+THIS PAYLOAD IS TRUNCATED HERE. 46,234 further characters exist and are NOT lost.
+──────────────────────────────────────────────────────────────────────
+You are reading the first 33,900 of 79,768 characters. The rest is available on request -- ask knowledge(topic='coupling', solver='kratos', signal='<what you are stuck on>') and name the problem: a diverging iteration, a sign convention, a flux that will not balance, a participant that will not start.
+WHY IT IS CUT. Reading all of it costs you the actions you need to solve the problem. Measured over many coupled runs: those that read the full coupling corpus got a median 39 tool calls and wrote no output file 60% of the time; runs with no coupling text at all got 95 calls and a median 10 output files. The text was not the binding constraint -- your budget was.
+WHAT TO DO NEXT, in order: get ONE participant running standalone until it writes exports.json; get the SECOND one running; then call couple(); then write the deliverables. Ask for more text only when a specific step has failed.
+
+
+────────────────────────────────────────
+TEN RULES THAT APPLY WHATEVER YOU ASKED FOR
+(the long form, with the measured evidence behind each: knowledge(topic='universal_full'))
+────────────────────────────────────────
+
+1. THE DELIVERABLE GOES IN THE DIRECTORY YOU WERE GIVEN: results, scripts and
+   solver output under the working directory your task names -- never a temp
+   dir, the tool's tree or $HOME. Work that cannot be found counts as absent.
+
+2. A SOLVER'S INPUT LANGUAGE IS NOT PYTHON. In decks and expression strings
+   powers are `^` not `**`, constants are the solver's own (lowercase `pi`),
+   and a wrong operator is often SILENT: the numeric prefix is taken, the rest
+   dropped, and the run succeeds with the wrong load. Rewrite every term of a
+   source you copied out of the task text.
+
+3. DO NOT CONCLUDE A SOLVER IS BROKEN. Nearly every "broken solver" seen in
+   development was an unread log: capture BOTH streams (`cmd > out.log 2>&1`),
+   read the log rather than the exit code (codes print their fatal error and
+   still exit 0), re-run with the backend's verbose flag, and ask
+   knowledge(topic='pitfalls', solver=...) before reporting a failure.
+
+4. THE MOST COMMON FAILURE IS NEVER PRODUCING THE NUMBERS: 36% of 464 measured
+   runs wrote no probe output, and the largest slice of those SOLVED and never
+   read the field back at the required points. Do ONE coarse level end to end
+   -- solve, extract at the prescribed points, write the file -- before
+   refining anything.
+
+5. MEASURE, DO NOT GUESS. Whether your field satisfies the equation you were
+   given is falsifiable with no reference answer:
+       verify_pde_consistency(solution_files=..., source_term=...,
+                              coefficient=..., domain=...)
+   Fields that solve the stated problem shrink at order ~2 across levels;
+   wrong ones stay flat. On a coupled task run it on EACH side with that
+   side's own source and coefficient. Report NOT_CONVERGED with the largest
+   relative change rather than a convergence you cannot show.
+
+6. IF YOUR SOLVER IS A BINARY, ITS INPUT FILE IS THE RUN INTERFACE and you
+   cannot guess it: the full deck grammar for 4C, FEBio and SPARTA is served
+   by knowledge(topic='physics', solver=<name>, physics=<name>) and by no
+   other topic -- ask before deciding a deck cannot be written.
+   4C DOES ACCEPT PER-NODE DIRICHLET VALUES (DESIGN POINT DIRICH CONDITIONS
+   with a DNODE-NODE TOPOLOGY block); its design entity ids are ONE-based, and an `E: 0`
+   segfaults with no message.
+
+7. REFINEMENT COUNTS HALVINGS, NOT CELLS: each level halves h (2-D: ~4x the
+   DOFs, 3-D: ~8x); `refined(k)` (scikit-fem), `refine_global(k)` (deal.II)
+   and their kin halve k times, so a task's levels 1, 2, 3 are k = 0, 1, 2
+   from the coarse mesh.
+
+8. YOUR SOLVER WILL ACCEPT A SETTING AND THEN IGNORE IT -- the single most
+   common silent failure: a source, coefficient or boundary value that parses
+   and is never consumed. A driven problem whose field is identically zero is
+   this bug until proven otherwise. THE CHECK COSTS ONE COMMAND: grep your own
+   input for the ingredient's name and confirm something CONSUMES it.
+
+9. GATE ON THREE THINGS BEFORE YOU WRITE YOUR SUMMARY FILE, at EVERY level:
+   the field is non-trivial (distinct values, plausible size), the boundary
+   values come back at the boundary, and the mesh actually changed.
+
+10. READ YOUR FIELD AT THE PROBE POINTS BY INTERPOLATION, NEVER BY NEAREST
+    NODE: nearest-node caps the measured order at 1 whatever the solver did.
+    It is post-processing -- re-read the field, do not re-solve.
+
+BEFORE YOU HAND IN, RUN `audit_results(work_dir=<your results directory>,
+claimed_order=<the order you are about to claim>)` and act on what it names;
+it reads only your own files.

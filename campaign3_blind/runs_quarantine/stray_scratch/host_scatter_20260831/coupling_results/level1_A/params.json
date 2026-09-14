@@ -1,0 +1,15 @@
+{
+  "L_A": 0.625,
+  "L_B": 0.875,
+  "H": 1.0,
+  "k_A": 1.0,
+  "k_B": 200.0,
+  "nx_A": 5,
+  "ny_A": 8,
+  "nx_B": 7,
+  "ny_B": 8,
+  "interface_x": 0.625,
+  "fourc_binary": "/home/alexander/4C/build/4C",
+  "fourc_ld_library_path": "/opt/4C-dependencies/lib",
+  "kratos_python": "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python"
+}

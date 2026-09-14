@@ -1,0 +1,129 @@
+- metadata:
+    created_by: "alexander"
+    host: "kevin"
+    time: "11-09-2026 13-07-26"
+    sha: "89519cfe76251fc668617c4ab1a70b94fd86ec52"
+    version: "2026.2.0-dev"
+
+- general:
+    input_file: "deck_U.4C.yaml"
+    problem_type: "Thermo_Structure_Interaction"
+    spatial_approximation: "Polynomial"
+    ndim: 3
+
+- field:
+    field: "thermo"
+    time: 0
+    step: 0
+    num_nd: 1386
+    max_nodeid: 1385
+    num_ele: 640
+    num_dof: 1386
+    num_dim: 3
+    mesh_file: "out_U.mesh.thermo.s0"
+
+- field:
+    field: "structure"
+    time: 0
+    step: 0
+    num_nd: 1386
+    max_nodeid: 1385
+    num_ele: 640
+    num_dof: 4158
+    num_dim: 3
+    mesh_file: "out_U.mesh.structure.s0"
+
+- field:
+    field: "thermo"
+    time: 1
+    step: 1
+    num_nd: 1386
+    max_nodeid: 1385
+    num_ele: 640
+    num_dof: 1386
+    num_dim: 3
+    mesh_file: "out_U.mesh.thermo.s0"
+
+- result:
+    field: "thermo"
+    time: 1
+    step: 1
+    result_file: "out_U.result.thermo.s1"
+    temperature:
+      type: "dof"
+      columns: 1
+      values: "/step1/temperature.values"
+      ids: "/step1/temperature.ids"
+    rate:
+      type: "dof"
+      columns: 1
+      values: "/step1/rate.values"
+      ids: "/step1/temperature.ids"
+    displacement:
+      type: "node"
+      columns: 3
+      values: "/step1/displacement.values"
+      ids: "/step1/displacement.ids"
+
+- field:
+    field: "structure"
+    time: 1
+    step: 1
+    num_nd: 1386
+    max_nodeid: 1385
+    num_ele: 640
+    num_dof: 4158
+    num_dim: 3
+    mesh_file: "out_U.mesh.structure.s0"
+
+- result:
+    field: "structure"
+    time: 1
+    step: 1
+    result_file: "out_U.result.structure.s1"
+    Owner:
+      type: "element"
+      columns: 1
+      values: "/step1/Owner.values"
+      ids: "/step1/Owner.ids"
+    Nodeowner:
+      type: "node"
+      columns: 1
+      values: "/step1/Nodeowner.values"
+      ids: "/step1/Nodeowner.ids"
+    displacement:
+      type: "dof"
+      columns: 1
+      values: "/step1/displacement.values"
+      ids: "/step1/displacement.ids"
+    velocity:
+      type: "dof"
+      columns: 1
+      values: "/step1/velocity.values"
+      ids: "/step1/displacement.ids"
+    acceleration:
+      type: "dof"
+      columns: 1
+      values: "/step1/acceleration.values"
+      ids: "/step1/displacement.ids"
+    finert:
+      type: "dof"
+      columns: 1
+      values: "/step1/finert.values"
+      ids: "/step1/displacement.ids"
+    fvisco:
+      type: "dof"
+      columns: 1
+      values: "/step1/fvisco.values"
+      ids: "/step1/displacement.ids"
+    fstructure_old:
+      type: "dof"
+      columns: 1
+      values: "/step1/fstructure_old.values"
+      ids: "/step1/displacement.ids"
+    fint:
+      type: "dof"
+      columns: 1
+      values: "/step1/fint.values"
+      ids: "/step1/displacement.ids"
+

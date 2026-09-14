@@ -116,7 +116,7 @@
             "run_level2_A.log",
             "run_level2_B.log"
           ],
-          "detail": "7 file(s) carry structured 4C solver output"
+          "detail": "8 file(s) carry structured 4C solver output"
         },
         {
           "code": "kratos",
@@ -132,29 +132,33 @@
       ],
       "coupling": {
         "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
         "levels": 3,
         "per_level": {
           "1": {
             "iterations": 4,
             "first": 0.5218959745357759,
-            "last": 6.771420556388944e-07
+            "last": 6.771420556388944e-07,
+            "ratio_cv": 0.3605147185323061
           },
           "2": {
             "iterations": 4,
             "first": 0.554067366776745,
-            "last": 7.307801609706852e-07
+            "last": 7.307801609706852e-07,
+            "ratio_cv": 0.37679600682996417
           },
           "3": {
             "iterations": 4,
             "first": 0.5682272075089179,
-            "last": 7.584248627801185e-07
+            "last": 7.584248627801185e-07,
+            "ratio_cv": 0.3878762021272586
           }
         },
         "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
       },
-      "notes": [
-        "every file proving one code also proves the other (['run_level1_A.log', 'run_level1_B.log', 'run_level2_A.log', 'run_level2_B.log', 'run_level3_A.log', 'run_level3_B.log', 'test_level1_sideA/run.log']): this does not distinguish two runs from one. Only the canonical `NDOF =` line matched, and it is code-agnostic by design, so the weight falls entirely on the partitioned-iteration history."
-      ],
+      "notes": [],
       "fatal": null,
       "reasons": [],
       "ndof": {

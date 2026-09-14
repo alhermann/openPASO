@@ -1,0 +1,475 @@
+{
+  "C2_BARE": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "INTERFACE_SATISFIED",
+      "malformed": [],
+      "reasons": [],
+      "findings": [
+        "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 3 side A, level 3 side B. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.24885744992770192
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.11322144137320637
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.053904399954508395
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "INCONSISTENT",
+        "per_side": [
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 279% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.20783865935245063,
+                "spread": 2.7852607655649866,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 282% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 41.22761011365154,
+                "spread": 2.8197468746937027,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 690% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.12389448677034963,
+                "spread": 6.8960096280316865,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 691% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 24.68663225861156,
+                "spread": 6.9086320887553825,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 156% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.5754256228602845,
+                "spread": 1.557598934397892,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 156% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 118.9683668408697,
+                "spread": 1.5556876799671968,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 3 side A, level 3 side B. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field."
+        ],
+        "reasons": [
+          "FLUX_NOT_FROM_SUBMITTED_FIELD"
+        ],
+        "judged_at_level": 3
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "level_1/subdomain_A.control",
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log"
+          ],
+          "detail": "7 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 1,
+            "first": 1e-15,
+            "last": 1e-15
+          },
+          "2": {
+            "iterations": 1,
+            "first": 1e-15,
+            "last": 1e-15
+          },
+          "3": {
+            "iterations": 1,
+            "first": 1e-15,
+            "last": 1e-15
+          }
+        },
+        "detail": "level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: residual is constant; level 2: only 1 iteration(s); level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: residual is constant; level 3: only 1 iteration(s); level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: residual is constant"
+      },
+      "notes": [
+        "coupling evidence: level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: residual is constant; level 2: only 1 iteration(s); level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: residual is constant; level 3: only 1 iteration(s); level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: residual is constant",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "8.906995276405481e-03",
+      "INTERFACE_RESIDUAL": "1.000000000000000e-15",
+      "COUPLING_ITERATIONS": "1"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  },
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [
+        "level 1: 4 interface point(s) refused, e.g. (0.625, 0.125) (outside the graded band (0.25, 0.75)). The interface ends are corners of the split problem and are deliberately not graded; points elsewhere than the prescribed probes would let the agent choose where it is measured.",
+        "level 2: 12 interface point(s) refused, e.g. (0.625, 0.0625) (outside the graded band (0.25, 0.75)). The interface ends are corners of the split problem and are deliberately not graded; points elsewhere than the prescribed probes would let the agent choose where it is measured.",
+        "level 3: 20 interface point(s) refused, e.g. (0.625, 0.04166666666666666) (outside the graded band (0.25, 0.75)). The interface ends are corners of the split problem and are deliberately not graded; points elsewhere than the prescribed probes would let the agent choose where it is measured."
+      ],
+      "reasons": [],
+      "findings": [
+        "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 3 side B. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field."
+      ],
+      "per_level": [],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "INCONSISTENT",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 200 (+/-3.1%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 199.99998354287388,
+                "spread": 0.03083421817123492,
+                "n_points": 7,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 200 (+/-3.4%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 199.9999835428705,
+                "spread": 0.03444855131750834,
+                "n_points": 15,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 87% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 874.7609302946206,
+                "spread": 0.8693450293726382,
+                "n_points": 23,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 3 side B. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field."
+        ],
+        "reasons": [
+          "FLUX_NOT_FROM_SUBMITTED_FIELD"
+        ],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "CONSISTENT"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "9 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 5,
+            "first": 1.0,
+            "last": 9.999999993729136e-09,
+            "ratio_cv": 3.472572860719904e-10
+          },
+          "2": {
+            "iterations": 5,
+            "first": 1.0,
+            "last": 1.000000005798879e-08,
+            "ratio_cv": 2.4467698050092033e-09
+          },
+          "3": {
+            "iterations": 4,
+            "first": 1.0,
+            "last": 9.999999999276566e-07,
+            "ratio_cv": 3.350387517811831e-11
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [
+        "side A: NDOF grows 187 -> 400 (x2.14) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence.",
+        "side B: NDOF grows 255 -> 550 (x2.16) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence."
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "MESH_SEQUENCE_NOT_PRESCRIBED"
+      ],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 400
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 550
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.000000000000000e+00",
+      "INTERFACE_RESIDUAL": "1.000000000000000e+00",
+      "COUPLING_ITERATIONS": "4"
+    },
+    "reasons": [
+      "MESH_SEQUENCE_NOT_PRESCRIBED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

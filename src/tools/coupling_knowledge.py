@@ -2259,13 +2259,25 @@ def _thermo_notice(script_name: str) -> str:
     contract is. Measured 2026-09-11: a thermo-elastic cell's worker called the
     door without physics, got the scalar contract, invented a TSI deck from
     memory ("TSI CONTROL is not a valid section") and filed a blocker."""
-    if not (_PARTICIPANT_DIR / f"participant_{script_name}_thermoelastic.py").is_file():
+    have = [(lbl, phys) for key, lbl, phys in (
+        ("thermoelastic", "the interface carries TEMPERATURE AND DISPLACEMENT together "
+                          "(T, ux, uy in; heat flux and traction out)", "thermoelastic"),
+        ("elastic", "the exchanged field is a DISPLACEMENT (a traction returned)", "elasticity"),
+        ("transient", "the problem is TIME-DEPENDENT (the served contract marches the whole "
+                      "time window per call and exchanges the trace)", "transient"),
+        ("3d", "the domain is THREE-DIMENSIONAL with a planar interface", "3d"))
+        if (_PARTICIPANT_DIR / f"participant_{script_name}_{key}.py").is_file()]
+    if not have:
         return ""
-    return ("\nIF YOUR INTERFACE CARRIES TEMPERATURE AND DISPLACEMENT TOGETHER (a thermo-elastic "
-            "task: T, ux, uy in, heat flux and traction out), THE CONTRACT BELOW IS NOT THE ONE "
-            f"FOR YOU: call knowledge(topic='coupling', solver='{script_name}', "
-            "physics='thermoelastic') and use the thermo-elastic contract it leads with. The "
-            "block below is the single-field (scalar) contract.\n")
+    # Same defect for every variant, measured 2026-09-11 (thermo-elastic) and
+    # 2026-09-13 (vector, transient, 3-D): without the physics word the reply
+    # leads with the scalar contract and the variant sits past every cut.
+    return ("\nWHICH CONTRACT BELOW IS YOURS. The block below is the single-field STEADY 2-D "
+            f"(scalar) contract. If instead\n"
+            + "".join(f"  * {lbl}: call knowledge(topic='coupling', solver='{script_name}', "
+                      f"physics='{phys}')\n" for lbl, phys in have)
+            + "and use the contract THAT reply leads with. Without the physics word this door "
+              "leads with the single-field (scalar) contract.\n")
 
 
 def _thermoelastic_block(script_name: str) -> str:
@@ -4669,7 +4681,13 @@ def _dealii() -> str:
         "**Either side, in either subdomain.** All four role/position "
         "combinations were run as real couplings on this install — against "
         "FEniCSx and against DUNE-fem, with non-matching interface meshes — and "
-        "all converged.",
+        "all converged.\n\n"
+        "THE C++ SOLVER IS YOURS TO WRITE AND BUILD. No .cc ships with this "
+        "contract and none is on this install — do not go looking for one. The "
+        "Python wrapper below is the contract (the handshake, the sign "
+        "convention, the exports schema, the self-check); the compiled program "
+        "it runs is your solve, exchanging a plain-text input and output file "
+        "of your own design with the wrapper.",
         "dealii", _launch_py(_interp_wrapper(
             "deal.II", "DEALII_EXE",
             extra="\n   BUILD THE SOLVER FIRST (see the traps below): the wrapper runs\n"
@@ -4678,12 +4696,9 @@ def _dealii() -> str:
         '''\
 * THE PARTICIPANT IS TWO FILES: a compiled C++ solver and a thin Python
   wrapper. The wrapper converts imports.json into the solver's plain-text input
-  file, runs the executable, and converts its output into exports.json. BOTH
-  SOURCES ARE PRINTED IN FULL BELOW — save them to disk and build. (This text
-  used to say the C++ source sits "in the same directory the payload came
-  from". A payload comes from a tool call; there is no such directory. Agents
-  searched the filesystem for it, failed, hand-wrote the solver and lost the
-  session on a segfault.) Build it once:
+  file, runs the executable, and converts its output into exports.json. NEITHER
+  FILE IS SHIPPED: copy the wrapper contract above, write the C++ solver
+  yourself (see THE C++ SOLVER IS YOURS TO WRITE below), and build it once:
 
 ```
 cmake -S <dir with the .cc and CMakeLists> -B <build dir> \\
@@ -4698,10 +4713,10 @@ make -C <build dir> -j8
 * DO NOT try to compile with a bare `g++ -I<dealii>/include`. deal.II's bundled
   headers (Kokkos and friends) are only found through CMake's
   `DEAL_II_SETUP_TARGET`.
-* PASS THE PROBLEM THROUGH THE INPUT FILE, not through recompilation. The
-  shipped solver reads side, geometry, conductivity, mesh size and the imported
-  interface samples from one text file, so a coupling iteration is a re-run,
-  not a rebuild.
+* PASS THE PROBLEM THROUGH THE INPUT FILE, not through recompilation. Write
+  your solver to read side, geometry, conductivity, mesh size, the source
+  samples and the imported interface samples from one text file, so a coupling
+  iteration is a re-run, not a rebuild.
 * THE NODAL FLUX MUST BE AVERAGED OVER BOTH ADJACENT CELLS. Assembling the
   interface flux cell by cell and writing it into a per-node array is
   last-writer-wins, which silently biases every interior interface node toward

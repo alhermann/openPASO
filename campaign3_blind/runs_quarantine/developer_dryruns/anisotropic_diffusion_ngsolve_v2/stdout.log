@@ -1,0 +1,54 @@
+Generated 1936 probe points
+
+============================================================
+LEVEL 1: h = 0.125
+============================================================
+Mesh: 86 vertices, 138 elements
+NDOF = 86
+Solution range: [-7.000168e-02, 2.145231e-02]
+Written run_level1.log
+Written solution_level1.csv
+
+============================================================
+LEVEL 2: h = 0.0625
+============================================================
+Mesh: 337 vertices, 608 elements
+NDOF = 337
+Solution range: [-7.166539e-02, 2.168629e-02]
+Written run_level2.log
+Written solution_level2.csv
+
+============================================================
+LEVEL 3: h = 0.03125
+============================================================
+Mesh: 1256 vertices, 2382 elements
+NDOF = 1256
+Solution range: [-7.197529e-02, 2.181892e-02]
+Written run_level3.log
+Written solution_level3.csv
+
+============================================================
+LEVEL 4: h = 0.015625
+============================================================
+Mesh: 4885 vertices, 9512 elements
+NDOF = 4885
+Solution range: [-7.196857e-02, 2.184312e-02]
+Written run_level4.log
+Written solution_level4.csv
+
+============================================================
+CONVERGENCE ANALYSIS
+============================================================
+Max absolute change (level 3 -> 4): 3.727633e-04
+Max relative change (level 3 -> 4): 1.417080e+00
+L2 norm of difference: 8.141479e-05
+Relative L2 change: 2.884598e-03
+
+Convergence criterion: rel_tol = 0.01
+MESH_INDEPENDENCE = CONVERGED
+
+Written RESULT.txt
+
+============================================================
+SOLUTION COMPLETE
+============================================================

@@ -1,0 +1,83 @@
+
+============================================================
+Level 1: Solving with maxh = 0.125
+============================================================
+Mesh created: 138 elements, 86 vertices
+Total DOFs: 704
+V.ndof: 618, Q.ndof: 86
+Free DOFs before pinning: 704
+Pinning pressure at DOF 618
+Free DOFs after pinning: 704
+Starting Newton iteration...
+Newton iteration  0
+err =  0.05597662484430564
+Newton iteration  1
+err =  1.4730327834668176e-06
+Newton iteration  2
+err =  2.5255866862222164e-16
+Newton converged in 3 iterations!
+Mean pressure: 6.254019e-01
+Run log written to ./run_level1.log
+Generated 1936 probe points
+Solution CSV written to ./solution_level1.csv
+VTK output written
+
+============================================================
+Level 2: Solving with maxh = 0.0625
+============================================================
+Mesh created: 608 elements, 337 vertices
+Total DOFs: 2899
+V.ndof: 2562, Q.ndof: 337
+Free DOFs before pinning: 2899
+Pinning pressure at DOF 2562
+Free DOFs after pinning: 2899
+Starting Newton iteration...
+Newton iteration  0
+err =  0.05600283764101513
+Newton iteration  1
+err =  1.899677064436639e-07
+Newton iteration  2
+err =  1.7332265031018175e-16
+Newton converged in 3 iterations!
+Mean pressure: 6.363971e-01
+Run log written to ./run_level2.log
+Generated 1936 probe points
+Solution CSV written to ./solution_level2.csv
+VTK output written
+
+============================================================
+Level 3: Solving with maxh = 0.03125
+============================================================
+Mesh created: 2382 elements, 1256 vertices
+Total DOFs: 11042
+V.ndof: 9786, Q.ndof: 1256
+Free DOFs before pinning: 11042
+Pinning pressure at DOF 9786
+Free DOFs after pinning: 11042
+Starting Newton iteration...
+Newton iteration  0
+err =  0.056004203812548385
+Newton iteration  1
+err =  2.87110919958033e-08
+Newton iteration  2
+err =  2.3313917684758445e-16
+Newton converged in 3 iterations!
+Mean pressure: 6.384346e-01
+Run log written to ./run_level3.log
+Generated 1936 probe points
+Solution CSV written to ./solution_level3.csv
+VTK output written
+
+============================================================
+MESH INDEPENDENCE ANALYSIS
+============================================================
+L2 relative change ux: 4.300268e-04
+L2 relative change uy: 4.707939e-04
+Max relative change ux: 6.389305e+00
+Max relative change uy: 6.726691e+00
+Overall max relative change: 6.726691e+00
+
+Mesh independence criterion (tol=0.01): NOT_CONVERGED
+
+RESULT.txt written
+Done!

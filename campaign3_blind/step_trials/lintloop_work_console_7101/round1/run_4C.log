@@ -1,0 +1,102 @@
+Invalid MIT-MAGIC-COOKIE-1 key
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+Number of procs used for redistribution: 1
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
++--------------------------------------------------------------------+
+
+Number of procs used for redistribution: 1
+Redistributing using hypergraph .........
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
++--------------------------------------------------------------------+
+Read/generate conditions                          in....0.00237766 secs
+
+Total wall time for INPUT:        4.900e-02 sec 
+
+###################################################
+# YOUR PROBLEM TYPE: Scalar_Transport
+###################################################
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
+Vtk Files 'scatra-00000' written. Time: 0.00000000000000e+00
+
+TIME:           1/1  DT = 1    Stationary    STEP = 1/1
+Solvertype linear_full (ts= 1.611E-03,te= 9.910E-04)
+
+Vtk Files 'scatra-00001' written. Time: 1.00000000000000e+00
+
+Checking results of 0 tests:
+
+OK (0)
+======================================================================================
+
+                         TimeMonitor results over 1 processor
+
+Timer Name                                                 Global time (num calls)    
+--------------------------------------------------------------------------------------
+Core::FE::Discretization::Evaluate                         0.0008563 (1)              
+Core::FE::Discretization::set_state                        3.725e-05 (8)              
+Core::LinAlg::Solver:  0)   translate_solver_parameters    2.68e-05 (1)               
+Core::LinAlg::Solver:  1)   Setup                          0.0004971 (1)              
+Core::LinAlg::Solver:  2)   Solve                          0.001105 (1)               
+Core::LinAlg::SparseMatrix::Complete                       3.771e-05 (1)              
+Rebalance::rebalance_graph                                 0.0012 (1)                 
+Rebalance::rebalance_node_maps                             0.001265 (1)               
+SCATRA:       + apply DBC to system                        1.01e-05 (1)               
+SCATRA:       + element calls                              0.0009955 (1)              
+--------------------------------------------------------------------------------------
+SCATRA:       + solver calls                               0.001623 (1)               
+SCATRA:      + apply dirich cond.                          8.77e-05 (2)               
+SCATRA:    + output of solution                            0.001659 (2)               
+SCATRA:    + prepare time step                             0.0001834 (1)              
+SCATRA:  + time loop                                       0.004518 (1)               
+======================================================================================
+
+Total wall time for CALCULATION:  9.000e-03 sec 
+
+
+Memory High Water Mark Summary:		Total
+(in GB)					1.7859e-01
+
+processor 0 finished normally

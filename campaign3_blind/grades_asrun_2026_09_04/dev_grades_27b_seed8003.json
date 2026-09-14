@@ -1,0 +1,296 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.795155348416297,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.011144037746877555,
+          0.006204192339622666,
+          0.0037009341025673794
+        ],
+        "reasons": [
+          "IMPLAUSIBLE_RATE(u)"
+        ],
+        "superconvergent": false,
+        "order": 0.795155348416297,
+        "r2": 0.9987,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.22128412061521377,
+        "rel_finest": 0.07348843991226982
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.011144037746877555,
+        "per_field": {
+          "u": 0.011144037746877555
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.006204192339622666,
+        "per_field": {
+          "u": 0.006204192339622666
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.0037009341025673794,
+        "per_field": {
+          "u": 0.0037009341025673794
+        }
+      }
+    ],
+    "r2": 0.9987,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.050360765679412,
+      "exact_rms_computed": 0.050360765679412146,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the submitted FIELD is flat at the interface \u2014 its normal derivative is identically zero \u2014 at level 1 side A, level 1 side B, level 2 side B, level 3 side B. A field with no gradient at the interface transports nothing across it, so whatever flux was reported cannot have come from it.",
+        "the two subdomains disagree at the interface: max relative field jump 9.305e-01, max relative FLUX jump 1.946e+00. the jump does not shrink under refinement (field [9.305e-01, 8.411e-01, 5.996e-01], flux [1.756e+00, 1.777e+00, 1.946e+00]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.9305413800222194,
+          "jump_q_rel": 1.7559373683685542
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.8410602391374515,
+          "jump_q_rel": 1.777121201605948
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.5995629692313561,
+          "jump_q_rel": 1.9459006504648297
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "NOT_ASSESSED",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.22727273599999973,
+                "spread": 0.028504458990362545,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.2275 (+/-3.1%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.22749421897502303,
+                "spread": 0.030597461430007612,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the submitted FIELD is flat at the interface \u2014 its normal derivative is identically zero \u2014 at level 1 side A, level 1 side B, level 2 side B, level 3 side B. A field with no gradient at the interface transports nothing across it, so whatever flux was reported cannot have come from it."
+        ],
+        "reasons": [],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "SIGN_CONVENTION"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "9 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "participant_output.log",
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log"
+          ],
+          "detail": "7 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "RESULT.txt claims COUPLING_ITERATIONS=4 but the finest-level history has 3 rows \u2014 recorded as a discrepancy, not as evidence of invention",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 3,
+            "first": 0.004437567907277598,
+            "last": 9.04548267181811e-08
+          },
+          "2": {
+            "iterations": 3,
+            "first": 0.004725357520525189,
+            "last": 1.067616235296629e-07
+          },
+          "3": {
+            "iterations": 3,
+            "first": 0.004918519303829041,
+            "last": 1.201513990877151e-07
+          },
+          "notes": [
+            "RESULT.txt claims COUPLING_ITERATIONS=4 but the finest-level history has 3 rows \u2014 recorded as a discrepancy, not as evidence of invention"
+          ]
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 693
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 957
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "COULD_NOT_COMPLETE",
+      "INTERFACE_RESIDUAL": "9.52e-01",
+      "COUPLING_ITERATIONS": "4"
+    },
+    "reasons": [
+      "INTERFACE_NOT_SATISFIED",
+      "IMPLAUSIBLE_RATE(u)"
+    ],
+    "findings": [
+      "the submitted FIELD is flat at the interface \u2014 its normal derivative is identically zero \u2014 at level 1 side A, level 1 side B, level 2 side B, level 3 side B. A field with no gradient at the interface transports nothing across it, so whatever flux was reported cannot have come from it.",
+      "the two subdomains disagree at the interface: max relative field jump 9.305e-01, max relative FLUX jump 1.946e+00. the jump does not shrink under refinement (field [9.305e-01, 8.411e-01, 5.996e-01], flux [1.756e+00, 1.777e+00, 1.946e+00]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+    ],
+    "notes": [],
+    "result_type": "order"
+  }
+}

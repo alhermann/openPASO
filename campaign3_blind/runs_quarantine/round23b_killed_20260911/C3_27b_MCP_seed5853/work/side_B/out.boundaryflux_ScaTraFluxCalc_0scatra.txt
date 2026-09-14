@@ -1,0 +1,2 @@
+#| ID | Step | Time | Area of boundary | Integral of normal flux 0 | Mean normal flux density 0 |
+0 1 1 0.75 0.0169497 0.0225996 

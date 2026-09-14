@@ -1,0 +1,279 @@
+{
+  "C3_BARE": {
+    "problem": "C3",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 3 side A, level 3 side B. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field.",
+        "the two subdomains disagree at the interface: max relative field jump 8.795e+00, max relative FLUX jump 1.869e+00. the jump does not shrink under refinement (field [9.919e-07, 6.482e-01, 8.795e+00], flux [1.647e+00, 1.679e+00, 1.869e+00]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 9.918847927849019e-07,
+          "jump_q_rel": 1.6467225111060666
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.6482347739397277,
+          "jump_q_rel": 1.6786089220556257
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 8.794633346828792,
+          "jump_q_rel": 1.8693768837105946
+        }
+      ],
+      "legs": [
+        {
+          "axis": 1,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "INCONSISTENT",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.2272727359999997,
+                "spread": 0.026951262116021116,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.6363636479991088,
+                "spread": 0.0231251995630495,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 73% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.22345126257957917,
+                "spread": 0.7306938888477511,
+                "n_points": 40,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 615% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.6894683853546114,
+                "spread": 6.145593794165645,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 3 side A, level 3 side B. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field."
+        ],
+        "reasons": [
+          "FLUX_NOT_FROM_SUBMITTED_FIELD"
+        ],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "NOT_ASSESSED",
+          "SIGN_CONVENTION"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "dune",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured dune solver output"
+        },
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "7 file(s) carry structured 4C solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 125,
+            "first": 1.0,
+            "last": 9.91884879608e-07,
+            "ratio_cv": 0.10552677561315796
+          },
+          "2": {
+            "iterations": 500,
+            "first": 1.0,
+            "last": 0.648234773942,
+            "ratio_cv": 0.07399371774749372
+          },
+          "3": {
+            "iterations": 500,
+            "first": 1.0,
+            "last": 1.65189684815,
+            "ratio_cv": 1.0897236815069395
+          }
+        },
+        "detail": "level 2: residual fell only 1.54x \u2014 an iteration that never moved did not couple; level 2: final residual 0.648 exceeds the prescribed 1e-06; level 3: residual fell only 0.605x \u2014 an iteration that never moved did not couple; level 3: final residual 1.65 exceeds the prescribed 1e-06"
+      },
+      "notes": [
+        "coupling evidence: level 2: residual fell only 1.54x \u2014 an iteration that never moved did not couple; level 2: final residual 0.648 exceeds the prescribed 1e-06; level 3: residual fell only 0.605x \u2014 an iteration that never moved did not couple; level 3: final residual 1.65 exceeds the prescribed 1e-06",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "5.03585650732e+159",
+      "INTERFACE_RESIDUAL": "1.65189684815e+00",
+      "COUPLING_ITERATIONS": "500"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  },
+  "C3_MCP": {
+    "problem": "C3",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "0",
+      "INTERFACE_RESIDUAL": "COULD_NOT_COMPLETE",
+      "COUPLING_ITERATIONS": "0"
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
+    "result_type": "order"
+  }
+}

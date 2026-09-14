@@ -1,0 +1,154 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [
+        "interface files missing or one-sided for level(s) [1, 2, 3]: every prescribed level needs both interface_level<k>_A.csv and _B.csv"
+      ],
+      "reasons": [],
+      "findings": [],
+      "per_level": [],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "CONSISTENT",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.22727273599999973,
+                "spread": 0.02891008753029053,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.2275 (+/-3.1%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.2275163897489999,
+                "spread": 0.030782159843321714,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          }
+        ],
+        "findings": [],
+        "reasons": [],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "NOT_ASSESSED",
+          "SIGN_CONVENTION"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/out.control",
+            "level1_A/run_level1_A.log",
+            "level2_A/out.control",
+            "level3_A/out.control"
+          ],
+          "detail": "8 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/run_level1_A.log",
+            "run_level1_A.log",
+            "run_level2_A.log",
+            "run_level3_A.log"
+          ],
+          "detail": "4 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "NOT_PROVEN",
+        "levels": 0,
+        "forged": false,
+        "forged_detail": "",
+        "detail": "no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none."
+      },
+      "notes": [
+        "coupling evidence: no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_NOT_PROVEN"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "COULD_NOT_COMPLETE",
+      "INTERFACE_RESIDUAL": "COULD_NOT_COMPLETE",
+      "COUPLING_ITERATIONS": "COULD_NOT_COMPLETE"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_NOT_PROVEN"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

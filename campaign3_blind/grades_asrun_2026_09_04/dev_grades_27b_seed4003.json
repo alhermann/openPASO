@@ -1,0 +1,189 @@
+{
+  "KR1_BARE": {
+    "problem": "KR1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
+    "result_type": "order"
+  },
+  "KR1_MCP": {
+    "problem": "KR1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 1.017564710126,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.00197239549524827,
+          0.0010402626885573354,
+          0.00048429950721077777
+        ],
+        "reasons": [
+          "UNDER_CONVERGED(ux)"
+        ],
+        "superconvergent": false,
+        "order": 1.0129887114591698,
+        "r2": 0.9974,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.5044735213392184,
+        "rel_finest": 0.12386779343902153
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.002113944168312193,
+          0.0011081836251280019,
+          0.0004943762969848514
+        ],
+        "reasons": [
+          "UNDER_CONVERGED(uy)"
+        ],
+        "superconvergent": false,
+        "order": 1.048127897207135,
+        "r2": 0.9959,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.4710954332466334,
+        "rel_finest": 0.11017245360878886
+      },
+      "uz": {
+        "field": "uz",
+        "errors": [
+          0.005551193129615696,
+          0.0029305622015875577,
+          0.0013612836725753446
+        ],
+        "reasons": [
+          "UNDER_CONVERGED(uz)"
+        ],
+        "superconvergent": false,
+        "order": 1.0139150752640833,
+        "r2": 0.9972,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.4249588520264188,
+        "rel_finest": 0.10420994789276483
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 9261,
+        "error": 0.006258981474545943,
+        "per_field": {
+          "ux": 0.00197239549524827,
+          "uy": 0.002113944168312193,
+          "uz": 0.005551193129615696
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 9261,
+        "error": 0.0033012743335839403,
+        "per_field": {
+          "ux": 0.0010402626885573354,
+          "uy": 0.0011081836251280019,
+          "uz": 0.0029305622015875577
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 9261,
+        "error": 0.0015271041788055175,
+        "per_field": {
+          "ux": 0.00048429950721077777,
+          "uy": 0.0004943762969848514,
+          "uz": 0.0013612836725753446
+        }
+      }
+    ],
+    "r2": 0.9971,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.014354848331871863,
+      "exact_rms_computed": 0.014354848331871891,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level1_output.log",
+            "run_level2.log",
+            "run_level2_output.log"
+          ],
+          "detail": "8 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 81,
+          "2": 1029,
+          "3": 10125
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.030391e-01"
+    },
+    "reasons": [
+      "UNDER_CONVERGED(ux)",
+      "UNDER_CONVERGED(uy)",
+      "UNDER_CONVERGED(uz)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  }
+}

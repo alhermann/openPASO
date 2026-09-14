@@ -1,0 +1,70 @@
+iteration: 11
+command: ["/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python", "/home/alexander/Schreibtisch/ofa-v2/benchmarks/coupling_pairs/fourc_kratos_cht/participant_fourc.py"]
+returncode: 0
+--- stdout ---
+
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+Number of procs used for redistribution: 1
+Redistributing using hypergraph .........
+Read/generate conditions                          in....0.00238062 secs
+
+Total wall time for INPUT:        5.100e-02 sec 
+
+Welcome to Thermal Time Integration 
+      _______________________________
+  ===(__|_|_37 degrees celsius__|_|__)
+
+with statics
+Predictor thermo absolute res-norm 671.975
+numiter      abs-res-norm     abs-temp-norm           wct
+      1       4.46572e-13       1.67967e+03      2.71e-03
+      2       2.60047e-13       2.46804e-12      3.28e-03
+Finalised: step 1 | nstep 1 | time 1 | dt 1 | numiter 2
+------------------------------------------------------------------------------
+====== Restart written in step 1
+--------------------------------------------------------------------------------
+
+Checking results of 0 tests:
+
+OK (0)
+======================================================================================
+
+                         TimeMonitor results over 1 processor
+
+Timer Name                                                 Global time (num calls)    
+--------------------------------------------------------------------------------------
+Core::FE::Discretization::Evaluate                         0.0004734 (5)              
+Core::FE::Discretization::set_state                        3.161e-05 (20)             
+Core::LinAlg::Solver:  0)   translate_solver_parameters    3.231e-05 (1)              
+Core::LinAlg::Solver:  1)   Setup                          0.0006413 (2)              
+Core::LinAlg::Solver:  2)   Solve                          0.001206 (2)               
+Core::LinAlg::SparseMatrix::Complete                       2.868e-05 (3)              
+Core::LinAlg::SparseMatrix::Complete(domain,range)         2.134e-05 (4)              
+Rebalance::rebalance_graph                                 0.001161 (1)               
+Rebalance::rebalance_node_maps                             0.00121 (1)                
+======================================================================================
+
+Total wall time for CALCULATION:  7.000e-03 sec 
+
+
+Memory High Water Mark Summary:		Total
+(in GB)					1.7393e-01
+
+processor 0 finished normally
+slab A (4C): T_if(applied)=316.466542, q_out=32.480299
+
+--- stderr ---
+Invalid MIT-MAGIC-COOKIE-1 key

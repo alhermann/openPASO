@@ -1,0 +1,267 @@
+{
+  "SK1_BARE": {
+    "problem": "SK1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CONFIDENTLY_WRONG",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": -0.12477513738909603,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.01823633604634234,
+          0.02069594831160073,
+          0.02189803640248108
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_COARSE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": -0.1319928047977559,
+        "r2": 0.9534,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 7.378819152104406,
+        "rel_finest": 8.8604229484198
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.01815487618350243,
+          0.02024316555632103,
+          0.021361950626918397
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_COARSE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": -0.1173431495456331,
+        "r2": 0.9632,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 5.329216300333355,
+        "rel_finest": 6.270626928942647
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.025732537411484097,
+        "per_field": {
+          "ux": 0.01823633604634234,
+          "uy": 0.01815487618350243
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.02895009547923929,
+        "per_field": {
+          "ux": 0.02069594831160073,
+          "uy": 0.02024316555632103
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.030591778844507977,
+        "per_field": {
+          "ux": 0.02189803640248108,
+          "uy": 0.021361950626918397
+        }
+      }
+    ],
+    "r2": 0.9581,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.0042087323361165345,
+      "exact_rms_computed": 0.004208732336116415,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "skfem",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured skfem solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 659,
+          "2": 2467,
+          "3": 9539
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "1.210645e-01"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_COARSE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_COARSE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "SK1_MCP": {
+    "problem": "SK1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": 3.0312429343822,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          4.1994088345222364e-05,
+          4.868893570260302e-06,
+          5.847347893983052e-07
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 3.0831300051164447,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.016991723697648155,
+        "rel_finest": 0.00023659644415137914
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          4.886345320646745e-05,
+          6.168894980380362e-06,
+          7.66454317235986e-07
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 2.997206103560691,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.014343469417604459,
+        "rel_finest": 0.00022498643337409856
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 6.442934514029283e-05,
+        "per_field": {
+          "ux": 4.1994088345222364e-05,
+          "uy": 4.886345320646745e-05
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 7.858841509884529e-06,
+        "per_field": {
+          "ux": 4.868893570260302e-06,
+          "uy": 6.168894980380362e-06
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 9.640368220884315e-07,
+        "per_field": {
+          "ux": 5.847347893983052e-07,
+          "uy": 7.66454317235986e-07
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.0042087323361165345,
+      "exact_rms_computed": 0.004208732336116535,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "skfem",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured skfem solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 659,
+          "2": 2467,
+          "3": 9539
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "3.677209e-03"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  }
+}

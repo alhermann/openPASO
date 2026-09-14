@@ -1,0 +1,63 @@
+{
+  "session_id": "7eb63715-a261-41b1-a235-b20aa84a4d0a",
+  "started_at": 1789122639.014496,
+  "ended_at": 1789124044.5201037,
+  "duration_seconds": 1145.8,
+  "solvers_used": [
+    "fenics",
+    "fourc",
+    "general"
+  ],
+  "physics_used": [
+    "coupling",
+    "thermoelastic"
+  ],
+  "event_count": 6,
+  "error_count": 0,
+  "events": [
+    {
+      "timestamp": 1789122639.0145018,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122662.2404387,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "fourc",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122706.1049528,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "fourc",
+      "physics": "thermoelastic",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122749.0437465,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "fenics",
+      "physics": "thermoelastic",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122853.0245137,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "fourc",
+      "physics": "thermoelastic",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789123784.8022745,
+      "event_type": "tool_call",
+      "tool_name": "couple",
+      "solver": "general",
+      "physics": "coupling"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+[loop6_te4c13_1] round 1 gate brief (2091 chars): 4C stopped (run_t.log); 4C stopped (run_u.log); deck_t.4C.yaml: 2 defect(s); deck_u.4C.yaml: 1 defect(s).
+[loop6_te4c13_1] round 1: FAIL | kept self-check=True | 211s | rc=1 exports=False 4C_runs_finished=0 :: ts&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C | 5# main in /home/alexander/4C/build/4C; deck_t.4C.yaml: DESIGN LINE DIRICH CONDITIONS names E id(s) 100, 101, 102, 103, 104, 105 that no *-NODE TOPOLOGY section defines; deck_u.
+[loop6_te4c13_1] round 2 gate brief (1824 chars): 4C stopped (run_t.log); 4C stopped (run_u.log); deck_t.4C.yaml: 1 defect(s); deck_u.4C.yaml: 1 defect(s).
+[loop6_te4c13_1] round 2: PASS | kept self-check=True | 359s | exports n=9 qn_err=3.71e-03 qx_err=1.45e-02 qy_err=1.43e-02 4C_runs=4 NDOF_line=True values_n=0
+[loop6_te4c13_1] gate loop: PASS after 2 round(s)

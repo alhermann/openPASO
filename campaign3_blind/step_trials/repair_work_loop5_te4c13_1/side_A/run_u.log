@@ -1,0 +1,43 @@
+Invalid MIT-MAGIC-COOKIE-1 key
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+
+=========================================================================
+ERROR: could not find ':' colon after key
+572:79: 2 SOLIDSCATRA HEX8 2 3 12 11 101 102 111 110 MAT 1 KINEM linear TYPE Undefined  (size=78)
+                                                                                      ^  (cols 79-79)
+ 0# FourC::(anonymous namespace)::throw_on_yaml_parse_error(char const*, unsigned long, c4::yml::Location, void*) in /home/alexander/4C/build/lib4C.so
+ 1# void c4::yml::ParseEngine<c4::yml::EventHandlerTree>::_err<>(c4::basic_substring<char const>) const in /home/alexander/4C/build/_deps/ryml-build/libryml.so.0.9.0
+ 2# c4::yml::ParseEngine<c4::yml::EventHandlerTree>::_handle_map_block() in /home/alexander/4C/build/_deps/ryml-build/libryml.so.0.9.0
+ 3# c4::yml::ParseEngine<c4::yml::EventHandlerTree>::parse_in_place_ev(c4::basic_substring<char const>, c4::basic_substring<char>) in /home/alexander/4C/build/_deps/ryml-build/libryml.so.0.9.0
+ 4# c4::yml::parse_in_place(c4::basic_substring<char>, c4::yml::Tree*) in /home/alexander/4C/build/_deps/ryml-build/libryml.so.0.9.0
+ 5# FourC::Core::IO::(anonymous namespace)::read_yaml_content(std::filesystem::__cxx11::path const&, FourC::Core::IO::Internal::InputFileImpl&) in /home/alexander/4C/build/lib4C.so
+ 6# FourC::Core::IO::InputFile::read(std::filesystem::__cxx11::path const&) in /home/alexander/4C/build/lib4C.so
+ 7# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C
+ 8# main in /home/alexander/4C/build/4C
+ 9# __libc_start_main at ../csu/libc-start.c:342
+10# _start in /home/alexander/4C/build/4C
+
+=========================================================================
+
+
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------

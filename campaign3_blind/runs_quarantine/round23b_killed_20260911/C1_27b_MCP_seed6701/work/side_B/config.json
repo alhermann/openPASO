@@ -1,0 +1,1 @@
+{"level": 1, "nx": 8, "ny": 8, "x0": 0.625, "x1": 1.5, "y0": 0, "y1": 1, "k": 3, "lam": 600, "mu": 1600, "beta": 1, "iface": "left", "side": "neumann"}

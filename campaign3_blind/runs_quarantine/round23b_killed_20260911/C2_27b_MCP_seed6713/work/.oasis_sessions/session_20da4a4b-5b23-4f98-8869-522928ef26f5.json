@@ -1,0 +1,68 @@
+{
+  "session_id": "20da4a4b-5b23-4f98-8869-522928ef26f5",
+  "started_at": 1789122646.3565888,
+  "ended_at": 1789124280.8110921,
+  "duration_seconds": 1519.4,
+  "solvers_used": [
+    "fourc",
+    "general",
+    "kratos"
+  ],
+  "physics_used": [
+    "coupling",
+    "steady heat conduction"
+  ],
+  "event_count": 7,
+  "error_count": 0,
+  "events": [
+    {
+      "timestamp": 1789122646.3565958,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "fourc",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122673.4104548,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "kratos",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122724.9875956,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "fourc",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789123460.508442,
+      "event_type": "knowledge_lookup",
+      "tool_name": "prepare_simulation",
+      "solver": "fourc",
+      "physics": "steady heat conduction"
+    },
+    {
+      "timestamp": 1789124010.1788163,
+      "event_type": "tool_call",
+      "tool_name": "couple",
+      "solver": "general",
+      "physics": "coupling"
+    },
+    {
+      "timestamp": 1789124017.2213244,
+      "event_type": "tool_call",
+      "tool_name": "couple",
+      "solver": "general",
+      "physics": "coupling"
+    },
+    {
+      "timestamp": 1789124165.7354338,
+      "event_type": "tool_call",
+      "tool_name": "couple",
+      "solver": "general",
+      "physics": "coupling"
+    }
+  ]
+}

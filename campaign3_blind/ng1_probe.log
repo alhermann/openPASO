@@ -1,0 +1,607 @@
+>>> NG1 probe start 2026-09-01 22:22:34 build 470bbdd8
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-ozxrp7q1' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/db2b873c65cea584a7785d38e4400cad504d43676a11fab2558641d84df8b226'
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-i46is18f' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/db2b873c65cea584a7785d38e4400cad504d43676a11fab2558641d84df8b226'
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-zz8jqxwc' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/db2b873c65cea584a7785d38e4400cad504d43676a11fab2558641d84df8b226'
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-1mxgrxjn' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/db2b873c65cea584a7785d38e4400cad504d43676a11fab2558641d84df8b226'
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-5iu5fbjx' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/db2b873c65cea584a7785d38e4400cad504d43676a11fab2558641d84df8b226'
+<<< NG1 MCP seed 102 done 2026-09-01 22:22:36
+<<< NG1 BARE seed 102 done 2026-09-01 22:22:36
+<<< NG1 BARE seed 103 done 2026-09-01 22:22:36
+<<< NG1 BARE seed 101 done 2026-09-01 22:22:36
+<<< NG1 MCP seed 103 done 2026-09-01 22:22:36
+[source build] 470bbdd8f6d9 sha256=db2b873c65cea584... (immutable)
+REFUSING TO RUN — custody preflight failed:
+  - exposure sweep found readable solution-bearing files:
+keys sealed — literal rule disabled; structural rule still applies
+  [STRUCTURAL] /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/27bf55de1326bfdd2de34c739a2c12d70098ea52a2b536427f2e67a898885a4c/scripts/blind_keys.py
+           sympy derivation source: holds hidden fields as literals
+  [STRUCTURAL] /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/7e756593450e53ba9f387019828b5b6769b3d28493894db56496566c671cbd30/scripts/blind_keys.py
+           sympy derivation source: holds hidden fields as literals
+  [STRUCTURAL] /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/c38899785bff985f9c81e80a6643a035260e7ca14d7268892677e4e2acf73e2d/scripts/blind_keys.py
+           sympy derivation source: holds hidden fields as literals
+  [STRUCTURAL] /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/db2b873c65cea584a7785d38e4400cad504d43676a11fab2558641d84df8b226/scripts/blind_keys.py
+           sympy derivation source: holds hidden fields as literals
+
+4 agent-readable file(s) expose a solution under /home/alexander/Schreibtisch/ofa-v2/campaign3_blind
+VERDICT: FAIL
+
+<<< NG1 MCP seed 101 done 2026-09-01 22:22:59
+>>> NG1 probe complete 2026-09-01 22:22:59
+>>> NG1 probe start 2026-09-01 22:26:37 build cf0621b6
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-intqunt7' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b'
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-xk2wgzo7' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b'
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-p6ftxpp5' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b'
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1334, in <module>
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-azpnnjgg' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b'
+    main()
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 1265, in main
+    source_build = prepare_source_snapshot(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/run_blind.py", line 111, in prepare_source_snapshot
+    building.rename(target)
+  File "/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1363, in rename
+    os.rename(self, target)
+OSError: [Errno 39] Directory not empty: '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/.extract-hl5lhu9a' -> '/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b'
+<<< NG1 BARE seed 102 done 2026-09-01 22:26:38
+<<< NG1 BARE seed 101 done 2026-09-01 22:26:38
+<<< NG1 MCP seed 101 done 2026-09-01 22:26:38
+<<< NG1 MCP seed 102 done 2026-09-01 22:26:38
+<<< NG1 BARE seed 103 done 2026-09-01 22:26:38
+2026-09-01 22:27:02,003 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-01 22:27:02,013 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-01 22:27:02,017 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-01 22:27:02,021 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-01 22:27:02,040 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-01 22:27:02,054 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-01 22:27:02,054 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-01 22:27:02,067 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-01 22:27:02,067 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-01 22:27:02,087 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-01 22:27:02,087 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-01 22:27:02,101 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-01 22:27:02,101 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-01 22:27:02,115 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-01 22:27:02,115 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-01 22:27:02,115 [oasis] INFO: Starting OASiS MCP server
+2026-09-01 22:27:02,144 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-01 22:27:11,177 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:27:34,210 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:27:34,238 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+>>> NG1 probe start 2026-09-01 22:28:54 build 116d457a
+2026-09-01 22:29:11,291 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:29:13,572 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+[source build] 116d457ab1a8 sha256=d7c56000ec5ba6af... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+REFUSING TO RUN — mixed source population:
+population is already locked to cf0621b679f2b57c56ab047eb05cab423e0a5a67 / 08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b; current build is 116d457ab1a834baf3df4a207a118b67690978c4 / d7c56000ec5ba6afc07e2de33be9d7b748e2ff1d8b0dcb3cc49026f5a0edea48. Use a new seed or archive and deliberately remove .source_build_development_27b_seed103.json; never mix the two builds in one population.
+[source build] 116d457ab1a8 sha256=d7c56000ec5ba6af... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+REFUSING TO RUN — mixed source population:
+population is already locked to cf0621b679f2b57c56ab047eb05cab423e0a5a67 / 08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b; current build is 116d457ab1a834baf3df4a207a118b67690978c4 / d7c56000ec5ba6afc07e2de33be9d7b748e2ff1d8b0dcb3cc49026f5a0edea48. Use a new seed or archive and deliberately remove .source_build_development_27b_seed103.json; never mix the two builds in one population.
+<<< NG1 BARE seed 103 done 2026-09-01 22:29:19
+<<< NG1 MCP seed 103 done 2026-09-01 22:29:19
+2026-09-01 22:29:21,724 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-01 22:29:21,734 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-01 22:29:21,738 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-01 22:29:21,742 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-01 22:29:21,762 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-01 22:29:21,775 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-01 22:29:21,776 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-01 22:29:21,790 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-01 22:29:21,790 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-01 22:29:21,810 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-01 22:29:21,810 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-01 22:29:21,827 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-01 22:29:21,827 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-01 22:29:21,849 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-01 22:29:21,849 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-01 22:29:21,849 [oasis] INFO: Starting OASiS MCP server
+2026-09-01 22:29:21,887 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-01 22:29:21,943 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-01 22:29:21,953 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-01 22:29:21,957 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-01 22:29:21,963 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-01 22:29:21,982 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-01 22:29:21,996 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-01 22:29:21,996 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-01 22:29:22,010 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-01 22:29:22,010 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-01 22:29:22,030 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-01 22:29:22,030 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-01 22:29:22,044 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-01 22:29:22,044 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-01 22:29:22,062 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-01 22:29:22,062 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-01 22:29:22,062 [oasis] INFO: Starting OASiS MCP server
+2026-09-01 22:29:22,091 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-01 22:29:27,162 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:29:27,559 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:29:53,881 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:29:53,885 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:29:55,052 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:30:17,114 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:30:27,791 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:704: LangGraphDeprecatedSinceV10: create_react_agent has been moved to `langchain.agents`. Please update your import to `from langchain.agents import create_agent`. Deprecated in LangGraph V1.0 to be removed in V2.0.
+  sub_agent = create_react_agent(
+2026-09-01 22:31:44,050 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:31:44,055 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:31:54,102 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+>>> NG1 probe start 2026-09-01 22:33:38 build 116d457a
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed103/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:34:04,683 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-01 22:34:04,693 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-01 22:34:04,696 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-01 22:34:04,701 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-01 22:34:04,720 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-01 22:34:04,734 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-01 22:34:04,734 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-01 22:34:04,748 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-01 22:34:04,748 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-01 22:34:04,768 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-01 22:34:04,769 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-01 22:34:04,783 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-01 22:34:04,783 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-01 22:34:04,797 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-01 22:34:04,797 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-01 22:34:04,797 [oasis] INFO: Starting OASiS MCP server
+2026-09-01 22:34:04,826 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-01 22:34:11,083 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:34:19,394 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:34:35,277 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:34:35,761 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:34:41,749 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:34:41,803 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/d7c56000ec5ba6afc07e2de33be9d7b748e2ff1d8b0dcb3cc49026f5a0edea48/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed101/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:38:14,671 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:38:25,846 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_da66150d-f9ef-40f6-a790-57034a4ca342.json (5 events)
+[source build] 116d457ab1a8 sha256=d7c56000ec5ba6af... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b MCP s101] done  calls=26 tok=1112849/21549 546.7s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< NG1 MCP seed 101 done 2026-09-01 22:38:26
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/d7c56000ec5ba6afc07e2de33be9d7b748e2ff1d8b0dcb3cc49026f5a0edea48/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed102/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/d7c56000ec5ba6afc07e2de33be9d7b748e2ff1d8b0dcb3cc49026f5a0edea48/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed104/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:40:36,579 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+[source build] 116d457ab1a8 sha256=d7c56000ec5ba6af... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b BARE s102] done  calls=66 tok=1844735/38370 688.3s
+<<< NG1 BARE seed 102 done 2026-09-01 22:40:48
+2026-09-01 22:40:49,543 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:41:00,106 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:41:08,201 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:41:17,902 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:704: LangGraphDeprecatedSinceV10: create_react_agent has been moved to `langchain.agents`. Please update your import to `from langchain.agents import create_agent`. Deprecated in LangGraph V1.0 to be removed in V2.0.
+  sub_agent = create_react_agent(
+2026-09-01 22:41:27,828 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:41:42,710 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:41:53,817 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:704: LangGraphDeprecatedSinceV10: create_react_agent has been moved to `langchain.agents`. Please update your import to `from langchain.agents import create_agent`. Deprecated in LangGraph V1.0 to be removed in V2.0.
+  sub_agent = create_react_agent(
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed103/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:42:22,315 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:42:22,506 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:42:29,291 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed103/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:43:15,788 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:704: LangGraphDeprecatedSinceV10: create_react_agent has been moved to `langchain.agents`. Please update your import to `from langchain.agents import create_agent`. Deprecated in LangGraph V1.0 to be removed in V2.0.
+  sub_agent = create_react_agent(
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:43:58,857 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:44:17,158 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_c37c523e-1e03-4184-a3b9-878caf0bb260.json (5 events)
+[source build] 116d457ab1a8 sha256=d7c56000ec5ba6af... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b MCP s104] done  calls=45 tok=1959878/20168 615.2s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< NG1 MCP seed 104 done 2026-09-01 22:44:18
+2026-09-01 22:44:34,404 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_a7b661d5-212f-4bf5-9cab-189909ff4730.json (5 events)
+[source build] 116d457ab1a8 sha256=d7c56000ec5ba6af... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b MCP s102] done  calls=75 tok=3385690/32481 915.1s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< NG1 MCP seed 102 done 2026-09-01 22:44:35
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/08d0374b8b9c9d16d4caf9a7b1c52829bd8a4fcc3f55ccc0583fe91d71b4ab1b/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed103/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:45:38,399 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:45:48,285 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_65508cc4-6c32-4961-860d-fa1525d2eaef.json (5 events)
+[source build] cf0621b679f2 sha256=08d0374b8b9c9d16... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b MCP s103] done  calls=87 tok=5488012/46136 1128.8s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< NG1 MCP seed 103 done 2026-09-01 22:45:49
+>>> NG1 probe complete 2026-09-01 22:45:49
+>>> NG1 probe start 2026-09-01 22:48:46 build cb3adffe
+2026-09-01 22:49:13,255 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-01 22:49:13,265 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-01 22:49:13,269 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-01 22:49:13,274 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-01 22:49:13,297 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-01 22:49:13,314 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-01 22:49:13,314 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-01 22:49:13,332 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-01 22:49:13,332 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-01 22:49:13,358 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-01 22:49:13,358 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-01 22:49:13,372 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-01 22:49:13,372 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-01 22:49:13,386 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-01 22:49:13,386 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-01 22:49:13,386 [oasis] INFO: Starting OASiS MCP server
+2026-09-01 22:49:13,414 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-01 22:49:13,453 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-01 22:49:13,463 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-01 22:49:13,467 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-01 22:49:13,472 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-01 22:49:13,491 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-01 22:49:13,504 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-01 22:49:13,504 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-01 22:49:13,518 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-01 22:49:13,518 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-01 22:49:13,538 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-01 22:49:13,538 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-01 22:49:13,553 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-01 22:49:13,553 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-01 22:49:13,568 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-01 22:49:13,568 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-01 22:49:13,568 [oasis] INFO: Starting OASiS MCP server
+2026-09-01 22:49:13,597 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-01 22:49:13,609 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-01 22:49:13,619 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-01 22:49:13,623 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-01 22:49:13,628 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-01 22:49:13,647 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-01 22:49:13,660 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-01 22:49:13,660 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-01 22:49:13,673 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-01 22:49:13,674 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-01 22:49:13,693 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-01 22:49:13,693 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-01 22:49:13,708 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-01 22:49:13,708 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-01 22:49:13,721 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-01 22:49:13,721 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-01 22:49:13,721 [oasis] INFO: Starting OASiS MCP server
+2026-09-01 22:49:13,750 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-01 22:49:18,590 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:49:18,624 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:49:18,751 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:49:47,592 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:49:47,662 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:50:01,699 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:50:01,706 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:50:10,977 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:50:11,024 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:50:16,714 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:50:20,261 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:50:23,572 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:50:40,450 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:50:40,454 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:50:51,183 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:51:04,309 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:51:07,522 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:51:54,132 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:52:24,548 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+[source build] 116d457ab1a8 sha256=d7c56000ec5ba6af... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b BARE s104] done  calls=127 tok=4863058/49349 1144.0s
+<<< NG1 BARE seed 104 done 2026-09-01 22:53:07
+>>> NG1 probe complete 2026-09-01 22:53:07
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/8300bc8e4782ca666fe65fe46d257cfd214a2c2ea51b87feeb771c301c1ae044/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed106/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:54:25,488 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:54:35,524 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:54:55,538 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/8300bc8e4782ca666fe65fe46d257cfd214a2c2ea51b87feeb771c301c1ae044/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed106/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:55:14,830 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:55:15,221 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 22:55:24,661 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:704: LangGraphDeprecatedSinceV10: create_react_agent has been moved to `langchain.agents`. Please update your import to `from langchain.agents import create_agent`. Deprecated in LangGraph V1.0 to be removed in V2.0.
+  sub_agent = create_react_agent(
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/8300bc8e4782ca666fe65fe46d257cfd214a2c2ea51b87feeb771c301c1ae044/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed107/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:56:06,194 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:704: LangGraphDeprecatedSinceV10: create_react_agent has been moved to `langchain.agents`. Please update your import to `from langchain.agents import create_agent`. Deprecated in LangGraph V1.0 to be removed in V2.0.
+  sub_agent = create_react_agent(
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/8300bc8e4782ca666fe65fe46d257cfd214a2c2ea51b87feeb771c301c1ae044/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed105/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:56:42,570 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:704: LangGraphDeprecatedSinceV10: create_react_agent has been moved to `langchain.agents`. Please update your import to `from langchain.agents import create_agent`. Deprecated in LangGraph V1.0 to be removed in V2.0.
+  sub_agent = create_react_agent(
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:57:04,441 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:58:11,396 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_37e58e4f-4529-4f6e-814b-5a829c95461c.json (6 events)
+[source build] cb3adffeafae sha256=8300bc8e4782ca66... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b MCP s106] done  calls=31 tok=1719344/20373 540.8s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< NG1 MCP seed 106 done 2026-09-01 22:58:12
+2026-09-01 22:58:47,897 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_f2a19119-d95c-4f84-af7b-66745bc00bac.json (4 events)
+[source build] cb3adffeafae sha256=8300bc8e4782ca66... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b MCP s107] done  calls=39 tok=1790828/21278 577.2s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< NG1 MCP seed 107 done 2026-09-01 22:58:48
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/8300bc8e4782ca666fe65fe46d257cfd214a2c2ea51b87feeb771c301c1ae044/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed105/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 22:59:16,232 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:704: LangGraphDeprecatedSinceV10: create_react_agent has been moved to `langchain.agents`. Please update your import to `from langchain.agents import create_agent`. Deprecated in LangGraph V1.0 to be removed in V2.0.
+  sub_agent = create_react_agent(
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-01 22:59:40,140 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 23:02:24,585 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/8300bc8e4782ca666fe65fe46d257cfd214a2c2ea51b87feeb771c301c1ae044/src/tools/result_audit.py:504: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed105/work/solution_level1.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-01 23:03:17,236 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-01 23:03:22,817 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_3bcac5c8-5a93-413a-b513-77d784a0636d.json (8 events)
+[source build] cb3adffeafae sha256=8300bc8e4782ca66... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b MCP s105] done  calls=55 tok=2785617/32068 851.9s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< NG1 MCP seed 105 done 2026-09-01 23:03:23
+[source build] 116d457ab1a8 sha256=d7c56000ec5ba6af... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b BARE s101] done  calls=269 tok=17646617/101962 2674.0s
+<<< NG1 BARE seed 101 done 2026-09-01 23:13:53
+>>> NG1 probe complete 2026-09-01 23:13:53
+[source build] cb3adffeafae sha256=8300bc8e4782ca66... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b BARE s106] done  calls=105 tok=4459112/63205 1854.2s
+<<< NG1 BARE seed 106 done 2026-09-01 23:20:06
+[source build] cb3adffeafae sha256=8300bc8e4782ca66... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b BARE s107] done  calls=161 tok=8654357/81631 2229.9s
+<<< NG1 BARE seed 107 done 2026-09-01 23:26:21
+[source build] cb3adffeafae sha256=8300bc8e4782ca66... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[NG1 27b BARE s105] done  calls=192 tok=11516605/94826 2700.1s  ERR TimeoutError: exceeded 2700s
+<<< NG1 BARE seed 105 done 2026-09-01 23:34:11
+>>> NG1 probe complete 2026-09-01 23:34:11

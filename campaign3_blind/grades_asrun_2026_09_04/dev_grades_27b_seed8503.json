@@ -1,0 +1,145 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [
+        "interface files missing or one-sided for level(s) [1, 2, 3]: every prescribed level needs both interface_level<k>_A.csv and _B.csv"
+      ],
+      "reasons": [],
+      "findings": [],
+      "per_level": [],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "NOT_ASSESSED",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          }
+        ],
+        "findings": [],
+        "reasons": [],
+        "judged_at_level": 3
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "level_1/A_out.control",
+            "level_1/run_level1_A.log",
+            "level_2/A_out.control",
+            "level_2/run_level2_A.log"
+          ],
+          "detail": "6 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "level_1/run_level1_A.log",
+            "level_2/run_level2_A.log",
+            "level_3/run_level3_A.log"
+          ],
+          "detail": "3 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "NOT_PROVEN",
+        "levels": 0,
+        "forged": false,
+        "forged_detail": "",
+        "detail": "no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none."
+      },
+      "notes": [
+        "coupling evidence: no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_NOT_PROVEN"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "0.0023",
+      "INTERFACE_RESIDUAL": "COULD_NOT_COMPLETE",
+      "COUPLING_ITERATIONS": "COULD_NOT_COMPLETE"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_NOT_PROVEN"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

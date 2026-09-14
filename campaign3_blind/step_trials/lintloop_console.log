@@ -1,0 +1,14 @@
+[console 7100] round 1: FAIL stage=run finished=False lint_defects=4 4C did not finish | 92s
+[console 7100] round 2: PASS stage=run finished=True lint_defects=1 phi_1: max rel err 2.065e-03 over 320 points | 63s
+[console 7100] PASS after 2 round(s)
+[console 7101] round 1: FAIL stage=run finished=True lint_defects=2 phi_1: max rel err 8.750e-01 over 320 points | 95s
+[console 7101] round 2: FAIL stage=run finished=False lint_defects=3 4C did not finish | 77s
+[console 7101] round 3: FAIL stage=run finished=False lint_defects=2 4C did not finish | 794s
+[console 7101] round 4: FAIL stage=run finished=False lint_defects=3 4C did not finish | 356s
+[console 7101] FAIL after 4 round(s)
+[console 7102] round 1: FAIL stage=run finished=False lint_defects=3 4C did not finish | 263s
+[console 7102] round 2: FAIL stage=run finished=False lint_defects=3 4C did not finish | 33s
+[console 7102] round 3: FAIL stage=run finished=False lint_defects=4 4C did not finish | 32s
+[console 7102] round 4: FAIL stage=run finished=False lint_defects=3 4C did not finish | 289s
+[console 7102] FAIL after 4 round(s)
+[console] 1/3 PASS; rounds to pass: [2, None, None]

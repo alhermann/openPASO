@@ -1,0 +1,216 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the submitted FIELD is flat at the interface \u2014 its normal derivative is identically zero \u2014 at level 1 side A, level 1 side B, level 2 side B, level 3 side B. A field with no gradient at the interface transports nothing across it, so whatever flux was reported cannot have come from it.",
+        "the two subdomains disagree at the interface: max relative field jump 0.000e+00, max relative FLUX jump 1.990e+02. the jump does not shrink under refinement (field [0.000e+00, 0.000e+00, 0.000e+00], flux [1.990e+02, 1.990e+02, 1.990e+02]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 199.00000000000634
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 199.00000000002058
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 199.00000000000776
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "NOT_ASSESSED",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.2264794712944022,
+                "spread": 1.0099326530995583,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.2275 (+/-3.1%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.22751519311474858,
+                "spread": 0.0307973922633127,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the submitted FIELD is flat at the interface \u2014 its normal derivative is identically zero \u2014 at level 1 side A, level 1 side B, level 2 side B, level 3 side B. A field with no gradient at the interface transports nothing across it, so whatever flux was reported cannot have come from it."
+        ],
+        "reasons": [],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "SIGN_CONVENTION"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "level_1/out_A.control",
+            "level_1/run_level1_A.log",
+            "level_1/run_level1_B.log",
+            "level_2/out_A.control"
+          ],
+          "detail": "10 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "level_1/run_level1_A.log",
+            "level_1/run_level1_B.log",
+            "level_2/run_level2_A.log",
+            "level_2/run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "NOT_PROVEN",
+        "levels": 0,
+        "forged": false,
+        "forged_detail": "",
+        "detail": "no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none."
+      },
+      "notes": [
+        "coupling evidence: no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_NOT_PROVEN"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "0.000000000000000e+00",
+      "INTERFACE_RESIDUAL": "1.000000000000000e+00",
+      "COUPLING_ITERATIONS": "0"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_NOT_PROVEN"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

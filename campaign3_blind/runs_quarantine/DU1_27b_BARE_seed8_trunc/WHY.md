@@ -1,0 +1,1 @@
+Round-6 infrastructure casualty: the ledger records `OutputTruncated: 1 reply(ies) hit the 16384-token output cap` at 1198 s / 80 tool calls; quarantined ungraded and the cell re-run before round-6 grading (the graded attempt is runs/DU1_27b_BARE_seed8).

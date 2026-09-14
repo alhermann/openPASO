@@ -1,0 +1,14 @@
+4C - Multiphysics Comprehensive Computational Community Code
+
+Problem type: Thermo
+Spatial approximation: Polynomial
+Number of dimensions: 2
+Number of nodes: 54
+Number of elements: 80
+Number of DOFs: 54
+
+Linear solver: UMFPACK
+Solving...
+Solution converged.
+
+NDOF = 54

@@ -1,0 +1,12 @@
+ 5741 C3_MCP   CORRECT                order=1.9772125451459095 levels=[{'level': 1, 'probe_points': 3872, 'error': 0.0006466206252069428, 'per_field': {'u': 0.0006466206252069428}}, {'level': 2, 'probe_points': 3872, 'error': 0.00016520495015946002, 'per_field': {'u': 0.00016520495015946002}}, {'level': 3, 'probe_points': 3872, 'error': 4.1710844737860904e-05, 'per_field': {'u': 4.1710844737860904e-05}}] iface=INTERFACE_SATISFIED codes=[dune=PROVEN, 4C=PROVEN] coupling=('PROVEN', False, 3) reasons=[]
+ 5742 C3_MCP   COMPLETED_UNPHYSICAL   order=0.0011391357695190716 levels=[{'level': 1, 'probe_points': 3872, 'error': 0.011813633606597424, 'per_field': {'u': 0.011813633606597424}}, {'level': 2, 'probe_points': 3872, 'error': 0.011794691192799953, 'per_field': {'u': 0.011794691192799953}}, {'level': 3, 'probe_points': 3872, 'error': 0.011794992504963495, 'per_field': {'u': 0.011794992504963495}}] iface=INTERFACE_SATISFIED codes=[dune=PROVEN, 4C=PROVEN] coupling=('PROVEN', False, 3) reasons=['DECAY_NOT_CLEAN(u)', 'IMPLAUSIBLE_RATE(u)', 'IMPLAUSIBLE_MAGNITUDE_FINEST(u)']
+ 5743 C3_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6561 C1_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6562 C1_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6563 C1_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6571 C2_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6572 C2_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6573 C2_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=INTERFACE_NOT_SATISFIED codes=[4C=PROVEN, kratos=PROVEN] coupling=('PROVEN', False, 2) reasons=['RUN_LOG_CONTRACT_UNMET']
+        note: side A: no NDOF contract line for level(s) [3]; the task states a level without it counts as not run at all
+        note: side B: no NDOF contract line for level(s) [3]; the task states a level without it counts as not run at all
+        note: graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the execution and coupling evidence above are PROVEN, so the defect is the missing contract

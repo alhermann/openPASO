@@ -1,0 +1,302 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.8473969994290358,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.003094372788410226,
+          0.0013177420766843726,
+          0.0009558479281869545
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(u)"
+        ],
+        "superconvergent": false,
+        "order": 0.8473969994290358,
+        "r2": 0.9359,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.061444117194493504,
+        "rel_finest": 0.018980011826502316
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.003094372788410226,
+        "per_field": {
+          "u": 0.003094372788410226
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.0013177420766843726,
+        "per_field": {
+          "u": 0.0013177420766843726
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.0009558479281869545,
+        "per_field": {
+          "u": 0.0009558479281869545
+        }
+      }
+    ],
+    "r2": 0.9359,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.050360765679412,
+      "exact_rms_computed": 0.050360765679412146,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 3 side A. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field.",
+        "the two subdomains disagree at the interface: max relative field jump 6.547e-07, max relative FLUX jump 1.000e+00. the jump does not shrink under refinement (field [5.928e-07, 6.384e-07, 6.547e-07], flux [1.000e+00, 1.000e+00, 1.000e+00]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 5.92786337272655e-07,
+          "jump_q_rel": 1.0
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 6.384003523406163e-07,
+          "jump_q_rel": 1.0
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 6.547103205108189e-07,
+          "jump_q_rel": 1.0
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "INCONSISTENT",
+        "per_side": [
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.002 (+/-12.1%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.0020616095226644,
+                "spread": 0.12144554160439122,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.011 (+/-24.2%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.011271708676016,
+                "spread": 0.24203507426953724,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 38% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.9713880598370633,
+                "spread": 0.3809927714070711,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 3 side A. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field."
+        ],
+        "reasons": [
+          "FLUX_NOT_FROM_SUBMITTED_FIELD"
+        ],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "CONSISTENT"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "level_1/run_level1_A.log",
+            "level_1/run_level1_B.log",
+            "level_1/sideA.control",
+            "level_2/run_level2_A.log"
+          ],
+          "detail": "20 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "level_1/run_level1_A.log",
+            "level_1/run_level1_B.log",
+            "level_2/run_level2_A.log",
+            "level_2/run_level2_B.log"
+          ],
+          "detail": "14 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 14,
+            "first": 0.004375796554391977,
+            "last": 5.638109040156694e-07,
+            "ratio_cv": 0.0006098764939264618
+          },
+          "2": {
+            "iterations": 14,
+            "first": 0.004779986098660499,
+            "last": 6.182783623172388e-07,
+            "ratio_cv": 0.0006735644328694224
+          },
+          "3": {
+            "iterations": 14,
+            "first": 0.004969256456156402,
+            "last": 6.437477560012632e-07,
+            "ratio_cv": 0.0006974053475230833
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 693,
+          "8": 54
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 957,
+          "8": 72
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.000000000000000e-01",
+      "INTERFACE_RESIDUAL": "4.319575e-01",
+      "COUPLING_ITERATIONS": "14"
+    },
+    "reasons": [
+      "INTERFACE_NOT_SATISFIED",
+      "DECAY_NOT_CLEAN(u)"
+    ],
+    "findings": [
+      "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 3 side A. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field.",
+      "the two subdomains disagree at the interface: max relative field jump 6.547e-07, max relative FLUX jump 1.000e+00. the jump does not shrink under refinement (field [5.928e-07, 6.384e-07, 6.547e-07], flux [1.000e+00, 1.000e+00, 1.000e+00]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+    ],
+    "notes": [],
+    "result_type": "order"
+  }
+}

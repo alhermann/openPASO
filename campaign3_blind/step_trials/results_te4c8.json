@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_runs_finished=2 :: Traceback (most recent call last):\n  File \"/tmp/tmpm6uvhhyt/participant_A.py\", line 513, in <module>\n    deck_u += f'''  - E: {node_id + {n_nodes}}\n                          ~~~~~~~~^~~~~~~~~~~\nTypeError: unsupported operand type(s) for +: 'int' and 'set'\n4C DID NOT FINISH -- deck_T.4C.yaml: DESIGN SURF TRANSPORT NEUMANN CONDITIONS names E id(s) 1 that no *-NODE TOPOLOGY section defines; deck_T.4C.yaml: DESIGN SURF TRANSPORT DIRICH CONDITIONS names E id(s) 2, 3, 4 that no *-NODE TOPOLOGY section defines\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 328.8,
+  "lines": 769
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_runs_finished=0 :: /alexander/4C/build/4C | 4# __libc_start_main at ../csu/libc-start.c:342 | 5# _start in /home/alexander/4C/build/4C | =========================================================================; deck_T.4C.yaml: section(s) written twice: DLINE-NODE TOPOLOGY; deck_T.4C.yaml: DESIGN SURF TRANSPORT NEUMANN CONDITIONS names E id(s) 99 that no *-NODE TOPOLOGY section defines; deck_U.4C.yaml: DESIGN SURF TRANSPORT NEUMANN CONDITIONS names E id(s) 99 that no *-NODE TOPOLOGY section defines; deck_U.4C.yaml: DESIGN SURF STRUCTURE NEUMANN CONDITIONS names E id(s) 99 that no *-NODE TOPOLOGY section defines\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 358.8,
+  "lines": 544
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_runs_finished=0 :: 4C DID NOT FINISH (run T) -- no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck\n4C DID NOT FINISH -- no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 330.1,
+  "lines": 568
+ }
+]

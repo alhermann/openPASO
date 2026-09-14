@@ -1,0 +1,26 @@
+[source build] adedfb3f4a3b sha256=17348a4a8aa963a8... (immutable)
+2026-09-05 08:54:46,259 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-05 08:54:46,269 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-05 08:54:46,273 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-05 08:54:46,278 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-05 08:54:46,297 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-05 08:54:46,310 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-05 08:54:46,310 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-05 08:54:46,323 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-05 08:54:46,323 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-05 08:54:46,345 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-05 08:54:46,345 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-05 08:54:46,359 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-05 08:54:46,359 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-05 08:54:46,372 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-05 08:54:46,372 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-05 08:54:46,372 [oasis] INFO: Starting OASiS MCP server
+2026-09-05 08:54:46,400 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-05 08:55:03,220 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 08:55:08,504 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 08:56:02,788 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-05 09:28:05,702 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_a74c16f2-0a04-4991-9852-149b3cf74020.json (3 events)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s7501] done  calls=49 tok=5130418/79639 2002.1s

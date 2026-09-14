@@ -1,0 +1,82 @@
+iteration: 32
+command: ["/home/alexander/miniconda3/envs/fenics/bin/python", "participant_B.py"]
+returncode: 0
+--- stdout ---
+[2026-09-11 12:57:20.555] [info] Extract basic topology: 336->336
+[2026-09-11 12:57:20.555] [info] Build local dual graphs, re-order cells, and compute process boundary vertices.
+[2026-09-11 12:57:20.555] [info] Build local part of mesh dual graph (mixed)
+[2026-09-11 12:57:20.555] [info] GPS pseudo-diameter:(28) 99-12
+[2026-09-11 12:57:20.555] [info] Create topology (generalised)
+[2026-09-11 12:57:20.555] [info] Computing communication graph edges (using NBX algorithm). Number of input edges: 1
+[2026-09-11 12:57:20.555] [info] Finished graph edge discovery using NBX algorithm. Number of discovered edges 1
+[2026-09-11 12:57:20.555] [info] Compute ghost indices
+[2026-09-11 12:57:20.555] [info] Computing communication graph edges (using PCX algorithm). Number of input edges: 0
+[2026-09-11 12:57:20.555] [info] Finished graph edge discovery using PCX algorithm. Number of discovered edges 0
+[2026-09-11 12:57:20.556] [info] Computing communication graph edges (using NBX algorithm). Number of input edges: 0
+[2026-09-11 12:57:20.556] [info] Finished graph edge discovery using NBX algorithm. Number of discovered edges 0
+[2026-09-11 12:57:20.556] [info] Computing communication graph edges (using NBX algorithm). Number of input edges: 0
+[2026-09-11 12:57:20.556] [info] Finished graph edge discovery using NBX algorithm. Number of discovered edges 0
+[2026-09-11 12:57:20.556] [info] Number of neighbourhood source ranks in distribute_to_postoffice: 0
+[2026-09-11 12:57:20.556] [info] Computing communication graph edges (using NBX algorithm). Number of input edges: 0
+[2026-09-11 12:57:20.556] [info] Finished graph edge discovery using NBX algorithm. Number of discovered edges 0
+[2026-09-11 12:57:20.556] [info] Neighbourhood destination ranks from post office in distribute_data (rank, num dests, num dests/mpi_size): 0, 0, 0
+[2026-09-11 12:57:20.556] [info] Create Geometry (multiple)
+[2026-09-11 12:57:20.556] [info] Got 1 dof layouts
+[2026-09-11 12:57:20.556] [info] Checking required entities per dimension
+[2026-09-11 12:57:20.556] [info] Cell type: 0 dofmap: 112x3
+[2026-09-11 12:57:20.556] [info] Global index computation
+[2026-09-11 12:57:20.556] [info] Got 1 index_maps
+[2026-09-11 12:57:20.556] [info] Get global indices
+[2026-09-11 12:57:20.556] [info] Calling compute_local_to_global
+[2026-09-11 12:57:20.556] [info] xdofs.size = 336
+[2026-09-11 12:57:20.556] [info] dofmap sizes = 336 
+[2026-09-11 12:57:20.556] [info] all_dofmaps.size = 336
+[2026-09-11 12:57:20.556] [info] nodes.size = 72
+[2026-09-11 12:57:20.556] [info] Creating geometry with 1 dofmaps
+[2026-09-11 12:57:20.556] [info] Checking required entities per dimension
+[2026-09-11 12:57:20.556] [info] Cell type: 0 dofmap: 112x3
+[2026-09-11 12:57:20.556] [info] Global index computation
+[2026-09-11 12:57:20.556] [info] Got 1 index_maps
+[2026-09-11 12:57:20.556] [info] Get global indices
+[2026-09-11 12:57:20.556] [info] Checking required entities per dimension
+[2026-09-11 12:57:20.556] [info] Cell type: 0 dofmap: 112x3
+[2026-09-11 12:57:20.556] [info] Global index computation
+[2026-09-11 12:57:20.556] [info] Got 1 index_maps
+[2026-09-11 12:57:20.556] [info] Get global indices
+[2026-09-11 12:57:20.557] [info] Computing mesh entities of dimension 1
+[2026-09-11 12:57:20.557] [info] Computing communication graph edges (using NBX algorithm). Number of input edges: 0
+[2026-09-11 12:57:20.557] [info] Finished graph edge discovery using NBX algorithm. Number of discovered edges 0
+[2026-09-11 12:57:20.557] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.557] [info] Computing mesh connectivity 1-2 from transpose.
+[2026-09-11 12:57:20.557] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.557] [info] Requesting connectivity (1, 0) - (0, 0)
+[2026-09-11 12:57:20.557] [info] Requesting connectivity (1, 0) - (1, 0)
+[2026-09-11 12:57:20.557] [info] Requesting connectivity (0, 0) - (2, 0)
+[2026-09-11 12:57:20.557] [info] Computing mesh connectivity 0-2 from transpose.
+[2026-09-11 12:57:20.557] [info] Requesting connectivity (2, 0) - (0, 0)
+[2026-09-11 12:57:20.562] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.562] [info] Requesting connectivity (2, 0) - (1, 0)
+[2026-09-11 12:57:20.562] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.562] [info] Requesting connectivity (2, 0) - (1, 0)
+[2026-09-11 12:57:20.563] [info] Column ghost size increased from 0 to 0
+[2026-09-11 12:57:20.566] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.566] [info] Requesting connectivity (2, 0) - (1, 0)
+[2026-09-11 12:57:20.566] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.566] [info] Requesting connectivity (2, 0) - (1, 0)
+[2026-09-11 12:57:20.566] [info] Column ghost size increased from 0 to 0
+[2026-09-11 12:57:20.567] [info] Column ghost size increased from 0 to 0
+[2026-09-11 12:57:20.568] [info] Column ghost size increased from 0 to 0
+[2026-09-11 12:57:20.570] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.570] [info] Requesting connectivity (2, 0) - (1, 0)
+[2026-09-11 12:57:20.570] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.570] [info] Requesting connectivity (2, 0) - (1, 0)
+[2026-09-11 12:57:20.571] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.571] [info] Requesting connectivity (2, 0) - (1, 0)
+[2026-09-11 12:57:20.571] [info] Requesting connectivity (1, 0) - (2, 0)
+[2026-09-11 12:57:20.571] [info] Requesting connectivity (2, 0) - (1, 0)
+[fenics neumann thermoelastic] interface n=9 T=[0,0.073729] ux=[-0.00224156,0.000918348] uy=[-0.00135639,0.00202551] qn=[-0.0977939,-0.0301413]
+NDOF = 144
+FEniCSx Neumann participant completed: LEVEL=1, nx=7, ny=8
+
+--- stderr ---
+

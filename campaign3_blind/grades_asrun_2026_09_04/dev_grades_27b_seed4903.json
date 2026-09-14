@@ -1,0 +1,280 @@
+{
+  "FB1_BARE": {
+    "problem": "FB1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": -0.004328187674472497,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          1.336647329713497e-06,
+          1.3430639791794522e-06,
+          1.3446569763745082e-06
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": -0.004309660735922809,
+        "r2": 0.8918,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.9210426445670328,
+        "rel_finest": 1.932554187261705
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          2.079591696526708e-06,
+          2.0896424118920948e-06,
+          2.092129249416987e-06
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": -0.004335841268457867,
+        "r2": 0.8915,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.9862188080996048,
+        "rel_finest": 1.9981934295600614
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 2.4721099709141285e-06,
+        "per_field": {
+          "ux": 1.336647329713497e-06,
+          "uy": 2.079591696526708e-06
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 2.484034271451897e-06,
+        "per_field": {
+          "ux": 1.3430639791794522e-06,
+          "uy": 2.0896424118920948e-06
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 2.4869875714162146e-06,
+        "per_field": {
+          "ux": 1.3446569763745082e-06,
+          "uy": 2.092129249416987e-06
+        }
+      }
+    ],
+    "r2": 0.8916,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 1.257122952612521e-06,
+      "exact_rms_computed": 1.257122952612559e-06,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "febio",
+          "verdict": "PROVEN",
+          "files": [
+            "level1.log",
+            "level2.log",
+            "level3.log",
+            "run_level1.log"
+          ],
+          "detail": "6 file(s) carry structured febio solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 486,
+          "2": 1734,
+          "3": 6534
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "4.58729029171e-01"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "FB1_MCP": {
+    "problem": "FB1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.0018170247535223708,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          6.957926381768135e-07,
+          6.957926381768135e-07,
+          6.957926381768135e-07
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": 0.0,
+        "r2": 1.0,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.0,
+        "rel_finest": 1.0
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          4.3486869346044817e-07,
+          4.317066713492461e-07,
+          4.309612840881233e-07
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": 0.006510791426142236,
+        "r2": 0.8874,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.4153432519698356,
+        "rel_finest": 0.4116112838151162
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 8.205109236890435e-07,
+        "per_field": {
+          "ux": 6.957926381768135e-07,
+          "uy": 4.3486869346044817e-07
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 8.188394503371807e-07,
+        "per_field": {
+          "ux": 6.957926381768135e-07,
+          "uy": 4.317066713492461e-07
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 8.18446714040648e-07,
+        "per_field": {
+          "ux": 6.957926381768135e-07,
+          "uy": 4.309612840881233e-07
+        }
+      }
+    ],
+    "r2": 0.8867,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 1.257122952612521e-06,
+      "exact_rms_computed": 1.2571229526125211e-06,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "febio",
+          "verdict": "PROVEN",
+          "files": [
+            "level_1/elasticity_N8.log",
+            "level_1/run_level1.log",
+            "level_2/elasticity_N16.log",
+            "level_2/run_level2.log"
+          ],
+          "detail": "14 file(s) carry structured febio solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 196,
+          "2": 900,
+          "3": 3844
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "0.458702"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  }
+}

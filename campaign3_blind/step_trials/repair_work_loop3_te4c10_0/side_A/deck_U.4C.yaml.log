@@ -1,0 +1,2429 @@
+Invalid MIT-MAGIC-COOKIE-1 key
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+
+=========================================================================
+PROC 0 ERROR in /home/alexander/4C/src/global_data/4C_global_data_read.cpp, line 1377:
+Failed to match specification in section 'MATERIALS'. The error was:
+PROC 0 ERROR in /home/alexander/4C/src/core/io/src/4C_io_input_spec_builders.cpp, line 633:
+Could not match this input
+
+MATERIALS:
+  - MAT: 1
+    MAT_Struct_ThermoStVenantK:
+      YOUNG: 7.875000000000000e+02
+      NUE: 0.3125
+      DENS: 1.0
+      THEXPANS: 0.0004761904761904762
+      INITTEMP: 0.0
+      THERMOMAT: 2
+  - MAT: 2
+    MAT_Fourier:
+      CAPA: 1.0
+      CONDUCT:
+        constant: [2.0]
+
+
+against the given input specification. This was the best attempt to match the input:
+
+[!] Candidate list 'MATERIALS'
+  [!] The following list entry did not match:
+    {
+      [X] Expected one of:
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_LinElast1DGrowth'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_LinElast1D'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_crystal_plasticity'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_GrowthRemodelMixtureRule'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Rule_Simple'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Rule_Function'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_RemodelFiber_Material_Exponential_Active'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_RemodelFiber_Material_Exponential'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_ImplicitRemodelFiber'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_ExplicitRemodelFiber'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_SsiRemodelFiber'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_FullConstrainedMixtureFiber'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Prestress_Strategy_Iterative'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Prestress_Strategy_Cylinder'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Prestress_Strategy_Prescribed'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_IterativePrestress'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_GrowthStrategy_Stiffness'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_GrowthStrategy_Anisotropic'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_GrowthStrategy_Isotropic'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_SolidMaterial'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_ElastHyper_ElastinMembrane'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_ElastHyper_Damage'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MIX_Constituent_ElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Mixture'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ParticlePD'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ParticleWallDEM'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ParticleDEM'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ParticleSPHBoundary'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ParticleSPHFluid'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_0D_MAXWELL_ACINUS_OGDEN'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_0D_MAXWELL_ACINUS_DOUBLEEXPONENTIAL'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_0D_MAXWELL_ACINUS_EXPONENTIAL'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_0D_MAXWELL_ACINUS_NEOHOOKEAN'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_0D_MAXWELL_ACINUS'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Crosslinker'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Kirchhoff_Love_shell'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_BeamKirchhoffTorsionFreeElastHyper_ByModes'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_BeamKirchhoffTorsionFreeElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_BeamKirchhoffElastHyper_ByModes'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_BeamKirchhoffElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_BeamReissnerElastHyper_ByModes'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_BeamReissnerElastPlastic'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_BeamReissnerElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_Spring'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PhaseLawByFunction'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PhaseLawConstraint'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PhaseLawTangent'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PhaseLawLinear'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroSinglePhaseDofSaturation'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroSinglePhaseDofPressure'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroSinglePhaseDofDiffPressure'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroVolFracPressureBloodLung'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroVolFracPressure'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroSingleVolFrac'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroSinglePhase'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroSingleReaction'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroMultiPhaseReactions'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroMultiPhase'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoro'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_StructPoroReactionECM'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_StructPoroReaction'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroViscosityLawCellAdherence'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroViscosityLawConstant'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroRelPermeabilityLawExp'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_FluidPoroRelPermeabilityLawConstant'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PoroDensityLawExp'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PoroDensityLawConstant'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PoroLawDensityDependent'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PoroLawLinBiot'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_Multiscale'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_AAANeoHooke'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupAnisoNeoHooke'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_Damage'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_Iso1Pow'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_PlasticNlnLogNeoHooke'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_SuperElastSMA'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'VISCO_GeneralizedGenMax'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_PlasticGTN'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_DruckerPrager'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PlasticElastHyperVCU'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_elchphase'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'VISCO_PART'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupLogNeoHooke'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PlasticElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_elchmat'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'VISCO_Fract'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_Robinson'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_matlist_chemo_reac'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_Viscoplastic_No_Yield_Surface'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_matlist_chemotaxis'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_VISCONEOHOOKE'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_matlist_reactions'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ViscoElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_matlist'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_PlasticLinElast'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_electrode'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'VISCO_BRANCH'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scl'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra_reaction_poro'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_myocard'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_VISCOANISO'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_lubrication_law_roeland'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [!] Candidate group 'MAT_Struct_ThermoStVenantK'
+            {
+              [X] Expected parameter 'YOUNGNUM'
+              [!] Candidate parameter 'YOUNG' has wrong type, expected type: vector<double>
+              [ ] Matched parameter 'NUE'
+              [ ] Matched parameter 'DENS'
+              [ ] Matched parameter 'THEXPANS'
+              [ ] Matched parameter 'INITTEMP'
+              [ ] Matched parameter 'THERMOMAT'
+            }
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_lubrication_law_barus'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_ThermoPlasticLinElast'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_lubrication_law_constant'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_fluid_weakly_compressible'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_IsoMooneyRivlin'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_ThermoPlasticHyperElast'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_lubrication'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_fluid_murnaghantait'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_IsoExpoPow'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_carreauyasuda'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupNeoHooke'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra_gr'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_StVenantKirchhoff'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_herschelbulkley'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_modpowerlaw'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra_multiporo_fluid'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_fluid_linear_density_viscosity'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_IsoAnisoExpo'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_sutherland'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_fluid'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_Iso2Pow'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra_reaction'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_newman'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra_multiporo_volfrac'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra_multiporo_solid'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Muscle_Combo'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra_multiporo_temperature'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Muscle_Giantesio'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra_chemotaxis'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_newman_multiscale'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_scatra_multiscale'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Muscle_Weickenmeier'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Struct_StVenantKirchhoffOrthotropic'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ion'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupSVK'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_CNST_ART'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupSimoPister'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ConstraintMixture'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupLogMixNeoHooke'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupExpPol'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupMooneyRivlin'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupBlatzKo'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_IsoNeoHooke'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_IsoOgden'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_IsoYeoh'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_Coup1Pow'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_Coup2Pow'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_Coup3Pow'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_Coup13aPow'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_IsoMuscle_Blemker'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_IsoTestMaterial'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_RemodelFiber'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_VolSussmanBathe'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_VolPenalty'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_VolOgden'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_VolPow'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupAnisoExpoActive'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupAnisoExpo'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupAnisoExpoShear'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupAnisoPow'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupAnisoExpoTwoCoup'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_AnisoActiveStress_Evolution'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupAnisoNeoHooke_VarProp'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_StructuralTensor'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupTransverselyIsotropic'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_CoupVarga'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'ELAST_IsoVarga'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'VISCO_CoupMyocard'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'VISCO_IsoRateDep'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'VISCO_GenMax'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Fourier'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_soret'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Membrane_ElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_InelasticDefgradTransvIsotropElastViscoplast'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_Membrane_ActiveStrain'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ViscoplasticLawReformulatedJohnsonCook'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_GrowthRemodel_ElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_MultiplicativeSplitDefgradElastHyper'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_InelasticDefgradNoGrowth'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_InelasticDefgradLinScalarIso'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_InelasticDefgradLinScalarAniso'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_InelasticDefgradPolyIntercalFracIso'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_ScDepInterp'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_InelasticDefgradPolyIntercalFracAniso'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_InelasticDefgradLinTempIso'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_InelasticDefgradTimeFunct'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_StructPoro'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PoroLawLinear'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PoroLawConstant'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PoroLawNeoHooke'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+        {
+          [ ] Matched parameter 'MAT'
+          [X] Expected group 'MAT_PoroLawIncompSkel'
+          [!] The following data remains unused:
+            MAT_Struct_ThermoStVenantK:
+              YOUNG: 7.875000000000000e+02
+              NUE: 0.3125
+              DENS: 1.0
+              THEXPANS: 0.0004761904761904762
+              INITTEMP: 0.0
+              THERMOMAT: 2
+        }
+      [!] The following data remains unused:
+        MAT_Struct_ThermoStVenantK:
+          YOUNG: 7.875000000000000e+02
+          NUE: 0.3125
+          DENS: 1.0
+          THEXPANS: 0.0004761904761904762
+          INITTEMP: 0.0
+          THERMOMAT: 2
+        MAT: 1
+    }
+
+------------------
+.
+------------------
+ 0# FourC::Global::read_materials(FourC::Global::Problem&, FourC::Core::IO::InputFile&) [clone .cold] in /home/alexander/4C/build/lib4C.so
+ 1# FourC::setup_global_problem(FourC::Core::IO::InputFile&, FourC::CommandlineArguments const&, FourC::Core::Communication::Communicators const&) in /home/alexander/4C/build/4C
+ 2# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C
+ 3# main in /home/alexander/4C/build/4C
+ 4# __libc_start_main at ../csu/libc-start.c:342
+ 5# _start in /home/alexander/4C/build/4C
+
+=========================================================================
+
+
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------

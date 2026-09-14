@@ -1,0 +1,24 @@
+NDOF = 1650
+iteration: 31
+command: ["/home/alexander/miniconda3/envs/dune-py313/bin/python", "participant_B.py"]
+returncode: 0
+--- stdout ---
+4C exit code: 0
+STDOUT: 
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+****
+STDERR: No protocol specified
+
+NDOF = 957
+4C Neumann participant: NDOF = 957  max|u| = 3.720233e-02
+
+--- stderr ---
+

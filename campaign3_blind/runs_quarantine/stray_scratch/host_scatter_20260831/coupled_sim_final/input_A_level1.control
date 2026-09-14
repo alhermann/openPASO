@@ -1,0 +1,11 @@
+- metadata:
+    created_by: "coupled_sim"
+    host: "local"
+    time: "now"
+    version: "2026.2.0-dev"
+
+- general:
+    input_file: "input_A_level1.4C.yaml"
+    problem_type: "Thermo_Structure_Interaction"
+    spatial_approximation: "Polynomial"
+    ndim: 2

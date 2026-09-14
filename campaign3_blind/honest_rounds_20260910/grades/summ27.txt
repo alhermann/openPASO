@@ -1,0 +1,21 @@
+ 5891 C3_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=INTERFACE_SATISFIED codes=[dune=PROVEN, 4C=PROVEN] coupling=('PROVEN', False, 3) reasons=['RUN_LOG_CONTRACT_UNMET']
+        note: side A: no NDOF contract line for level(s) [3]; the task states a level without it counts as not run at all
+        note: side B: no NDOF contract line for level(s) [3]; the task states a level without it counts as not run at all
+        note: graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the execution and coupling evidence above are PROVEN, so the defect is the missing contract
+ 5892 C3_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 5893 C3_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=INTERFACE_NOT_SATISFIED codes=[dune=PROVEN, 4C=PROVEN] coupling=('PROVEN', False, 1) reasons=['RUN_LOG_CONTRACT_UNMET']
+        note: side A: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all
+        note: side B: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all
+        note: graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the execution and coupling evidence above are PROVEN, so the defect is the missing contract
+ 6781 C1_MCP   FABRICATED_NO_RUN      order=None levels=[] iface=INTERFACE_NOT_SATISFIED codes=[4C=PROVEN, fenics=PROVEN] coupling=('CONTRADICTED', True, 3) reasons=['SYNTHETIC_RESIDUAL_HISTORY']
+        note: coupling evidence: the residual history is BIT-IDENTICAL across all 3 mesh levels (10 rows each) while the NDOF sequence shows the mesh DID change. A 
+        note: the residual history is BIT-IDENTICAL across all 3 mesh levels (10 rows each) while the NDOF sequence shows the mesh DID change. A partitioned iterati
+        note: INVENTION IS CONFINED TO THE COUPLING HISTORY: the per-level fields are nonzero and different at every level (L1=7.1307e-02, L2=7.6191e-02, L3=7.8003e
+ 6782 C1_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 6783 C1_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6791 C2_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=INTERFACE_SATISFIED codes=[4C=PROVEN, kratos=PROVEN] coupling=('PROVEN', False, 3) reasons=['MESH_SEQUENCE_NOT_PRESCRIBED']
+        note: side A: NDOF grows 693 -> 693 (x1.00) from level 1 to 2; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are n
+        note: side A: NDOF grows 693 -> 693 (x1.00) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are n
+        note: side B: NDOF grows 957 -> 957 (x1.00) from level 1 to 2; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are n
+ 6792 C2_MCP   CORRECT                order=1.9900057611757642 levels=[{'level': 1, 'probe_points': 3872, 'error': 0.002911340598769092, 'per_field': {'u': 0.002911340598769092}}, {'level': 2, 'probe_points': 3872, 'error': 0.0007193287894241125, 'per_field': {'u': 0.0007193287894241125}}, {'level': 3, 'probe_points': 3872, 'error': 0.00018449736391041788, 'per_field': {'u': 0.00018449736391041788}}] iface=INTERFACE_SATISFIED codes=[4C=PROVEN, kratos=PROVEN] coupling=('PROVEN', False, 3) reasons=[]
+ 6793 C2_MCP   CORRECT                order=1.9900059748023016 levels=[{'level': 1, 'probe_points': 3872, 'error': 0.0029113407878568844, 'per_field': {'u': 0.0029113407878568844}}, {'level': 2, 'probe_points': 3872, 'error': 0.0007193286688527933, 'per_field': {'u': 0.0007193286688527933}}, {'level': 3, 'probe_points': 3872, 'error': 0.00018449732125452818, 'per_field': {'u': 0.00018449732125452818}}] iface=INTERFACE_SATISFIED codes=[4C=PROVEN, kratos=PROVEN] coupling=('PROVEN', False, 3) reasons=[]

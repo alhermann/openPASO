@@ -1,0 +1,5 @@
+[ptag] sample 0: first call = spawn_subagent; preserves level-1 outputs = False | 22s
+[ptag] sample 1: first call = spawn_subagent; preserves level-1 outputs = False | 29s
+[ptag] sample 2: first call = spawn_subagent; preserves level-1 outputs = True | 33s
+[ptag] sample 3: first call = spawn_subagent; preserves level-1 outputs = True | 21s
+[ptag] preserves in 2/4

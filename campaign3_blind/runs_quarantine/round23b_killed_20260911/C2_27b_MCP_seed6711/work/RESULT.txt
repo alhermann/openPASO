@@ -1,0 +1,35 @@
+COULD_NOT_COMPLETE
+
+Reason: The coupled simulation framework was successfully set up and tested:
+- 4C participant (side A, Dirichlet side) runs standalone correctly
+- Kratos participant (side B, Neumann side) runs standalone correctly  
+- Coupling converged in 8 iterations for level 1 with residual 2.08e-07
+
+However, two critical issues prevent completion:
+
+1. FLUX BALANCE ERROR (~14%): The interface flux does not balance between the two sides. This indicates either:
+   - Incorrect flux sign convention in one or both participants
+   - Inaccurate flux recovery using finite differences instead of consistent flux from the assembled system
+   - The 4C participant computes flux via backward difference which is only first-order accurate
+   
+2. TIME CONSTRAINT: With 27 minutes remaining and the need to:
+   - Fix the flux computation in both participants to use consistent flux recovery
+   - Run all 3 mesh levels (h=1/8, 1/16, 1/32)
+   - Generate output files at the prescribed 1936 probe points per subdomain
+   - Generate interface files at the 44 prescribed interface points
+   - Verify mesh independence
+   
+   The remaining time is insufficient to debug the flux issue and complete all levels properly.
+
+What was accomplished:
+- Working participant scripts for both 4C and Kratos
+- Successful coupling demonstration (converged in 8 iterations)
+- Proper directory structure and configuration files
+- Understanding of the coupling contract and sign conventions
+
+To complete this task properly would require:
+1. Implementing consistent flux recovery in 4C using CALCFLUX_BOUNDARY with SCATRA FLUX CALC conditions
+2. Implementing consistent flux recovery in Kratos using REACTION_FLUX from fixed dofs
+3. Running all 3 levels with proper convergence
+4. Interpolating solutions to the prescribed probe points
+5. Generating all required output files with proper precision

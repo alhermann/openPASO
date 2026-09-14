@@ -1,0 +1,263 @@
+{
+  "NG2_BARE": {
+    "problem": "NG2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": -0.0002401517488688791,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.007633167463415833,
+          0.007635665786955714,
+          0.007635797879642621
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": -0.00024853605978783516,
+        "r2": 0.7876,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.4202534003568643,
+        "rel_finest": 1.4207428246500367
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.007490038034042421,
+          0.007492287010434496,
+          0.007492441591890473
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": -0.00023144373322697185,
+        "r2": 0.798,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.3926287002577264,
+        "rel_finest": 1.3930755956709024
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.010694200076487824,
+        "per_field": {
+          "ux": 0.007633167463415833,
+          "uy": 0.007490038034042421
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.010697558443720301,
+        "per_field": {
+          "ux": 0.007635665786955714,
+          "uy": 0.007492287010434496
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.010697760993153895,
+        "per_field": {
+          "ux": 0.007635797879642621,
+          "uy": 0.007492441591890473
+        }
+      }
+    ],
+    "r2": 0.7925,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.007603418065350678,
+      "exact_rms_computed": 0.007603418065350681,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "ngsolve",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured ngsolve solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 722,
+          "2": 2917,
+          "3": 11141
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "9.028472617393861e+02"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "NG2_MCP": {
+    "problem": "NG2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": 3.2735554686920807,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          2.5354533995706348e-05,
+          2.3144182701809e-06,
+          2.7386992259090716e-07
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 3.2663045578711083,
+        "r2": 0.9989,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.004717551828183173,
+        "rel_finest": 5.0957180053946586e-05
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          2.737165732082935e-05,
+          2.531921393044289e-06,
+          2.901397860676419e-07
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 3.279895419339142,
+        "r2": 0.9993,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.005089233911143927,
+        "rel_finest": 5.394592007784011e-05
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 3.7310320537732445e-05,
+        "per_field": {
+          "ux": 2.5354533995706348e-05,
+          "uy": 2.737165732082935e-05
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 3.430329119764237e-06,
+        "per_field": {
+          "ux": 2.3144182701809e-06,
+          "uy": 2.531921393044289e-06
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 3.9898098947108556e-07,
+        "per_field": {
+          "ux": 2.7386992259090716e-07,
+          "uy": 2.901397860676419e-07
+        }
+      }
+    ],
+    "r2": 0.9991,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.007603418065350678,
+      "exact_rms_computed": 0.007603418065350678,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "ngsolve",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured ngsolve solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 704,
+          "2": 2899,
+          "3": 11042
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "5.155166945029820e-01"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  }
+}

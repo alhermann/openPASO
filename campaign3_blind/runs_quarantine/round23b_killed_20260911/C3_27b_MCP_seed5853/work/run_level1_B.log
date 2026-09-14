@@ -1,0 +1,10 @@
+NDOF = 99
+iteration: 40
+command: ["python3", "participant_B.py"]
+returncode: 0
+--- stdout ---
+NDOF = 99
+4C Neumann participant: NDOF = 99  max|u| = 3.731246e-02
+
+--- stderr ---
+

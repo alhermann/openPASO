@@ -1,0 +1,13 @@
+- metadata:
+    created_by: "alexander"
+    host: "kevin"
+    time: "31-08-2026 19-20-44"
+    sha: "89519cfe76251fc668617c4ab1a70b94fd86ec52"
+    version: "2026.2.0-dev"
+
+- general:
+    input_file: "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed71/work/coupled_heat/test_level_1/subdomain_A.4C.yaml"
+    problem_type: "Scalar_Transport"
+    spatial_approximation: "Polynomial"
+    ndim: 2
+

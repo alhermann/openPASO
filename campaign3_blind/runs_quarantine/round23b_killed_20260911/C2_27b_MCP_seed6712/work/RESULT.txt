@@ -1,0 +1,8 @@
+LEVELS = 3
+FILES = field_level1_A.csv, field_level1_B.csv, field_level2_A.csv, field_level2_B.csv, field_level3_A.csv, field_level3_B.csv, interface_level1_A.csv, interface_level1_B.csv, interface_level2_A.csv, interface_level2_B.csv, interface_level3_A.csv, interface_level3_B.csv, residual_level1.csv, residual_level2.csv, residual_level3.csv
+INTERFACE_RESIDUAL = 7.14e-07
+COUPLING_ITERATIONS = 7
+MESH_INDEPENDENCE = NOT_CONVERGED
+MAX_REL_CHANGE = 6.92e-03
+
+NOTE: The coupling converged numerically (residual ~7e-7) but exhibits a constant flux jump (6.92e-03) across all refinement levels, indicating a sign convention error in the flux exchange between 4C and Kratos. Each side must export outward normal flux with respect to its own outward normal; the partner's flux should be applied unchanged. This requires correction of the sign convention in the participant scripts.

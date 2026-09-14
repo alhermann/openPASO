@@ -1,0 +1,48 @@
+<?xml version="1.0" ?> 
+<!-- 
+# vtk DataFile Version 3.0
+-->
+<VTKFile type="UnstructuredGrid" version="0.1" compressor="vtkZLibDataCompressor" byte_order="LittleEndian">
+  <UnstructuredGrid>
+    <FieldData>
+      <DataArray type="Float64" Name="TIME" NumberOfTuples="1" format="ascii">
+1.000000000000000e+00 
+      </DataArray>
+    </FieldData>
+
+    <Piece NumberOfPoints="160" NumberOfCells="40" >
+      <Points>
+        <DataArray type="Float64" NumberOfComponents="3" format="binary">
+AQAAAAAPAAAADwAAgQEAAA==eAGF0jFOxEAUBNG9GVf3EQgJHRAQEHCETeYJqbQNJF+/pqfsdfN4/PV3vb0+xc2myrvLvw8/3nt28z/Px/Djy1Mu73nmPfz48pTL85qfw48vTzlfud1sTg+4We6+2dziy1Nur0cvi7vX9ylfnvt8//rx5SmXr2f1iC9PeX+f3fOax/1uebNcvh676b59ecrlTR65xZ3Ly5Xbncvfp9/F3ZO3m/jyrB7x5Sn3nHK9LO693DfLl8d3qR9fnnL5euym97MvT7m8ySO3uHN5uXK7c/nVI+6evN3EzfLr/H8u7jnum+XLo5f68eUpl6/H91p8ecqXh9f0++3LUy5v8sgt7lxertx5+XX6XfzrnLtvli+PXurHl6dcvh69LL485cuzvie+POXyfU+76fval6fcvXK9LP49+i1fHr3Ujy9PuXw9ell8ecqXRy/148tTLl/P6hFfnnL9lutl8Z/Rb/ny6KV+fHnK5evRy+LLU748eqkfX55y+XpWj/jy/PIn9rRBCg==
+        </DataArray>
+      </Points>
+
+      <Cells>
+        <DataArray type="Int32" Name="connectivity" format="binary">
+AQAAAIACAACAAgAABQEAAA==eAENwwc3kAEAAMAvSSVpCCklKSlCSEZLISsNyoqsFEIyk5KUZIdUWn/V3XsXBEGwwxB3Guouw9ztHvca7j4j3G+kBzzoIQ8b5RGjjTHWo8Z5zOPGe8KTJnjKRE+b5BnPmuw5UzzvBVNN86LpZpjpJbPMNsfL5nrFPPMtsNCrXvO6N7xpkbe8bbEllnrHMsutsNIq71rtPe/7wIfWWOsjH1tnvQ022uQTm23xqa222W6HnT6zy+e+sNsee31pn/0O+MpBXzvksCOOOua4b5zwrZO+871TfnDaj874yc/O+sU5vzrvgosuueyKq35zzXU3/O6mP/zpL7f87R//+s//bgOvJzGx
+
+        </DataArray>
+        <DataArray type="Int32" Name="offsets" format="binary">
+AQAAAKAAAACgAAAAYgAAAA==eAENwxEXwmAAAMAPBoNgMBgEQRAEwSAYBIPBYBAEQTAIgkEwCAZBMAgGg2A/tbv3LgohxK5MTM1cu3Hrzr0Hc48WniytrG08e/Hqzda7Dzuf9r4cfPtx9Ovk7M/FP84+DNE=
+
+        </DataArray>
+        <DataArray type="UInt8" Name="types" format="binary">
+AQAAACgAAAAoAAAADAAAAA==eAHj5CQOAAAc/AFp
+
+        </DataArray>
+      </Cells>
+
+  <PointData>
+        <DataArray type="Float64" Name="phi_1" format="binary">
+AQAAAAAFAAAABQAAlAEAAA==eAF1kzFIAlEchw91iagpCCEiGhqioMDBDP0HLpJEIDQ0BI0NhUOjS1MRRBBe0JBFd0YGkZlpJhWuLeLQkFBQSOHmUGLQ0tB9ig9yed73fsf34937a1r7L768NpN16tJOW08RYyCU9B3KfznXxHPXXNUQcq03//6NfJQjvYm4kFP3PQsJe8V1LOTYx/eyMRvabBw0+8HxeWIPldvgqZCD45u8+Vrv9CWFHBzfW2w/nHOnhBycXt+h7bQ9nxJy9MNXX/JPH80bzX5wfPmdxaC+dS7k4Ph2n8J3Zz1pIQfHF+8veu+HMkIOTq96R81/UswIOfrhq16ulvemzGY/OL5aabg02nch5OD4vDanIzp+JeTg+B4LhW5tJSvk4PRy2KKfgcFrIUc/fPRROb6ccn5wfLp1fuTg+Ezr/MjB6dWwzo8cPej1qtw/OD6+Jzk4Po9y/+D43q37Rw5Orx/r/pGjHz5TmV84vZgHcnB8bmV+4fjGrPklB6cXc0KOfvh4ZoXTC84Kxwdnhas+9uH0grP+AuHa52Y=
+        </DataArray>
+  </PointData>
+  <CellData>
+        <DataArray type="Float64" Name="Owner" format="binary">
+AQAAAEABAABAAQAADgAAAA==eAFjYBgFlIQAAAFAAAE=
+        </DataArray>
+      </CellData>
+
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>

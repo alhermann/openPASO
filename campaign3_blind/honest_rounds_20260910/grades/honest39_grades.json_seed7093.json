@@ -1,0 +1,148 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [
+        "interface files missing or one-sided for level(s) [2, 3]: every prescribed level needs both interface_level<k>_A.csv and _B.csv",
+        "level 1: 6 interface point(s) refused, e.g. (0.625, 0.125) (outside the graded band (0.25, 0.75)). The interface ends are corners of the split problem and are deliberately not graded; points elsewhere than the prescribed probes would let the agent choose where it is measured."
+      ],
+      "reasons": [],
+      "findings": [
+        "the submitted FIELD is flat at the interface \u2014 its normal derivative is identically zero \u2014 at level 1 side A, level 1 side B. A field with no gradient at the interface transports nothing across it, so whatever flux was reported cannot have come from it."
+      ],
+      "per_level": [],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "NOT_ASSESSED",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the submitted FIELD is flat at the interface \u2014 its normal derivative is identically zero \u2014 at level 1 side A, level 1 side B. A field with no gradient at the interface transports nothing across it, so whatever flux was reported cannot have come from it."
+        ],
+        "reasons": [],
+        "judged_at_level": 1
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "side_A/out.control",
+            "side_A/participant_output.log"
+          ],
+          "detail": "7 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "side_A/participant_output.log",
+            "side_A/participant_output_level1.log"
+          ],
+          "detail": "6 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "RESULT.txt claims COUPLING_ITERATIONS=2 but the finest-level history has 1 rows \u2014 recorded as a discrepancy, not as evidence of invention",
+        "levels": 1,
+        "per_level": {
+          "1": {
+            "iterations": 1,
+            "first": 2.1953083090700653e-13,
+            "last": 2.1953083090700653e-13
+          },
+          "notes": [
+            "RESULT.txt claims COUPLING_ITERATIONS=2 but the finest-level history has 1 rows \u2014 recorded as a discrepancy, not as evidence of invention"
+          ]
+        },
+        "detail": "level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: residual is constant"
+      },
+      "notes": [
+        "coupling evidence: level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: residual is constant",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "N/A",
+      "INTERFACE_RESIDUAL": "2.1953083090700653e-13",
+      "COUPLING_ITERATIONS": "2"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

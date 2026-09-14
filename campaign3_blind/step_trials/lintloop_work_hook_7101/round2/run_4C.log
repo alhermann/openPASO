@@ -1,0 +1,120 @@
+Invalid MIT-MAGIC-COOKIE-1 key
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+Number of procs used for redistribution: 1
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
++--------------------------------------------------------------------+
+
+Number of procs used for redistribution: 1
+Redistributing using hypergraph .........
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
++--------------------------------------------------------------------+
+Read/generate conditions                          in....0.00252031 secs
+
+Total wall time for INPUT:        5.100e-02 sec 
+
+###################################################
+# YOUR PROBLEM TYPE: Scalar_Transport
+###################################################
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+Flux output is performed for 1 scalars: 1 
+
+Normal fluxes at boundary 'ScaTraFluxCalc' on discretization 'scatra':
++----+-----+-------------------------+------------------+--------------------------+
+| ID | DOF | Integral of normal flux | Area of boundary | Mean normal flux density |
+|  0 |  0  |       +4.7774E-01       |    1.0000E+00    |        +4.7774E-01       |
++----+-----+-------------------------+------------------+--------------------------+
+| Sum of all normal flux boundary integrals for scalar 0: +4.77742E-01             |
++----------------------------------------------------------------------------------+
+
+Vtk Files 'scatra-00000' written. Time: 0.00000000000000e+00
+
+TIME:           1/1  DT = 1    Stationary    STEP = 1/1
+Solvertype linear_full (ts= 1.691E-03,te= 7.164E-04)
+
+Normal fluxes at boundary 'ScaTraFluxCalc' on discretization 'scatra':
++----+-----+-------------------------+------------------+--------------------------+
+| ID | DOF | Integral of normal flux | Area of boundary | Mean normal flux density |
+|  0 |  0  |       -7.9746E-01       |    1.0000E+00    |        -7.9746E-01       |
++----+-----+-------------------------+------------------+--------------------------+
+| Sum of all normal flux boundary integrals for scalar 0: -7.97457E-01             |
++----------------------------------------------------------------------------------+
+
+Vtk Files 'scatra-00001' written. Time: 1.00000000000000e+00
+
+Checking results of 0 tests:
+
+OK (0)
+======================================================================================
+
+                         TimeMonitor results over 1 processor
+
+Timer Name                                                 Global time (num calls)    
+--------------------------------------------------------------------------------------
+Core::FE::Discretization::Evaluate                         0.002126 (3)               
+Core::FE::Discretization::set_state                        2.864e-05 (12)             
+Core::LinAlg::Solver:  0)   translate_solver_parameters    1.606e-05 (1)              
+Core::LinAlg::Solver:  1)   Setup                          0.0005347 (1)              
+Core::LinAlg::Solver:  2)   Solve                          0.001147 (1)               
+Core::LinAlg::SparseMatrix::Complete                       4.21e-05 (1)               
+Core::LinAlg::SparseMatrix::Complete(domain,range)         9.01e-07 (1)               
+Rebalance::rebalance_graph                                 0.001255 (1)               
+Rebalance::rebalance_node_maps                             0.001295 (1)               
+SCATRA:       + apply DBC to system                        1.043e-05 (1)              
+--------------------------------------------------------------------------------------
+SCATRA:       + element calls                              0.0007209 (1)              
+SCATRA:       + solver calls                               0.001701 (1)               
+SCATRA:      + apply dirich cond.                          8.615e-05 (2)              
+SCATRA:    + output of solution                            0.003217 (2)               
+SCATRA:    + prepare time step                             0.0001491 (1)              
+SCATRA:  + time loop                                       0.006657 (1)               
+======================================================================================
+
+Total wall time for CALCULATION:  1.100e-02 sec 
+
+
+Memory High Water Mark Summary:		Total
+(in GB)					1.7938e-01
+
+processor 0 finished normally

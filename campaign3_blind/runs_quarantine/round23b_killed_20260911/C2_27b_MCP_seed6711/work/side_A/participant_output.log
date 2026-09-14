@@ -1,0 +1,9 @@
+iteration: 8
+command: ["python3", "participant_A.py"]
+returncode: 0
+--- stdout ---
+NDOF = 54
+4C done: max|u|=1.250562e-01
+
+--- stderr ---
+

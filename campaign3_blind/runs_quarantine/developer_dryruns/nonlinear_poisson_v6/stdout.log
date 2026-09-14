@@ -1,0 +1,84 @@
+  0 SNES Function norm 6.244439647416e+00
+  1 SNES Function norm 4.677863133018e+00
+  2 SNES Function norm 7.055455052604e-01
+  3 SNES Function norm 2.334326489650e-02
+  4 SNES Function norm 2.600919689926e-05
+  5 SNES Function norm 2.739062994256e-11
+  0 SNES Function norm 4.014107602294e+00
+  1 SNES Function norm 2.571241268151e+00
+  2 SNES Function norm 4.417862147314e-01
+  3 SNES Function norm 1.585561941888e-02
+  4 SNES Function norm 1.555994839502e-05
+  5 SNES Function norm 1.172061604193e-11
+  0 SNES Function norm 2.336127572730e+00
+  1 SNES Function norm 1.670901274958e+00
+  2 SNES Function norm 2.660476102002e-01
+  3 SNES Function norm 9.023461137273e-03
+  4 SNES Function norm 9.967230478129e-06
+  5 SNES Function norm 9.911934007424e-12
+  0 SNES Function norm 1.267563998906e+00
+  1 SNES Function norm 9.122931854812e-01
+  2 SNES Function norm 1.406937193894e-01
+  3 SNES Function norm 4.788749570897e-03
+  4 SNES Function norm 5.508754240641e-06
+  5 SNES Function norm 6.009895773476e-12
+
+============================================================
+Solving level 1: N = 8 elements per side
+============================================================
+NDOF = 81
+Starting Newton iteration...
+Newton iterations: 5
+Converged: True, Reason: 3
+Run log written to ./run_level1.log
+Total probe points: 1936
+Solution CSV written to ./solution_level1.csv
+
+============================================================
+Solving level 2: N = 16 elements per side
+============================================================
+NDOF = 289
+Starting Newton iteration...
+Newton iterations: 5
+Converged: True, Reason: 3
+Run log written to ./run_level2.log
+Total probe points: 1936
+Solution CSV written to ./solution_level2.csv
+
+============================================================
+Solving level 3: N = 32 elements per side
+============================================================
+NDOF = 1089
+Starting Newton iteration...
+Newton iterations: 5
+Converged: True, Reason: 3
+Run log written to ./run_level3.log
+Total probe points: 1936
+Solution CSV written to ./solution_level3.csv
+
+============================================================
+Solving level 4: N = 64 elements per side
+============================================================
+NDOF = 4225
+Starting Newton iteration...
+Newton iterations: 5
+Converged: True, Reason: 3
+Run log written to ./run_level4.log
+Total probe points: 1936
+Solution CSV written to ./solution_level4.csv
+
+============================================================
+CONVERGENCE ANALYSIS
+============================================================
+Max relative change between N=32 and N=64: 1.000000e+00
+Mesh independence: NOT_CONVERGED
+
+Result summary written to ./RESULT.txt
+
+============================================================
+SUMMARY
+============================================================
+Level 1 (N=8): DOFs=81, Iterations=5, Status=OK, u_range=[0.0000e+00, 1.6197e+00]
+Level 2 (N=16): DOFs=289, Iterations=5, Status=OK, u_range=[0.0000e+00, 1.5058e+00]
+Level 3 (N=32): DOFs=1089, Iterations=5, Status=OK, u_range=[0.0000e+00, 1.4785e+00]
+Level 4 (N=64): DOFs=4225, Iterations=5, Status=OK, u_range=[0.0000e+00, 1.4774e+00]

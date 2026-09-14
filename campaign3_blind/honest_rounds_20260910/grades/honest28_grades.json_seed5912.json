@@ -1,0 +1,169 @@
+{
+  "C3_MCP": {
+    "problem": "C3",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [
+        "interface files missing or one-sided for level(s) [2, 3]: every prescribed level needs both interface_level<k>_A.csv and _B.csv"
+      ],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 1 side A, level 1 side B. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field.",
+        "the two subdomains disagree at the interface: max relative field jump 6.639e-07, max relative FLUX jump 8.952e-01. only 1 graded level(s), so no refinement trend exists and the fixed tolerance 0.005 is all the evidence there is. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 6.639292003420148e-07,
+          "jump_q_rel": 0.8951729058290616
+        }
+      ],
+      "legs": [
+        {
+          "axis": 1,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "INCONSISTENT",
+        "per_side": [
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 99999989773509156433736907029874289105223560596017775959390842953547222620668439974961397412710892366799400070051584700400294222411663841669131069819059260251038842338779812965956436443656906546597378280018095856280319372950426815034721161292923845207295437807933567515265453961521355729569750672474112% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.0,
+                "spread": 9.999998977350915e+299,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 24540572743410564336967962083936219847935480627290479990413263111581668344147173059899521718311035651308220240138771303936783630576981012833604256448998665534963618740731309308704404614588572625335317049658354299089069453175267628171633730483464780630000386223046772398939799300662695043898007539941376% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.0,
+                "spread": 2.4540572743410566e+299,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 1 side A, level 1 side B. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field."
+        ],
+        "reasons": [
+          "FLUX_NOT_FROM_SUBMITTED_FIELD"
+        ],
+        "judged_at_level": 1
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "dune",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "side_A/participant_output.log",
+            "side_A/participant_output_level1.log"
+          ],
+          "detail": "8 file(s) carry structured dune solver output"
+        },
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "side_A/participant_output.log",
+            "side_A/participant_output_level1.log"
+          ],
+          "detail": "9 file(s) carry structured 4C solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "RESULT.txt claims COUPLING_ITERATIONS=76 but the finest-level history has 4 rows \u2014 recorded as a discrepancy, not as evidence of invention",
+        "levels": 2,
+        "per_level": {
+          "1": {
+            "iterations": 75,
+            "first": 0.8201457256050843,
+            "last": 8.911948838092969e-07,
+            "ratio_cv": 0.1453719550131294
+          },
+          "2": {
+            "iterations": 4,
+            "first": 1.6524382104294488e-06,
+            "last": 8.735257628110953e-07,
+            "ratio_cv": 0.1265903504168164
+          },
+          "notes": [
+            "RESULT.txt claims COUPLING_ITERATIONS=76 but the finest-level history has 4 rows \u2014 recorded as a discrepancy, not as evidence of invention"
+          ]
+        },
+        "detail": "level 2: residual fell only 1.89x \u2014 an iteration that never moved did not couple"
+      },
+      "notes": [
+        "coupling evidence: level 2: residual fell only 1.89x \u2014 an iteration that never moved did not couple",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "N/A",
+      "INTERFACE_RESIDUAL": "0.799446",
+      "COUPLING_ITERATIONS": "76"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

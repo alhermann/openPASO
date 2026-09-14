@@ -1,0 +1,9 @@
+iteration: 2
+command: ["python3", "participant_A.py"]
+returncode: 0
+--- stdout ---
+NDOF = 243
+4C thermo-elastic Dirichlet participant: NDOF = 243  T=[0,0.0733039] u=[-0.00133854,0.00164838]  scatra-vs-tsi T mismatch 5.64e-03
+
+--- stderr ---
+

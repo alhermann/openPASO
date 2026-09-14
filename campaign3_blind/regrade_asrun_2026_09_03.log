@@ -1,0 +1,36 @@
+>>> regrade under the current gate, start 2026-09-03 09:46:30
+>>> build c23fe6c0, seeds 2 3 4 5 6 7 8 9 10 11 14 15 34 35 40 43 50 60
+  keys before: d---------  SEALED
+  UNSEALED  drwx------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
+UNSEALED  drwx------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_backup_20260816
+UNSEALED  drwx------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_dev3
+  seed 2: graded 64 cells -> dev_grades_27b_seed2.json
+  seed 3: graded 64 cells -> dev_grades_27b_seed3.json
+  seed 4: graded 64 cells -> dev_grades_27b_seed4.json
+  seed 5: graded 64 cells -> dev_grades_27b_seed5.json
+  seed 6: graded 64 cells -> dev_grades_27b_seed6.json
+  seed 7: graded 46 cells -> dev_grades_27b_seed7.json   MISSING 18: ['C5_27b_MCP_seed7', 'C6_27b_BARE_seed7', 'C6_27b_MCP_seed7', 'C7_27b_MCP_seed7']
+  seed 8: graded 64 cells -> dev_grades_27b_seed8.json
+  seed 9: graded 64 cells -> dev_grades_27b_seed9.json
+  seed 10: graded 64 cells -> dev_grades_27b_seed10.json
+  seed 11: graded 64 cells -> dev_grades_27b_seed11.json
+  seed 14: graded 64 cells -> dev_grades_27b_seed14.json
+  seed 15: graded 64 cells -> dev_grades_27b_seed15.json
+  seed 34: graded 14 cells -> dev_grades_27b_seed34.json   MISSING 50: ['FE1_27b_BARE_seed34', 'FE1_27b_MCP_seed34', 'FE2_27b_BARE_seed34', 'FE2_27b_MCP_seed34']
+  seed 35: graded 12 cells -> dev_grades_27b_seed35.json   MISSING 52: ['FE1_27b_BARE_seed35', 'FE1_27b_MCP_seed35', 'FE2_27b_BARE_seed35', 'FE2_27b_MCP_seed35']
+  seed 40: graded 12 cells -> dev_grades_27b_seed40.json   MISSING 52: ['FE1_27b_BARE_seed40', 'FE1_27b_MCP_seed40', 'FE2_27b_BARE_seed40', 'FE2_27b_MCP_seed40']
+  seed 43: graded 12 cells -> dev_grades_27b_seed43.json   MISSING 52: ['FE1_27b_BARE_seed43', 'FE1_27b_MCP_seed43', 'FE2_27b_BARE_seed43', 'DL1_27b_BARE_seed43']
+  seed 50: graded 12 cells -> dev_grades_27b_seed50.json   MISSING 52: ['FE1_27b_BARE_seed50', 'FE1_27b_MCP_seed50', 'FE2_27b_BARE_seed50', 'DL1_27b_BARE_seed50']
+  seed 60: graded 32 cells -> dev_grades_27b_seed60.json   MISSING 32: ['SP1_27b_BARE_seed60', 'SP1_27b_MCP_seed60', 'SP2_27b_BARE_seed60', 'SP2_27b_MCP_seed60']
+  SEALED    d---------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
+SEALED    d---------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_backup_20260816
+SEALED    d---------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_dev3
+chmod: das Verzeichnis '/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys' kann nicht gelesen werden: Keine Berechtigung
+chmod: das Verzeichnis '/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_backup_20260816' kann nicht gelesen werden: Keine Berechtigung
+chmod: das Verzeichnis '/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_dev3' kann nicht gelesen werden: Keine Berechtigung
+  keys after: d---------  SEALED
+>>> keys after: d---------
+SEALED    d---------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
+SEALED    d---------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_backup_20260816
+SEALED    d---------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_dev3
+>>> regrade done rc=0 2026-09-03 09:49:27

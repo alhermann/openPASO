@@ -1,0 +1,308 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": -0.1953366052864352,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.04469879039477282,
+          0.05403154975880883,
+          0.05860033862574746
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(u)",
+          "IMPLAUSIBLE_RATE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+        ],
+        "superconvergent": false,
+        "order": -0.1953366052864352,
+        "r2": 0.9493,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 0.8875716997497127,
+        "rel_finest": 1.1636109545829192
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.04469879039477282,
+        "per_field": {
+          "u": 0.04469879039477282
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.05403154975880883,
+        "per_field": {
+          "u": 0.05403154975880883
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.05860033862574746,
+        "per_field": {
+          "u": 0.05860033862574746
+        }
+      }
+    ],
+    "r2": 0.9493,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.050360765679412,
+      "exact_rms_computed": 0.05036076567941213,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_SATISFIED",
+      "malformed": [],
+      "reasons": [],
+      "findings": [
+        "the reported flux is proportional to this side's own field normal derivative but with the OPPOSITE sign, so the flux was computed with the INWARD normal. The task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the subdomain; with the sign reversed the two sides' fluxes appear to sum to zero when they do not, and vice versa."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 6.341606953893332e-08,
+          "jump_q_rel": 0.024208806822140706
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 5.57946189545857e-08,
+          "jump_q_rel": 0.006034639064487689
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 6.98114924109073e-08,
+          "jump_q_rel": 0.0014939615687793448
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "SIGN_CONVENTION",
+        "per_side": [
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 33% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.1728733567485483,
+                "spread": 0.33294397317319524,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -282.6024991811168,
+                "spread": 0.20603277186261135,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.08 (+/-13.0%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.0795850964484979,
+                "spread": 0.12961198544095884,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -230.63054722825166,
+                "spread": 0.13289160548098047,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.017 (+/-8.7%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.0170645927126634,
+                "spread": 0.08666116577532632,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -190.1834600931158,
+                "spread": 0.021509761759880563,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the reported flux is proportional to this side's own field normal derivative but with the OPPOSITE sign, so the flux was computed with the INWARD normal. The task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the subdomain; with the sign reversed the two sides' fluxes appear to sum to zero when they do not, and vice versa."
+        ],
+        "reasons": [
+          "FLUX_SIGN_CONVENTION"
+        ],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "INCONSISTENT"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "16 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "14 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "RESULT.txt claims COUPLING_ITERATIONS=8 but the finest-level history has 7 rows \u2014 recorded as a discrepancy, not as evidence of invention",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 7,
+            "first": 0.711114714307644,
+            "last": 1.6234727245662964e-07,
+            "ratio_cv": 1.078605515497645
+          },
+          "2": {
+            "iterations": 7,
+            "first": 0.011065450181815435,
+            "last": 1.450946284882348e-07,
+            "ratio_cv": 0.7554856076405188
+          },
+          "3": {
+            "iterations": 7,
+            "first": 0.7136612228969899,
+            "last": 1.5204658912013747e-07,
+            "ratio_cv": 1.0653166384388575
+          },
+          "notes": [
+            "RESULT.txt claims COUPLING_ITERATIONS=8 but the finest-level history has 7 rows \u2014 recorded as a discrepancy, not as evidence of invention"
+          ]
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 693
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 957
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "0.0",
+      "INTERFACE_RESIDUAL": "1.5204658912013747e-07",
+      "COUPLING_ITERATIONS": "8"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(u)",
+      "IMPLAUSIBLE_RATE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+    ],
+    "findings": [
+      "the reported flux is proportional to this side's own field normal derivative but with the OPPOSITE sign, so the flux was computed with the INWARD normal. The task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the subdomain; with the sign reversed the two sides' fluxes appear to sum to zero when they do not, and vice versa."
+    ],
+    "notes": [],
+    "result_type": "order"
+  }
+}

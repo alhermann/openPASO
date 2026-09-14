@@ -1,0 +1,70 @@
+{
+  "FC2_BARE": {
+    "problem": "FC2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
+    "result_type": "order"
+  },
+  "FC2_MCP": {
+    "problem": "FC2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "N/A"
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
+    "result_type": "order"
+  }
+}

@@ -1,0 +1,1 @@
+The 19 round-1 seed-1 runs voided for writing deliverables outside the sandbox (13 coupled MCP, 4 coupled BARE, FC2_BARE and SP1_BARE — see DEV_FINDINGS.md): each of the 19 preserves what it wrote in out_of_sandbox_evidence/, nothing was deleted, write_file was confined afterwards and the cells re-fleeted 2026-08-15 17:16.

@@ -1,0 +1,295 @@
+
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+Number of procs used for redistribution: 1
+Redistributing using hypergraph .........
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization structure                        |
++--------------------------------------------------------------------+
+
+Number of procs used for redistribution: 1
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization thermo                           |
++--------------------------------------------------------------------+
+Read/generate conditions                          in....0.00288261 secs
+
+Total wall time for INPUT:        5.400e-02 sec 
+
+Welcome to Thermo-Structure-Interaction 
+         !
+         !
+         ^
+        / \
+       /___\
+      |=   =|
+      |     |
+      |     |
+      |     |
+      |     |
+      |     |
+      | TSI |
+      |     |
+     /|##!##|\
+    / |##!##| \
+   /  |##!##|  \
+  |  / ^ | ^ \  |
+  | /  ( | )  \ |
+  |/   ( | )   \|
+      ((   ))
+     ((  :  ))
+     ((  :  ))
+      ((   ))
+       (( ))
+        ( )
+         .
+         .
+         .
+
+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization structure                        |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization structure                        |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization thermo                           |
++--------------------------------------------------------------------+
+Created discretization thermo as a clone of discretization structure in....4.703e-04 secs
+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization thermo                           |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization structure                        |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization thermo                           |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+Welcome to Thermal Time Integration 
+      _______________________________
+  ===(__|_|_37 degrees celsius__|_|__)
+
+with statics
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization structure                        |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+Coupling variable: temperature
+
+
+TIME:  1.000e+00/1.000e+00     DT = 1.000e+00     STEP =    1/   1
+
+Predictor thermo absolute res-norm 0.00378913
+
+*********************
+    THERMO SOLVER    
+*********************
+numiter      abs-res-norm     abs-temp-norm           wct
+      1       6.16437e-18       2.50100e-01      1.31e-02
+      2       2.55323e-18       1.30486e-16      1.63e-02
+=== Structural predictor: ConstDis ===
+
+************************
+    STRUCTURE SOLVER    
+************************
+************************************************************************
+-- Status Test Results --
+**...........OR Combination -> 
+  **...........AND Combination -> 
+    **...........AND Combination -> 
+      **...........Structure-Update-Norm = 1.000e+12 < 1e-10
+                   (Unscaled 2-Norm, Absolute)
+      **...........Structure-F-Norm = 1.332e-01 < 1.000e-08
+                   (Unscaled 2-Norm, Absolute)
+  **...........Number of Iterations = 0 < 50
+************************************************************************
+
+************************************************************************
+-- Nonlinear Solver Step 0 -- 
+||F|| = 1.33197e-01  step = 0.00000e+00  dx = 0.00000e+00
+************************************************************************
+
+************************************************************************
+-- Status Test Results --
+**...........OR Combination -> 
+  **...........AND Combination -> 
+    **...........AND Combination -> 
+      **...........Structure-Update-Norm = 4.875e-03 < 1e-10
+                   (Unscaled 2-Norm, Absolute)
+                   (Min Step Size:  1.000e+00 >= 1)
+                   (Max Lin Solv Tol:  0.000e+00 < 0.5)
+      Converged....Structure-F-Norm = 7.265e-17 < 1.000e-08
+                   (Unscaled 2-Norm, Absolute)
+  **...........Number of Iterations = 1 < 50
+************************************************************************
+
+************************************************************************
+-- Nonlinear Solver Step 1 -- 
+||F|| = 7.26533e-17  step = 1.00000e+00  dx = 4.87500e-03
+************************************************************************
+
+
+************************************************************************
+-- Nonlinear Solver Step 2 -- 
+||F|| = 2.68547e-17  step = 1.00000e+00  dx = 1.31750e-18 (Converged!)
+************************************************************************
+
+************************************************************************
+-- Final Status Test Results --
+Converged....OR Combination -> 
+  Converged....AND Combination -> 
+    Converged....AND Combination -> 
+      Converged....Structure-Update-Norm = 1.309e-18 < 1e-10
+                   (Unscaled 2-Norm, Absolute)
+                   (Min Step Size:  1.000e+00 >= 1)
+                   (Max Lin Solv Tol:  0.000e+00 < 0.5)
+      Converged....Structure-F-Norm = 2.685e-17 < 1.000e-08
+                   (Unscaled 2-Norm, Absolute)
+  **...........Number of Iterations = 2 < 50
+************************************************************************
+====== Restart written in step 1
+--------------------------------------------------------------------------------
+
+Vtk Files 'thermo-00001' written. Time: 1.00000000000000e+00
+====== Restart for field 'Structure' written in step 1
+
+Vtk Files 'structure-00001' written. Time: 1.00000000000000e+00
+
+
+--- Monitor Dirichlet boundary condition 101 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00   1.60166e-02  -2.43021e-02  -6.05046e-03  -7.56307e-04   3.78154e-03  -1.71909e-02
+
+
+--- Monitor Dirichlet boundary condition 102 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00   1.60166e-02  -2.43021e-02   6.05046e-03   2.65491e-03  -2.53024e-03  -1.71909e-02
+
+
+--- Monitor Dirichlet boundary condition 103 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -4.82745e-03  -2.14610e-02   1.84400e-03   4.60999e-04  -1.15250e-03  -1.22063e-02
+
+
+--- Monitor Dirichlet boundary condition 104 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -4.82745e-03  -2.14610e-02  -1.84400e-03   1.21564e-03   7.75352e-04  -1.22063e-02
+
+
+--- Monitor Dirichlet boundary condition 105 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -2.15513e-02  -1.35464e-02   8.16801e-03   3.06301e-03  -5.10501e-03  -3.84763e-04
+
+
+--- Monitor Dirichlet boundary condition 106 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -2.15513e-02  -1.35464e-02  -8.16801e-03  -2.00469e-03   3.42131e-03  -3.84763e-04
+
+
+--- Monitor Dirichlet boundary condition 107 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -2.91070e-02  -1.89737e-03   1.10362e-02   5.51812e-03  -6.89765e-03   1.33677e-02
+
+
+--- Monitor Dirichlet boundary condition 108 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -2.91070e-02  -1.89737e-03  -1.10362e-02  -5.36988e-03   4.62366e-03   1.33677e-02
+
+
+--- Monitor Dirichlet boundary condition 109 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -2.57951e-02   1.12262e-02   9.76813e-03   6.10508e-03  -6.10508e-03   2.31383e-02
+
+
+--- Monitor Dirichlet boundary condition 110 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -2.57951e-02   1.12262e-02  -9.76813e-03  -6.98213e-03   4.08984e-03   2.31383e-02
+
+
+--- Monitor Dirichlet boundary condition 111 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -9.99895e-03   2.29484e-02   3.79189e-03   2.84392e-03  -2.36993e-03   2.18419e-02
+
+
+--- Monitor Dirichlet boundary condition 112 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00  -9.99895e-03   2.29484e-02  -3.79189e-03  -4.63676e-03   1.58876e-03   2.18419e-02
+
+
+--- Monitor Dirichlet boundary condition 113 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00   1.59025e-02   3.03206e-02  -6.03892e-03  -5.28406e-03   3.77433e-03   5.03570e-03
+
+
+--- Monitor Dirichlet boundary condition 114 
+          step          time      ref_area     curr_area           f_x           f_y           f_z           m_x           m_y          m_z
+             1   1.00000e+00   0.00000e+00   0.00000e+00   1.59025e-02   3.03206e-02   6.03892e-03   2.91526e-03  -2.53195e-03   5.03570e-03
+
+Checking results of 0 tests:
+
+OK (0)
+======================================================================================
+
+                         TimeMonitor results over 1 processor
+
+Timer Name                                                 Global time (num calls)    
+--------------------------------------------------------------------------------------
+Adapter::StructureTimIntBaseAlgorithm::SetupStructure      2.7307e-03 (1)             
+Core::FE::Discretization::Evaluate                         1.0863e-02 (13)            
+Core::FE::Discretization::set_state                        1.0367e-04 (48)            
+Core::LinAlg::Solver:  0)   translate_solver_parameters    3.4194e-05 (2)             
+Core::LinAlg::Solver:  1)   Setup                          8.0373e-04 (4)             
+Core::LinAlg::Solver:  2)   Solve                          7.7404e-03 (4)             
+Core::LinAlg::SparseMatrix::Complete                       6.9524e-04 (7)             
+Core::LinAlg::SparseMatrix::Complete(domain,range)         5.0172e-04 (12)            
+Epetra_CrsMatrix::Multiply(TransA,X,Y)                     2.1371e-05 (4)             
+Rebalance::rebalance_graph                                 1.6912e-03 (1)             
+--------------------------------------------------------------------------------------
+Rebalance::rebalance_node_maps                             1.7342e-03 (1)             
+======================================================================================
+
+Total wall time for CALCULATION:  4.600e-02 sec 
+
+
+Memory High Water Mark Summary:		Total
+(in GB)					1.8349e-01
+
+processor 0 finished normally
+No protocol specified

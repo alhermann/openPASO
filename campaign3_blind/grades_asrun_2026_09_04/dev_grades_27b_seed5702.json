@@ -1,0 +1,93 @@
+{
+  "SP1_BARE": {
+    "problem": "SP1",
+    "kind": "sparta_band",
+    "evidence_grade": 3,
+    "verdict": "NOT_PROVEN",
+    "qoi": {},
+    "identity": {},
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "sparta",
+          "verdict": "PROVEN",
+          "files": [
+            "log.sparta",
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "4 file(s) carry structured sparta solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 12200,
+          "2": 48800,
+          "3": 195200
+        }
+      }
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; nothing to grade"
+    ],
+    "result_type": "band_only"
+  },
+  "SP1_MCP": {
+    "problem": "SP1",
+    "kind": "sparta_band",
+    "evidence_grade": 3,
+    "verdict": "NOT_PROVEN",
+    "qoi": {},
+    "identity": {},
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "sparta",
+          "verdict": "PROVEN",
+          "files": [
+            "log.sparta",
+            "run_level1.log",
+            "run_level2.log"
+          ],
+          "detail": "3 file(s) carry structured sparta solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [
+        "side -: no NDOF contract line for level(s) [3]; the task states a level without it counts as not run at all",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the execution and coupling evidence above are PROVEN, so the defect is the missing contract line, not invented numbers"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "RUN_LOG_CONTRACT_UNMET"
+      ],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 11999,
+          "2": 47999
+        }
+      }
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; nothing to grade"
+    ],
+    "result_type": "band_only"
+  }
+}

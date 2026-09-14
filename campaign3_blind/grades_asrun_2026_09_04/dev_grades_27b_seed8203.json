@@ -1,0 +1,257 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the reported flux is proportional to this side's own field normal derivative but with the OPPOSITE sign, so the flux was computed with the INWARD normal. The task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the subdomain; with the sign reversed the two sides' fluxes appear to sum to zero when they do not, and vice versa.",
+        "the two subdomains disagree at the interface: max relative field jump 9.983e-02, max relative FLUX jump 9.676e-01. the jump does not shrink under refinement (field [9.983e-02, 3.371e-02, 1.502e-02], flux [9.676e-01, 8.191e-01, 7.288e-01]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.09983291222325757,
+          "jump_q_rel": 0.9675790280668123
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.03370956230613194,
+          "jump_q_rel": 0.8191495122921408
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.015022513890436705,
+          "jump_q_rel": 0.728781642601757
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "SIGN_CONVENTION",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.2525 (+/-2.8%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.2525320572181369,
+                "spread": 0.028199759834123005,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 73.87 (+/-12.9%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 73.87441445749296,
+                "spread": 0.1289084017714546,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.18266265667717954,
+                "spread": 0.02673783183311591,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -50.961521874772764,
+                "spread": 0.06283636737907224,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the reported flux is proportional to this side's own field normal derivative but with the OPPOSITE sign, so the flux was computed with the INWARD normal. The task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the subdomain; with the sign reversed the two sides' fluxes appear to sum to zero when they do not, and vice versa."
+        ],
+        "reasons": [
+          "FLUX_SIGN_CONVENTION"
+        ],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "CONSISTENT",
+          "NOT_ASSESSED"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "A_level1.control",
+            "A_level2.control",
+            "A_level3.control",
+            "run_level1_A.log"
+          ],
+          "detail": "9 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 20,
+            "first": 0.9737268428094639,
+            "last": 5.736611523282408e-07,
+            "ratio_cv": 0.07961355367875572
+          },
+          "2": {
+            "iterations": 19,
+            "first": 0.9476995622333891,
+            "last": 7.232896069114272e-07,
+            "ratio_cv": 0.07983211804007306
+          },
+          "3": {
+            "iterations": 18,
+            "first": 0.9219853281104919,
+            "last": 9.425086013149452e-07,
+            "ratio_cv": 0.07989028763665194
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [
+        "side A: NDOF grows 187 -> 400 (x2.14) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence.",
+        "side B: NDOF grows 255 -> 550 (x2.16) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence."
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "MESH_SEQUENCE_NOT_PRESCRIBED"
+      ],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 400
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 550
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.700522e+00",
+      "INTERFACE_RESIDUAL": "6.604953e-02",
+      "COUPLING_ITERATIONS": "18"
+    },
+    "reasons": [
+      "MESH_SEQUENCE_NOT_PRESCRIBED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

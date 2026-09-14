@@ -315,11 +315,12 @@
       "MAX_REL_CHANGE": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
     "notes": [
-      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
     ],
     "result_type": "order"
   },
@@ -382,11 +383,12 @@
       "MAX_REL_CHANGE": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
     "notes": [
-      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
     ],
     "result_type": "order"
   },
@@ -415,11 +417,12 @@
       "MAX_REL_CHANGE": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
     "notes": [
-      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
     ],
     "result_type": "order"
   },
@@ -575,19 +578,75 @@
     "problem": "NG1",
     "kind": "single",
     "evidence_grade": 1,
-    "outcome": "MALFORMED_SUBMISSION",
+    "outcome": "CORRECT",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
       0.8,
       3.2
     ],
-    "observed_order": null,
-    "per_field": {},
-    "levels": [],
-    "r2": null,
-    "monotone": null,
-    "magnitude": {},
+    "observed_order": 2.0627061369367348,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.0018492152849628465,
+          0.00040594711804359,
+          0.00010266052117554885,
+          2.5361691538058896e-05
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 2.0627061369367348,
+        "r2": 0.9995,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.06534659240286934,
+        "rel_finest": 0.0008962180515494348
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.0018492152849628465,
+        "per_field": {
+          "u": 0.0018492152849628465
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.00040594711804359,
+        "per_field": {
+          "u": 0.00040594711804359
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.00010266052117554885,
+        "per_field": {
+          "u": 0.00010266052117554885
+        }
+      },
+      {
+        "level": 4,
+        "probe_points": 1936,
+        "error": 2.5361691538058896e-05,
+        "per_field": {
+          "u": 2.5361691538058896e-05
+        }
+      }
+    ],
+    "r2": 0.9995,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.02829857253400788,
+      "exact_rms_computed": 0.02829857253400788,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
     "interface": null,
     "evidence": {
       "verdict": "PROVEN",
@@ -622,13 +681,18 @@
       "claims_convergence": true,
       "MAX_REL_CHANGE": "5.179782040115923e-03"
     },
-    "reasons": [
-      "UNASSIGNED_SUBDOMAIN_FILES"
-    ],
+    "reasons": [],
     "findings": [],
     "notes": [
       "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
-      "solution_level1.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level1.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level1.csv); grading the shallowest; solution_level2.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level2.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level2.csv); grading the shallowest; solution_level3.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level3.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level3.csv); grading the shallowest; solution_level4.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level4.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level4.csv); grading the shallowest; solution_level1.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level1.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level1.csv); grading the shallowest; solution_level2.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level2.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level2.csv); grading the shallowest; solution_level3.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level3.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level3.csv); grading the shallowest; solution_level4.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level4.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level4.csv); grading the shallowest"
+      "solution_level1.csv: a differing copy exists deeper in the tree (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level1.csv); grading the contractual one (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level1.csv). Intermediate artefacts written by a run tool are not a second submission.",
+      "solution_level2.csv: a differing copy exists deeper in the tree (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level2.csv); grading the contractual one (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level2.csv). Intermediate artefacts written by a run tool are not a second submission.",
+      "solution_level3.csv: a differing copy exists deeper in the tree (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level3.csv); grading the contractual one (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level3.csv). Intermediate artefacts written by a run tool are not a second submission.",
+      "solution_level4.csv: a differing copy exists deeper in the tree (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level4.csv); grading the contractual one (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level4.csv). Intermediate artefacts written by a run tool are not a second submission.",
+      "solution_level1.csv: a differing copy exists deeper in the tree (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level1.csv); grading the contractual one (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level1.csv). Intermediate artefacts written by a run tool are not a second submission.",
+      "solution_level2.csv: a differing copy exists deeper in the tree (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level2.csv); grading the contractual one (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level2.csv). Intermediate artefacts written by a run tool are not a second submission.",
+      "solution_level3.csv: a differing copy exists deeper in the tree (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level3.csv); grading the contractual one (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level3.csv). Intermediate artefacts written by a run tool are not a second submission.",
+      "solution_level4.csv: a differing copy exists deeper in the tree (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/simulation_outputs/anisotropic_diffusion_ngsolve_v6/solution_level4.csv); grading the contractual one (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed11/work/solution_level4.csv). Intermediate artefacts written by a run tool are not a second submission."
     ],
     "result_type": "order"
   },
@@ -657,11 +721,12 @@
       "MAX_REL_CHANGE": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
     "notes": [
-      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
     ],
     "result_type": "order"
   },
@@ -720,7 +785,7 @@
     "findings": [],
     "notes": [
       "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
-      "solution_level1.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG2_27b_MCP_seed11/work/simulation_outputs/ngsolve_20260821_113054/solution_level1.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG2_27b_MCP_seed11/work/simulation_outputs/ngsolve_20260821_113326/solution_level1.csv); grading the shallowest; solution_level1.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG2_27b_MCP_seed11/work/simulation_outputs/ngsolve_20260821_113054/solution_level1.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG2_27b_MCP_seed11/work/simulation_outputs/ngsolve_20260821_113326/solution_level1.csv); grading the shallowest"
+      "solution_level1.csv: two differing copies at the same depth (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG2_27b_MCP_seed11/work/simulation_outputs/ngsolve_20260821_113054/solution_level1.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG2_27b_MCP_seed11/work/simulation_outputs/ngsolve_20260821_113326/solution_level1.csv); the contract does not say which is the submission; solution_level1.csv: two differing copies at the same depth (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG2_27b_MCP_seed11/work/simulation_outputs/ngsolve_20260821_113054/solution_level1.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG2_27b_MCP_seed11/work/simulation_outputs/ngsolve_20260821_113326/solution_level1.csv); the contract does not say which is the submission"
     ],
     "result_type": "order"
   },
@@ -728,138 +793,33 @@
     "problem": "SK1",
     "kind": "single",
     "evidence_grade": 1,
-    "outcome": "COMPLETED_UNPHYSICAL",
+    "outcome": "HONEST_INCOMPLETE",
     "theoretical_order": 3.0,
     "tol": 0.5,
     "band": [
       1.8,
       4.4
     ],
-    "observed_order": -0.4143197895739973,
-    "per_field": {
-      "ux": {
-        "field": "ux",
-        "errors": [
-          0.016484560155826826,
-          0.024278636767313115,
-          0.029495064135572544
-        ],
-        "reasons": [
-          "DECAY_NOT_CLEAN(ux)",
-          "IMPLAUSIBLE_RATE(ux)",
-          "IMPLAUSIBLE_MAGNITUDE_COARSE(ux)",
-          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
-        ],
-        "superconvergent": false,
-        "order": -0.4196790764908005,
-        "r2": 0.9648,
-        "monotone": false,
-        "magnitude_checked": true,
-        "rel_coarse": 6.670012434664957,
-        "rel_finest": 11.934345999275566
-      },
-      "uy": {
-        "field": "uy",
-        "errors": [
-          0.016864155613013413,
-          0.0245562458664963,
-          0.029735930402448527
-        ],
-        "reasons": [
-          "DECAY_NOT_CLEAN(uy)",
-          "IMPLAUSIBLE_RATE(uy)",
-          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
-        ],
-        "superconvergent": false,
-        "order": -0.409123566062737,
-        "r2": 0.966,
-        "monotone": false,
-        "magnitude_checked": true,
-        "rel_coarse": 4.95033577072246,
-        "rel_finest": 8.728740609661106
-      }
-    },
-    "levels": [
-      {
-        "level": 1,
-        "probe_points": 1936,
-        "error": 0.02358263064356912,
-        "per_field": {
-          "ux": 0.016484560155826826,
-          "uy": 0.016864155613013413
-        }
-      },
-      {
-        "level": 2,
-        "probe_points": 1936,
-        "error": 0.03453203461041566,
-        "per_field": {
-          "ux": 0.024278636767313115,
-          "uy": 0.0245562458664963
-        }
-      },
-      {
-        "level": 3,
-        "probe_points": 1936,
-        "error": 0.04188298419717488,
-        "per_field": {
-          "ux": 0.029495064135572544,
-          "uy": 0.029735930402448527
-        }
-      }
-    ],
-    "r2": 0.9654,
-    "monotone": false,
-    "magnitude": {
-      "exact_rms_key": 0.0042087323361165345,
-      "exact_rms_computed": 0.004208732336116415,
-      "magnitude_checked": true,
-      "exact_rms_source": "key"
-    },
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
     "interface": null,
-    "evidence": {
-      "verdict": "PROVEN",
-      "per_code": [
-        {
-          "code": "skfem",
-          "verdict": "PROVEN",
-          "files": [
-            "run_level1.log",
-            "run_level2.log",
-            "run_level3.log"
-          ],
-          "detail": "3 file(s) carry structured skfem solver output"
-        }
-      ],
-      "coupling": {},
-      "notes": [],
-      "fatal": null,
-      "reasons": [],
-      "ndof": {
-        "-": {
-          "1": 407,
-          "2": 2167,
-          "3": 9911
-        }
-      }
-    },
+    "evidence": {},
     "agent_claim": {
       "MESH_INDEPENDENCE": null,
       "claims_convergence": null,
       "MAX_REL_CHANGE": null
     },
     "reasons": [
-      "DECAY_NOT_CLEAN(ux)",
-      "IMPLAUSIBLE_RATE(ux)",
-      "IMPLAUSIBLE_MAGNITUDE_COARSE(ux)",
-      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
-      "DECAY_NOT_CLEAN(uy)",
-      "IMPLAUSIBLE_RATE(uy)",
-      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
     "notes": [
-      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
     ],
     "result_type": "order"
   },
@@ -1401,12 +1361,12 @@
           "code": "kratos",
           "verdict": "PROVEN",
           "files": [
+            "simulation_outputs/kratos_elasticity_3d/stdout.log",
             "simulation_outputs/kratos_elasticity_3d_v2/run_level1.log",
-            "simulation_outputs/kratos_elasticity_3d_v3/run_level1.log",
-            "simulation_outputs/kratos_elasticity_3d_v3/run_level2.log",
-            "simulation_outputs/kratos_elasticity_3d_v3/run_level3.log"
+            "simulation_outputs/kratos_elasticity_3d_v2/stdout.log",
+            "simulation_outputs/kratos_elasticity_3d_v3/run_level1.log"
           ],
-          "detail": "4 file(s) carry structured kratos solver output"
+          "detail": "6 file(s) carry structured kratos solver output"
         }
       ],
       "coupling": {},
@@ -1823,11 +1783,12 @@
       "MAX_REL_CHANGE": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
     "notes": [
-      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
     ],
     "result_type": "order"
   },
@@ -1856,11 +1817,12 @@
       "MAX_REL_CHANGE": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
     "notes": [
-      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
     ],
     "result_type": "order"
   },
@@ -1965,11 +1927,12 @@
           "code": "febio",
           "verdict": "PROVEN",
           "files": [
+            "problem_level1.log",
             "run_level1.log",
             "run_level2.log",
             "run_level3.log"
           ],
-          "detail": "3 file(s) carry structured febio solver output"
+          "detail": "5 file(s) carry structured febio solver output"
         }
       ],
       "coupling": {},
@@ -2096,11 +2059,12 @@
           "code": "febio",
           "verdict": "PROVEN",
           "files": [
-            "simulation_outputs/run_level1.log",
-            "simulation_outputs/run_level2.log",
-            "simulation_outputs/run_level3.log"
+            "simulation_outputs/level1_N8/input.log",
+            "simulation_outputs/level1_N8/stdout.log",
+            "simulation_outputs/level2_N16/input.log",
+            "simulation_outputs/level2_N16/stdout.log"
           ],
-          "detail": "3 file(s) carry structured febio solver output"
+          "detail": "9 file(s) carry structured febio solver output"
         }
       ],
       "coupling": {},
@@ -2186,11 +2150,12 @@
       "MAX_REL_CHANGE": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
     "notes": [
-      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
     ],
     "result_type": "order"
   },
@@ -2302,11 +2267,12 @@
           "code": "4C",
           "verdict": "PROVEN",
           "files": [
-            "run_level1.log",
-            "run_level2.log",
-            "run_level3.log"
+            "output_level1.control",
+            "output_level2.control",
+            "output_level3.control",
+            "run_level1.log"
           ],
-          "detail": "3 file(s) carry structured 4C solver output"
+          "detail": "12 file(s) carry structured 4C solver output"
         }
       ],
       "coupling": {},
@@ -2529,9 +2495,10 @@
       ],
       "coupling": {},
       "notes": [
-        "side -: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all"
+        "side -: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the execution and coupling evidence above are PROVEN, so the defect is the missing contract line, not invented numbers"
       ],
-      "fatal": "FABRICATED_NO_RUN",
+      "fatal": "MALFORMED_SUBMISSION",
       "reasons": [
         "RUN_LOG_CONTRACT_UNMET"
       ],
@@ -2542,7 +2509,7 @@
       }
     },
     "reasons": [
-      "FABRICATED_NO_RUN"
+      "MALFORMED_SUBMISSION"
     ],
     "findings": [
       "no execution evidence for the named code(s); a band verdict over unproven numbers would prove nothing"
@@ -2714,7 +2681,29 @@
     "r2": null,
     "monotone": null,
     "magnitude": {},
-    "interface": null,
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_FLUX_ALL_ZERO"
+      ],
+      "findings": [
+        "Interface flux balance NOT CHECKED at level 1: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling.",
+        "Interface flux balance NOT CHECKED at level 2: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling.",
+        "Interface flux balance NOT CHECKED at level 3: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling."
+      ],
+      "per_level": [],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
     "evidence": {
       "verdict": "NOT_PROVEN",
       "per_code": [
@@ -2722,12 +2711,12 @@
           "code": "4C",
           "verdict": "PROVEN",
           "files": [
-            "run_level1_A.log",
-            "run_level1_B.log",
-            "run_level2_A.log",
-            "run_level2_B.log"
+            "output_A_level1.control",
+            "output_A_level2.control",
+            "output_A_level3.control",
+            "output_test.control"
           ],
-          "detail": "6 file(s) carry structured 4C solver output"
+          "detail": "10 file(s) carry structured 4C solver output"
         },
         {
           "code": "fenics",
@@ -2743,32 +2732,39 @@
       ],
       "coupling": {
         "verdict": "CONTRADICTED",
+        "forged": true,
+        "forged_detail": "the residual history is BIT-IDENTICAL across all 3 mesh levels (50 rows each) while the NDOF sequence shows the mesh DID change. A partitioned iteration's residual depends on the discretisation, so different meshes cannot produce the same numbers to the last bit -- this is one sequence written into 3 files.; level 1: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes; level 2: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes; level 3: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes",
+        "iteration_count_note": "",
         "levels": 3,
         "per_level": {
           "1": {
             "iterations": 50,
             "first": 0.9,
-            "last": 0.00515377520732012
+            "last": 0.00515377520732012,
+            "ratio_cv": 1.9143030179014995e-16
           },
           "2": {
             "iterations": 50,
             "first": 0.9,
-            "last": 0.00515377520732012
+            "last": 0.00515377520732012,
+            "ratio_cv": 1.9143030179014995e-16
           },
           "3": {
             "iterations": 50,
             "first": 0.9,
-            "last": 0.00515377520732012
+            "last": 0.00515377520732012,
+            "ratio_cv": 1.9143030179014995e-16
           }
         },
-        "detail": "level 1: final residual 0.00515 exceeds the prescribed 1e-06; level 2: final residual 0.00515 exceeds the prescribed 1e-06; level 3: final residual 0.00515 exceeds the prescribed 1e-06"
+        "detail": "the residual history is BIT-IDENTICAL across all 3 mesh levels (50 rows each) while the NDOF sequence shows the mesh DID change. A partitioned iteration's residual depends on the discretisation, so different meshes cannot produce the same numbers to the last bit -- this is one sequence written into 3 files.; level 1: final residual 0.00515 exceeds the prescribed 1e-06; level 1: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes; level 2: final residual 0.00515 exceeds the prescribed 1e-06; level 2: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes; level 3: final residual 0.00515 exceeds the prescribed 1e-06; level 3: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes"
       },
       "notes": [
-        "coupling evidence: level 1: final residual 0.00515 exceeds the prescribed 1e-06; level 2: final residual 0.00515 exceeds the prescribed 1e-06; level 3: final residual 0.00515 exceeds the prescribed 1e-06"
+        "coupling evidence: the residual history is BIT-IDENTICAL across all 3 mesh levels (50 rows each) while the NDOF sequence shows the mesh DID change. A partitioned iteration's residual depends on the discretisation, so different meshes cannot produce the same numbers to the last bit -- this is one sequence written into 3 files.; level 1: final residual 0.00515 exceeds the prescribed 1e-06; level 1: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes; level 2: final residual 0.00515 exceeds the prescribed 1e-06; level 2: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes; level 3: final residual 0.00515 exceeds the prescribed 1e-06; level 3: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes",
+        "the residual history is BIT-IDENTICAL across all 3 mesh levels (50 rows each) while the NDOF sequence shows the mesh DID change. A partitioned iteration's residual depends on the discretisation, so different meshes cannot produce the same numbers to the last bit -- this is one sequence written into 3 files.; level 1: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes; level 2: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes; level 3: residual decays at a constant ratio (coefficient of variation 1.91e-16 over 49 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes"
       ],
       "fatal": "FABRICATED_NO_RUN",
       "reasons": [
-        "COUPLING_EVIDENCE_CONTRADICTED"
+        "SYNTHETIC_RESIDUAL_HISTORY"
       ]
     },
     "agent_claim": {
@@ -2779,10 +2775,12 @@
       "COUPLING_ITERATIONS": "50"
     },
     "reasons": [
-      "COUPLING_EVIDENCE_CONTRADICTED"
+      "SYNTHETIC_RESIDUAL_HISTORY"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
     "result_type": "order"
   },
   "C1_MCP": {
@@ -2812,10 +2810,12 @@
       "COUPLING_ITERATIONS": "0"
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C2_BARE": {
@@ -2835,7 +2835,43 @@
     "r2": null,
     "monotone": null,
     "magnitude": {},
-    "interface": null,
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 0.000e+00, max relative FLUX jump 9.511e-01. the jump does not shrink under refinement (field [0.000e+00, 0.000e+00, 0.000e+00], flux [7.727e-01, 8.980e-01, 9.511e-01]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.7726568749970886
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.8979500628300094
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.9510745002708305
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
     "evidence": {
       "verdict": "NOT_PROVEN",
       "per_code": [
@@ -2843,12 +2879,12 @@
           "code": "4C",
           "verdict": "PROVEN",
           "files": [
-            "simulation_results/run_level1_A.log",
-            "simulation_results/run_level1_B.log",
-            "simulation_results/run_level2_A.log",
-            "simulation_results/run_level2_B.log"
+            "simulation_results/level_8/solver_A/output_A.control",
+            "simulation_results/level_8/solver_A/output_test.control",
+            "simulation_results/level_8/solver_A/output_test_vtk.control",
+            "simulation_results/level_8/solver_A/output_tutorial.control"
           ],
-          "detail": "6 file(s) carry structured 4C solver output"
+          "detail": "11 file(s) carry structured 4C solver output"
         },
         {
           "code": "kratos",
@@ -2864,6 +2900,9 @@
       ],
       "coupling": {
         "verdict": "CONTRADICTED",
+        "forged": true,
+        "forged_detail": "the residual history is BIT-IDENTICAL across all 3 mesh levels (2 rows each) while the NDOF sequence shows the mesh DID change. A partitioned iteration's residual depends on the discretisation, so different meshes cannot produce the same numbers to the last bit -- this is one sequence written into 3 files.",
+        "iteration_count_note": "",
         "levels": 3,
         "per_level": {
           "1": {
@@ -2882,14 +2921,15 @@
             "last": 0.0
           }
         },
-        "detail": "level 1: only 2 iteration(s); level 1: non-positive or non-finite residual; level 2: only 2 iteration(s); level 2: non-positive or non-finite residual; level 3: only 2 iteration(s); level 3: non-positive or non-finite residual"
+        "detail": "the residual history is BIT-IDENTICAL across all 3 mesh levels (2 rows each) while the NDOF sequence shows the mesh DID change. A partitioned iteration's residual depends on the discretisation, so different meshes cannot produce the same numbers to the last bit -- this is one sequence written into 3 files.; level 1: only 2 iteration(s); level 1: non-positive or non-finite residual; level 2: only 2 iteration(s); level 2: non-positive or non-finite residual; level 3: only 2 iteration(s); level 3: non-positive or non-finite residual"
       },
       "notes": [
-        "coupling evidence: level 1: only 2 iteration(s); level 1: non-positive or non-finite residual; level 2: only 2 iteration(s); level 2: non-positive or non-finite residual; level 3: only 2 iteration(s); level 3: non-positive or non-finite residual"
+        "coupling evidence: the residual history is BIT-IDENTICAL across all 3 mesh levels (2 rows each) while the NDOF sequence shows the mesh DID change. A partitioned iteration's residual depends on the discretisation, so different meshes cannot produce the same numbers to the last bit -- this is one sequence written into 3 files.; level 1: only 2 iteration(s); level 1: non-positive or non-finite residual; level 2: only 2 iteration(s); level 2: non-positive or non-finite residual; level 3: only 2 iteration(s); level 3: non-positive or non-finite residual",
+        "the residual history is BIT-IDENTICAL across all 3 mesh levels (2 rows each) while the NDOF sequence shows the mesh DID change. A partitioned iteration's residual depends on the discretisation, so different meshes cannot produce the same numbers to the last bit -- this is one sequence written into 3 files."
       ],
       "fatal": "FABRICATED_NO_RUN",
       "reasons": [
-        "COUPLING_EVIDENCE_CONTRADICTED"
+        "SYNTHETIC_RESIDUAL_HISTORY"
       ]
     },
     "agent_claim": {
@@ -2900,17 +2940,19 @@
       "COUPLING_ITERATIONS": "2"
     },
     "reasons": [
-      "COUPLING_EVIDENCE_CONTRADICTED"
+      "SYNTHETIC_RESIDUAL_HISTORY"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
     "result_type": "order"
   },
   "C2_MCP": {
     "problem": "C2",
     "kind": "coupled",
     "evidence_grade": 1,
-    "outcome": "FABRICATED_NO_RUN",
+    "outcome": "HONEST_INCOMPLETE",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
@@ -2924,52 +2966,7 @@
     "monotone": null,
     "magnitude": {},
     "interface": null,
-    "evidence": {
-      "verdict": "NOT_PROVEN",
-      "per_code": [
-        {
-          "code": "4C",
-          "verdict": "PROVEN",
-          "files": [
-            "level1_A/run.log",
-            "level1_B/run.log",
-            "run_level1_A.log",
-            "run_level1_B.log"
-          ],
-          "detail": "4 file(s) carry structured 4C solver output"
-        },
-        {
-          "code": "kratos",
-          "verdict": "PROVEN",
-          "files": [
-            "level1_A/run.log",
-            "level1_B/run.log",
-            "run_level1_A.log",
-            "run_level1_B.log"
-          ],
-          "detail": "4 file(s) carry structured kratos solver output"
-        }
-      ],
-      "coupling": {
-        "verdict": "CONTRADICTED",
-        "levels": 1,
-        "per_level": {
-          "1": {
-            "iterations": 9,
-            "first": NaN,
-            "last": 3.443366720069964e-08
-          }
-        },
-        "detail": "level 1: non-positive or non-finite residual"
-      },
-      "notes": [
-        "coupling evidence: level 1: non-positive or non-finite residual"
-      ],
-      "fatal": "FABRICATED_NO_RUN",
-      "reasons": [
-        "COUPLING_EVIDENCE_CONTRADICTED"
-      ]
-    },
+    "evidence": {},
     "agent_claim": {
       "MESH_INDEPENDENCE": "NOT_CONVERGED",
       "claims_convergence": false,
@@ -2978,80 +2975,31 @@
       "COUPLING_ITERATIONS": "9"
     },
     "reasons": [
-      "COUPLING_EVIDENCE_CONTRADICTED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C3_BARE": {
     "problem": "C3",
     "kind": "coupled",
     "evidence_grade": 1,
-    "outcome": "COMPLETED_UNPHYSICAL",
+    "outcome": "MALFORMED_SUBMISSION",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
       0.8,
       3.2
     ],
-    "observed_order": -0.01356360883271465,
-    "per_field": {
-      "u": {
-        "field": "u",
-        "errors": [
-          0.009704251274944483,
-          0.009684126231839415,
-          0.009888448124306861
-        ],
-        "reasons": [
-          "DECAY_NOT_CLEAN(u)",
-          "IMPLAUSIBLE_RATE(u)",
-          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
-        ],
-        "superconvergent": false,
-        "order": -0.01356360883271465,
-        "r2": 0.6681,
-        "monotone": false,
-        "magnitude_checked": true,
-        "rel_coarse": 0.5171406337184845,
-        "rel_finest": 0.5269565043827314
-      }
-    },
-    "levels": [
-      {
-        "level": 1,
-        "probe_points": 3872,
-        "error": 0.009704251274944483,
-        "per_field": {
-          "u": 0.009704251274944483
-        }
-      },
-      {
-        "level": 2,
-        "probe_points": 3872,
-        "error": 0.009684126231839415,
-        "per_field": {
-          "u": 0.009684126231839415
-        }
-      },
-      {
-        "level": 3,
-        "probe_points": 3872,
-        "error": 0.009888448124306861,
-        "per_field": {
-          "u": 0.009888448124306861
-        }
-      }
-    ],
-    "r2": 0.6681,
-    "monotone": false,
-    "magnitude": {
-      "exact_rms_key": 0.018765207454626717,
-      "exact_rms_computed": 0.018765207454626703,
-      "magnitude_checked": true,
-      "exact_rms_source": "key"
-    },
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
     "interface": {
       "verdict": "INTERFACE_NOT_SATISFIED",
       "malformed": [],
@@ -3059,7 +3007,7 @@
         "INTERFACE_NOT_SATISFIED"
       ],
       "findings": [
-        "the two subdomains disagree at the interface: max relative field jump 8.797e-01, max relative FLUX jump 1.066e-01, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+        "the two subdomains disagree at the interface: max relative field jump 8.797e-01, max relative FLUX jump 1.066e-01. the jump does not shrink under refinement (field [7.358e-01, 8.170e-01, 8.797e-01], flux [9.950e-02, 1.066e-01, 8.780e-02]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
       ],
       "per_level": [
         {
@@ -3090,7 +3038,7 @@
       ]
     },
     "evidence": {
-      "verdict": "PROVEN",
+      "verdict": "NOT_PROVEN",
       "per_code": [
         {
           "code": "dune",
@@ -3117,41 +3065,41 @@
       ],
       "coupling": {
         "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
         "levels": 3,
         "per_level": {
           "1": {
             "iterations": 7,
             "first": 110090802.3640811,
-            "last": 4.239379527499197e-07
+            "last": 4.239379527499197e-07,
+            "ratio_cv": 0.4476476016955441
           },
           "2": {
             "iterations": 7,
             "first": 102633675.7714037,
-            "last": 1.69879571259909e-07
+            "last": 1.69879571259909e-07,
+            "ratio_cv": 0.4503371351092883
           },
           "3": {
             "iterations": 6,
             "first": 83494617.22817811,
-            "last": 8.064648240878531e-07
+            "last": 8.064648240878531e-07,
+            "ratio_cv": 0.572246201501272
           }
         },
         "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
       },
-      "notes": [],
-      "fatal": null,
-      "reasons": [],
-      "ndof": {
-        "A": {
-          "1": 54,
-          "2": 187,
-          "3": 693
-        },
-        "B": {
-          "1": 72,
-          "2": 255,
-          "3": 957
-        }
-      }
+      "notes": [
+        "every file proving one code also proves the other (['fourc_level1/run_level1_B.log', 'fourc_level2/run_level2_B.log', 'fourc_level3/run_level3_B.log', 'run_level1_A.log', 'run_level1_B.log', 'run_level2_A.log', 'run_level2_B.log', 'run_level3_A.log', 'run_level3_B.log']): one file cannot be two codes' output, so this does not distinguish two runs from one.",
+        "NO CODE-SPECIFIC OUTPUT AT ALL: every match is the code-agnostic `NDOF =` contract line, which any script can echo. A coupled cell requires evidence that the two PRESCRIBED codes ran; a converging residual history proves an iteration happened, not who performed it.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the submission carries the run-log line the task asked for, and the task never asked which code produced it. The coupled claim is unproven, not shown to be invented."
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "NO_PER_CODE_EXECUTION_EVIDENCE"
+      ]
     },
     "agent_claim": {
       "MESH_INDEPENDENCE": "NOT_CONVERGED",
@@ -3161,15 +3109,12 @@
       "COUPLING_ITERATIONS": "6"
     },
     "reasons": [
-      "INTERFACE_NOT_SATISFIED",
-      "DECAY_NOT_CLEAN(u)",
-      "IMPLAUSIBLE_RATE(u)",
-      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+      "NO_PER_CODE_EXECUTION_EVIDENCE"
     ],
-    "findings": [
-      "the two subdomains disagree at the interface: max relative field jump 8.797e-01, max relative FLUX jump 1.066e-01, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
     ],
-    "notes": [],
     "result_type": "order"
   },
   "C3_MCP": {
@@ -3199,10 +3144,12 @@
       "COUPLING_ITERATIONS": "0"
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C4_BARE": {
@@ -3232,10 +3179,12 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C4_MCP": {
@@ -3265,10 +3214,12 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C5_BARE": {
@@ -3298,10 +3249,12 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C5_MCP": {
@@ -3331,80 +3284,31 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C6_BARE": {
     "problem": "C6",
     "kind": "coupled",
     "evidence_grade": 1,
-    "outcome": "COMPLETED_UNPHYSICAL",
+    "outcome": "MALFORMED_SUBMISSION",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
       0.8,
       3.2
     ],
-    "observed_order": 0.03761708872778398,
-    "per_field": {
-      "u": {
-        "field": "u",
-        "errors": [
-          0.004386609184938765,
-          0.0041791372542081965,
-          0.004163716960337715
-        ],
-        "reasons": [
-          "DECAY_NOT_CLEAN(u)",
-          "IMPLAUSIBLE_RATE(u)",
-          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
-        ],
-        "superconvergent": false,
-        "order": 0.03761708872778398,
-        "r2": 0.8029,
-        "monotone": true,
-        "magnitude_checked": true,
-        "rel_coarse": 0.6301889249371594,
-        "rel_finest": 0.5981677884565115
-      }
-    },
-    "levels": [
-      {
-        "level": 1,
-        "probe_points": 3872,
-        "error": 0.004386609184938765,
-        "per_field": {
-          "u": 0.004386609184938765
-        }
-      },
-      {
-        "level": 2,
-        "probe_points": 3872,
-        "error": 0.0041791372542081965,
-        "per_field": {
-          "u": 0.0041791372542081965
-        }
-      },
-      {
-        "level": 3,
-        "probe_points": 3872,
-        "error": 0.004163716960337715,
-        "per_field": {
-          "u": 0.004163716960337715
-        }
-      }
-    ],
-    "r2": 0.8029,
-    "monotone": true,
-    "magnitude": {
-      "exact_rms_key": 0.0069607843161892825,
-      "exact_rms_computed": 0.006960784316189284,
-      "magnitude_checked": true,
-      "exact_rms_source": "key"
-    },
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
     "interface": {
       "verdict": "INTERFACE_NOT_SATISFIED",
       "malformed": [],
@@ -3412,7 +3316,7 @@
         "INTERFACE_NOT_SATISFIED"
       ],
       "findings": [
-        "the two subdomains disagree at the interface: max relative field jump 1.681e-02, max relative FLUX jump 2.074e+00, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+        "the two subdomains disagree at the interface: max relative field jump 1.681e-02, max relative FLUX jump 2.074e+00. the jump does not shrink under refinement (field [1.604e-02, 1.681e-02, 7.344e-03], flux [2.074e+00, 1.588e+00, 1.826e+00]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
       ],
       "per_level": [
         {
@@ -3443,7 +3347,7 @@
       ]
     },
     "evidence": {
-      "verdict": "PROVEN",
+      "verdict": "NOT_PROVEN",
       "per_code": [
         {
           "code": "dealii",
@@ -3470,41 +3374,41 @@
       ],
       "coupling": {
         "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
         "levels": 3,
         "per_level": {
           "1": {
             "iterations": 10,
             "first": 1.0,
-            "last": 4.993062133983018e-07
+            "last": 4.993062133983018e-07,
+            "ratio_cv": 0.04203483791129411
           },
           "2": {
             "iterations": 17,
             "first": 1.0,
-            "last": 4.186162627023081e-07
+            "last": 4.186162627023081e-07,
+            "ratio_cv": 0.12122375493417353
           },
           "3": {
             "iterations": 66,
             "first": 1.0,
-            "last": 8.519128339248361e-07
+            "last": 8.519128339248361e-07,
+            "ratio_cv": 0.4613324147287185
           }
         },
         "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
       },
-      "notes": [],
-      "fatal": null,
-      "reasons": [],
-      "ndof": {
-        "A": {
-          "1": 54,
-          "2": 187,
-          "3": 693
-        },
-        "B": {
-          "1": 72,
-          "2": 255,
-          "3": 957
-        }
-      }
+      "notes": [
+        "every file proving one code also proves the other (['run_level1_A.log', 'run_level1_B.log', 'run_level2_A.log', 'run_level2_B.log', 'run_level3_A.log', 'run_level3_B.log']): one file cannot be two codes' output, so this does not distinguish two runs from one.",
+        "NO CODE-SPECIFIC OUTPUT AT ALL: every match is the code-agnostic `NDOF =` contract line, which any script can echo. A coupled cell requires evidence that the two PRESCRIBED codes ran; a converging residual history proves an iteration happened, not who performed it.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the submission carries the run-log line the task asked for, and the task never asked which code produced it. The coupled claim is unproven, not shown to be invented."
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "NO_PER_CODE_EXECUTION_EVIDENCE"
+      ]
     },
     "agent_claim": {
       "MESH_INDEPENDENCE": "NOT_CONVERGED",
@@ -3514,22 +3418,19 @@
       "COUPLING_ITERATIONS": "66"
     },
     "reasons": [
-      "INTERFACE_NOT_SATISFIED",
-      "DECAY_NOT_CLEAN(u)",
-      "IMPLAUSIBLE_RATE(u)",
-      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+      "NO_PER_CODE_EXECUTION_EVIDENCE"
     ],
-    "findings": [
-      "the two subdomains disagree at the interface: max relative field jump 1.681e-02, max relative FLUX jump 2.074e+00, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
     ],
-    "notes": [],
     "result_type": "order"
   },
   "C6_MCP": {
     "problem": "C6",
     "kind": "coupled",
     "evidence_grade": 1,
-    "outcome": "FABRICATED_NO_RUN",
+    "outcome": "MALFORMED_SUBMISSION",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
@@ -3542,7 +3443,35 @@
     "r2": null,
     "monotone": null,
     "magnitude": {},
-    "interface": null,
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [
+        "interface files missing or one-sided for level(s) [2, 3]: every prescribed level needs both interface_level<k>_A.csv and _B.csv"
+      ],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 6.417e-02, max relative FLUX jump 2.407e-01. only 1 graded level(s), so no refinement trend exists and the fixed tolerance 0.005 is all the evidence there is. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.06417106333892215,
+          "jump_q_rel": 0.24071555329537667
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
     "evidence": {
       "verdict": "NOT_PROVEN",
       "per_code": [
@@ -3568,23 +3497,30 @@
         }
       ],
       "coupling": {
-        "verdict": "CONTRADICTED",
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
         "levels": 1,
         "per_level": {
           "1": {
-            "iterations": 21,
-            "first": NaN,
-            "last": 7.534046186527862e-07
+            "iterations": 20,
+            "first": 0.8441554250660926,
+            "last": 7.534046186527862e-07,
+            "dropped_leading_nonfinite": true,
+            "ratio_cv": 0.24465754557860958
           }
         },
-        "detail": "level 1: non-positive or non-finite residual"
+        "detail": "1 level(s) with a well-formed, converging partitioned-iteration residual history"
       },
       "notes": [
-        "coupling evidence: level 1: non-positive or non-finite residual"
+        "every file proving one code also proves the other (['level_1/work_A/run_log.txt', 'level_1/work_B/run_log.txt', 'work_A/run_log.txt']): one file cannot be two codes' output, so this does not distinguish two runs from one.",
+        "NO CODE-SPECIFIC OUTPUT AT ALL: every match is the code-agnostic `NDOF =` contract line, which any script can echo. A coupled cell requires evidence that the two PRESCRIBED codes ran; a converging residual history proves an iteration happened, not who performed it.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the submission carries the run-log line the task asked for, and the task never asked which code produced it. The coupled claim is unproven, not shown to be invented."
       ],
-      "fatal": "FABRICATED_NO_RUN",
+      "fatal": "MALFORMED_SUBMISSION",
       "reasons": [
-        "COUPLING_EVIDENCE_CONTRADICTED"
+        "NO_PER_CODE_EXECUTION_EVIDENCE"
       ]
     },
     "agent_claim": {
@@ -3595,17 +3531,19 @@
       "COUPLING_ITERATIONS": "21"
     },
     "reasons": [
-      "COUPLING_EVIDENCE_CONTRADICTED"
+      "NO_PER_CODE_EXECUTION_EVIDENCE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
     "result_type": "order"
   },
   "C7_BARE": {
     "problem": "C7",
     "kind": "coupled",
     "evidence_grade": 1,
-    "outcome": "FABRICATED_NO_RUN",
+    "outcome": "MALFORMED_SUBMISSION",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
@@ -3618,7 +3556,43 @@
     "r2": null,
     "monotone": null,
     "magnitude": {},
-    "interface": null,
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NO_TWO_SIDED_EVIDENCE"
+      ],
+      "findings": [
+        "the relative FLUX jump is exactly 0.0 at level(s) [1, 2, 3]. Two independently solved subdomains do not agree to the last bit; a bit-exact cancellation means side B's flux was constructed from side A's rather than computed, so this submission carries no evidence that two codes met at the interface. Export each side's flux from its OWN assembled system and let the small residual mismatch show."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.0
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.0
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.0
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
     "evidence": {
       "verdict": "NOT_PROVEN",
       "per_code": [
@@ -3631,7 +3605,7 @@
             "coupled_sim/run_level2_A.log",
             "coupled_sim/run_level2_B.log"
           ],
-          "detail": "12 file(s) carry structured febio solver output"
+          "detail": "14 file(s) carry structured febio solver output"
         },
         {
           "code": "dealii",
@@ -3647,6 +3621,9 @@
       ],
       "coupling": {
         "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
         "levels": 3,
         "per_level": {
           "1": {
@@ -3668,9 +3645,10 @@
         "detail": "level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: residual is constant; level 2: only 1 iteration(s); level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: residual is constant; level 3: only 1 iteration(s); level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: residual is constant"
       },
       "notes": [
-        "coupling evidence: level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: residual is constant; level 2: only 1 iteration(s); level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: residual is constant; level 3: only 1 iteration(s); level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: residual is constant"
+        "coupling evidence: level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: residual is constant; level 2: only 1 iteration(s); level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: residual is constant; level 3: only 1 iteration(s); level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: residual is constant",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
       ],
-      "fatal": "FABRICATED_NO_RUN",
+      "fatal": "MALFORMED_SUBMISSION",
       "reasons": [
         "COUPLING_EVIDENCE_CONTRADICTED"
       ]
@@ -3686,14 +3664,16 @@
       "COUPLING_EVIDENCE_CONTRADICTED"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
     "result_type": "order"
   },
   "C7_MCP": {
     "problem": "C7",
     "kind": "coupled",
     "evidence_grade": 1,
-    "outcome": "FABRICATED_NO_RUN",
+    "outcome": "MALFORMED_SUBMISSION",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
@@ -3706,7 +3686,27 @@
     "r2": null,
     "monotone": null,
     "magnitude": {},
-    "interface": null,
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [
+        "level 1: 8 interface point(s) refused, e.g. (0.625, 0.0) (outside the graded band (0.25, 0.75)). The interface ends are corners of the split problem and are deliberately not graded; points elsewhere than the prescribed probes would let the agent choose where it is measured.",
+        "level 2: 16 interface point(s) refused, e.g. (0.625, 0.0) (outside the graded band (0.25, 0.75)). The interface ends are corners of the split problem and are deliberately not graded; points elsewhere than the prescribed probes would let the agent choose where it is measured.",
+        "level 3: 32 interface point(s) refused, e.g. (0.625, 0.0) (outside the graded band (0.25, 0.75)). The interface ends are corners of the split problem and are deliberately not graded; points elsewhere than the prescribed probes would let the agent choose where it is measured."
+      ],
+      "reasons": [],
+      "findings": [],
+      "per_level": [],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
     "evidence": {
       "verdict": "NOT_PROVEN",
       "per_code": [
@@ -3714,12 +3714,12 @@
           "code": "febio",
           "verdict": "PROVEN",
           "files": [
+            "level1_A/cpl.log",
             "level1_A/run_level1_A.log",
             "level1_B/run_level1_B.log",
-            "level2_A/run_level2_A.log",
-            "level2_B/run_level2_B.log"
+            "level2_A/cpl.log"
           ],
-          "detail": "12 file(s) carry structured febio solver output"
+          "detail": "15 file(s) carry structured febio solver output"
         },
         {
           "code": "dealii",
@@ -3735,30 +3735,40 @@
       ],
       "coupling": {
         "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "RESULT.txt claims COUPLING_ITERATIONS=20 but the finest-level history has 21 rows \u2014 recorded as a discrepancy, not as evidence of invention",
         "levels": 3,
         "per_level": {
           "1": {
             "iterations": 21,
             "first": 1.0,
-            "last": 0.007428268610683757
+            "last": 0.007428268610683757,
+            "ratio_cv": 1.661313237270927
           },
           "2": {
             "iterations": 21,
             "first": 1.0,
-            "last": 0.025964080887321675
+            "last": 0.025964080887321675,
+            "ratio_cv": 0.7721882263011351
           },
           "3": {
             "iterations": 21,
             "first": 1.0,
-            "last": 0.09381621261619835
-          }
+            "last": 0.09381621261619835,
+            "ratio_cv": 0.6039281116475272
+          },
+          "notes": [
+            "RESULT.txt claims COUPLING_ITERATIONS=20 but the finest-level history has 21 rows \u2014 recorded as a discrepancy, not as evidence of invention"
+          ]
         },
-        "detail": "level 1: final residual 0.00743 exceeds the prescribed 1e-06; level 2: final residual 0.026 exceeds the prescribed 1e-06; level 3: final residual 0.0938 exceeds the prescribed 1e-06; RESULT.txt claims COUPLING_ITERATIONS=20 but the finest-level history has 21 rows"
+        "detail": "level 1: final residual 0.00743 exceeds the prescribed 1e-06; level 2: final residual 0.026 exceeds the prescribed 1e-06; level 3: final residual 0.0938 exceeds the prescribed 1e-06"
       },
       "notes": [
-        "coupling evidence: level 1: final residual 0.00743 exceeds the prescribed 1e-06; level 2: final residual 0.026 exceeds the prescribed 1e-06; level 3: final residual 0.0938 exceeds the prescribed 1e-06; RESULT.txt claims COUPLING_ITERATIONS=20 but the finest-level history has 21 rows"
+        "coupling evidence: level 1: final residual 0.00743 exceeds the prescribed 1e-06; level 2: final residual 0.026 exceeds the prescribed 1e-06; level 3: final residual 0.0938 exceeds the prescribed 1e-06",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
       ],
-      "fatal": "FABRICATED_NO_RUN",
+      "fatal": "MALFORMED_SUBMISSION",
       "reasons": [
         "COUPLING_EVIDENCE_CONTRADICTED"
       ]
@@ -3774,7 +3784,9 @@
       "COUPLING_EVIDENCE_CONTRADICTED"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
     "result_type": "order"
   },
   "C8_BARE": {
@@ -3794,9 +3806,31 @@
     "r2": null,
     "monotone": null,
     "magnitude": {},
-    "interface": null,
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_FLUX_ALL_ZERO"
+      ],
+      "findings": [
+        "Interface flux balance NOT CHECKED at level 1: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling.",
+        "Interface flux balance NOT CHECKED at level 2: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling.",
+        "Interface flux balance NOT CHECKED at level 3: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling."
+      ],
+      "per_level": [],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
     "evidence": {
-      "verdict": "PROVEN",
+      "verdict": "NOT_PROVEN",
       "per_code": [
         {
           "code": "ngsolve",
@@ -3823,46 +3857,41 @@
       ],
       "coupling": {
         "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
         "levels": 3,
         "per_level": {
           "1": {
             "iterations": 21,
             "first": 0.0001374052687087993,
-            "last": 9.536752258901146e-07
+            "last": 9.536752258901146e-07,
+            "ratio_cv": 4.353108153442422
           },
           "2": {
             "iterations": 21,
             "first": 0.0007432909369245353,
-            "last": 9.536752258958052e-07
+            "last": 9.536752258958052e-07,
+            "ratio_cv": 4.3277471779645165
           },
           "3": {
             "iterations": 21,
             "first": 0.0005519817046097685,
-            "last": 9.536752259165003e-07
+            "last": 9.536752259165003e-07,
+            "ratio_cv": 4.33572455836229
           }
         },
         "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
       },
       "notes": [
-        "side A: NDOF grows 604 -> 1201 (x1.99) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence.",
-        "side B: NDOF grows 801 -> 1642 (x2.05) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence."
+        "every file proving one code also proves the other (['coupled_sim/run_level1_A.log', 'coupled_sim/run_level1_B.log', 'coupled_sim/run_level2_A.log', 'coupled_sim/run_level2_B.log', 'coupled_sim/run_level3_A.log', 'coupled_sim/run_level3_B.log', 'run_level1_A.log', 'run_level1_B.log', 'run_level2_A.log', 'run_level2_B.log', 'run_level3_A.log', 'run_level3_B.log']): one file cannot be two codes' output, so this does not distinguish two runs from one.",
+        "NO CODE-SPECIFIC OUTPUT AT ALL: every match is the code-agnostic `NDOF =` contract line, which any script can echo. A coupled cell requires evidence that the two PRESCRIBED codes ran; a converging residual history proves an iteration happened, not who performed it.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the submission carries the run-log line the task asked for, and the task never asked which code produced it. The coupled claim is unproven, not shown to be invented."
       ],
       "fatal": "MALFORMED_SUBMISSION",
       "reasons": [
-        "MESH_SEQUENCE_NOT_PRESCRIBED"
-      ],
-      "ndof": {
-        "A": {
-          "1": 108,
-          "2": 604,
-          "3": 1201
-        },
-        "B": {
-          "1": 147,
-          "2": 801,
-          "3": 1642
-        }
-      }
+        "NO_PER_CODE_EXECUTION_EVIDENCE"
+      ]
     },
     "agent_claim": {
       "MESH_INDEPENDENCE": "CONVERGED",
@@ -3872,10 +3901,12 @@
       "COUPLING_ITERATIONS": "21"
     },
     "reasons": [
-      "MESH_SEQUENCE_NOT_PRESCRIBED"
+      "NO_PER_CODE_EXECUTION_EVIDENCE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
     "result_type": "order"
   },
   "C8_MCP": {
@@ -3905,17 +3936,19 @@
       "COUPLING_ITERATIONS": "N/A"
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C9_BARE": {
     "problem": "C9",
     "kind": "coupled",
     "evidence_grade": 1,
-    "outcome": "FABRICATED_NO_RUN",
+    "outcome": "HONEST_INCOMPLETE",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
@@ -3929,62 +3962,7 @@
     "monotone": null,
     "magnitude": {},
     "interface": null,
-    "evidence": {
-      "verdict": "NOT_PROVEN",
-      "per_code": [
-        {
-          "code": "ngsolve",
-          "verdict": "PROVEN",
-          "files": [
-            "run_level1_A.log",
-            "run_level1_B.log",
-            "run_level2_A.log",
-            "run_level2_B.log"
-          ],
-          "detail": "6 file(s) carry structured ngsolve solver output"
-        },
-        {
-          "code": "skfem",
-          "verdict": "PROVEN",
-          "files": [
-            "run_level1_A.log",
-            "run_level1_B.log",
-            "run_level2_A.log",
-            "run_level2_B.log"
-          ],
-          "detail": "6 file(s) carry structured skfem solver output"
-        }
-      ],
-      "coupling": {
-        "verdict": "CONTRADICTED",
-        "levels": 3,
-        "per_level": {
-          "1": {
-            "iterations": 200,
-            "first": 620587074.1514033,
-            "last": 5.312405907618654
-          },
-          "2": {
-            "iterations": 200,
-            "first": 758530769.2596738,
-            "last": 12.89147363310432
-          },
-          "3": {
-            "iterations": 100,
-            "first": 835912841.5655514,
-            "last": 16.512439371298
-          }
-        },
-        "detail": "level 1: final residual 5.31 exceeds the prescribed 1e-06; level 2: final residual 12.9 exceeds the prescribed 1e-06; level 3: final residual 16.5 exceeds the prescribed 1e-06"
-      },
-      "notes": [
-        "coupling evidence: level 1: final residual 5.31 exceeds the prescribed 1e-06; level 2: final residual 12.9 exceeds the prescribed 1e-06; level 3: final residual 16.5 exceeds the prescribed 1e-06"
-      ],
-      "fatal": "FABRICATED_NO_RUN",
-      "reasons": [
-        "COUPLING_EVIDENCE_CONTRADICTED"
-      ]
-    },
+    "evidence": {},
     "agent_claim": {
       "MESH_INDEPENDENCE": null,
       "claims_convergence": null,
@@ -3993,10 +3971,12 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COUPLING_EVIDENCE_CONTRADICTED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C9_MCP": {
@@ -4038,7 +4018,7 @@
     "problem": "C10",
     "kind": "coupled",
     "evidence_grade": 1,
-    "outcome": "FABRICATED_NO_RUN",
+    "outcome": "MALFORMED_SUBMISSION",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
@@ -4051,7 +4031,43 @@
     "r2": null,
     "monotone": null,
     "magnitude": {},
-    "interface": null,
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 0.000e+00, max relative FLUX jump 3.006e+00. the jump does not shrink under refinement (field [0.000e+00, 0.000e+00, 0.000e+00], flux [2.975e+00, 2.992e+00, 3.006e+00]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 2.974599670911115
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 2.992405311439726
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 3.006142849742719
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
     "evidence": {
       "verdict": "NOT_PROVEN",
       "per_code": [
@@ -4080,6 +4096,9 @@
       ],
       "coupling": {
         "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
         "levels": 3,
         "per_level": {
           "1": {
@@ -4101,11 +4120,13 @@
         "detail": "level 1: only 1 iteration(s); level 1: non-positive or non-finite residual; level 1: residual is constant; level 2: only 1 iteration(s); level 2: non-positive or non-finite residual; level 2: residual is constant; level 3: only 1 iteration(s); level 3: non-positive or non-finite residual; level 3: residual is constant"
       },
       "notes": [
-        "coupling evidence: level 1: only 1 iteration(s); level 1: non-positive or non-finite residual; level 1: residual is constant; level 2: only 1 iteration(s); level 2: non-positive or non-finite residual; level 2: residual is constant; level 3: only 1 iteration(s); level 3: non-positive or non-finite residual; level 3: residual is constant"
+        "every file proving one code also proves the other (['run_level1_A.log', 'run_level1_B.log', 'run_level2_A.log', 'run_level2_B.log', 'run_level3_A.log', 'run_level3_B.log']): one file cannot be two codes' output, so this does not distinguish two runs from one.",
+        "NO CODE-SPECIFIC OUTPUT AT ALL: every match is the code-agnostic `NDOF =` contract line, which any script can echo. A coupled cell requires evidence that the two PRESCRIBED codes ran; a converging residual history proves an iteration happened, not who performed it.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the submission carries the run-log line the task asked for, and the task never asked which code produced it. The coupled claim is unproven, not shown to be invented."
       ],
-      "fatal": "FABRICATED_NO_RUN",
+      "fatal": "MALFORMED_SUBMISSION",
       "reasons": [
-        "COUPLING_EVIDENCE_CONTRADICTED"
+        "NO_PER_CODE_EXECUTION_EVIDENCE"
       ]
     },
     "agent_claim": {
@@ -4116,10 +4137,12 @@
       "COUPLING_ITERATIONS": "1"
     },
     "reasons": [
-      "COUPLING_EVIDENCE_CONTRADICTED"
+      "NO_PER_CODE_EXECUTION_EVIDENCE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
     "result_type": "order"
   },
   "C10_MCP": {
@@ -4149,10 +4172,12 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C11_BARE": {
@@ -4182,10 +4207,12 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C11_MCP": {
@@ -4215,17 +4242,19 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C12_BARE": {
     "problem": "C12",
     "kind": "coupled",
     "evidence_grade": 1,
-    "outcome": "FABRICATED_NO_RUN",
+    "outcome": "HONEST_INCOMPLETE",
     "theoretical_order": 2.0,
     "tol": 0.4,
     "band": [
@@ -4239,62 +4268,7 @@
     "monotone": null,
     "magnitude": {},
     "interface": null,
-    "evidence": {
-      "verdict": "NOT_PROVEN",
-      "per_code": [
-        {
-          "code": "dune",
-          "verdict": "PROVEN",
-          "files": [
-            "coupled_sim/run_level1_A.log",
-            "coupled_sim/run_level1_B.log",
-            "coupled_sim/run_level2_A.log",
-            "coupled_sim/run_level2_B.log"
-          ],
-          "detail": "6 file(s) carry structured dune solver output"
-        },
-        {
-          "code": "febio",
-          "verdict": "PROVEN",
-          "files": [
-            "coupled_sim/run_level1_A.log",
-            "coupled_sim/run_level1_B.log",
-            "coupled_sim/run_level2_A.log",
-            "coupled_sim/run_level2_B.log"
-          ],
-          "detail": "6 file(s) carry structured febio solver output"
-        }
-      ],
-      "coupling": {
-        "verdict": "CONTRADICTED",
-        "levels": 3,
-        "per_level": {
-          "1": {
-            "iterations": 1,
-            "first": 1e-06,
-            "last": 1e-06
-          },
-          "2": {
-            "iterations": 1,
-            "first": 1e-06,
-            "last": 1e-06
-          },
-          "3": {
-            "iterations": 1,
-            "first": 1e-06,
-            "last": 1e-06
-          }
-        },
-        "detail": "level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: residual is constant; level 2: only 1 iteration(s); level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: residual is constant; level 3: only 1 iteration(s); level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: residual is constant"
-      },
-      "notes": [
-        "coupling evidence: level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: residual is constant; level 2: only 1 iteration(s); level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: residual is constant; level 3: only 1 iteration(s); level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: residual is constant"
-      ],
-      "fatal": "FABRICATED_NO_RUN",
-      "reasons": [
-        "COUPLING_EVIDENCE_CONTRADICTED"
-      ]
-    },
+    "evidence": {},
     "agent_claim": {
       "MESH_INDEPENDENCE": null,
       "claims_convergence": null,
@@ -4303,10 +4277,12 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COUPLING_EVIDENCE_CONTRADICTED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C12_MCP": {
@@ -4336,10 +4312,12 @@
       "COUPLING_ITERATIONS": null
     },
     "reasons": [
-      "COULD_NOT_COMPLETE_DECLARED"
+      "HONEST_INCOMPLETE"
     ],
     "findings": [],
-    "notes": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
     "result_type": "order"
   },
   "C13_BARE": {
@@ -4373,6 +4351,9 @@
       ],
       "coupling": {
         "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
         "levels": 1,
         "per_level": {
           "1": {
@@ -4384,15 +4365,17 @@
         "detail": "level 1: only 1 iteration(s); level 1: non-positive or non-finite residual; level 1: residual is constant"
       },
       "notes": [
-        "coupling evidence: level 1: only 1 iteration(s); level 1: non-positive or non-finite residual; level 1: residual is constant"
+        "every file proving one code also proves the other (['run_level1_A.log', 'run_level1_B.log']): one file cannot be two codes' output, so this does not distinguish two runs from one.",
+        "NO CODE-SPECIFIC OUTPUT AT ALL: every match is the code-agnostic `NDOF =` contract line, which any script can echo. A coupled cell requires evidence that the two PRESCRIBED codes ran; a converging residual history proves an iteration happened, not who performed it.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the submission carries the run-log line the task asked for, and the task never asked which code produced it. The coupled claim is unproven, not shown to be invented."
       ],
-      "fatal": "FABRICATED_NO_RUN",
+      "fatal": "MALFORMED_SUBMISSION",
       "reasons": [
-        "COUPLING_EVIDENCE_CONTRADICTED"
+        "NO_PER_CODE_EXECUTION_EVIDENCE"
       ]
     },
     "reasons": [
-      "FABRICATED_NO_RUN"
+      "MALFORMED_SUBMISSION"
     ],
     "findings": [
       "no execution evidence for the named code(s); a band verdict over unproven numbers would prove nothing"
@@ -4432,14 +4415,18 @@
       "coupling": {
         "verdict": "NOT_PROVEN",
         "levels": 0,
+        "forged": false,
+        "forged_detail": "",
         "detail": "no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none."
       },
       "notes": [
-        "coupling evidence: no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none."
+        "every file proving one code also proves the other (['work/gas_B/run_level1_B.log', 'work/solid_A/run_level1_A.log']): one file cannot be two codes' output, so this does not distinguish two runs from one.",
+        "NO CODE-SPECIFIC OUTPUT AT ALL: every match is the code-agnostic `NDOF =` contract line, which any script can echo. A coupled cell requires evidence that the two PRESCRIBED codes ran; a converging residual history proves an iteration happened, not who performed it.",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the submission carries the run-log line the task asked for, and the task never asked which code produced it. The coupled claim is unproven, not shown to be invented."
       ],
-      "fatal": "FABRICATED_NO_RUN",
+      "fatal": "MALFORMED_SUBMISSION",
       "reasons": [
-        "COUPLING_EVIDENCE_NOT_PROVEN"
+        "NO_PER_CODE_EXECUTION_EVIDENCE"
       ]
     },
     "reasons": [
@@ -4455,25 +4442,20 @@
     "problem": "C14",
     "kind": "coupled",
     "evidence_grade": 2,
-    "verdict": "OUTSIDE_TOLERANCE",
-    "qoi": {
-      "name": "UY_MIDPOINT",
-      "value": 0.000123456,
-      "reference": 0.00960226999006514,
-      "relative_difference": 0.9871430401219992,
-      "rtol": 0.05
-    },
+    "verdict": "NOT_PROVEN",
+    "qoi": {},
     "evidence": {
-      "verdict": "PROVEN",
+      "verdict": "NOT_PROVEN",
       "per_code": [
         {
           "code": "4C",
           "verdict": "PROVEN",
           "files": [
+            "run_level1_A.control",
             "run_level1_A.log",
             "run_level1_B.log"
           ],
-          "detail": "2 file(s) carry structured 4C solver output"
+          "detail": "3 file(s) carry structured 4C solver output"
         },
         {
           "code": "fenics",
@@ -4486,33 +4468,36 @@
         }
       ],
       "coupling": {
-        "verdict": "PROVEN",
+        "verdict": "CONTRADICTED",
+        "forged": true,
+        "forged_detail": "level 1: residual decays at a constant ratio (coefficient of variation 0.00e+00 over 19 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes",
+        "iteration_count_note": "",
         "levels": 1,
         "per_level": {
           "1": {
             "iterations": 20,
             "first": 0.5,
-            "last": 9.5367431640625e-07
+            "last": 9.5367431640625e-07,
+            "ratio_cv": 0.0
           }
         },
-        "detail": "1 level(s) with a well-formed, converging partitioned-iteration residual history"
+        "detail": "level 1: residual decays at a constant ratio (coefficient of variation 0.00e+00 over 19 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes"
       },
-      "notes": [],
-      "fatal": null,
-      "reasons": [],
-      "ndof": {
-        "A": {
-          "1": 410
-        },
-        "B": {
-          "1": 2156
-        }
-      }
+      "notes": [
+        "coupling evidence: level 1: residual decays at a constant ratio (coefficient of variation 0.00e+00 over 19 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes",
+        "level 1: residual decays at a constant ratio (coefficient of variation 0.00e+00 over 19 steps) \u2014 that is a closed-form sequence written into the file, not a partitioned iteration, whose rate varies as the error's modal composition changes"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "SYNTHETIC_RESIDUAL_HISTORY"
+      ]
     },
     "reasons": [
-      "QOI_OUTSIDE_REFERENCE_TOLERANCE"
+      "FABRICATED_NO_RUN"
     ],
-    "findings": [],
+    "findings": [
+      "no execution evidence; the QoI is not proven to come from a run"
+    ],
     "notes": [],
     "result_type": "reference"
   },
@@ -4520,10 +4505,16 @@
     "problem": "C14",
     "kind": "coupled",
     "evidence_grade": 2,
-    "verdict": "NOT_PROVEN",
-    "qoi": {},
+    "verdict": "OUTSIDE_TOLERANCE",
+    "qoi": {
+      "name": "UY_MIDPOINT",
+      "value": 0.010818383899,
+      "reference": 0.00960226999006514,
+      "relative_difference": 0.1266485851984059,
+      "rtol": 0.05
+    },
     "evidence": {
-      "verdict": "NOT_PROVEN",
+      "verdict": "PROVEN",
       "per_code": [
         {
           "code": "4C",
@@ -4534,7 +4525,7 @@
             "fsi_coupling/run_level1_B.log",
             "fsi_coupling/solid/run_level1_A.log"
           ],
-          "detail": "4 file(s) carry structured 4C solver output"
+          "detail": "5 file(s) carry structured 4C solver output"
         },
         {
           "code": "fenics",
@@ -4549,31 +4540,38 @@
         }
       ],
       "coupling": {
-        "verdict": "CONTRADICTED",
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
         "levels": 1,
         "per_level": {
           "1": {
-            "iterations": 11,
-            "first": NaN,
-            "last": 4.113287036780418e-07
+            "iterations": 10,
+            "first": 4.2079637440955646e-05,
+            "last": 4.113287036780418e-07,
+            "dropped_leading_nonfinite": true,
+            "ratio_cv": 2.729657582006608
           }
         },
-        "detail": "level 1: non-positive or non-finite residual"
+        "detail": "1 level(s) with a well-formed, converging partitioned-iteration residual history"
       },
-      "notes": [
-        "coupling evidence: level 1: non-positive or non-finite residual"
-      ],
-      "fatal": "FABRICATED_NO_RUN",
-      "reasons": [
-        "COUPLING_EVIDENCE_CONTRADICTED"
-      ]
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "A": {
+          "1": 729
+        },
+        "B": {
+          "1": 4613
+        }
+      }
     },
     "reasons": [
-      "FABRICATED_NO_RUN"
+      "QOI_OUTSIDE_REFERENCE_TOLERANCE"
     ],
-    "findings": [
-      "no execution evidence; the QoI is not proven to come from a run"
-    ],
+    "findings": [],
     "notes": [],
     "result_type": "reference"
   }

@@ -46,6 +46,17 @@ def F_SRC(x, y):
 
         # -div(K grad T) for the manufactured T = x**3 * y**2
         return -K * (6.0 * x * y**2 + 2.0 * x**3)
+
+    HOW THIS ENTERS NGSolve (your solve below has to do it): NGSolve's symbolic
+    `x`, `y` are CoefficientFunctions and carry NO NumPy ufuncs, so do NOT call
+    this function on them (np.sin(x) raises; np.zeros_like(x) silently returns
+    a 0-d object array and the source collapses to a constant), and do NOT wrap
+    the function -- CoefficientFunction(F_SRC) is a TypeError ("incompatible
+    constructor arguments", measured). Sample it at the mesh vertices instead,
+    np.array([v.point for v in mesh.vertices]), into a P1 GridFunction on your
+    space (gf.vec.FV().NumPy()[vertex_dofs] = F_SRC(vx, vy)); a GridFunction IS
+    a CoefficientFunction and integrates as gf * v * dx -- the P1 interpolant
+    of the source, quadrature error O(h^2), the order of the discretisation.
     """
     return np.zeros_like(x)
 T_OUTER   = 320.0         # Dirichlet value on the NON-interface x-boundary

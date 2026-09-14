@@ -1,0 +1,309 @@
+{
+  "KR1_BARE": {
+    "problem": "KR1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CONFIDENTLY_WRONG",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": -0.29480833451042393,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.008167856989474519,
+          0.015143685720108043,
+          0.017621826497136235
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": -0.5546669777190621,
+        "r2": 0.891,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 2.0890676272593622,
+        "rel_finest": 4.507080292393432
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.009309347620035683,
+          0.012181838477673186,
+          0.012761875294207147
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": -0.22754418310992752,
+        "r2": 0.8578,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 2.074601219863698,
+        "rel_finest": 2.844001871423193
+      },
+      "uz": {
+        "field": "uz",
+        "errors": [
+          0.027571583028393565,
+          0.037340654548212886,
+          0.03994300453469268
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uz)",
+          "IMPLAUSIBLE_RATE(uz)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uz)"
+        ],
+        "superconvergent": false,
+        "order": -0.26738037740090187,
+        "r2": 0.881,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 2.110679271774564,
+        "rel_finest": 3.057745057182715
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 9261,
+        "error": 0.03022532103390751,
+        "per_field": {
+          "ux": 0.008167856989474519,
+          "uy": 0.009309347620035683,
+          "uz": 0.027571583028393565
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 9261,
+        "error": 0.042095758550886035,
+        "per_field": {
+          "ux": 0.015143685720108043,
+          "uy": 0.012181838477673186,
+          "uz": 0.037340654548212886
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 9261,
+        "error": 0.04548447912616509,
+        "per_field": {
+          "ux": 0.017621826497136235,
+          "uy": 0.012761875294207147,
+          "uz": 0.03994300453469268
+        }
+      }
+    ],
+    "r2": 0.8861,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.014354848331871863,
+      "exact_rms_computed": 0.014354848331871891,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 375,
+          "2": 2187,
+          "3": 14739
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "2.002204602330452e-01"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)",
+      "DECAY_NOT_CLEAN(uz)",
+      "IMPLAUSIBLE_RATE(uz)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uz)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "KR1_MCP": {
+    "problem": "KR1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 1.9510211114574982,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.0012978629874395569,
+          0.0003475338775614193,
+          8.852928508244934e-05
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.9369197539603966,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.3319504192069023,
+        "rel_finest": 0.022642862597678497
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.0009151182838247385,
+          0.0002417969530327983,
+          6.115322901192112e-05
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.9517288241449635,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.20393539756281037,
+        "rel_finest": 0.013628083157372694
+      },
+      "uz": {
+        "field": "uz",
+        "errors": [
+          0.0025111108010388954,
+          0.0006616871527192826,
+          0.00016709598628971586
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.9547883515534505,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.19223232526851514,
+        "rel_finest": 0.012791649804627825
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 9261,
+        "error": 0.002971122222772074,
+        "per_field": {
+          "ux": 0.0012978629874395569,
+          "uy": 0.0009151182838247385,
+          "uz": 0.0025111108010388954
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 9261,
+        "error": 0.0007855415015278137,
+        "per_field": {
+          "ux": 0.0003475338775614193,
+          "uy": 0.0002417969530327983,
+          "uz": 0.0006616871527192826
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 9261,
+        "error": 0.0001987415919477525,
+        "per_field": {
+          "ux": 8.852928508244934e-05,
+          "uy": 6.115322901192112e-05,
+          "uz": 0.00016709598628971586
+        }
+      }
+    ],
+    "r2": 0.9999,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.014354848331871863,
+      "exact_rms_computed": 0.014354848331871879,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "simulation_outputs/elasticity_3d_kratos/run_level1.log"
+          ],
+          "detail": "10 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 375,
+          "2": 2187,
+          "3": 14739
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "5.102123094056192e-02"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  }
+}

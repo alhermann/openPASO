@@ -1,0 +1,216 @@
+{
+  "C1_MCP": {
+    "problem": "C1",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [
+        "interface files missing or one-sided for level(s) [3]: every prescribed level needs both interface_level<k>_A.csv and _B.csv"
+      ],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 6.203e+01, max relative FLUX jump 1.057e-01. the jump does not shrink under refinement (field [6.203e+01, 6.197e+01], flux [1.057e-01, 1.947e-02]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 62.02511122147379,
+          "jump_q_rel": 0.10566760560878345
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 61.96626354686862,
+          "jump_q_rel": 0.019467339832637286
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "CONSISTENT",
+        "per_side": [
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 46% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.1772651040590176,
+                "spread": 0.46223348984026463,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 35% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 3.042002601093671,
+                "spread": 0.3483745941042576,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.101 (+/-25.4%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.1012714329153028,
+                "spread": 0.2539267240844551,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 2.989 (+/-11.6%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 2.988772762856905,
+                "spread": 0.11619113908071972,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          }
+        ],
+        "findings": [],
+        "reasons": [],
+        "judged_at_level": 2,
+        "coarse_level_verdicts": [
+          "INCONSISTENT"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "16 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "10 file(s) carry structured fenics solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "RESULT.txt claims COUPLING_ITERATIONS=16 but the finest-level history has 15 rows \u2014 recorded as a discrepancy, not as evidence of invention",
+        "levels": 2,
+        "per_level": {
+          "1": {
+            "iterations": 14,
+            "first": 0.9531607651046964,
+            "last": 6.681914483976059e-07,
+            "ratio_cv": 0.6370910165927779
+          },
+          "2": {
+            "iterations": 15,
+            "first": 0.9115550754436574,
+            "last": 7.117546235502963e-07,
+            "ratio_cv": 0.46411081819816546
+          },
+          "notes": [
+            "RESULT.txt claims COUPLING_ITERATIONS=16 but the finest-level history has 15 rows \u2014 recorded as a discrepancy, not as evidence of invention"
+          ]
+        },
+        "detail": "2 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [
+        "side A: no NDOF contract line for level(s) [3]; the task states a level without it counts as not run at all",
+        "side B: no NDOF contract line for level(s) [3]; the task states a level without it counts as not run at all",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the execution and coupling evidence above are PROVEN, so the defect is the missing contract line, not invented numbers"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "RUN_LOG_CONTRACT_UNMET"
+      ],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 243,
+          "2": 867
+        },
+        "B": {
+          "1": 351,
+          "2": 1275
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "nan",
+      "INTERFACE_RESIDUAL": "7.117546e-07",
+      "COUPLING_ITERATIONS": "16"
+    },
+    "reasons": [
+      "RUN_LOG_CONTRACT_UNMET"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

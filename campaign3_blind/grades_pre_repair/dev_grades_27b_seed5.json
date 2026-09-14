@@ -1,0 +1,4947 @@
+{
+  "FE1_BARE": {
+    "problem": "FE1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.0054448445086576975,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          5.339611007075831,
+          5.276876228734131,
+          5.28039498610026,
+          5.279495634267958
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(u)",
+          "IMPLAUSIBLE_RATE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_COARSE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+        ],
+        "superconvergent": false,
+        "order": 0.0054448445086576975,
+        "r2": 0.5644,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 52.31306284595001,
+        "rel_finest": 51.724102475702324
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 5.339611007075831,
+        "per_field": {
+          "u": 5.339611007075831
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 5.276876228734131,
+        "per_field": {
+          "u": 5.276876228734131
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 5.28039498610026,
+        "per_field": {
+          "u": 5.28039498610026
+        }
+      },
+      {
+        "level": 4,
+        "probe_points": 1936,
+        "error": 5.279495634267958,
+        "per_field": {
+          "u": 5.279495634267958
+        }
+      }
+    ],
+    "r2": 0.5644,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.10207031889529501,
+      "exact_rms_computed": 0.10207031889529701,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "run_level4.log"
+          ],
+          "detail": "4 file(s) carry structured fenics solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 81,
+          "2": 289,
+          "3": 1089,
+          "4": 4225
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.77111863129e-01"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(u)",
+      "IMPLAUSIBLE_RATE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_COARSE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "FE1_MCP": {
+    "problem": "FE1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "FE2_BARE": {
+    "problem": "FE2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "FE2_MCP": {
+    "problem": "FE2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": 2.035568308749018,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.00042215481974190033,
+          0.00010294196990090327,
+          2.5109105071019545e-05
+        ],
+        "reasons": [
+          "UNDER_CONVERGED(ux)"
+        ],
+        "superconvergent": false,
+        "order": 2.0357448353962795,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.08092617008347061,
+        "rel_finest": 0.004813361384487779
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.0004466173301344665,
+          0.00010903938266091174,
+          2.657640569342896e-05
+        ],
+        "reasons": [
+          "UNDER_CONVERGED(uy)"
+        ],
+        "superconvergent": false,
+        "order": 2.0354106632977933,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.08405769230381394,
+        "rel_finest": 0.0050019360682824095
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.0006145581594997787,
+        "per_field": {
+          "ux": 0.00042215481974190033,
+          "uy": 0.0004466173301344665
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.00014995544717732402,
+        "per_field": {
+          "ux": 0.00010294196990090327,
+          "uy": 0.00010903938266091174
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 3.656189952736623e-05,
+        "per_field": {
+          "ux": 2.5109105071019545e-05,
+          "uy": 2.657640569342896e-05
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.007445983110103772,
+      "exact_rms_computed": 0.007445983110103769,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured fenics solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 578,
+          "2": 2178,
+          "3": 8450
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "3.296483373667972e-02"
+    },
+    "reasons": [
+      "UNDER_CONVERGED(ux)",
+      "UNDER_CONVERGED(uy)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "DL1_BARE": {
+    "problem": "DL1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FABRICATED_NO_RUN",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "dealii",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log"
+          ],
+          "detail": "1 file(s) carry structured dealii solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [
+        "side -: no NDOF contract line for level(s) [2, 3, 4]; the task states a level without it counts as not run at all"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "RUN_LOG_CONTRACT_UNMET"
+      ],
+      "ndof": {
+        "-": {
+          "1": 16641
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "RUN_LOG_CONTRACT_UNMET"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "DL1_MCP": {
+    "problem": "DL1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 2.0004216212494064,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.001745416482417755,
+          0.00043596131309696053,
+          0.00010898213217436657,
+          2.7248232535715544e-05
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 2.0004216212494064,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.019838206127102423,
+        "rel_finest": 0.00030970032601844357
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.001745416482417755,
+        "per_field": {
+          "u": 0.001745416482417755
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.00043596131309696053,
+        "per_field": {
+          "u": 0.00043596131309696053
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.00010898213217436657,
+        "per_field": {
+          "u": 0.00010898213217436657
+        }
+      },
+      {
+        "level": 4,
+        "probe_points": 1936,
+        "error": 2.7248232535715544e-05,
+        "per_field": {
+          "u": 2.7248232535715544e-05
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.08798257620850175,
+      "exact_rms_computed": 0.08798257620850174,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "dealii",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "run_level4.log"
+          ],
+          "detail": "4 file(s) carry structured dealii solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 81,
+          "2": 289,
+          "3": 1089,
+          "4": 4225
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "3.860166113668975e-02"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "DL2_BARE": {
+    "problem": "DL2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "DL2_MCP": {
+    "problem": "DL2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "NG1_BARE": {
+    "problem": "NG1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 1.963741554342674,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.003339412197986257,
+          0.00088297190363908,
+          0.00022411940483140662,
+          5.626452987587507e-05
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.963741554342674,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.11800638332456911,
+        "rel_finest": 0.0019882462201320943
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.003339412197986257,
+        "per_field": {
+          "u": 0.003339412197986257
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.00088297190363908,
+        "per_field": {
+          "u": 0.00088297190363908
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.00022411940483140662,
+        "per_field": {
+          "u": 0.00022411940483140662
+        }
+      },
+      {
+        "level": 4,
+        "probe_points": 1936,
+        "error": 5.626452987587507e-05,
+        "per_field": {
+          "u": 5.626452987587507e-05
+        }
+      }
+    ],
+    "r2": 0.9999,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.02829857253400788,
+      "exact_rms_computed": 0.02829857253400788,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "ngsolve",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "run_level4.log"
+          ],
+          "detail": "4 file(s) carry structured ngsolve solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 81,
+          "2": 289,
+          "3": 1089,
+          "4": 4225
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.642262014219986e+00"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "NG1_MCP": {
+    "problem": "NG1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "ngsolve",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "run_level4.log"
+          ],
+          "detail": "16 file(s) carry structured ngsolve solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 86,
+          "2": 337,
+          "3": 1256,
+          "4": 4885
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.82320490434e+00"
+    },
+    "reasons": [
+      "UNASSIGNED_SUBDOMAIN_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "solution_level2.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed5/work/solution_level2.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed5/work/simulation_outputs/ngsolve_20260818_144115/solution_level2.csv); grading the shallowest; solution_level4.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed5/work/solution_level4.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed5/work/simulation_outputs/ngsolve_20260818_144115/solution_level4.csv); grading the shallowest; solution_level2.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed5/work/solution_level2.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed5/work/simulation_outputs/ngsolve_20260818_144115/solution_level2.csv); grading the shallowest; solution_level4.csv: more than one differing copy submitted (/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed5/work/solution_level4.csv and /home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/NG1_27b_MCP_seed5/work/simulation_outputs/ngsolve_20260818_144115/solution_level4.csv); grading the shallowest"
+    ],
+    "result_type": "order"
+  },
+  "NG2_BARE": {
+    "problem": "NG2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "NG2_MCP": {
+    "problem": "NG2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": 2.9708738783499813,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.00011723993501499228,
+          1.6211734358013697e-05,
+          1.9585860401838256e-06
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 2.9517538781688137,
+        "r2": 0.9996,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.021814065675972837,
+        "rel_finest": 0.00036442125720344385
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.00012218104367210897,
+          1.585299913200194e-05,
+          1.9372787147288013e-06
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 2.989422565315653,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.02271721815988933,
+        "rel_finest": 0.00036019976484331283
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.00016933224676689732,
+        "per_field": {
+          "ux": 0.00011723993501499228,
+          "uy": 0.00012218104367210897
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 2.2674609420540324e-05,
+        "per_field": {
+          "ux": 1.6211734358013697e-05,
+          "uy": 1.585299913200194e-05
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 2.754833587595489e-06,
+        "per_field": {
+          "ux": 1.9585860401838256e-06,
+          "uy": 1.9372787147288013e-06
+        }
+      }
+    ],
+    "r2": 0.9998,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.007603418065350678,
+      "exact_rms_computed": 0.007603418065351132,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "ngsolve",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured ngsolve solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 659,
+          "2": 2467,
+          "3": 9539
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "1.53688042647e-04"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "SK1_BARE": {
+    "problem": "SK1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": 3.0312117420057856,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          4.199183645578167e-05,
+          4.868833965232137e-06,
+          5.847347119768089e-07
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 3.083091418076153,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.0169908125340838,
+        "rel_finest": 0.00023659641282493902
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          4.886168869880252e-05,
+          6.168850643206906e-06,
+          7.664540003932582e-07
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 2.9971803527135368,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.014342951460726372,
+        "rel_finest": 0.00022498634036750904
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 6.442653918555459e-05,
+        "per_field": {
+          "ux": 4.199183645578167e-05,
+          "uy": 4.886168869880252e-05
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 7.858769778991643e-06,
+        "per_field": {
+          "ux": 4.868833965232137e-06,
+          "uy": 6.168850643206906e-06
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 9.64036523223799e-07,
+        "per_field": {
+          "ux": 5.847347119768089e-07,
+          "uy": 7.664540003932582e-07
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.0042087323361165345,
+      "exact_rms_computed": 0.004208732336116415,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "skfem",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured skfem solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 659,
+          "2": 2467,
+          "3": 9539
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "3.29115858775e+02"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "SK1_MCP": {
+    "problem": "SK1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": 3.0813302818763564,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          3.7517215745239375e-05,
+          3.904321867731173e-06,
+          4.4590978657714725e-07
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 3.197328545906983,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.015180283439125744,
+        "rel_finest": 0.0001804248213536501
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          4.3364525505270206e-05,
+          5.386451690060734e-06,
+          6.64716468485612e-07
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 3.0138162080118835,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.012729303898469574,
+        "rel_finest": 0.00019512211502562145
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 5.734129009337048e-05,
+        "per_field": {
+          "ux": 3.7517215745239375e-05,
+          "uy": 4.3364525505270206e-05
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 6.652637902080795e-06,
+        "per_field": {
+          "ux": 3.904321867731173e-06,
+          "uy": 5.386451690060734e-06
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 8.004270867738426e-07,
+        "per_field": {
+          "ux": 4.4590978657714725e-07,
+          "uy": 6.64716468485612e-07
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.0042087323361165345,
+      "exact_rms_computed": 0.004208732336116535,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "skfem",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured skfem solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 659,
+          "2": 2467,
+          "3": 9539
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "1.545549016351803e-03"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "SK2_BARE": {
+    "problem": "SK2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CONFIDENTLY_WRONG",
+    "theoretical_order": 2.0,
+    "tol": 0.5,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": -0.0007341220547534121,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.00033789760639904137,
+          0.000338404562315805,
+          0.00033841367346316477,
+          0.0003384138226042221
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(u)",
+          "IMPLAUSIBLE_RATE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+        ],
+        "superconvergent": false,
+        "order": -0.0007341220547534121,
+        "r2": 0.6143,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 0.9984745932730862,
+        "rel_finest": 0.9999999925530685
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.00033789760639904137,
+        "per_field": {
+          "u": 0.00033789760639904137
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.000338404562315805,
+        "per_field": {
+          "u": 0.000338404562315805
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.00033841367346316477,
+        "per_field": {
+          "u": 0.00033841367346316477
+        }
+      },
+      {
+        "level": 4,
+        "probe_points": 1936,
+        "error": 0.0003384138226042221,
+        "per_field": {
+          "u": 0.0003384138226042221
+        }
+      }
+    ],
+    "r2": 0.6143,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.00033841382512436616,
+      "exact_rms_computed": 0.0003384138251243667,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "skfem",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "run_level4.log"
+          ],
+          "detail": "4 file(s) carry structured skfem solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 176,
+          "2": 736,
+          "3": 3008,
+          "4": 12160
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "1.65089274267e+00"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(u)",
+      "IMPLAUSIBLE_RATE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "SK2_MCP": {
+    "problem": "SK2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.5,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.40565570000905904,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.0006329037268233146,
+          0.0003972308583987759,
+          0.0003028237364916744,
+          0.0002722664019828522
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(u)",
+          "IMPLAUSIBLE_RATE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+        ],
+        "superconvergent": false,
+        "order": 0.40565570000905904,
+        "r2": 0.9239,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 1.8702064745455447,
+        "rel_finest": 0.8045368769517453
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.0006329037268233146,
+        "per_field": {
+          "u": 0.0006329037268233146
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.0003972308583987759,
+        "per_field": {
+          "u": 0.0003972308583987759
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.0003028237364916744,
+        "per_field": {
+          "u": 0.0003028237364916744
+        }
+      },
+      {
+        "level": 4,
+        "probe_points": 1936,
+        "error": 0.0002722664019828522,
+        "per_field": {
+          "u": 0.0002722664019828522
+        }
+      }
+    ],
+    "r2": 0.9239,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.00033841382512436616,
+      "exact_rms_computed": 0.00033841382512436686,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "skfem",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "run_level4.log"
+          ],
+          "detail": "4 file(s) carry structured skfem solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 289,
+          "2": 1089,
+          "3": 4225,
+          "4": 16641
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "9.286104989468302e-01"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(u)",
+      "IMPLAUSIBLE_RATE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "KR1_BARE": {
+    "problem": "KR1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 3.2617173886438624,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          1.0602244149037565,
+          0.12782527224502183,
+          0.012140957665749047
+        ],
+        "reasons": [
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_COARSE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": 3.2241718170075337,
+        "r2": 0.9991,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 271.1703333759411,
+        "rel_finest": 3.1052553510788727
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.6472850310749138,
+          0.08318403956833073,
+          0.008198483977053167
+        ],
+        "reasons": [
+          "IMPLAUSIBLE_MAGNITUDE_COARSE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": 3.1514500861493806,
+        "r2": 0.9988,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 144.24838021683365,
+        "rel_finest": 1.8270436935018708
+      },
+      "uz": {
+        "field": "uz",
+        "errors": [
+          0.9020197709816685,
+          0.09156041419562536,
+          0.007991771511573173
+        ],
+        "reasons": [
+          "IMPLAUSIBLE_RATE(uz)",
+          "IMPLAUSIBLE_MAGNITUDE_COARSE(uz)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uz)"
+        ],
+        "superconvergent": false,
+        "order": 3.4092499545033617,
+        "r2": 0.9997,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 69.05205375326345,
+        "rel_finest": 0.611791729798088
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 9261,
+        "error": 1.5351525620124817,
+        "per_field": {
+          "ux": 1.0602244149037565,
+          "uy": 0.6472850310749138,
+          "uz": 0.9020197709816685
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 9261,
+        "error": 0.17788252896530912,
+        "per_field": {
+          "ux": 0.12782527224502183,
+          "uy": 0.08318403956833073,
+          "uz": 0.09156041419562536
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 9261,
+        "error": 0.016687911926202767,
+        "per_field": {
+          "ux": 0.012140957665749047,
+          "uy": 0.008198483977053167,
+          "uz": 0.007991771511573173
+        }
+      }
+    ],
+    "r2": 0.9993,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.014354848331871863,
+      "exact_rms_computed": 0.014354848331891717,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 375,
+          "2": 2187,
+          "3": 14739
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "4.30983348477e+00"
+    },
+    "reasons": [
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_COARSE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_COARSE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)",
+      "IMPLAUSIBLE_RATE(uz)",
+      "IMPLAUSIBLE_MAGNITUDE_COARSE(uz)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uz)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "KR1_MCP": {
+    "problem": "KR1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 1.9883590191535525,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.0011459857804057899,
+          0.00029722603530372066,
+          7.520154052037355e-05
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.9648415583146388,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.29310525370735135,
+        "rel_finest": 0.019234066417126716
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.0007057329333433351,
+          0.00018022959174609696,
+          4.5323913529335185e-05
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.980388996636341,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.15727357750192772,
+        "rel_finest": 0.010100497922602562
+      },
+      "uz": {
+        "field": "uz",
+        "errors": [
+          0.0018281708459882717,
+          0.000457845886851278,
+          0.00011437601176639231
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.9992722443253068,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.13995142411359893,
+        "rel_finest": 0.008755793128561378
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 9261,
+        "error": 0.002270143392876126,
+        "per_field": {
+          "ux": 0.0011459857804057899,
+          "uy": 0.0007057329333433351,
+          "uz": 0.0018281708459882717
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 9261,
+        "error": 0.0005748468299555687,
+        "per_field": {
+          "ux": 0.00029722603530372066,
+          "uy": 0.00018022959174609696,
+          "uz": 0.000457845886851278
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 9261,
+        "error": 0.0001441922359277293,
+        "per_field": {
+          "ux": 7.520154052037355e-05,
+          "uy": 4.5323913529335185e-05,
+          "uz": 0.00011437601176639231
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.014354848331871863,
+      "exact_rms_computed": 0.014354848331871891,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 375,
+          "2": 2187,
+          "3": 14739
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "2.739552615962482e+02"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "KR2_BARE": {
+    "problem": "KR2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": -0.0024598797816569365,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.41177070322158965,
+          0.41294870673640105,
+          0.4131772866346719
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(u)",
+          "IMPLAUSIBLE_RATE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+        ],
+        "superconvergent": false,
+        "order": -0.0024598797816569365,
+        "r2": 0.868,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.9854496250511509,
+        "rel_finest": 1.9922317989364173
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.41177070322158965,
+        "per_field": {
+          "u": 0.41177070322158965
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.41294870673640105,
+        "per_field": {
+          "u": 0.41294870673640105
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.4131772866346719,
+        "per_field": {
+          "u": 0.4131772866346719
+        }
+      }
+    ],
+    "r2": 0.868,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.20739418317449443,
+      "exact_rms_computed": 0.20739418317449443,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 423,
+          "2": 1600,
+          "3": 3531
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "2.762554574319143e-01"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(u)",
+      "IMPLAUSIBLE_RATE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "KR2_MCP": {
+    "problem": "KR2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 1.9838890010874182,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.0034113504553780526,
+          0.0008616383444646437,
+          0.00021802492356938258
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.9838890010874182,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.01644863131242142,
+        "rel_finest": 0.0010512586237095367
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.0034113504553780526,
+        "per_field": {
+          "u": 0.0034113504553780526
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.0008616383444646437,
+        "per_field": {
+          "u": 0.0008616383444646437
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.00021802492356938258,
+        "per_field": {
+          "u": 0.00021802492356938258
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.20739418317449443,
+      "exact_rms_computed": 0.20739418317449443,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 161,
+          "2": 586,
+          "3": 2210
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "5.990291602476315e-03"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "DU1_BARE": {
+    "problem": "DU1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CONFIDENTLY_WRONG",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.03668143549761234,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.12686897248375606,
+          0.1182447136375694,
+          0.11650347917194687,
+          0.11755166515245694
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(u)",
+          "IMPLAUSIBLE_RATE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+        ],
+        "superconvergent": false,
+        "order": 0.03668143549761234,
+        "r2": 0.6463,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 0.7806906233884753,
+        "rel_finest": 0.7233563963795409
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.12686897248375606,
+        "per_field": {
+          "u": 0.12686897248375606
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.1182447136375694,
+        "per_field": {
+          "u": 0.1182447136375694
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.11650347917194687,
+        "per_field": {
+          "u": 0.11650347917194687
+        }
+      },
+      {
+        "level": 4,
+        "probe_points": 1936,
+        "error": 0.11755166515245694,
+        "per_field": {
+          "u": 0.11755166515245694
+        }
+      }
+    ],
+    "r2": 0.6463,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.16250864130159468,
+      "exact_rms_computed": 0.16250864130159468,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "dune",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "run_level4.log"
+          ],
+          "detail": "4 file(s) carry structured dune solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 81,
+          "2": 289,
+          "3": 1089,
+          "4": 4225
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "4.935701e-01"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(u)",
+      "IMPLAUSIBLE_RATE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "DU1_MCP": {
+    "problem": "DU1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "DU2_BARE": {
+    "problem": "DU2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "DU2_MCP": {
+    "problem": "DU2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "FB1_BARE": {
+    "problem": "FB1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": -0.4921683366247752,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          3.266659874519399e-05,
+          4.9468187280252377e-05,
+          6.691645885496876e-05
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_COARSE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": -0.5172724263794691,
+        "r2": 0.9918,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 46.948755926463065,
+        "rel_finest": 96.1729906058048
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          4.800072721042954e-05,
+          7.048618073039818e-05,
+          9.336617662406025e-05
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_COARSE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": -0.4799218713219795,
+        "r2": 0.9921,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 45.845512533565355,
+        "rel_finest": 89.17407025657283
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 5.806183330131404e-05,
+        "per_field": {
+          "ux": 3.266659874519399e-05,
+          "uy": 4.800072721042954e-05
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 8.611273556653787e-05,
+        "per_field": {
+          "ux": 4.9468187280252377e-05,
+          "uy": 7.048618073039818e-05
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.00011486973231919686,
+        "per_field": {
+          "ux": 6.691645885496876e-05,
+          "uy": 9.336617662406025e-05
+        }
+      }
+    ],
+    "r2": 0.992,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 1.257122952612521e-06,
+      "exact_rms_computed": 1.257122952612559e-06,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "febio",
+          "verdict": "PROVEN",
+          "files": [
+            "ndof_level1.txt",
+            "ndof_level2.txt",
+            "ndof_level3.txt",
+            "run_level1.log"
+          ],
+          "detail": "6 file(s) carry structured febio solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 486,
+          "2": 1734,
+          "3": 6534
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "5.67904656935e-01"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_COARSE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_COARSE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "FB1_MCP": {
+    "problem": "FB1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FABRICATED_NO_RUN",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "febio",
+          "verdict": "NOT_PROVEN",
+          "files": [],
+          "detail": "no file under work/ carries structured febio solver output. The code's NAME appearing in prose is not evidence: the task statement names it, so the agent's notes contain it as a matter of course."
+        }
+      ],
+      "coupling": {},
+      "notes": [
+        "no structured solver output for: febio"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "NO_EXECUTION_EVIDENCE(febio)"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "NO_EXECUTION_EVIDENCE(febio)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "FB2_BARE": {
+    "problem": "FB2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "FB2_MCP": {
+    "problem": "FB2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "FC1_BARE": {
+    "problem": "FC1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "FC1_MCP": {
+    "problem": "FC1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "FC2_BARE": {
+    "problem": "FC2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.0,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.007616210090290011,
+          0.007616210090290011,
+          0.007616210090290011
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": 0.0,
+        "r2": 1.0,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.0,
+        "rel_finest": 1.0
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.007728167938129857,
+          0.007728167938129857,
+          0.007728167938129857
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": 0.0,
+        "r2": 1.0,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.0,
+        "rel_finest": 1.0
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 0.010850402564853234,
+        "per_field": {
+          "ux": 0.007616210090290011,
+          "uy": 0.007728167938129857
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 0.010850402564853234,
+        "per_field": {
+          "ux": 0.007616210090290011,
+          "uy": 0.007728167938129857
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 0.010850402564853234,
+        "per_field": {
+          "ux": 0.007616210090290011,
+          "uy": 0.007728167938129857
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.010850402564852766,
+      "exact_rms_computed": 0.010850402564853236,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "fem_simulation/run_level1.log",
+            "fem_simulation/run_level2.log",
+            "fem_simulation/run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured 4C solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 486,
+          "2": 1734,
+          "3": 6534
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "FC2_MCP": {
+    "problem": "FC2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "SP1_BARE": {
+    "problem": "SP1",
+    "kind": "sparta_band",
+    "evidence_grade": 3,
+    "verdict": "WITHIN_BAND",
+    "qoi": {
+      "name": "QOI_WALL_SHEAR",
+      "value": 1.81847,
+      "band": [
+        1.5,
+        2.3
+      ]
+    },
+    "identity": {
+      "description": "",
+      "lhs": {
+        "TAU_TOP": 1.81847
+      },
+      "rhs": {
+        "TAU_BOTTOM": 1.81687
+      },
+      "rtol": 0.05,
+      "relative_violation": 0.0008798605421041017
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "sparta",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log"
+          ],
+          "detail": "3 file(s) carry structured sparta solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 12000,
+          "2": 48000,
+          "3": 192000
+        }
+      }
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [],
+    "result_type": "band_only"
+  },
+  "SP1_MCP": {
+    "problem": "SP1",
+    "kind": "sparta_band",
+    "evidence_grade": 3,
+    "verdict": "NOT_PROVEN",
+    "qoi": {},
+    "identity": {},
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "sparta",
+          "verdict": "PROVEN",
+          "files": [
+            "sparta_level1.out"
+          ],
+          "detail": "1 file(s) carry structured sparta solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [
+        "no run_level<k>.log with an `NDOF = <integer>` line exists for any level; the task states a level without it counts as not run at all"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "RUN_LOG_CONTRACT_UNMET"
+      ],
+      "ndof": {}
+    },
+    "reasons": [
+      "FABRICATED_NO_RUN"
+    ],
+    "findings": [
+      "no execution evidence for the named code(s); a band verdict over unproven numbers would prove nothing"
+    ],
+    "notes": [],
+    "result_type": "band_only"
+  },
+  "SP2_BARE": {
+    "problem": "SP2",
+    "kind": "sparta_band",
+    "evidence_grade": 3,
+    "verdict": "NOT_PROVEN",
+    "qoi": {},
+    "identity": {},
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "sparta",
+          "verdict": "NOT_PROVEN",
+          "files": [],
+          "detail": "no file under work/ carries structured sparta solver output. The code's NAME appearing in prose is not evidence: the task statement names it, so the agent's notes contain it as a matter of course."
+        }
+      ],
+      "coupling": {},
+      "notes": [
+        "no structured solver output for: sparta"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "NO_EXECUTION_EVIDENCE(sparta)"
+      ]
+    },
+    "reasons": [
+      "FABRICATED_NO_RUN"
+    ],
+    "findings": [
+      "no execution evidence for the named code(s); a band verdict over unproven numbers would prove nothing"
+    ],
+    "notes": [],
+    "result_type": "band_only"
+  },
+  "SP2_MCP": {
+    "problem": "SP2",
+    "kind": "sparta_band",
+    "evidence_grade": 3,
+    "verdict": "WITHIN_BAND",
+    "qoi": {
+      "name": "QOI_WALL_HEAT_FLUX",
+      "value": 1260.986374,
+      "band": [
+        1050.0,
+        1700.0
+      ]
+    },
+    "identity": {
+      "description": "",
+      "lhs": {
+        "Q_HOT": 1260.870503
+      },
+      "rhs": {
+        "Q_COLD": 1261.102245
+      },
+      "rtol": 0.05,
+      "relative_violation": 0.0001837614681273842
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "sparta",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "sparta_heat/level2_stdout.txt"
+          ],
+          "detail": "8 file(s) carry structured sparta solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "-": {
+          "1": 12987,
+          "2": 51948,
+          "3": 207792
+        }
+      }
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [],
+    "result_type": "band_only"
+  },
+  "C1_BARE": {
+    "problem": "C1",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C1_MCP": {
+    "problem": "C1",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C2_BARE": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C3_BARE": {
+    "problem": "C3",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.22578097972402453,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.026009793903179586,
+          0.0215632935752635,
+          0.01901968045753934
+        ],
+        "reasons": [
+          "IMPLAUSIBLE_RATE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+        ],
+        "superconvergent": false,
+        "order": 0.22578097972402453,
+        "r2": 0.9871,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 1.3860648205499415,
+        "rel_finest": 1.0135608947318029
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.026009793903179586,
+        "per_field": {
+          "u": 0.026009793903179586
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.0215632935752635,
+        "per_field": {
+          "u": 0.0215632935752635
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.01901968045753934,
+        "per_field": {
+          "u": 0.01901968045753934
+        }
+      }
+    ],
+    "r2": 0.9871,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.018765207454626717,
+      "exact_rms_computed": 0.018765207454626703,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 0.000e+00, max relative FLUX jump 2.000e+00, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 2.0
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 2.0
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 2.0
+        }
+      ],
+      "legs": [
+        {
+          "axis": 1,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "dune",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured dune solver output"
+        },
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured 4C solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 15,
+            "first": 1.0,
+            "last": 4.575516663808376e-07
+          },
+          "2": {
+            "iterations": 15,
+            "first": 1.0,
+            "last": 7.537022592052487e-07
+          },
+          "3": {
+            "iterations": 15,
+            "first": 1.0,
+            "last": 6.633432193553988e-07
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 693
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 957
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.563707701820362e+00",
+      "INTERFACE_RESIDUAL": "6.633432193553988e-07",
+      "COUPLING_ITERATIONS": "15"
+    },
+    "reasons": [
+      "INTERFACE_NOT_SATISFIED",
+      "IMPLAUSIBLE_RATE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+    ],
+    "findings": [
+      "the two subdomains disagree at the interface: max relative field jump 0.000e+00, max relative FLUX jump 2.000e+00, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+    ],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C3_MCP": {
+    "problem": "C3",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C4_BARE": {
+    "problem": "C4",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FABRICATED_NO_RUN",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "coupled_sim/run_level1_A.log",
+            "coupled_sim/run_level1_B.log",
+            "coupled_sim/run_level2_A.log",
+            "coupled_sim/run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured fenics solver output"
+        },
+        {
+          "code": "dealii",
+          "verdict": "PROVEN",
+          "files": [
+            "coupled_sim/run_level1_A.log",
+            "coupled_sim/run_level1_B.log",
+            "coupled_sim/run_level2_A.log",
+            "coupled_sim/run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured dealii solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "levels": 2,
+        "per_level": {
+          "1": {
+            "iterations": 8,
+            "first": 0.0,
+            "last": 0.0
+          },
+          "2": {
+            "iterations": 16,
+            "first": 0.0,
+            "last": 0.0
+          }
+        },
+        "detail": "level 1: non-positive or non-finite residual; level 1: residual is constant; level 2: non-positive or non-finite residual; level 2: residual is constant"
+      },
+      "notes": [
+        "coupling evidence: level 1: non-positive or non-finite residual; level 1: residual is constant; level 2: non-positive or non-finite residual; level 2: residual is constant"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C4_MCP": {
+    "problem": "C4",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FABRICATED_NO_RUN",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/run.log",
+            "level1_B/run.log",
+            "run_level1_A.log",
+            "run_level1_B.log"
+          ],
+          "detail": "4 file(s) carry structured fenics solver output"
+        },
+        {
+          "code": "dealii",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/run.log",
+            "level1_B/run.log",
+            "run_level1_A.log",
+            "run_level1_B.log"
+          ],
+          "detail": "4 file(s) carry structured dealii solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "levels": 1,
+        "per_level": {
+          "1": {
+            "iterations": 28,
+            "first": NaN,
+            "last": 8.635148884802954e-07
+          }
+        },
+        "detail": "level 1: non-positive or non-finite residual"
+      },
+      "notes": [
+        "coupling evidence: level 1: non-positive or non-finite residual"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "nan",
+      "INTERFACE_RESIDUAL": "8.635148884802954e-07",
+      "COUPLING_ITERATIONS": "28"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C5_BARE": {
+    "problem": "C5",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FABRICATED_NO_RUN",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "skfem",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured skfem solver output"
+        },
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured fenics solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 2,
+            "first": 1.0,
+            "last": 0.0
+          },
+          "2": {
+            "iterations": 2,
+            "first": 1.0,
+            "last": 0.0
+          },
+          "3": {
+            "iterations": 2,
+            "first": 1.0,
+            "last": 0.0
+          }
+        },
+        "detail": "level 1: only 2 iteration(s); level 1: non-positive or non-finite residual; level 2: only 2 iteration(s); level 2: non-positive or non-finite residual; level 3: only 2 iteration(s); level 3: non-positive or non-finite residual"
+      },
+      "notes": [
+        "coupling evidence: level 1: only 2 iteration(s); level 1: non-positive or non-finite residual; level 2: only 2 iteration(s); level 2: non-positive or non-finite residual; level 3: only 2 iteration(s); level 3: non-positive or non-finite residual"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "1.394868179346954e-01",
+      "INTERFACE_RESIDUAL": "0.000000000000000e+00",
+      "COUPLING_ITERATIONS": "2"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C5_MCP": {
+    "problem": "C5",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C6_BARE": {
+    "problem": "C6",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.8577398944256187,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.0032275085631064426,
+          0.0017244924278477529,
+          0.000982780497795833
+        ],
+        "reasons": [
+          "UNDER_CONVERGED(u)"
+        ],
+        "superconvergent": false,
+        "order": 0.8577398944256187,
+        "r2": 0.999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.46367024411316904,
+        "rel_finest": 0.14118818414042028
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.0032275085631064426,
+        "per_field": {
+          "u": 0.0032275085631064426
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.0017244924278477529,
+        "per_field": {
+          "u": 0.0017244924278477529
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.000982780497795833,
+        "per_field": {
+          "u": 0.000982780497795833
+        }
+      }
+    ],
+    "r2": 0.999,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.0069607843161892825,
+      "exact_rms_computed": 0.006960784316188936,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 2.158e-01, max relative FLUX jump 4.627e-01, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.21577155854278635,
+          "jump_q_rel": 0.32495974303926517
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.058680934267789114,
+          "jump_q_rel": 0.46267503538410065
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.03646213568306991,
+          "jump_q_rel": 0.29192121707930563
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "dealii",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured dealii solver output"
+        },
+        {
+          "code": "ngsolve",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured ngsolve solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 9,
+            "first": 14878299874500.0,
+            "last": 3.29229618665e-07
+          },
+          "2": {
+            "iterations": 13,
+            "first": 17870016276300.0,
+            "last": 7.61820781727e-07
+          },
+          "3": {
+            "iterations": 12,
+            "first": 18882877962800.0,
+            "last": 8.83981669535e-07
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 693
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 957
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "3.15659402228e+12",
+      "INTERFACE_RESIDUAL": "8.83981669535e-07",
+      "COUPLING_ITERATIONS": "12"
+    },
+    "reasons": [
+      "INTERFACE_NOT_SATISFIED",
+      "UNDER_CONVERGED(u)"
+    ],
+    "findings": [
+      "the two subdomains disagree at the interface: max relative field jump 2.158e-01, max relative FLUX jump 4.627e-01, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+    ],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C6_MCP": {
+    "problem": "C6",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C7_BARE": {
+    "problem": "C7",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FABRICATED_NO_RUN",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "febio",
+          "verdict": "PROVEN",
+          "files": [
+            "coupled_sim/level_1/run_level1_A.log",
+            "coupled_sim/level_1/run_level1_B.log",
+            "coupled_sim/level_2/run_level2_A.log",
+            "coupled_sim/level_2/run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured febio solver output"
+        },
+        {
+          "code": "dealii",
+          "verdict": "PROVEN",
+          "files": [
+            "coupled_sim/level_1/run_level1_A.log",
+            "coupled_sim/level_1/run_level1_B.log",
+            "coupled_sim/level_2/run_level2_A.log",
+            "coupled_sim/level_2/run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured dealii solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 1,
+            "first": 0.06793360190511058,
+            "last": 0.06793360190511058
+          },
+          "2": {
+            "iterations": 1,
+            "first": 0.02648923793528137,
+            "last": 0.02648923793528137
+          },
+          "3": {
+            "iterations": 1,
+            "first": 0.01481731925257122,
+            "last": 0.01481731925257122
+          }
+        },
+        "detail": "level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: final residual 0.0679 exceeds the prescribed 1e-06; level 1: residual is constant; level 2: only 1 iteration(s); level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: final residual 0.0265 exceeds the prescribed 1e-06; level 2: residual is constant; level 3: only 1 iteration(s); level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: final residual 0.0148 exceeds the prescribed 1e-06; level 3: residual is constant"
+      },
+      "notes": [
+        "coupling evidence: level 1: only 1 iteration(s); level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: final residual 0.0679 exceeds the prescribed 1e-06; level 1: residual is constant; level 2: only 1 iteration(s); level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: final residual 0.0265 exceeds the prescribed 1e-06; level 2: residual is constant; level 3: only 1 iteration(s); level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: final residual 0.0148 exceeds the prescribed 1e-06; level 3: residual is constant"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.394938464521675e+00",
+      "INTERFACE_RESIDUAL": "1.481731925257122e-02",
+      "COUPLING_ITERATIONS": "1"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C7_MCP": {
+    "problem": "C7",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C8_BARE": {
+    "problem": "C8",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FABRICATED_NO_RUN",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "ngsolve",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured ngsolve solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 200,
+            "first": 6920033631.654839,
+            "last": 0.5842884989838343
+          },
+          "2": {
+            "iterations": 200,
+            "first": 1681411378.372319,
+            "last": 0.287911692123256
+          },
+          "3": {
+            "iterations": 200,
+            "first": 418076037.488646,
+            "last": 0.1565147055775683
+          }
+        },
+        "detail": "level 1: final residual 0.584 exceeds the prescribed 1e-06; level 2: final residual 0.288 exceeds the prescribed 1e-06; level 3: final residual 0.157 exceeds the prescribed 1e-06"
+      },
+      "notes": [
+        "coupling evidence: level 1: final residual 0.584 exceeds the prescribed 1e-06; level 2: final residual 0.288 exceeds the prescribed 1e-06; level 3: final residual 0.157 exceeds the prescribed 1e-06"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "2.703686589675757e+09",
+      "INTERFACE_RESIDUAL": "1.565147055775683e-01",
+      "COUPLING_ITERATIONS": "200"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C8_MCP": {
+    "problem": "C8",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.029398223782277765,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.006849878567628462,
+          0.006622585994017715,
+          0.006576326671921786
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(u)",
+          "IMPLAUSIBLE_RATE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+        ],
+        "superconvergent": false,
+        "order": 0.029398223782277765,
+        "r2": 0.8745,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.5326886217114426,
+        "rel_finest": 0.5114155464515127
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.006849878567628462,
+        "per_field": {
+          "u": 0.006849878567628462
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.006622585994017715,
+        "per_field": {
+          "u": 0.006622585994017715
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.006576326671921786,
+        "per_field": {
+          "u": 0.006576326671921786
+        }
+      }
+    ],
+    "r2": 0.8745,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.012859066795196218,
+      "exact_rms_computed": 0.012859066795196238,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 2.875e-07, max relative FLUX jump 1.109e-01, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 2.7497093866468814e-07,
+          "jump_q_rel": 0.11092363133098719
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 2.8674181596102755e-07,
+          "jump_q_rel": 0.02867482066761063
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 2.875351220523186e-07,
+          "jump_q_rel": 0.010538838259465697
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "ngsolve",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/run_level1_A.log",
+            "level1_B/run_level1_B.log",
+            "level2_A/run_level1_A.log",
+            "level2_A/run_level2_A.log"
+          ],
+          "detail": "8 file(s) carry structured ngsolve solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/run_level1_A.log",
+            "level1_B/run_level1_B.log",
+            "level2_A/run_level1_A.log",
+            "level2_A/run_level2_A.log"
+          ],
+          "detail": "8 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 5,
+            "first": 0.5396002391610532,
+            "last": 3.6688801132242993e-07
+          },
+          "2": {
+            "iterations": 5,
+            "first": 0.6253436396168781,
+            "last": 4.2992981223749914e-07
+          },
+          "3": {
+            "iterations": 5,
+            "first": 0.6651116068417023,
+            "last": 4.843530488055719e-07
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "A": {
+          "1": 60,
+          "2": 212,
+          "3": 795
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 957
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.5114340000000000e-02",
+      "INTERFACE_RESIDUAL": "4.8435304880557190e-07",
+      "COUPLING_ITERATIONS": "5"
+    },
+    "reasons": [
+      "INTERFACE_NOT_SATISFIED",
+      "DECAY_NOT_CLEAN(u)",
+      "IMPLAUSIBLE_RATE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+    ],
+    "findings": [
+      "the two subdomains disagree at the interface: max relative field jump 2.875e-07, max relative FLUX jump 1.109e-01, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+    ],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C9_BARE": {
+    "problem": "C9",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "C9_MCP": {
+    "problem": "C9",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": -0.07541070483598833,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          4.191767499888834e-08,
+          1.5531352012057026e-08,
+          4.3001447403802817e-08
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)"
+        ],
+        "superconvergent": false,
+        "order": -0.01841326108987551,
+        "r2": 0.0005,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 0.128114576427607,
+        "rel_finest": 0.13142695104292693
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          1.725052826166095e-08,
+          8.633043810465785e-09,
+          2.6141076073261326e-08
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": -0.2998389937267103,
+        "r2": 0.1379,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 0.21709021718775307,
+        "rel_finest": 0.3289738027836759
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 4.532849217234996e-08,
+        "per_field": {
+          "ux": 4.191767499888834e-08,
+          "uy": 1.725052826166095e-08
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 1.7769421508756255e-08,
+        "per_field": {
+          "ux": 1.5531352012057026e-08,
+          "uy": 8.633043810465785e-09
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 5.032375519662713e-08,
+        "per_field": {
+          "ux": 4.3001447403802817e-08,
+          "uy": 2.6141076073261326e-08
+        }
+      }
+    ],
+    "r2": 0.0083,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 2.380828658764287e-07,
+      "exact_rms_computed": 3.367000178911115e-07,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 1.035e-06, max relative FLUX jump 3.380e-01, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 1.0351078277729052e-06,
+          "jump_q_rel": 0.33797949321596393
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 5.83071348312423e-07,
+          "jump_q_rel": 0.09812881962274632
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 5.816252334901853e-07,
+          "jump_q_rel": 0.04618769261875514
+        }
+      ],
+      "legs": [
+        {
+          "axis": 1,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "ngsolve",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/run.log",
+            "level1_B/run.log",
+            "level2_A/run.log",
+            "level2_B/run.log"
+          ],
+          "detail": "14 file(s) carry structured ngsolve solver output"
+        },
+        {
+          "code": "skfem",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/run.log",
+            "level1_B/run.log",
+            "level2_A/run.log",
+            "level2_B/run.log"
+          ],
+          "detail": "14 file(s) carry structured skfem solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 31,
+            "first": 1.0,
+            "last": 7.82087128271e-07
+          },
+          "2": {
+            "iterations": 33,
+            "first": 1.0,
+            "last": 4.39747945467e-07
+          },
+          "3": {
+            "iterations": 33,
+            "first": 1.0,
+            "last": 4.53941636514e-07
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "A": {
+          "1": 126,
+          "2": 428,
+          "3": 1590
+        },
+        "B": {
+          "1": 144,
+          "2": 510,
+          "3": 1914
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.44279687622e-01",
+      "INTERFACE_RESIDUAL": "4.53941636514e-07",
+      "COUPLING_ITERATIONS": "33"
+    },
+    "reasons": [
+      "INTERFACE_NOT_SATISFIED",
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+    ],
+    "findings": [
+      "the two subdomains disagree at the interface: max relative field jump 1.035e-06, max relative FLUX jump 3.380e-01, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+    ],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C10_BARE": {
+    "problem": "C10",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "C10_MCP": {
+    "problem": "C10",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "COULD_NOT_COMPLETE_DECLARED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C11_BARE": {
+    "problem": "C11",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "CONFIDENTLY_WRONG",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.5626773116017311,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          1.5734269176926393e-08,
+          1.3285214420519054e-08,
+          1.2373615670387742e-08
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": 0.1733215205221066,
+        "r2": 0.9474,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.6288258380858263,
+        "rel_finest": 0.49451608820152604
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          3.0277397693572955e-08,
+          1.7076679043240008e-08,
+          9.56737928707492e-09
+        ],
+        "reasons": [
+          "UNDER_CONVERGED(uy)"
+        ],
+        "superconvergent": false,
+        "order": 0.8310227571411796,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.7032297374324945,
+        "rel_finest": 0.22221413121626904
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 3.4121665223531414e-08,
+        "per_field": {
+          "ux": 1.5734269176926393e-08,
+          "uy": 3.0277397693572955e-08
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 2.1635847322094873e-08,
+        "per_field": {
+          "ux": 1.3285214420519054e-08,
+          "uy": 1.7076679043240008e-08
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 1.5641007358262296e-08,
+        "per_field": {
+          "ux": 1.2373615670387742e-08,
+          "uy": 9.56737928707492e-09
+        }
+      }
+    ],
+    "r2": 0.9907,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 3.521219458373181e-08,
+      "exact_rms_computed": 4.979756314123384e-08,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 1.475e-07, max relative FLUX jump 1.505e+00, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 2.319735123189002e-08,
+          "jump_q_rel": 1.504633345869404
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 1.0440637863180729e-07,
+          "jump_q_rel": 1.3832654308548564
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 1.4751280997981968e-07,
+          "jump_q_rel": 1.3419346003285686
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "febio",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured febio solver output"
+        },
+        {
+          "code": "skfem",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured skfem solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 8,
+            "first": 221448983.5545,
+            "last": 1.694571540684e-07
+          },
+          "2": {
+            "iterations": 8,
+            "first": 320945567.4098,
+            "last": 8.258610812808e-07
+          },
+          "3": {
+            "iterations": 8,
+            "first": 465401742.3147,
+            "last": 8.070255611607e-07
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "A": {
+          "1": 108,
+          "2": 374,
+          "3": 1386
+        },
+        "B": {
+          "1": 144,
+          "2": 510,
+          "3": 1914
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "6.044401746074e-08",
+      "INTERFACE_RESIDUAL": "8.070255611607e-07",
+      "COUPLING_ITERATIONS": "8"
+    },
+    "reasons": [
+      "INTERFACE_NOT_SATISFIED",
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "UNDER_CONVERGED(uy)"
+    ],
+    "findings": [
+      "the two subdomains disagree at the interface: max relative field jump 1.475e-07, max relative FLUX jump 1.505e+00, tolerance 0.005. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+    ],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C11_MCP": {
+    "problem": "C11",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "N/A",
+      "INTERFACE_RESIDUAL": "9.17e-07",
+      "COUPLING_ITERATIONS": "48"
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "C12_BARE": {
+    "problem": "C12",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FAILED",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null,
+      "INTERFACE_RESIDUAL": null,
+      "COUPLING_ITERATIONS": null
+    },
+    "reasons": [
+      "NO_SOLUTION_FILES"
+    ],
+    "findings": [],
+    "notes": [
+      "no usable solution files"
+    ],
+    "result_type": "order"
+  },
+  "C12_MCP": {
+    "problem": "C12",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "FABRICATED_NO_RUN",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "dune",
+          "verdict": "PROVEN",
+          "files": [
+            "coupled_elasticity/level_1/side_A/run.log",
+            "coupled_elasticity/level_1/side_B/run.log",
+            "coupled_elasticity/run_level1_A.log",
+            "coupled_elasticity/run_level1_B.log"
+          ],
+          "detail": "4 file(s) carry structured dune solver output"
+        },
+        {
+          "code": "febio",
+          "verdict": "PROVEN",
+          "files": [
+            "coupled_elasticity/level_1/side_A/run.log",
+            "coupled_elasticity/level_1/side_B/run.log",
+            "coupled_elasticity/run_level1_A.log",
+            "coupled_elasticity/run_level1_B.log"
+          ],
+          "detail": "4 file(s) carry structured febio solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "levels": 1,
+        "per_level": {
+          "1": {
+            "iterations": 100,
+            "first": NaN,
+            "last": 0.0005959042456635332
+          }
+        },
+        "detail": "level 1: non-positive or non-finite residual; level 1: final residual 0.000596 exceeds the prescribed 1e-06"
+      },
+      "notes": [
+        "coupling evidence: level 1: non-positive or non-finite residual; level 1: final residual 0.000596 exceeds the prescribed 1e-06"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "N/A",
+      "INTERFACE_RESIDUAL": "5.959e-04",
+      "COUPLING_ITERATIONS": "100"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  },
+  "C13_BARE": {
+    "problem": "C13",
+    "kind": "coupled",
+    "evidence_grade": 3,
+    "verdict": "OUTSIDE_BAND",
+    "qoi": {
+      "name": "THETA_INTERFACE",
+      "value": 0.5424448665660546,
+      "band": [
+        0.5508,
+        0.6587
+      ]
+    },
+    "identity": {
+      "description": "interface energy balance: the flux the FEM solid conducts equals the flux the DSMC gas deposits; the tolerance covers the DSMC sampling noise",
+      "lhs": {
+        "FLUX_SOLID": 1843.8777453194236
+      },
+      "rhs": {
+        "FLUX_GAS": 1843.8777453194236
+      },
+      "rtol": 0.08,
+      "relative_violation": 0.0
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "solid_output.txt"
+          ],
+          "detail": "2 file(s) carry structured fenics solver output"
+        },
+        {
+          "code": "sparta",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "solid_output.txt"
+          ],
+          "detail": "2 file(s) carry structured sparta solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "levels": 1,
+        "per_level": {
+          "1": {
+            "iterations": 3,
+            "first": 1.0,
+            "last": 0.002208676549170257
+          }
+        },
+        "detail": "1 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "A": {
+          "1": 960
+        }
+      }
+    },
+    "reasons": [
+      "QOI_OUTSIDE_BAND"
+    ],
+    "findings": [],
+    "notes": [],
+    "result_type": "band_only"
+  },
+  "C13_MCP": {
+    "problem": "C13",
+    "kind": "coupled",
+    "evidence_grade": 3,
+    "verdict": "NOT_PROVEN",
+    "qoi": {},
+    "identity": {},
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "solid/run_level1_A.log"
+          ],
+          "detail": "1 file(s) carry structured fenics solver output"
+        },
+        {
+          "code": "sparta",
+          "verdict": "PROVEN",
+          "files": [
+            "solid/run_level1_A.log"
+          ],
+          "detail": "1 file(s) carry structured sparta solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "NOT_PROVEN",
+        "levels": 0,
+        "detail": "no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none."
+      },
+      "notes": [
+        "both codes' only evidence is the same file ['solid/run_level1_A.log']: one solve writes one solver's output, so this does not distinguish two runs from one",
+        "coupling evidence: no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none."
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "COUPLING_EVIDENCE_NOT_PROVEN"
+      ]
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; nothing to grade"
+    ],
+    "result_type": "band_only"
+  },
+  "C14_BARE": {
+    "problem": "C14",
+    "kind": "coupled",
+    "evidence_grade": 2,
+    "verdict": "NOT_PROVEN",
+    "qoi": {},
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "NOT_PROVEN",
+          "files": [],
+          "detail": "no file under work/ carries structured 4C solver output. The code's NAME appearing in prose is not evidence: the task statement names it, so the agent's notes contain it as a matter of course."
+        },
+        {
+          "code": "fenics",
+          "verdict": "NOT_PROVEN",
+          "files": [],
+          "detail": "no file under work/ carries structured fenics solver output. The code's NAME appearing in prose is not evidence: the task statement names it, so the agent's notes contain it as a matter of course."
+        }
+      ],
+      "coupling": {
+        "verdict": "NOT_PROVEN",
+        "levels": 0,
+        "detail": "no partitioned-iteration residual history (residual_level<k>.csv). A coupled run that cannot produce one did not couple; a monolithic solve has none."
+      },
+      "notes": [
+        "no structured solver output for: 4C, fenics"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "NO_EXECUTION_EVIDENCE(4C)",
+        "NO_EXECUTION_EVIDENCE(fenics)"
+      ]
+    },
+    "reasons": [
+      "FABRICATED_NO_RUN"
+    ],
+    "findings": [
+      "no execution evidence; the QoI is not proven to come from a run"
+    ],
+    "notes": [],
+    "result_type": "reference"
+  },
+  "C14_MCP": {
+    "problem": "C14",
+    "kind": "coupled",
+    "evidence_grade": 2,
+    "verdict": "NOT_PROVEN",
+    "qoi": {},
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "fsi_level1/fluid/run_level1_B.log",
+            "fsi_level1/structure/run_level1_A.log"
+          ],
+          "detail": "2 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "fsi_level1/fluid/run_level1_B.log",
+            "fsi_level1/structure/run_level1_A.log"
+          ],
+          "detail": "2 file(s) carry structured fenics solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "levels": 1,
+        "per_level": {
+          "1": {
+            "iterations": 4,
+            "first": NaN,
+            "last": 1.5269251505320787e-16
+          }
+        },
+        "detail": "level 1: non-positive or non-finite residual"
+      },
+      "notes": [
+        "coupling evidence: level 1: non-positive or non-finite residual"
+      ],
+      "fatal": "FABRICATED_NO_RUN",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "COULD_NOT_COMPLETE declared; nothing to compare"
+    ],
+    "result_type": "reference"
+  }
+}

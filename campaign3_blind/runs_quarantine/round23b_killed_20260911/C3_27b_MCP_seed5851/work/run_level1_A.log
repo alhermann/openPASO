@@ -1,0 +1,32 @@
+NDOF = 54
+iteration: 43
+command: ["/home/alexander/miniconda3/envs/dune-py313/bin/python", "participant_A.py"]
+returncode: 0
+--- stdout ---
+Fem::CG preconditioning=none
+Fem::CG it: 0 : residual 0.0737545
+Fem::CG it: 1 : residual 0.0373622
+Fem::CG it: 2 : residual 0.0201825
+Fem::CG it: 3 : residual 0.0117925
+Fem::CG it: 4 : residual 0.00448864
+Fem::CG it: 5 : residual 0.00266604
+Fem::CG it: 6 : residual 0.00132156
+Fem::CG it: 7 : residual 0.000440859
+Fem::CG it: 8 : residual 0.000192325
+Fem::CG it: 9 : residual 6.82358e-05
+Fem::CG it: 10 : residual 2.11211e-05
+Fem::CG it: 11 : residual 5.13692e-06
+Fem::CG it: 12 : residual 1.54386e-06
+Fem::CG it: 13 : residual 5.58463e-07
+Fem::CG it: 14 : residual 1.20986e-07
+Fem::CG it: 15 : residual 6.00843e-08
+Fem::CG it: 16 : residual 1.03682e-08
+Fem::CG it: 17 : residual 2.12458e-09
+Solver converged: True
+Iterations: 0
+NDOF = 54
+DUNE Dirichlet participant: NDOF = 54  max|u| = 3.882603e-02
+
+--- stderr ---
+No protocol specified
+

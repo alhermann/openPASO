@@ -1,0 +1,17 @@
+ 5991 C3_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=None codes=[dune=PROVEN, 4C=PROVEN] coupling=('PROVEN', False, 3) reasons=['WRONG_LEVEL_COUNT']
+ 5992 C3_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 5993 C3_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=INTERFACE_NOT_SATISFIED codes=[dune=PROVEN, 4C=PROVEN] coupling=('CONTRADICTED', False, 2) reasons=['COUPLING_EVIDENCE_CONTRADICTED']
+        note: coupling evidence: level 1: only 1 iteration(s); level 1: residual fell only 1x — an iteration that never moved did not couple; level 1: residual is c
+        note: graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-for
+ 6961 C1_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6962 C1_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6963 C1_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=NOT_CHECKED codes=[4C=PROVEN, fenics=PROVEN] coupling=('PROVEN', False, 1) reasons=['RUN_LOG_CONTRACT_UNMET']
+        note: side A: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all
+        note: side B: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all
+        note: graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the execution and coupling evidence above are PROVEN, so the defect is the missing contract
+ 6971 C2_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6972 C2_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=INTERFACE_SATISFIED codes=[4C=PROVEN, kratos=PROVEN] coupling=('PROVEN', False, 1) reasons=['RUN_LOG_CONTRACT_UNMET']
+        note: side A: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all
+        note: side B: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all
+        note: graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the execution and coupling evidence above are PROVEN, so the defect is the missing contract
+ 6973 C2_MCP   CORRECT                order=1.9900058285800037 levels=[{'level': 1, 'probe_points': 3872, 'error': 0.0029113407882197786, 'per_field': {'u': 0.0029113407882197786}}, {'level': 2, 'probe_points': 3872, 'error': 0.0007193287692489843, 'per_field': {'u': 0.0007193287692489843}}, {'level': 3, 'probe_points': 3872, 'error': 0.00018449735867645488, 'per_field': {'u': 0.00018449735867645488}}] iface=INTERFACE_SATISFIED codes=[4C=PROVEN, kratos=PROVEN] coupling=('PROVEN', False, 3) reasons=[]

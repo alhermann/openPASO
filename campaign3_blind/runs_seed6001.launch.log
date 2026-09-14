@@ -1,0 +1,6 @@
+[source build] ee24d8fcf582 sha256=1f4c4f7f1ef75b71... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+REFUSING TO RUN — mixed source population:
+population is already locked to 1501a19a60b4ea94f171dd3326f01bc4f5a388be / 57736e9d9461d42b6cc6a67f72897ae143ebc4e4caeaeebadedc1f367362116c; current build is ee24d8fcf5829a141f1c7d93afd65c381e16534b / 1f4c4f7f1ef75b71de9af58c456451b21ffc96c341f237dcd2145167a23cee14. Use a new seed or archive and deliberately remove .source_build_development_27b_seed6001.json; never mix the two builds in one population.

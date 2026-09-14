@@ -1,0 +1,12 @@
+ 6081 C3_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6082 C3_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 6083 C3_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 7151 C1_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 7152 C1_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 7153 C1_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 7161 C2_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=INTERFACE_NOT_SATISFIED codes=[4C=PROVEN, kratos=PROVEN] coupling=('PROVEN', False, 1) reasons=['RUN_LOG_CONTRACT_UNMET']
+        note: side A: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all
+        note: side B: no NDOF contract line for level(s) [2, 3]; the task states a level without it counts as not run at all
+        note: graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the execution and coupling evidence above are PROVEN, so the defect is the missing contract
+ 7162 C2_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 7163 C2_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=None codes=[4C=PROVEN, kratos=PROVEN] coupling=('PROVEN', False, 3) reasons=['WRONG_LEVEL_COUNT']

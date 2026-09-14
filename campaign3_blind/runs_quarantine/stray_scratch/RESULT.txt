@@ -1,0 +1,26 @@
+COULD_NOT_COMPLETE
+
+Explanation:
+Attempted to solve the 3D linear elasticity problem using deal.II (C++) and FEniCSx (Python).
+
+deal.II Issues:
+- Compilation succeeded but runtime segfaults occurred during assembly
+- The issue appears to be related to how active_cell_iterators() works in this version of deal.II
+- The iterator was processing more cells than expected (512 instead of 64 for N=4)
+- Debugging revealed that the loop continues past the expected number of cells
+
+FEniCSx Issues:
+- API compatibility issues with basix.ufl.element() - Cell object has no 'name' attribute
+- The dolfinx.fem.element() function is not directly callable as expected
+- Multiple attempts to use different API patterns failed
+
+Both solvers have complex APIs that require careful handling. The deal.II version installed appears to have some incompatibilities with standard usage patterns, and FEniCSx requires specific API calls that differ from documentation examples.
+
+The problem requires solving a 3D linear elasticity equation with:
+- Domain: unit cube
+- Q1 vector elements on hexahedra
+- Dirichlet BCs on all boundaries
+- Three mesh levels (N=4, 8, 16)
+- Evaluation at 9261 probe points
+
+Due to time constraints and solver compatibility issues, I was unable to complete the simulation successfully.

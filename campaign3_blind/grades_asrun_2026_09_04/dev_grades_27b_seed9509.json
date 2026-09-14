@@ -1,0 +1,239 @@
+{
+  "C3_MCP": {
+    "problem": "C3",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the two subdomains disagree at the interface: max relative field jump 2.874e+28, max relative FLUX jump 1.117e+00. the jump does not shrink under refinement (field [2.874e+28, 2.758e+28, 2.728e+28], flux [1.117e+00, 1.044e+00, 1.020e+00]). A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 2.8738639982997224e+28,
+          "jump_q_rel": 1.117363461947971
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 2.7580097745954022e+28,
+          "jump_q_rel": 1.0442034051457274
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 2.727951872663058e+28,
+          "jump_q_rel": 1.0196348223674074
+        }
+      ],
+      "legs": [
+        {
+          "axis": 1,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "CONSISTENT",
+        "per_side": [
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1 (+/-0.1%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.9999998463625185,
+                "spread": 0.0009817112486519442,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -1.9999998359163174,
+                "spread": 0.0009105754143038797,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1 (+/-0.2%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.9999998702254377,
+                "spread": 0.0018708145929149567,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -1.9999998349068702,
+                "spread": 0.0012736294917263292,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.9561 (+/-0.9%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.9561228316852369,
+                "spread": 0.00862308508743923,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 2.455 (+/-13.5%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 2.455319208967606,
+                "spread": 0.1352548807148276,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [],
+        "reasons": [],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "SIGN_CONVENTION"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "dune",
+          "verdict": "PROVEN",
+          "files": [
+            "L1/run_level1_A.log",
+            "L1/run_level1_B.log",
+            "L2/run_level2_A.log",
+            "L2/run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured dune solver output"
+        },
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "L1/outB.control",
+            "L1/run_level1_A.log",
+            "L1/run_level1_B.log",
+            "L2/outB.control"
+          ],
+          "detail": "10 file(s) carry structured 4C solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 3,
+            "first": 1.160607320568543,
+            "last": 1.160607320568543
+          },
+          "2": {
+            "iterations": 3,
+            "first": 1.06717726478938,
+            "last": 1.06717726478938
+          },
+          "3": {
+            "iterations": 3,
+            "first": 1.050840458849323,
+            "last": 1.050840458849323
+          }
+        },
+        "detail": "level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: final residual 1.16 exceeds the prescribed 1e-06; level 1: residual is constant; level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: final residual 1.07 exceeds the prescribed 1e-06; level 2: residual is constant; level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: final residual 1.05 exceeds the prescribed 1e-06; level 3: residual is constant"
+      },
+      "notes": [
+        "coupling evidence: level 1: residual fell only 1x \u2014 an iteration that never moved did not couple; level 1: final residual 1.16 exceeds the prescribed 1e-06; level 1: residual is constant; level 2: residual fell only 1x \u2014 an iteration that never moved did not couple; level 2: final residual 1.07 exceeds the prescribed 1e-06; level 2: residual is constant; level 3: residual fell only 1x \u2014 an iteration that never moved did not couple; level 3: final residual 1.05 exceeds the prescribed 1e-06; level 3: residual is constant",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "0.02",
+      "INTERFACE_RESIDUAL": "1.05",
+      "COUPLING_ITERATIONS": "3"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

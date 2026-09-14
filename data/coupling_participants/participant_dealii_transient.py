@@ -8,14 +8,24 @@ CONTRACT (do not change): runs in its work_dir with no arguments, reads
 imports.json (written every iteration; it is `{}` on iteration 1), writes
 exports.json LAST, exits 0.
 
-Pure glue: the PDE solve is done by the compiled deal.II executable
-`heat_iface_dealii_transient` (heat_iface_dealii_transient.cc), which handles
-BOTH the Dirichlet and the Neumann side. This wrapper converts the partner's
-InterfaceData into the solver's plain-text input file and its plain-text output
-back into exports.json.
+Pure glue: the PDE solve is done by a compiled deal.II executable THAT YOU
+WRITE AND BUILD YOURSELF. No C++ source ships with this contract and none is on
+this install, so do not search for one: write a program that reads the side,
+the geometry, the material, the mesh size, the source samples and the imported
+interface samples from one plain-text file your solve region writes, and
+writes the interface trace and the CONSISTENT flux (the residual of the
+assembled system with no boundary condition applied, divided by the nodal
+interface weight) to a plain-text file your solve region reads back. That pair
+of files is private to you. This wrapper is the contract around it: the
+imports.json handshake, the sign convention, the exports schema and the
+self-check. deal.II has no Python API, so unlike every other backend there is
+a BUILD STEP before this can run at all:
 
-    cmake -DDEAL_II_DIR=<your deal.II BUILD or INSTALL dir> <this directory>
-    make heat_iface_dealii_transient
+    cmake -S <dir with YOUR .cc and a 6-line CMakeLists> -B <build> \
+          -DDEAL_II_DIR=<deal.II BUILD or INSTALL tree>
+    make -C <build>
+
+and DEALII_EXE below must point at YOUR binary.
 Check cmake's "Using the deal.II-X found at" line: pointing DEAL_II_DIR at a
 deal.II SOURCE tree silently falls back to whatever old deal.II is installed
 system-wide, and the build then fails or misbehaves for reasons that look like
@@ -84,7 +94,7 @@ Q_GUESS   = 0.0           # iteration-1 fallback interface flux. Unlike the
                           # never evaluates T_INITIAL (it is a string for the
                           # C++ side), so set T_GUESS to T_INITIAL's interface
                           # value yourself.
-DEALII_EXE = "./heat_iface_dealii_transient"   # the compiled solver
+DEALII_EXE = "./dealii_side"   # YOUR compiled solver; you write and build it (docstring)
 # ─────────────────────────────────────────────────────────────────────────
 
 DEGREE = 1                # FE_Q degree used by the deal.II solver

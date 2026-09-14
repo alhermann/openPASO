@@ -1,0 +1,116 @@
+{
+  "C3_MCP": {
+    "problem": "C3",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [
+        "no interface_level<k>_<side>.csv files: the task requires them, and the interface flux is the only reference-free quantity that can detect convergence to the wrong transmission condition"
+      ],
+      "reasons": [],
+      "findings": [
+        "Interface NOT CHECKED: nothing was submitted for it. This is not a passing check \u2014 nothing was compared."
+      ],
+      "per_level": [],
+      "legs": [
+        {
+          "axis": 1,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "NOT_ASSESSED",
+        "per_side": [],
+        "findings": [],
+        "reasons": [],
+        "detail": "no level has both an interface file and a solution file for the same side"
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "dune",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/participant_output.log",
+            "level1_A/run_level1_A.log",
+            "level1_B/participant_output.log",
+            "level1_B/run_level1_B.log"
+          ],
+          "detail": "6 file(s) carry structured dune solver output"
+        },
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "level1_A/participant_output.log",
+            "level1_A/run_level1_A.log",
+            "level1_B/participant_output.log",
+            "level1_B/result.control"
+          ],
+          "detail": "8 file(s) carry structured 4C solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "RESULT.txt claims COUPLING_ITERATIONS=2 but the finest-level history has 1 rows \u2014 recorded as a discrepancy, not as evidence of invention",
+        "levels": 1,
+        "per_level": {
+          "1": {
+            "iterations": 1,
+            "first": 0.0,
+            "last": 0.0
+          },
+          "notes": [
+            "RESULT.txt claims COUPLING_ITERATIONS=2 but the finest-level history has 1 rows \u2014 recorded as a discrepancy, not as evidence of invention"
+          ]
+        },
+        "detail": "level 1: only 1 iteration(s); level 1: non-positive or non-finite residual; level 1: residual is constant"
+      },
+      "notes": [
+        "coupling evidence: level 1: only 1 iteration(s); level 1: non-positive or non-finite residual; level 1: residual is constant",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "N/A",
+      "INTERFACE_RESIDUAL": "0.0",
+      "COUPLING_ITERATIONS": "2"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

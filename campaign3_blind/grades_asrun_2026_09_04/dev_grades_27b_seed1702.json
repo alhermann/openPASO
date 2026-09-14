@@ -1,0 +1,488 @@
+{
+  "C2_BARE": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "INTERFACE_NOT_SATISFIED",
+      "malformed": [
+        "interface_level3_A.csv: non-finite value"
+      ],
+      "reasons": [
+        "INTERFACE_FLUX_ALL_ZERO",
+        "INTERFACE_NOT_SATISFIED"
+      ],
+      "findings": [
+        "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 2 side A. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field.",
+        "Interface flux balance NOT CHECKED at level 1: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling.",
+        "the two subdomains disagree at the interface: max relative field jump 9.683e-01, max relative FLUX jump 6.358e+00. only 1 graded level(s), so no refinement trend exists and the fixed tolerance 0.005 is all the evidence there is. A jump that stays O(1) under refinement means the scheme converged to a fixed point of the wrong transmission condition \u2014 which the observed order cannot see, because convergence to a wrong answer is still convergence."
+      ],
+      "per_level": [
+        {
+          "level": 2,
+          "jump_u_rel": 0.968300469623895,
+          "jump_q_rel": 6.358398852957434
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "INCONSISTENT",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 60121900771277282228566223546035919840458962937809939996233769832287972100442960479835583955629348698539426825489930829182096978128600700374780068320866653067905313903945832524045254266739296682233043281310045657161056512305305629493167754642615383923275706448327786471381497662101906602711303663386624% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.0,
+                "spread": 6.012190077127728e+299,
+                "n_points": 34,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0 (+/-0.0%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.0,
+                "spread": 0.0,
+                "n_points": 39,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the reported interface flux is not a constant multiple of the normal derivative of this side's own submitted field, at level 2 side A. For a scalar conduction flux q_n = -k du/dn the ratio must be the conductivity at EVERY interface point; a varying ratio means the flux and the field did not come from one another. Export the flux from the same assembled system that produced the field."
+        ],
+        "reasons": [
+          "FLUX_NOT_FROM_SUBMITTED_FIELD"
+        ],
+        "judged_at_level": 2,
+        "coarse_level_verdicts": [
+          "NOT_ASSESSED"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "7 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 2,
+            "first": 1.0,
+            "last": 0.0
+          },
+          "2": {
+            "iterations": 2,
+            "first": 1.0,
+            "last": 0.0
+          },
+          "3": {
+            "iterations": 100,
+            "first": 1.0,
+            "last": NaN
+          }
+        },
+        "detail": "level 1: only 2 iteration(s); level 1: non-positive or non-finite residual; level 2: only 2 iteration(s); level 2: non-positive or non-finite residual; level 3: non-positive or non-finite residual"
+      },
+      "notes": [
+        "coupling evidence: level 1: only 2 iteration(s); level 1: non-positive or non-finite residual; level 2: only 2 iteration(s); level 2: non-positive or non-finite residual; level 3: non-positive or non-finite residual",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "COULD_NOT_COMPLETE",
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": "COULD_NOT_COMPLETE",
+      "INTERFACE_RESIDUAL": "COULD_NOT_COMPLETE",
+      "COUPLING_ITERATIONS": "COULD_NOT_COMPLETE"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  },
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 1.93438030184661,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.002648449293247917,
+          0.0006838092779589231,
+          0.00018129201443096212
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.93438030184661,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.05258953587218041,
+        "rel_finest": 0.003599866125647006
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.002648449293247917,
+        "per_field": {
+          "u": 0.002648449293247917
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.0006838092779589231,
+        "per_field": {
+          "u": 0.0006838092779589231
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.00018129201443096212,
+        "per_field": {
+          "u": 0.00018129201443096212
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.050360765679412,
+      "exact_rms_computed": 0.050360765679412146,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_SATISFIED",
+      "malformed": [],
+      "reasons": [],
+      "findings": [],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 6.06717770952473e-08,
+          "jump_q_rel": 0.07571680723625204
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 9.54328938710576e-08,
+          "jump_q_rel": 0.03927140586529069
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 1.16320026006079e-07,
+          "jump_q_rel": 0.019525784186780297
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "CONSISTENT",
+        "per_side": [
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.002 (+/-12.2%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.002063682894181,
+                "spread": 0.12154951195143976,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the submitted field is flat at the interface: its normal derivative is identically zero, so there is nothing for the reported flux to follow from"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.001 (+/-6.2%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.0012936861763015,
+                "spread": 0.06237917278483103,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -63.636364799999846,
+                "spread": 0.029902580418851802,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.9695 (+/-3.2%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.9694668524217139,
+                "spread": 0.03222496963593531,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 128.1 (+/-3.7%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 128.10446168451003,
+                "spread": 0.03736938511059663,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [],
+        "reasons": [],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "NOT_ASSESSED",
+          "SIGN_CONVENTION"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "coupled_simulation/A_level1.control",
+            "coupled_simulation/A_level2.control",
+            "coupled_simulation/A_level3.control",
+            "run_level1_A.log"
+          ],
+          "detail": "9 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "RESULT.txt claims COUPLING_ITERATIONS=4 but the finest-level history has 3 rows \u2014 recorded as a discrepancy, not as evidence of invention",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 3,
+            "first": 0.002019341362654405,
+            "last": 3.168707867367332e-08
+          },
+          "2": {
+            "iterations": 3,
+            "first": 0.002312560874958779,
+            "last": 4.862865433844108e-08
+          },
+          "3": {
+            "iterations": 3,
+            "first": 0.002453774682047799,
+            "last": 5.872682173299636e-08
+          },
+          "notes": [
+            "RESULT.txt claims COUPLING_ITERATIONS=4 but the finest-level history has 3 rows \u2014 recorded as a discrepancy, not as evidence of invention"
+          ]
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 693
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 957
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.377324e-01",
+      "INTERFACE_RESIDUAL": "1.645832e-02",
+      "COUPLING_ITERATIONS": "4"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  }
+}

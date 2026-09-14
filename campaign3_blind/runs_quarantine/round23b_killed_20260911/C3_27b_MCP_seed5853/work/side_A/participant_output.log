@@ -1,0 +1,11 @@
+iteration: 40
+command: ["/home/alexander/miniconda3/envs/dune-py313/bin/python", "participant_A.py"]
+returncode: 0
+--- stdout ---
+DUNE solve converged: True
+NDOF = 54
+DUNE Dirichlet participant: NDOF = 54  max|u| = 3.885662e-02
+
+--- stderr ---
+No protocol specified
+

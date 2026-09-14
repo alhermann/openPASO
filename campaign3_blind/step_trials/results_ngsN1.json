@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpci38ir1s/participant_B.py\", line 115, in <module>\n    coord_func = CF(lambda x, y: (x, y), dim=2)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: __init__(): incompatible constructor arguments. The following argument types are supported:\n    1. ngsolve.fem.CoefficientFunction(arg0: dict)\n    2. ngsolve.fem.CoefficientFunction(coef: object, dims: tuple | None = None)\n\nInvoked with: <function <lambda> at 0x7f9309ee59e0>; kwargs: dim=2\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 167.7,
+  "lines": 269
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmpw_34dimb/participant_B.py\", line 132, in <module>\n    y_if = np.array([vtx[1] for vtx in mesh.Vertices() if abs(vtx[0] - IFACE_X) < TOL])\n                                       ^^^^^^^^^^^^^\nAttributeError: 'ngsolve.comp.Mesh' object has no attribute 'Vertices'. Did you mean: 'vertices'?\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 131.5,
+  "lines": 274
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False :: Traceback (most recent call last):\n  File \"/tmp/tmp70k1eil5/participant_B.py\", line 91, in <module>\n    geom.AddRectangle(X0, Y0, X1, Y1, \n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: <lambda>() takes 3 positional arguments but 5 were given\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 351.2,
+  "lines": 203
+ }
+]

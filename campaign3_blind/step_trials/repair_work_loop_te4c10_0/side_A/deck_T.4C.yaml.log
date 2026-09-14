@@ -1,0 +1,84 @@
+Invalid MIT-MAGIC-COOKIE-1 key
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+Number of procs used for redistribution: 1
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
++--------------------------------------------------------------------+
+
+Number of procs used for redistribution: 1
+Redistributing using hypergraph .........
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
++--------------------------------------------------------------------+
+Read/generate conditions                          in....0.00253057 secs
+
+Total wall time for INPUT:        5.200e-02 sec 
+
+###################################################
+# YOUR PROBLEM TYPE: Scalar_Transport
+###################################################
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+Flux output is performed for 1 scalars: 1 
+
+Normal fluxes at boundary 'ScaTraFluxCalc' on discretization 'scatra':
++----+-----+-------------------------+------------------+--------------------------+
+| ID | DOF | Integral of normal flux | Area of boundary | Mean normal flux density |
+[kevin:3639401] *** Process received signal ***
+[kevin:3639401] Signal: Floating point exception (8)
+[kevin:3639401] Signal code: Floating point divide-by-zero (3)
+[kevin:3639401] Failing at address: 0x7f8f3f213c23
+[kevin:3639401] [ 0] /lib/x86_64-linux-gnu/libpthread.so.0(+0x14420)[0x7f8f3215e420]
+[kevin:3639401] [ 1] /home/alexander/4C/build/lib4C.so(_ZN5FourC6ScaTra16ScaTraTimIntImpl21calc_flux_at_boundaryEb+0x1c03)[0x7f8f3f213c23]
+[kevin:3639401] [ 2] /home/alexander/4C/build/lib4C.so(_ZN5FourC6ScaTra16ScaTraTimIntImpl9calc_fluxEb+0x97)[0x7f8f3f2147b7]
+[kevin:3639401] [ 3] /home/alexander/4C/build/lib4C.so(_ZN5FourC6ScaTra16ScaTraTimIntImpl27collect_runtime_output_dataEv+0x245)[0x7f8f3f1df875]
+[kevin:3639401] [ 4] /home/alexander/4C/build/lib4C.so(_ZN5FourC6ScaTra16ScaTraTimIntImpl20write_runtime_outputEv+0x20)[0x7f8f3f1bf730]
+[kevin:3639401] [ 5] /home/alexander/4C/build/lib4C.so(_ZN5FourC6ScaTra16ScaTraTimIntImpl34check_and_write_output_and_restartEv+0xef)[0x7f8f3f1e835f]
+[kevin:3639401] [ 6] /home/alexander/4C/build/lib4C.so(_ZN5FourC6ScaTra16ScaTraTimIntImpl9time_loopEv+0x311)[0x7f8f3f1e7ec1]
+[kevin:3639401] [ 7] /home/alexander/4C/build/lib4C.so(_ZN5FourC10scatra_dynEi+0x1aaf)[0x7f8f3f0f262f]
+[kevin:3639401] [ 8] /home/alexander/4C/build/4C(_Z17entrypoint_switchv+0x278)[0x556953ba3df8]
+[kevin:3639401] [ 9] /home/alexander/4C/build/4C(_Z3runRN5FourC20CommandlineArgumentsERNS_4Core13Communication13CommunicatorsE+0x1d0)[0x556953c15f50]
+[kevin:3639401] [10] /home/alexander/4C/build/4C(main+0x4b0)[0x556953ba23c0]
+[kevin:3639401] [11] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7f8f31f7c083]
+[kevin:3639401] [12] /home/alexander/4C/build/4C(_start+0x2e)[0x556953ba2e1e]
+[kevin:3639401] *** End of error message ***
+Floating point exception (core dumped)

@@ -1,0 +1,129 @@
+NDOF = 957
+Wrote deck to deck.4C.yaml
+Running: stdbuf -oL -eL /home/alexander/4C/build/4C deck.4C.yaml out
+
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+Number of procs used for redistribution: 1
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
++--------------------------------------------------------------------+
+
+Number of procs used for redistribution: 1
+Redistributing using hypergraph .........
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
++--------------------------------------------------------------------+
+Read/generate conditions                          in....0.00326157 secs
+
+Total wall time for INPUT:        6.400e-02 sec 
+
+###################################################
+# YOUR PROBLEM TYPE: Scalar_Transport
+###################################################
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization fluid                            |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| initialize_elements() ...                                          |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+| fill_complete() on discretization scatra                           |
+| assign_degrees_of_freedom() ...                                    |
+| boundary_conditions_geometry() ...                                 |
++--------------------------------------------------------------------+
+Flux output is performed for 1 scalars: 1 
+
+Normal fluxes at boundary 'ScaTraFluxCalc' on discretization 'scatra':
++----+-----+-------------------------+------------------+--------------------------+
+| ID | DOF | Integral of normal flux | Area of boundary | Mean normal flux density |
+|  0 |  0  |       -9.3833E-03       |    1.0000E+00    |        -9.3833E-03       |
++----+-----+-------------------------+------------------+--------------------------+
+| Sum of all normal flux boundary integrals for scalar 0: -9.38326E-03             |
++----------------------------------------------------------------------------------+
+
+Vtk Files 'scatra-00000' written. Time: 0.00000000000000e+00
+
+TIME:           1/1  DT = 1    Stationary    STEP = 1/1
+Solvertype linear_full (ts= 5.958E-03,te= 8.259E-03)
+
+Normal fluxes at boundary 'ScaTraFluxCalc' on discretization 'scatra':
++----+-----+-------------------------+------------------+--------------------------+
+| ID | DOF | Integral of normal flux | Area of boundary | Mean normal flux density |
+|  0 |  0  |       +1.4909E-02       |    1.0000E+00    |        +1.4909E-02       |
++----+-----+-------------------------+------------------+--------------------------+
+| Sum of all normal flux boundary integrals for scalar 0: +1.49089E-02             |
++----------------------------------------------------------------------------------+
+
+Vtk Files 'scatra-00001' written. Time: 1.00000000000000e+00
+
+Checking results of 0 tests:
+
+OK (0)
+======================================================================================
+
+                         TimeMonitor results over 1 processor
+
+Timer Name                                                 Global time (num calls)    
+--------------------------------------------------------------------------------------
+Core::FE::Discretization::Evaluate                         0.02311 (3)                
+Core::FE::Discretization::set_state                        9.314e-05 (12)             
+Core::LinAlg::Solver:  0)   translate_solver_parameters    3.397e-05 (1)              
+Core::LinAlg::Solver:  1)   Setup                          0.0005733 (1)              
+Core::LinAlg::Solver:  2)   Solve                          0.005373 (1)               
+Core::LinAlg::SparseMatrix::Complete                       0.0002181 (1)              
+Core::LinAlg::SparseMatrix::Complete(domain,range)         1.283e-06 (1)              
+Rebalance::rebalance_graph                                 0.003403 (1)               
+Rebalance::rebalance_node_maps                             0.003453 (1)               
+SCATRA:       + apply DBC to system                        3.311e-05 (1)              
+--------------------------------------------------------------------------------------
+SCATRA:       + element calls                              0.008264 (1)               
+SCATRA:       + solver calls                               0.005973 (1)               
+SCATRA:      + apply dirich cond.                          0.0003677 (2)              
+SCATRA:    + output of solution                            0.0139 (2)                 
+SCATRA:    + prepare time step                             0.0008642 (1)              
+SCATRA:  + time loop                                       0.03669 (1)                
+======================================================================================
+
+Total wall time for CALCULATION:  5.900e-02 sec 
+
+
+Memory High Water Mark Summary:		Total
+(in GB)					1.8166e-01
+
+processor 0 finished normally
+
+Reading solution from out-vtk-files/scatra-00001-0.vtu
+Wrote exports.json
+Wrote field_level3.csv and interface_level3.csv
+NDOF = 957
+4C Neumann participant: NDOF = 957 max|u| = 3.729558e-02

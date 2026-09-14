@@ -1,0 +1,3 @@
+[loop5_te4c13_2] round 1 gate brief (1740 chars): 4C stopped (deck_t.log); 4C stopped (deck_u.log); deck_t.4C.yaml: 1 defect(s); deck_u.4C.yaml: 1 defect(s).
+[loop5_te4c13_2] round 1: PASS | kept self-check=True | 327s | exports n=9 qn_err=3.71e-03 qx_err=1.45e-02 qy_err=1.43e-02 4C_runs=4 NDOF_line=True values_n=0
+[loop5_te4c13_2] gate loop: PASS after 1 round(s)

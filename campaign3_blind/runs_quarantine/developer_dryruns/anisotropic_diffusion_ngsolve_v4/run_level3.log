@@ -1,0 +1,4 @@
+NDOF = 1256
+h = 0.03125
+Elements = 2382
+Vertices = 1256

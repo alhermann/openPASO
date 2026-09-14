@@ -1,0 +1,6 @@
+WARNING: kwarg 'order' is an undocumented flags option for class <class 'ngsolve.comp.BilinearForm'>, maybe there is a typo?
+Traceback (most recent call last):
+  File "/home/alexander/Schreibtisch/ofa-v2/simulation_outputs/anisotropic_diffusion_ngsolve/solve.py", line 73, in <module>
+    a += (3*grad(u,x)*grad(v,x) - grad(u,y)*grad(v,x) - grad(u,x)*grad(v,y) + 2*grad(u,y)*grad(v,y))*dx
+            ^^^^^^^^^
+TypeError: grad() takes 1 positional argument but 2 were given

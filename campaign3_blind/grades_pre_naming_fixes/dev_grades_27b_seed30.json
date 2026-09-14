@@ -1,0 +1,192 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "CONFIDENTLY_WRONG",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 0.003893750201390523,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.21667687477250686,
+          0.21532748617250966,
+          0.21551042914960591
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(u)",
+          "IMPLAUSIBLE_RATE(u)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+        ],
+        "superconvergent": false,
+        "order": 0.003893750201390523,
+        "r2": 0.6345,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 4.30249365452134,
+        "rel_finest": 4.279331861662067
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.21667687477250686,
+        "per_field": {
+          "u": 0.21667687477250686
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.21532748617250966,
+        "per_field": {
+          "u": 0.21532748617250966
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.21551042914960591,
+        "per_field": {
+          "u": 0.21551042914960591
+        }
+      }
+    ],
+    "r2": 0.6345,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.050360765679412,
+      "exact_rms_computed": 0.050360765679412146,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NO_TWO_SIDED_EVIDENCE"
+      ],
+      "findings": [
+        "the relative FLUX jump is exactly 0.0 at level(s) [1, 2, 3]. Two independently solved subdomains do not agree to the last bit; a bit-exact cancellation means side B's flux was constructed from side A's rather than computed, so this submission carries no evidence that two codes met at the interface. Export each side's flux from its OWN assembled system and let the small residual mismatch show."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 7.287487337678628e-07,
+          "jump_q_rel": 0.0
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 8.011221877676397e-07,
+          "jump_q_rel": 0.0
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 8.320067807640714e-07,
+          "jump_q_rel": 0.0
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ]
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "7 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "7 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 4,
+            "first": 0.5218959745357759,
+            "last": 6.771420556388944e-07
+          },
+          "2": {
+            "iterations": 4,
+            "first": 0.554067366776745,
+            "last": 7.307801609706852e-07
+          },
+          "3": {
+            "iterations": 4,
+            "first": 0.5682272075089179,
+            "last": 7.584248627801185e-07
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [
+        "every file proving one code also proves the other (['run_level1_A.log', 'run_level1_B.log', 'run_level2_A.log', 'run_level2_B.log', 'run_level3_A.log', 'run_level3_B.log', 'test_level1_sideA/run.log']): this does not distinguish two runs from one. Only the canonical `NDOF =` line matched, and it is code-agnostic by design, so the weight falls entirely on the partitioned-iteration history."
+      ],
+      "fatal": null,
+      "reasons": [],
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 693
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 957
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "1.234567e-02",
+      "INTERFACE_RESIDUAL": "7.584249e-07",
+      "COUPLING_ITERATIONS": "4"
+    },
+    "reasons": [
+      "INTERFACE_NO_TWO_SIDED_EVIDENCE",
+      "DECAY_NOT_CLEAN(u)",
+      "IMPLAUSIBLE_RATE(u)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(u)"
+    ],
+    "findings": [
+      "the relative FLUX jump is exactly 0.0 at level(s) [1, 2, 3]. Two independently solved subdomains do not agree to the last bit; a bit-exact cancellation means side B's flux was constructed from side A's rather than computed, so this submission carries no evidence that two codes met at the interface. Export each side's flux from its OWN assembled system and let the small residual mismatch show."
+    ],
+    "notes": [],
+    "result_type": "order"
+  }
+}

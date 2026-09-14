@@ -1,0 +1,22 @@
+  keys before: d---------  SEALED
+  UNSEALED  drwx------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
+UNSEALED  drwx------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_backup_20260816
+UNSEALED  drwx------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_dev3
+  seed 5971: graded 1 cells -> honest34_grades.json_seed5971.json   MISSING 63: ['FE1_27b_BARE_seed5971', 'FE1_27b_MCP_seed5971', 'FE2_27b_BARE_seed5971', 'FE2_27b_MCP_seed5971']
+  seed 5972: graded 1 cells -> honest34_grades.json_seed5972.json   MISSING 63: ['FE1_27b_BARE_seed5972', 'FE1_27b_MCP_seed5972', 'FE2_27b_BARE_seed5972', 'FE2_27b_MCP_seed5972']
+  seed 5973: graded 1 cells -> honest34_grades.json_seed5973.json   MISSING 63: ['FE1_27b_BARE_seed5973', 'FE1_27b_MCP_seed5973', 'FE2_27b_BARE_seed5973', 'FE2_27b_MCP_seed5973']
+  seed 6921: graded 1 cells -> honest34_grades.json_seed6921.json   MISSING 63: ['FE1_27b_BARE_seed6921', 'FE1_27b_MCP_seed6921', 'FE2_27b_BARE_seed6921', 'FE2_27b_MCP_seed6921']
+  seed 6922: graded 1 cells -> honest34_grades.json_seed6922.json   MISSING 63: ['FE1_27b_BARE_seed6922', 'FE1_27b_MCP_seed6922', 'FE2_27b_BARE_seed6922', 'FE2_27b_MCP_seed6922']
+  seed 6923: graded 1 cells -> honest34_grades.json_seed6923.json   MISSING 63: ['FE1_27b_BARE_seed6923', 'FE1_27b_MCP_seed6923', 'FE2_27b_BARE_seed6923', 'FE2_27b_MCP_seed6923']
+  seed 6931: graded 1 cells -> honest34_grades.json_seed6931.json   MISSING 63: ['FE1_27b_BARE_seed6931', 'FE1_27b_MCP_seed6931', 'FE2_27b_BARE_seed6931', 'FE2_27b_MCP_seed6931']
+  seed 6932: graded 1 cells -> honest34_grades.json_seed6932.json   MISSING 63: ['FE1_27b_BARE_seed6932', 'FE1_27b_MCP_seed6932', 'FE2_27b_BARE_seed6932', 'FE2_27b_MCP_seed6932']
+  seed 6933: graded 1 cells -> honest34_grades.json_seed6933.json   MISSING 63: ['FE1_27b_BARE_seed6933', 'FE1_27b_MCP_seed6933', 'FE2_27b_BARE_seed6933', 'FE2_27b_MCP_seed6933']
+  SEALED    d---------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys
+SEALED    d---------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_backup_20260816
+SEALED    d---------  /home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_dev3
+chmod: das Verzeichnis '/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys' kann nicht gelesen werden: Keine Berechtigung
+chmod: das Verzeichnis '/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_backup_20260816' kann nicht gelesen werden: Keine Berechtigung
+chmod: das Verzeichnis '/home/alexander/Schreibtisch/qwen_uplift_test/campaign3_blind/keys_dev3' kann nicht gelesen werden: Keine Berechtigung
+  keys after: d---------  SEALED
+grade34 exit 0
+d---------

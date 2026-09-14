@@ -1,0 +1,6 @@
+NDOF = 2899
+Elements = 608
+Vertices = 337
+Newton iterations = 3
+Final residual = 5.411533e-01
+Maxh = 0.0625

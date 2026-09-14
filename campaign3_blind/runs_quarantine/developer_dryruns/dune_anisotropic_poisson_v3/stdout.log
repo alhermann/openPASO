@@ -1,0 +1,54 @@
+
+============================================================
+Level 1: N = 8 cells per side
+============================================================
+Number of triangular elements: 128
+Number of DOFs: 81
+Solver converged: True
+Linear iterations: 24
+Number of probe points: 1936
+Wrote solution_level1.csv
+
+============================================================
+Level 2: N = 16 cells per side
+============================================================
+Number of triangular elements: 512
+Number of DOFs: 289
+Solver converged: True
+Linear iterations: 51
+Number of probe points: 1936
+Wrote solution_level2.csv
+
+============================================================
+Level 3: N = 32 cells per side
+============================================================
+Number of triangular elements: 2048
+Number of DOFs: 1089
+Solver converged: True
+Linear iterations: 101
+Number of probe points: 1936
+Wrote solution_level3.csv
+
+============================================================
+Level 4: N = 64 cells per side
+============================================================
+Number of triangular elements: 8192
+Number of DOFs: 4225
+Solver converged: True
+Linear iterations: 203
+Number of probe points: 1936
+Wrote solution_level4.csv
+
+============================================================
+MESH INDEPENDENCE ANALYSIS
+============================================================
+Solution max |u|: 3.076180e-01
+L2 norm of fine solution: 1.624105e-01
+L2 norm of difference: 3.477214e-04
+Relative L2 change: 2.141003e-03
+Max relative change (normalized by max|u|): 3.508914e-03
+Mean relative change: 9.656274e-04
+MESH_INDEPENDENCE = CONVERGED
+
+Wrote RESULT.txt
+Done!

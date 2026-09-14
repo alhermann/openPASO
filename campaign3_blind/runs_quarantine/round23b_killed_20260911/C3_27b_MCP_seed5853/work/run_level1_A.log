@@ -1,0 +1,5 @@
+NDOF = 54
+No protocol specified
+DUNE solve converged: True
+NDOF = 187
+DUNE Dirichlet participant: NDOF = 187  max|u| = 3.872638e-02

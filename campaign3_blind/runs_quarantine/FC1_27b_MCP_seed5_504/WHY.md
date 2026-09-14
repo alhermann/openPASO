@@ -1,0 +1,1 @@
+Round-4 infrastructure casualty: the ledger records provider `error code: 504` at 1242 s / 51 tool calls; quarantined ungraded and the cell re-run before round-4 grading (the graded attempt is runs/FC1_27b_MCP_seed5).

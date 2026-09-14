@@ -69,6 +69,17 @@ def B_SRC(x, y):
 
         return (2.0 * MU * np.pi**2 * np.sin(np.pi * x) * np.cos(np.pi * y),
                 np.zeros_like(x))
+
+    HOW THIS ENTERS NGSolve (your solve below has to do it): NGSolve's symbolic
+    `x`, `y` are CoefficientFunctions and carry NO NumPy ufuncs, so do NOT call
+    this function on them (np.sin(x) raises; np.zeros_like(x) silently returns
+    a 0-d object array and the source collapses to a constant), and do NOT wrap
+    the function -- CoefficientFunction(B_SRC) is a TypeError ("incompatible
+    constructor arguments", measured). Sample it at the mesh vertices instead,
+    np.array([v.point for v in mesh.vertices]), into one P1 GridFunction per component on your
+    space (gf.vec.FV().NumPy()[vertex_dofs] = B_SRC(vx, vy)[i]); a GridFunction IS
+    a CoefficientFunction and integrates as gf_x * v[0] * dx + gf_y * v[1] * dx -- the P1 interpolant
+    of the source, quadrature error O(h^2), the order of the discretisation.
     """
     return np.zeros_like(x), np.zeros_like(y)
 NX, NY    = 24, 16        # this subdomain's own mesh (netgen maxh derived below)

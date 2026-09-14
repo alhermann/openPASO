@@ -1,0 +1,22 @@
+COULD_NOT_COMPLETE
+Reason: Unable to run required solvers (4C and FEniCSx/dolfinx) due to technical issues:
+
+1. 4C binary requires Exodus format meshes (.e files). The available Gmsh version (4.15.2) does not support Exodus output format (-format exo gives "Unknown mesh format 'exo'"). Without proper mesh files, 4C cannot be executed.
+
+2. FEniCSx/dolfinx (version 0.10.0) has API incompatibilities causing segmentation faults during PETSc linear solve operations. Multiple attempts with different API versions failed:
+   - fem.petsc.LinearProblem causes segfault
+   - fem.functionspace API changes cause errors
+   - Mixed space creation (V_T * V_u) is not supported in current API
+
+3. The problem specification explicitly requires:
+   - "Both codes named below must actually run and must exchange interface data"
+   - "Do not compute values by hand, by formula, or from memory, and do not stub or mock the solver"
+   - "If you genuinely cannot obtain a real run, write COULD_NOT_COMPLETE into RESULT.txt"
+
+Since neither 4C nor FEniCSx could be successfully executed to produce valid finite element solutions, the coupling iteration and all result values cannot be obtained from actual solver runs as required.
+
+Attempted approaches:
+- Generated Gmsh .geo files for both subdomains at all mesh levels
+- Tried multiple dolfinx API patterns (fem.petsc.*, direct assembly, etc.)
+- Attempted to use meshio for Exodus format conversion
+- All solver execution attempts resulted in errors or segfaults

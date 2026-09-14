@@ -1,0 +1,4 @@
+NDOF = 144
+Level = 1
+Elements = 112
+Interface nodes = 9

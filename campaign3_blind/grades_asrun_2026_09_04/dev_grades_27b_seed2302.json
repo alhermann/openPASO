@@ -1,0 +1,567 @@
+{
+  "C1_BARE": {
+    "problem": "C1",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [
+        "interface files missing or one-sided for level(s) [1, 2, 3]: every prescribed level needs both interface_level<k>_A.csv and _B.csv"
+      ],
+      "reasons": [
+        "INTERFACE_FLUX_ALL_ZERO"
+      ],
+      "findings": [
+        "Interface flux balance NOT CHECKED at level 8: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling.",
+        "Interface flux balance NOT CHECKED at level 16: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling.",
+        "Interface flux balance NOT CHECKED at level 32: both sides exported fluxes that are identically zero. That balances trivially and says nothing about the coupling."
+      ],
+      "per_level": [],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "NOT_ASSESSED",
+        "per_side": [
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 8,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 8,
+            "side": "B"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 16,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 16,
+            "side": "B"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 32,
+            "side": "A"
+          },
+          {
+            "verdict": "NOT_ASSESSED",
+            "detail": "no component could be assessed",
+            "per_component": [
+              {
+                "component": 0,
+                "verdict": "NOT_ASSESSED",
+                "detail": "the reported flux is identically zero, so there is no profile to compare with the field: nothing is checked and nothing passes"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 32,
+            "side": "B"
+          }
+        ],
+        "findings": [],
+        "reasons": [],
+        "judged_at_level": 32
+      }
+    },
+    "evidence": {
+      "verdict": "NOT_PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "level_16/output_A.control",
+            "level_16/run_level16_A.log",
+            "level_16/run_level16_B.log",
+            "level_32/output_A.control"
+          ],
+          "detail": "11 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "level_16/run_level16_A.log",
+            "level_16/run_level16_B.log",
+            "level_32/run_level32_A.log",
+            "level_32/run_level32_B.log"
+          ],
+          "detail": "6 file(s) carry structured fenics solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "CONTRADICTED",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "8": {
+            "iterations": 1,
+            "first": 0.0,
+            "last": 0.0
+          },
+          "16": {
+            "iterations": 1,
+            "first": 0.0,
+            "last": 0.0
+          },
+          "32": {
+            "iterations": 1,
+            "first": 0.0,
+            "last": 0.0
+          }
+        },
+        "detail": "level 8: only 1 iteration(s); level 8: non-positive or non-finite residual; level 8: residual is constant; level 16: only 1 iteration(s); level 16: non-positive or non-finite residual; level 16: residual is constant; level 32: only 1 iteration(s); level 32: non-positive or non-finite residual; level 32: residual is constant"
+      },
+      "notes": [
+        "coupling evidence: level 8: only 1 iteration(s); level 8: non-positive or non-finite residual; level 8: residual is constant; level 16: only 1 iteration(s); level 16: non-positive or non-finite residual; level 16: residual is constant; level 32: only 1 iteration(s); level 32: non-positive or non-finite residual; level 32: residual is constant",
+        "graded MALFORMED_SUBMISSION rather than FABRICATED_NO_RUN: the coupling evidence is deficient but carries no positive sign of invention (no closed-form residual decay)"
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "COUPLING_EVIDENCE_CONTRADICTED"
+      ]
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "0.000000000000000e+00",
+      "INTERFACE_RESIDUAL": "0.000000000000000e+00",
+      "COUPLING_ITERATIONS": "1"
+    },
+    "reasons": [
+      "COUPLING_EVIDENCE_CONTRADICTED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  },
+  "C1_MCP": {
+    "problem": "C1",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "COMPLETED_UNPHYSICAL",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": -0.09079290169372367,
+    "per_field": {
+      "T": {
+        "field": "T",
+        "errors": [
+          0.026217281958686472,
+          0.027833441124271035,
+          0.029736799574485478
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(T)",
+          "IMPLAUSIBLE_RATE(T)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(T)"
+        ],
+        "superconvergent": false,
+        "order": -0.09086563086022617,
+        "r2": 0.9992,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 0.667697219080309,
+        "rel_finest": 0.7573316872252628
+      },
+      "ux": {
+        "field": "ux",
+        "errors": [
+          9.407260732232607e-05,
+          9.237370093330492e-05,
+          9.068822610455338e-05
+        ],
+        "reasons": [
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": 0.026429715203362684,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.9821304274961634,
+        "rel_finest": 0.9467970412232369
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.0007825405713233093,
+          0.0007825874105328943,
+          0.0007826394911045128
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": -9.117869656267761e-05,
+        "r2": 0.9991,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.0000531590554012,
+        "rel_finest": 1.0001795742769384
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.026229126800228836,
+        "per_field": {
+          "T": 0.026217281958686472,
+          "ux": 9.407260732232607e-05,
+          "uy": 0.0007825405713233093
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.027844594103236815,
+        "per_field": {
+          "T": 0.027833441124271035,
+          "ux": 9.237370093330492e-05,
+          "uy": 0.0007825874105328943
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.029747235129680704,
+        "per_field": {
+          "T": 0.029736799574485478,
+          "ux": 9.068822610455338e-05,
+          "uy": 0.0007826394911045128
+        }
+      }
+    ],
+    "r2": 0.9992,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 0.022674357197195193,
+      "exact_rms_computed": 0.039273138694507194,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "NOT_CHECKED",
+      "malformed": [],
+      "reasons": [
+        "INTERFACE_NO_TWO_SIDED_EVIDENCE"
+      ],
+      "findings": [
+        "the reported flux is proportional to this side's own field normal derivative but with the OPPOSITE sign, so the flux was computed with the INWARD normal. The task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the subdomain; with the sign reversed the two sides' fluxes appear to sum to zero when they do not, and vice versa.",
+        "the relative FLUX jump is exactly 0.0 at level(s) [1, 2, 3]. Two independently solved subdomains do not agree to the last bit; a bit-exact cancellation means side B's flux was constructed from side A's rather than computed, so this submission carries no evidence that two codes met at the interface. Export each side's flux from its OWN assembled system and let the small residual mismatch show."
+      ],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.0
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.0
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 0.0,
+          "jump_q_rel": 0.0
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "SIGN_CONVENTION",
+        "per_side": [
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.9545 (+/-0.0%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.9545453629335023,
+                "spread": 9.678491107499353e-10,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.9187499285596841,
+                "spread": 9.678518452642527e-10,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.9167 (+/-0.0%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.9166665786901095,
+                "spread": 9.678500143081545e-10,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.9058822825014239,
+                "spread": 9.678507954614485e-10,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.8846 (+/-0.0%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.8846152997149299,
+                "spread": 9.67851746782828e-10,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "SIGN_CONVENTION",
+            "detail": "the reported flux is proportional to the field's normal derivative but with the OPPOSITE sign on component(s) 0: the outward-normal convention the task states was not followed",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": -0.8944443748940836,
+                "spread": 9.678483612455583e-10,
+                "n_points": 44,
+                "verdict": "SIGN_CONVENTION"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [
+          "the reported flux is proportional to this side's own field normal derivative but with the OPPOSITE sign, so the flux was computed with the INWARD normal. The task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the subdomain; with the sign reversed the two sides' fluxes appear to sum to zero when they do not, and vice versa."
+        ],
+        "reasons": [
+          "FLUX_SIGN_CONVENTION"
+        ],
+        "judged_at_level": 3
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "8 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "fenics",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured fenics solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 13,
+            "first": 1.0,
+            "last": 5e-07,
+            "ratio_cv": 0.3732918856058664
+          },
+          "2": {
+            "iterations": 16,
+            "first": 1.0,
+            "last": 5e-07,
+            "ratio_cv": 0.3367958604141298
+          },
+          "3": {
+            "iterations": 19,
+            "first": 1.0,
+            "last": 5e-07,
+            "ratio_cv": 0.3097691629031014
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 693
+        },
+        "B": {
+          "1": 72,
+          "2": 255,
+          "3": 957
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "9.999999999999999e-02",
+      "INTERFACE_RESIDUAL": "0.000000000000000e+00",
+      "COUPLING_ITERATIONS": "19"
+    },
+    "reasons": [
+      "INTERFACE_NO_TWO_SIDED_EVIDENCE",
+      "DECAY_NOT_CLEAN(T)",
+      "IMPLAUSIBLE_RATE(T)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(T)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+    ],
+    "findings": [
+      "the reported flux is proportional to this side's own field normal derivative but with the OPPOSITE sign, so the flux was computed with the INWARD normal. The task defines q_n = -(K grad u) . n_out with n_out pointing OUT of the subdomain; with the sign reversed the two sides' fluxes appear to sum to zero when they do not, and vice versa.",
+      "the relative FLUX jump is exactly 0.0 at level(s) [1, 2, 3]. Two independently solved subdomains do not agree to the last bit; a bit-exact cancellation means side B's flux was constructed from side A's rather than computed, so this submission carries no evidence that two codes met at the interface. Export each side's flux from its OWN assembled system and let the small residual mismatch show."
+    ],
+    "notes": [],
+    "result_type": "order"
+  }
+}

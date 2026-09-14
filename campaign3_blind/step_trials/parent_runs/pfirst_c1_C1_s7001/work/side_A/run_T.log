@@ -1,0 +1,68 @@
+
+******************************************************
+*                                                    *
+*                         4C                         *
+*                                                    *
+*                version 2026.2.0-dev                *
+*                                                    *
+*                      git SHA1                      *
+*      89519cfe76251fc668617c4ab1a70b94fd86ec52      *
+*                                                    *
+******************************************************
+
+Trilinos Version: f4d64271518 (git SHA1)
+Total number of MPI ranks: 1
+
+
+=========================================================================
+PROC 0 ERROR in /home/alexander/4C/src/core/io/src/4C_io_input_spec_builders.cpp, line 633:
+Could not match this input
+
+IO/RUNTIME VTK OUTPUT:
+  INTERVAL_STEPS: 1
+  FILE_TYPE: vtu
+  PREFIX: "run_T-vtk-files/scatra"
+
+
+against the given input specification. This was the best attempt to match the input:
+
+[!] Candidate group 'IO/RUNTIME VTK OUTPUT'
+  {
+    [ ] Matched parameter 'INTERVAL_STEPS'
+    [ ] Defaulted parameter 'STEP_OFFSET'
+    [ ] Defaulted parameter 'OUTPUT_DATA_FORMAT'
+    [ ] Defaulted parameter 'COMPRESSION_LEVEL'
+    [ ] Defaulted parameter 'TIMESTEP_RESERVE_DIGITS'
+    [ ] Defaulted parameter 'EVERY_ITERATION'
+    [ ] Defaulted parameter 'EVERY_ITERATION_VIRTUAL_TIME_INCREMENT'
+    [ ] Defaulted parameter 'EVERY_ITERATION_RESERVE_DIGITS'
+    [ ] Defaulted parameter 'OUTPUT_WRITER'
+    [!] The following data remains unused:
+      PREFIX: "run_T-vtk-files/scatra"
+      FILE_TYPE: vtu
+  }
+
+------------------
+ 0# FourC::Core::IO::Internal::MatchTree::assert_match() const in /home/alexander/4C/build/lib4C.so
+ 1# FourC::Core::IO::InputSpec::match(FourC::Core::IO::ConstYamlNodeRef, FourC::Core::IO::InputParameterContainer&) const in /home/alexander/4C/build/lib4C.so
+ 2# FourC::Core::IO::InputFile::match_section(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, FourC::Core::IO::InputParameterContainer&) const in /home/alexander/4C/build/lib4C.so
+ 3# FourC::Core::IO::read_parameters_in_section(FourC::Core::IO::InputFile&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, Teuchos::ParameterList&) in /home/alexander/4C/build/lib4C.so
+ 4# FourC::Global::read_parameter(FourC::Global::Problem&, FourC::Core::IO::InputFile&) in /home/alexander/4C/build/lib4C.so
+ 5# FourC::setup_global_problem(FourC::Core::IO::InputFile&, FourC::CommandlineArguments const&, FourC::Core::Communication::Communicators const&) in /home/alexander/4C/build/4C
+ 6# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C
+ 7# main in /home/alexander/4C/build/4C
+ 8# __libc_start_main at ../csu/libc-start.c:342
+ 9# _start in /home/alexander/4C/build/4C
+
+=========================================================================
+
+
+No protocol specified
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------

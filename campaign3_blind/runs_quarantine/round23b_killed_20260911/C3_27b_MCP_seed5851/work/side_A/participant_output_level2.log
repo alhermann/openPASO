@@ -1,0 +1,50 @@
+iteration: 32
+command: ["/home/alexander/miniconda3/envs/dune-py313/bin/python", "participant_A.py"]
+returncode: 0
+--- stdout ---
+Fem::CG preconditioning=none
+Fem::CG it: 0 : residual 0.0733475
+Fem::CG it: 1 : residual 0.0603236
+Fem::CG it: 2 : residual 0.0485776
+Fem::CG it: 3 : residual 0.0408187
+Fem::CG it: 4 : residual 0.0340924
+Fem::CG it: 5 : residual 0.0222476
+Fem::CG it: 6 : residual 0.0183073
+Fem::CG it: 7 : residual 0.0127744
+Fem::CG it: 8 : residual 0.0103845
+Fem::CG it: 9 : residual 0.00723839
+Fem::CG it: 10 : residual 0.00470803
+Fem::CG it: 11 : residual 0.00237103
+Fem::CG it: 12 : residual 0.00201731
+Fem::CG it: 13 : residual 0.00227542
+Fem::CG it: 14 : residual 0.00107251
+Fem::CG it: 15 : residual 0.000549774
+Fem::CG it: 16 : residual 0.000467055
+Fem::CG it: 17 : residual 0.000247158
+Fem::CG it: 18 : residual 0.000171709
+Fem::CG it: 19 : residual 9.6756e-05
+Fem::CG it: 20 : residual 6.23171e-05
+Fem::CG it: 21 : residual 3.82991e-05
+Fem::CG it: 22 : residual 2.13194e-05
+Fem::CG it: 23 : residual 1.19728e-05
+Fem::CG it: 24 : residual 5.82881e-06
+Fem::CG it: 25 : residual 3.33384e-06
+Fem::CG it: 26 : residual 2.29691e-06
+Fem::CG it: 27 : residual 1.53155e-06
+Fem::CG it: 28 : residual 5.81903e-07
+Fem::CG it: 29 : residual 2.26215e-07
+Fem::CG it: 30 : residual 1.3852e-07
+Fem::CG it: 31 : residual 9.39745e-08
+Fem::CG it: 32 : residual 5.77964e-08
+Fem::CG it: 33 : residual 4.95028e-08
+Fem::CG it: 34 : residual 2.72415e-08
+Fem::CG it: 35 : residual 1.28081e-08
+Fem::CG it: 36 : residual 6.90964e-09
+Solver converged: True
+Iterations: 0
+NDOF = 187
+DUNE Dirichlet participant: NDOF = 187  max|u| = 3.875741e-02
+
+--- stderr ---
+No protocol specified
+

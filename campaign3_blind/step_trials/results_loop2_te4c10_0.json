@@ -1,0 +1,27 @@
+{
+ "failed": "participant_te4c10_0_fix1.py",
+ "ok": false,
+ "rounds": [
+  {
+   "round": 1,
+   "ok": false,
+   "info": "rc=1 exports=False 4C_runs_finished=0 :: 4C DID NOT FINISH (run T) -- no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck\n4C DID NOT FINISH -- no 4C error line in any *.log here -- run the binary line-buffered (stdbuf -oL -eL) with its console in a log next to the deck\n",
+   "what": "4C stopped (deck_T.4C.yaml.log); deck_T.4C.yaml: 1 defect(s).",
+   "secs": 198
+  },
+  {
+   "round": 2,
+   "ok": false,
+   "info": "rc=1 exports=False 4C_runs_finished=0 :: t&, FourC::Core::Elements::LocationArray&, FourC::Core::LinAlg::SerialDenseMatrix&, FourC::Core::LinAlg::SerialDenseMatrix&, FourC::Core::LinAlg::SerialDenseVector&, FourC::Core::LinAlg::SerialDenseVector&, FourC::Core::LinAlg::SerialDenseVector&)#1}>::_M_invoke(std::_Any_data const&, FourC::Core::Elements::Element&, FourC::Core::Elements::LocationArray&, FourC::Core::LinAlg::SerialDenseMatrix&, FourC::Core::LinAlg::SerialDenseMatrix&, FourC::Core::LinAlg::SerialDenseVector&, FourC::Core::LinAlg::SerialDenseVector&, FourC::Core::LinAlg::SerialDenseVecto",
+   "what": "4C stopped (deck_T.4C.yaml.log); deck_T.4C.yaml: 1 defect(s).",
+   "secs": 201
+  },
+  {
+   "round": 3,
+   "ok": false,
+   "info": "rc=1 exports=False 4C_runs_finished=2 :: ome/alexander/4C/src/core/io/src/4C_io_input_spec_builders.hpp, line 2410: | Parameter 'YOUNGNUM' not found in container. | . | 0# FourC::Global::read_materials(FourC::Global::Problem&, FourC::Core::IO::InputFile&) [clone .cold] in /home/alexander/4C/build/lib4C.so | 1# FourC::setup_global_problem(FourC::Core::IO::InputFile&, FourC::CommandlineArguments const&, FourC::Core::Communication::Communicators const&) in /home/alexander/4C/build/4C | 2# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C ",
+   "what": "4C stopped (deck_T.4C.yaml.log); deck_T.4C.yaml: 1 defect(s).",
+   "secs": 201
+  }
+ ]
+}

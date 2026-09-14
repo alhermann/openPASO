@@ -1,0 +1,13 @@
+- metadata:
+    created_by: "alexander"
+    host: "kevin"
+    time: "11-09-2026 14-43-06"
+    sha: "89519cfe76251fc668617c4ab1a70b94fd86ec52"
+    version: "2026.2.0-dev"
+
+- general:
+    input_file: "deck_T.4C.yaml"
+    problem_type: "Scalar_Transport"
+    spatial_approximation: "Polynomial"
+    ndim: 3
+

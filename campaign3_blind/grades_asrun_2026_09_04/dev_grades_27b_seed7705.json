@@ -1,0 +1,107 @@
+{
+  "DU2_MCP": {
+    "problem": "DU2",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 3.0,
+    "tol": 0.5,
+    "band": [
+      1.8,
+      4.4
+    ],
+    "observed_order": 2.9939365442993635,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          5.199049751350684e-05,
+          6.523765442776642e-06,
+          8.192087143203152e-07
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 2.9939365442993635,
+        "r2": 1.0,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.0011912514271770155,
+        "rel_finest": 1.8770421457044037e-05
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 5.199049751350684e-05,
+        "per_field": {
+          "u": 5.199049751350684e-05
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 6.523765442776642e-06,
+        "per_field": {
+          "u": 6.523765442776642e-06
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 8.192087143203152e-07,
+        "per_field": {
+          "u": 8.192087143203152e-07
+        }
+      }
+    ],
+    "r2": 1.0,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.04364359725193565,
+      "exact_rms_computed": 0.04364359725193534,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "dune",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "work/run_level1.log"
+          ],
+          "detail": "6 file(s) carry structured dune solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 768,
+          "2": 3072,
+          "3": 12288
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "1.478924e-04"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  }
+}

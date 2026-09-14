@@ -1,0 +1,256 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "MALFORMED_SUBMISSION",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": {
+      "verdict": "INTERFACE_SATISFIED",
+      "malformed": [],
+      "reasons": [],
+      "findings": [],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 6.43100273943586e-10,
+          "jump_q_rel": 0.023934443791728214
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 3.863179482269943e-09,
+          "jump_q_rel": 0.005775171131905613
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 7.978376064691349e-10,
+          "jump_q_rel": 0.0014343470215423904
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "CONSISTENT",
+        "per_side": [
+          {
+            "verdict": "INCONSISTENT",
+            "detail": "the reported interface flux is not a constant multiple of the normal derivative of the submitted field, so the two were not computed from each other: implied coefficient varies by 31% (component 0)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.228308522216215,
+                "spread": 0.314678738504054,
+                "n_points": 44,
+                "verdict": "INCONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 192.5 (+/-15.5%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 192.49799115218235,
+                "spread": 0.1545387057127841,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.104 (+/-12.3%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.103899099111211,
+                "spread": 0.1233331176582686,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 201.1 (+/-11.7%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 201.09343980114642,
+                "spread": 0.11669897078344589,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.021 (+/-8.2%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.0207114349578943,
+                "spread": 0.08239000075031638,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 200.6 (+/-2.3%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 200.62612221363722,
+                "spread": 0.023408639377660388,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [],
+        "reasons": [],
+        "judged_at_level": 3,
+        "coarse_level_verdicts": [
+          "INCONSISTENT"
+        ]
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "10 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "8 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "RESULT.txt claims COUPLING_ITERATIONS=8 but the finest-level history has 7 rows \u2014 recorded as a discrepancy, not as evidence of invention",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 7,
+            "first": 0.0039453038254755384,
+            "last": 3.62433982163644e-08,
+            "ratio_cv": 0.7343343612161608
+          },
+          "2": {
+            "iterations": 7,
+            "first": 0.06015142941392785,
+            "last": 1.8941273578363716e-07,
+            "ratio_cv": 0.8404171117546466
+          },
+          "3": {
+            "iterations": 7,
+            "first": 0.025347022234755268,
+            "last": 1.4157299816793467e-07,
+            "ratio_cv": 0.8296178480584964
+          },
+          "notes": [
+            "RESULT.txt claims COUPLING_ITERATIONS=8 but the finest-level history has 7 rows \u2014 recorded as a discrepancy, not as evidence of invention"
+          ]
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [
+        "side A: NDOF grows 693 -> 693 (x1.00) from level 1 to 2; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence.",
+        "side A: NDOF grows 693 -> 693 (x1.00) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence.",
+        "side B: NDOF grows 957 -> 957 (x1.00) from level 1 to 2; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence.",
+        "side B: NDOF grows 957 -> 957 (x1.00) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not the prescribed mesh sequence \u2014 this is how a 4x refinement reads as superconvergence and how an unrefined mesh reads as a sequence."
+      ],
+      "fatal": "MALFORMED_SUBMISSION",
+      "reasons": [
+        "MESH_SEQUENCE_NOT_PRESCRIBED"
+      ],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 693,
+          "2": 693,
+          "3": 693
+        },
+        "B": {
+          "1": 957,
+          "2": 957,
+          "3": 957
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "1.36887282504e+10",
+      "INTERFACE_RESIDUAL": "1.4157299816793467e-07",
+      "COUPLING_ITERATIONS": "8"
+    },
+    "reasons": [
+      "MESH_SEQUENCE_NOT_PRESCRIBED"
+    ],
+    "findings": [],
+    "notes": [
+      "interface phase computed for DIAGNOSIS ONLY: the execution-evidence gate already decided this outcome, and nothing below changed it"
+    ],
+    "result_type": "order"
+  }
+}

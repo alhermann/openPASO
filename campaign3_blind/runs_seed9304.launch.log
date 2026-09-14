@@ -1,0 +1,151 @@
+[source build] 5a96d4e7f3e3 sha256=c73c505bb739488a... (immutable)
+2026-09-07 23:07:16,628 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-07 23:07:16,638 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-07 23:07:16,641 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-07 23:07:16,646 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-07 23:07:16,665 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-07 23:07:16,678 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-07 23:07:16,678 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-07 23:07:16,692 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-07 23:07:16,692 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-07 23:07:16,713 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-07 23:07:16,713 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-07 23:07:16,727 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-07 23:07:16,727 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-07 23:07:16,740 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-07 23:07:16,740 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-07 23:07:16,741 [oasis] INFO: Starting OASiS MCP server
+2026-09-07 23:07:16,769 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-07 23:07:25,592 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-07 23:07:31,126 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-07 23:09:15,466 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:820: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-07 23:09:15,536 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:820: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-07 23:10:41,250 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-07 23:10:41,255 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-07 23:35:35,299 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-07 23:37:55,395 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-07 23:38:48,668 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:419: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-07 23:45:27,138 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:419: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/workspace_advisor.py:128: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:419: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:419: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:419: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:419: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/level1_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/coupled_sim/test_B/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/src/tools/result_audit.py:1413: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C3_27b_MCP_seed9304/work/solution_level1_B.csv' mode='r' encoding='UTF-8'>
+  rows = [r for r in _csv.reader(f.open())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-07 23:52:17,196 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_ae767ac0-6451-4fbd-ab84-d5e31ac92e9e.json (9 events)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C3 27b MCP s9304] done  calls=57 tok=4204718/37766 2703.3s  ERR ExceptionGroup: unhandled errors in a TaskGroup (1 sub-excep

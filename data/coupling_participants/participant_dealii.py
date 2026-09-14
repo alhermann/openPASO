@@ -5,17 +5,24 @@ CONTRACT (do not change): runs in its work_dir with no arguments, reads
 imports.json (written every iteration; it is `{}` on iteration 1), writes
 exports.json LAST.
 
-Pure glue: the PDE solve is done by the compiled deal.II executable
-`heat_iface_dealii` (heat_iface_dealii.cc), which handles BOTH the Dirichlet
-and the Neumann side of the interface.  This wrapper converts the partner's
-InterfaceData into the solver's plain-text input file and its plain-text
-output back into exports.json.  deal.II has no Python API, so unlike every
-other backend there is a BUILD STEP before this can run at all:
+Pure glue: the PDE solve is done by a compiled deal.II executable THAT YOU
+WRITE AND BUILD YOURSELF. No C++ source ships with this contract and none is on
+this install, so do not search for one: write a program that reads the side,
+the geometry, the material, the mesh size, the source samples and the imported
+interface samples from one plain-text file your solve region writes, and
+writes the interface trace and the CONSISTENT flux (the residual of the
+assembled system with no boundary condition applied, divided by the nodal
+interface weight) to a plain-text file your solve region reads back. That pair
+of files is private to you. This wrapper is the contract around it: the
+imports.json handshake, the sign convention, the exports schema and the
+self-check. deal.II has no Python API, so unlike every other backend there is
+a BUILD STEP before this can run at all:
 
-    cmake -S <this directory> -B <build> -DDEAL_II_DIR=<deal.II install>
-    make -C <build> heat_iface_dealii
+    cmake -S <dir with YOUR .cc and a 6-line CMakeLists> -B <build> \
+          -DDEAL_II_DIR=<deal.II BUILD or INSTALL tree>
+    make -C <build>
 
-and DEALII_EXE below must point at the result.
+and DEALII_EXE below must point at YOUR binary.
 """
 import json
 import subprocess
@@ -58,17 +65,19 @@ def F_SRC(x, y):
         # -div(K grad T) for the manufactured T = x**3 * y**2
         return -K * (6.0 * x * y**2 + 2.0 * x**3)
 
-    THIS PARTICIPANT DRIVES A COMPILED SOLVER. The samples of F_SRC travel to it
-    in the input file and it must be new enough to read them — see the
-    VOLUME_SOURCE check after the subprocess call, which refuses to return a
-    result rather than let a stale binary drop the source in silence.
+    THIS PARTICIPANT DRIVES A COMPILED SOLVER: your solve region below has to
+    carry the samples of F_SRC to your binary (for example on a uniform grid in
+    the input file) and your binary has to assemble the volume integral of f times v from them. A
+    solver that never reads the source returns the boundary-data-only solution
+    with no error anywhere, so have the binary announce what it read and make
+    your wrapper refuse a non-zero F_SRC that produced no announcement.
     """
     return np.zeros_like(x)
 T_OUTER   = 320.0
 NX, NY    = 24, 16
 T_INIT    = 310.0
 Q_INIT    = 0.0           # iteration-1 fallback interface flux
-DEALII_EXE = "./heat_iface_dealii"   # the compiled solver; see the build note
+DEALII_EXE = "./dealii_side"   # YOUR compiled solver; you write and build it (docstring)
 # ─────────────────────────────────────────────────────────────────────────
 
 DEGREE = 1                # FE_Q degree used by the deal.II solver
@@ -156,7 +165,7 @@ if not any(ln.startswith("VOLUME_SOURCE on") for ln in r.stdout.splitlines()):
         sys.stderr.write(
             "F_SRC is non-zero but the solver did not report reading a volume "
             "source. The binary at %s is older than the input this script "
-            "writes: rebuild heat_iface_dealii.cc. Refusing to return a result "
+            "writes: rebuild your solver. Refusing to return a result "
             "that silently ignores the source term.\n" % DEALII_EXE)
         sys.exit(1)
 

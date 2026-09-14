@@ -1,0 +1,70 @@
+{
+  "session_id": "def078cd-e54c-4d44-864c-59f743a24a28",
+  "started_at": 1789122646.2234955,
+  "ended_at": 1789123728.4272199,
+  "duration_seconds": 1021.1,
+  "solvers_used": [
+    "fourc",
+    "general",
+    "kratos"
+  ],
+  "physics_used": [
+    "coupling",
+    "scalar_transport",
+    "steady heat conduction",
+    "steady heat conduction scalar transport"
+  ],
+  "event_count": 7,
+  "error_count": 0,
+  "events": [
+    {
+      "timestamp": 1789122646.223502,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "fourc",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122673.2118504,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "kratos",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122748.8388782,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "fourc",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122761.7955031,
+      "event_type": "knowledge_lookup",
+      "tool_name": "prepare_simulation",
+      "solver": "fourc",
+      "physics": "scalar_transport"
+    },
+    {
+      "timestamp": 1789122982.7164297,
+      "event_type": "knowledge_lookup",
+      "tool_name": "prepare_simulation",
+      "solver": "fourc",
+      "physics": "steady heat conduction scalar transport"
+    },
+    {
+      "timestamp": 1789122995.9958827,
+      "event_type": "knowledge_lookup",
+      "tool_name": "prepare_simulation",
+      "solver": "kratos",
+      "physics": "steady heat conduction"
+    },
+    {
+      "timestamp": 1789123667.3656168,
+      "event_type": "tool_call",
+      "tool_name": "couple",
+      "solver": "general",
+      "physics": "coupling"
+    }
+  ]
+}

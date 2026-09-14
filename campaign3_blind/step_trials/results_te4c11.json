@@ -1,0 +1,32 @@
+[
+ {
+  "i": 0,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_runs_finished=2 :: g<char, std::char_traits<char>, std::allocator<char> > const&) in /home/alexander/4C/build/lib4C.so | 1# FourC::Core::IO::InputFile::read(std::filesystem::__cxx11::path const&) in /home/alexander/4C/build/lib4C.so | 2# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C | 3# main in /home/alexander/4C/build/4C | 4# __libc_start_main at ../csu/libc-start.c:342 | 5# _start in /home/alexander/4C/build/4C | =========================================================================; deck_u.4C.yaml: section(s) written twice: DVOL-NODE TOPOLOGY\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 410.1,
+  "lines": 822
+ },
+ {
+  "i": 1,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_runs_finished=0 :: d::allocator<char> > const&>::type>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) in /home/alexander/4C/build/lib4C.so | 1# FourC::Core::IO::InputFile::read(std::filesystem::__cxx11::path const&) in /home/alexander/4C/build/lib4C.so | 2# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C | 3# main in /home/alexander/4C/build/4C | 4# __libc_start_main at ../csu/libc-start.c:342 | 5# _start in /home/alexander/4C/build/4C | =========================================================================\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 488.4,
+  "lines": 894
+ },
+ {
+  "i": 2,
+  "ok": false,
+  "info": "rc=1 exports=False 4C_runs_finished=0 :: cators&) in /home/alexander/4C/build/4C | 3# main in /home/alexander/4C/build/4C | 4# __libc_start_main at ../csu/libc-start.c:342 | 5# _start in /home/alexander/4C/build/4C | =========================================================================; run_t.4C.yaml: section 'IO/RUNTIME VTK OUTPUT/SCATRA' is not in the binary's grammar (`4C -p`); closest known: 'IO/RUNTIME VTK OUTPUT', 'IO/RUNTIME VTK OUTPUT/STRUCTURE', 'IO/RUNTIME VTK OUTPUT/FLUID', 'IO/RUNTIME VTP OUTPUT STRUCTURE', 'IO/RUNTIME VTK OUTPUT/BEAMS'; run_u.4C.yaml: section(s) written twice: DNODE-NODE TOPOLOGY, DVOL-NODE TOPOLOGY\n",
+  "kept_selfcheck": true,
+  "attempts": 2,
+  "finish": "stop",
+  "secs": 567.7,
+  "lines": 892
+ }
+]

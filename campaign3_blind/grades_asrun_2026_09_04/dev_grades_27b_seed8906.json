@@ -1,0 +1,286 @@
+{
+  "C2_MCP": {
+    "problem": "C2",
+    "kind": "coupled",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 1.991343952383239,
+    "per_field": {
+      "u": {
+        "field": "u",
+        "errors": [
+          0.0030472353073168795,
+          0.0007529937034089903,
+          0.0001927513679942573
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.991343952383239,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.060508121078123554,
+        "rel_finest": 0.0038274113865003345
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 3872,
+        "error": 0.0030472353073168795,
+        "per_field": {
+          "u": 0.0030472353073168795
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 3872,
+        "error": 0.0007529937034089903,
+        "per_field": {
+          "u": 0.0007529937034089903
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 3872,
+        "error": 0.0001927513679942573,
+        "per_field": {
+          "u": 0.0001927513679942573
+        }
+      }
+    ],
+    "r2": 0.9999,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.050360765679412,
+      "exact_rms_computed": 0.050360765679412146,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": {
+      "verdict": "INTERFACE_SATISFIED",
+      "malformed": [],
+      "reasons": [],
+      "findings": [],
+      "per_level": [
+        {
+          "level": 1,
+          "jump_u_rel": 8.800699622354871e-07,
+          "jump_q_rel": 0.1257301621760809
+        },
+        {
+          "level": 2,
+          "jump_u_rel": 8.722376434015901e-07,
+          "jump_q_rel": 0.07771807793861084
+        },
+        {
+          "level": 3,
+          "jump_u_rel": 8.6828446806343e-07,
+          "jump_q_rel": 0.04018595728954153
+        }
+      ],
+      "legs": [
+        {
+          "axis": 0,
+          "value": 0.625,
+          "band": [
+            0.25,
+            0.75
+          ]
+        }
+      ],
+      "flux_from_field": {
+        "verdict": "CONSISTENT",
+        "per_side": [
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1 (+/-9.3%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.9999998975999991,
+                "spread": 0.09325755900457178,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 200 (+/-7.5%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 199.99998354286075,
+                "spread": 0.07504010974778798,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 1,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 1.001 (+/-9.7%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 1.0011826511056723,
+                "spread": 0.09657672794287618,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 200 (+/-8.5%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 200.03165937688286,
+                "spread": 0.08491936333133739,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 2,
+            "side": "B"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 0.97 (+/-6.8%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 0.9700076280905655,
+                "spread": 0.06784182769326795,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "A"
+          },
+          {
+            "verdict": "CONSISTENT",
+            "detail": "the reported flux is the submitted field's normal derivative times a constant, as it must be: implied coefficient 199.8 (+/-11.7%)",
+            "per_component": [
+              {
+                "component": 0,
+                "implied_coefficient": 199.763596198132,
+                "spread": 0.11736368922657013,
+                "n_points": 44,
+                "verdict": "CONSISTENT"
+              }
+            ],
+            "spread_tolerance": 0.3,
+            "level": 3,
+            "side": "B"
+          }
+        ],
+        "findings": [],
+        "reasons": [],
+        "judged_at_level": 3
+      }
+    },
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "4C",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "7 file(s) carry structured 4C solver output"
+        },
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1_A.log",
+            "run_level1_B.log",
+            "run_level2_A.log",
+            "run_level2_B.log"
+          ],
+          "detail": "6 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {
+        "verdict": "PROVEN",
+        "forged": false,
+        "forged_detail": "",
+        "iteration_count_note": "",
+        "levels": 3,
+        "per_level": {
+          "1": {
+            "iterations": 21,
+            "first": 1.0,
+            "last": 8.795199079284961e-07,
+            "ratio_cv": 0.0005065363695463096
+          },
+          "2": {
+            "iterations": 21,
+            "first": 1.0,
+            "last": 8.722444198761639e-07,
+            "ratio_cv": 0.0005584365482960745
+          },
+          "3": {
+            "iterations": 21,
+            "first": 1.0,
+            "last": 8.681960979841495e-07,
+            "ratio_cv": 0.0005875084721613236
+          }
+        },
+        "detail": "3 level(s) with a well-formed, converging partitioned-iteration residual history"
+      },
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "A": {
+          "1": 54,
+          "2": 187,
+          "3": 693
+        },
+        "B": {
+          "1": 72,
+          "2": 208,
+          "3": 800
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "1.2e-02",
+      "INTERFACE_RESIDUAL": "6.190364e-02",
+      "COUPLING_ITERATIONS": "21"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [],
+    "result_type": "order"
+  }
+}

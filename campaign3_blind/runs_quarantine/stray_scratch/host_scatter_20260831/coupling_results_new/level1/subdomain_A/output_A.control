@@ -1,0 +1,51 @@
+- metadata:
+    created_by: "alexander"
+    host: "kevin"
+    time: "20-08-2026 23-49-19"
+    sha: "89519cfe76251fc668617c4ab1a70b94fd86ec52"
+    version: "2026.2.0-dev"
+
+- general:
+    input_file: "/home/alexander/coupling_results_new/level1/subdomain_A/input.yaml"
+    problem_type: "Thermo"
+    spatial_approximation: "Polynomial"
+    ndim: 2
+
+- field:
+    field: "thermo"
+    time: 0
+    step: 0
+    num_nd: 54
+    max_nodeid: 53
+    num_ele: 40
+    num_dof: 54
+    num_dim: 2
+    mesh_file: "output_A.mesh.thermo.s0"
+
+- field:
+    field: "thermo"
+    time: 1
+    step: 1
+    num_nd: 54
+    max_nodeid: 53
+    num_ele: 40
+    num_dof: 54
+    num_dim: 2
+    mesh_file: "output_A.mesh.thermo.s0"
+
+- result:
+    field: "thermo"
+    time: 1
+    step: 1
+    result_file: "output_A.result.thermo.s1"
+    temperature:
+      type: "dof"
+      columns: 1
+      values: "/step1/temperature.values"
+      ids: "/step1/temperature.ids"
+    rate:
+      type: "dof"
+      columns: 1
+      values: "/step1/rate.values"
+      ids: "/step1/temperature.ids"
+

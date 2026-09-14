@@ -1,0 +1,30 @@
+--- stdout ---
+[kratos neumann] interface n=33 q_applied=[-0.842186,-0.0815641] T=[-0.00371614,-0.000197264] balance |sum(reactions)+vol+iface| = 2.589e+00 abs / 9.970e-01 rel
+NDOF = 1089
+ |  /           |                  
+ ' /   __| _` | __|  _ \   __|    
+ . \  |   (   | |   (   |\__ \  
+_|\_\_|  \__,_|\__|\___/ ____/
+           Multi-Physics 10.3."0"-Release-10.3.0-14ee273e-Release-x86_64
+           Compiled for GNU/Linux and Python3.12 with GCC-10.2
+Compiled with threading and MPI support. Threading support with OpenMP.
+Maximum number of threads: 32.
+Running without MPI.
+Importing    KratosConvectionDiffusionApplication 
+ KRATOS ___ ___  _  ___   __   ___ ___ ___ ___ 
+       / __/ _ || || | | / /__|   |_ _| __| __|
+      | (_| (_) | .` || V /___| |) | || _|| _| 
+       |___|___/|_||_| |_/    |___/___|_| |_|  APPLICATION
+ResidualBasedLinearStrategy: Setup Dofs Time: 0.00453776 [s]
+ResidualBasedLinearStrategy: Setup System Time: 0.000929508 [s]
+ResidualBasedLinearStrategy: System Matrix Resize Time: 0.0124509 [s]
+ResidualBasedLinearStrategy: System Construction Time: 0.0179959 [s]
+ResidualBasedBlockBuilderAndSolver: Build time: 0.00438864 [s]
+ResidualBasedBlockBuilderAndSolver: System solve time: 0.00361646 [s]
+BuilderAndSolver: Clear Function called
+BuilderAndSolver: Clear Function called
+Deregistering KratosMultiphysics
+Deregistering ConvectionDiffusionApplication
+
+--- stderr ---
+NDOF = 289

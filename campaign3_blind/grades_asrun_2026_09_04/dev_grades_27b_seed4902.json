@@ -1,0 +1,175 @@
+{
+  "FB1_BARE": {
+    "problem": "FB1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CONFIDENTLY_WRONG",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": -0.004511236815561132,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          1.3814807599365328e-06,
+          1.3890881945426126e-06,
+          1.390963577905604e-06
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(ux)",
+          "IMPLAUSIBLE_RATE(ux)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)"
+        ],
+        "superconvergent": false,
+        "order": -0.0049345870075507715,
+        "r2": 0.8911,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.9854776899572104,
+        "rel_finest": 1.9991064888963872
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          2.080686371185923e-06,
+          2.0907164912018644e-06,
+          2.0931974717256933e-06
+        ],
+        "reasons": [
+          "DECAY_NOT_CLEAN(uy)",
+          "IMPLAUSIBLE_RATE(uy)",
+          "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+        ],
+        "superconvergent": false,
+        "order": -0.004324451144855707,
+        "r2": 0.8915,
+        "monotone": false,
+        "magnitude_checked": true,
+        "rel_coarse": 1.987264332276609,
+        "rel_finest": 1.9992136890871894
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 1936,
+        "error": 2.497547770376708e-06,
+        "per_field": {
+          "ux": 1.3814807599365328e-06,
+          "uy": 2.080686371185923e-06
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 1936,
+        "error": 2.5101118418909325e-06,
+        "per_field": {
+          "ux": 1.3890881945426126e-06,
+          "uy": 2.0907164912018644e-06
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 1936,
+        "error": 2.513216132905961e-06,
+        "per_field": {
+          "ux": 1.390963577905604e-06,
+          "uy": 2.0931974717256933e-06
+        }
+      }
+    ],
+    "r2": 0.8913,
+    "monotone": false,
+    "magnitude": {
+      "exact_rms_key": 1.257122952612521e-06,
+      "exact_rms_computed": 1.2571229526125198e-06,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "febio",
+          "verdict": "PROVEN",
+          "files": [
+            "level1.log",
+            "level2.log",
+            "level3.log",
+            "run_level1.log"
+          ],
+          "detail": "6 file(s) carry structured febio solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 486,
+          "2": 1734,
+          "3": 6534
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "CONVERGED",
+      "claims_convergence": true,
+      "MAX_REL_CHANGE": "4.587290501739264e-01"
+    },
+    "reasons": [
+      "DECAY_NOT_CLEAN(ux)",
+      "IMPLAUSIBLE_RATE(ux)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(ux)",
+      "DECAY_NOT_CLEAN(uy)",
+      "IMPLAUSIBLE_RATE(uy)",
+      "IMPLAUSIBLE_MAGNITUDE_FINEST(uy)"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  },
+  "FB1_MCP": {
+    "problem": "FB1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
+    "result_type": "order"
+  }
+}

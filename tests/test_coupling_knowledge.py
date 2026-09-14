@@ -573,6 +573,17 @@ def test_knowledge_tool_output_matches_the_payload_function(topic):
         for suffix in (_UNIVERSAL_CORE, _UNIVERSAL):
             if body.endswith(suffix):
                 body = body[: -len(suffix)]
+        # A BINARY-DRIVEN SIDE CARRIES ITS DECK GRAMMAR, and that is the tool's
+        # own addition too: the deck is the run interface for 4C, FEBio and
+        # SPARTA the way exports.json is the driver's, and it lives in the
+        # backend's grammar module, not in the coupling corpus. For 4C the
+        # payload is long enough that the grammar sits behind the truncation
+        # notice this test already strips; FEBio's and SPARTA's payloads are
+        # short, so strip it by name.
+        from tools.consolidated import _deck_grammar_text
+        _grammar = _deck_grammar_text(solver)
+        if _grammar and _grammar in body:
+            body = body.replace(_grammar, "").rstrip("\n")
         cut = body.find("THIS PAYLOAD IS TRUNCATED HERE")
         if cut != -1:
             # the notice is preceded by a rule of box-drawing characters, so

@@ -1,0 +1,16 @@
+dbc monitor condition:
+  node gids:
+    - 188
+dbc monitor condition data:
+  - step: 1
+    time: 1
+    f:
+      - -0.05068590716967089
+      - 0.03499989504180526
+      - -0.04398436480064444
+    m:
+      - -0.0415013845828224
+      - 0.033066850257412336
+      - 0.07413706278423948
+    curr_area: 0
+    ref_area: 0

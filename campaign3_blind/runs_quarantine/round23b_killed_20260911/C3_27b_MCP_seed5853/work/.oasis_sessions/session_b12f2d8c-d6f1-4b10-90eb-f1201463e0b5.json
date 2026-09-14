@@ -1,0 +1,69 @@
+{
+  "session_id": "b12f2d8c-d6f1-4b10-90eb-f1201463e0b5",
+  "started_at": 1789122641.2086117,
+  "ended_at": 1789124656.2592866,
+  "duration_seconds": 1639.1,
+  "solvers_used": [
+    "dune",
+    "fourc",
+    "general"
+  ],
+  "physics_used": [
+    "coupling",
+    "diffusion reaction",
+    "poisson"
+  ],
+  "event_count": 7,
+  "error_count": 0,
+  "events": [
+    {
+      "timestamp": 1789122641.208618,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "dune",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122662.198185,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "fourc",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122814.943168,
+      "event_type": "knowledge_lookup",
+      "tool_name": "knowledge",
+      "solver": "dune",
+      "notes": "topic=coupling"
+    },
+    {
+      "timestamp": 1789122825.3482492,
+      "event_type": "knowledge_lookup",
+      "tool_name": "prepare_simulation",
+      "solver": "dune",
+      "physics": "diffusion reaction"
+    },
+    {
+      "timestamp": 1789123496.4828513,
+      "event_type": "knowledge_lookup",
+      "tool_name": "prepare_simulation",
+      "solver": "dune",
+      "physics": "poisson"
+    },
+    {
+      "timestamp": 1789124107.9423697,
+      "event_type": "knowledge_lookup",
+      "tool_name": "prepare_simulation",
+      "solver": "fourc",
+      "physics": "poisson"
+    },
+    {
+      "timestamp": 1789124280.3162131,
+      "event_type": "tool_call",
+      "tool_name": "couple",
+      "solver": "general",
+      "physics": "coupling"
+    }
+  ]
+}

@@ -1,0 +1,179 @@
+{
+  "KR1_BARE": {
+    "problem": "KR1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "HONEST_INCOMPLETE",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": null,
+    "per_field": {},
+    "levels": [],
+    "r2": null,
+    "monotone": null,
+    "magnitude": {},
+    "interface": null,
+    "evidence": {},
+    "agent_claim": {
+      "MESH_INDEPENDENCE": null,
+      "claims_convergence": null,
+      "MAX_REL_CHANGE": null
+    },
+    "reasons": [
+      "HONEST_INCOMPLETE"
+    ],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field",
+      "COULD_NOT_COMPLETE declared; the submission is not graded for order even where parseable level files exist, because the agent has stated it did not complete the task as specified"
+    ],
+    "result_type": "order"
+  },
+  "KR1_MCP": {
+    "problem": "KR1",
+    "kind": "single",
+    "evidence_grade": 1,
+    "outcome": "CORRECT",
+    "theoretical_order": 2.0,
+    "tol": 0.4,
+    "band": [
+      0.8,
+      3.2
+    ],
+    "observed_order": 1.9510211114574956,
+    "per_field": {
+      "ux": {
+        "field": "ux",
+        "errors": [
+          0.001297862987439557,
+          0.0003475338775614185,
+          8.85292850824493e-05
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.936919753960397,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.3319504192069035,
+        "rel_finest": 0.022642862597678563
+      },
+      "uy": {
+        "field": "uy",
+        "errors": [
+          0.000915118283824739,
+          0.0002417969530328002,
+          6.115322901192087e-05
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.951728824144967,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.2039353975628101,
+        "rel_finest": 0.01362808315737261
+      },
+      "uz": {
+        "field": "uz",
+        "errors": [
+          0.0025111108010388954,
+          0.0006616871527192811,
+          0.0001670959862897168
+        ],
+        "reasons": [],
+        "superconvergent": false,
+        "order": 1.9547883515534465,
+        "r2": 0.9999,
+        "monotone": true,
+        "magnitude_checked": true,
+        "rel_coarse": 0.19223232526851494,
+        "rel_finest": 0.012791649804627884
+      }
+    },
+    "levels": [
+      {
+        "level": 1,
+        "probe_points": 9261,
+        "error": 0.002971122222772074,
+        "per_field": {
+          "ux": 0.001297862987439557,
+          "uy": 0.000915118283824739,
+          "uz": 0.0025111108010388954
+        }
+      },
+      {
+        "level": 2,
+        "probe_points": 9261,
+        "error": 0.0007855415015278126,
+        "per_field": {
+          "ux": 0.0003475338775614185,
+          "uy": 0.0002417969530328002,
+          "uz": 0.0006616871527192811
+        }
+      },
+      {
+        "level": 3,
+        "probe_points": 9261,
+        "error": 0.0001987415919477532,
+        "per_field": {
+          "ux": 8.85292850824493e-05,
+          "uy": 6.115322901192087e-05,
+          "uz": 0.0001670959862897168
+        }
+      }
+    ],
+    "r2": 0.9999,
+    "monotone": true,
+    "magnitude": {
+      "exact_rms_key": 0.014354848331871863,
+      "exact_rms_computed": 0.014354848331871891,
+      "magnitude_checked": true,
+      "exact_rms_source": "key"
+    },
+    "interface": null,
+    "evidence": {
+      "verdict": "PROVEN",
+      "per_code": [
+        {
+          "code": "kratos",
+          "verdict": "PROVEN",
+          "files": [
+            "run_level1.log",
+            "run_level2.log",
+            "run_level3.log",
+            "simulation_outputs/kratos_20260904_030008/run_level1.log"
+          ],
+          "detail": "12 file(s) carry structured kratos solver output"
+        }
+      ],
+      "coupling": {},
+      "notes": [],
+      "fatal": null,
+      "reasons": [],
+      "per_code_attribution": "PROVEN",
+      "ndof": {
+        "-": {
+          "1": 81,
+          "2": 1029,
+          "3": 10125
+        }
+      }
+    },
+    "agent_claim": {
+      "MESH_INDEPENDENCE": "NOT_CONVERGED",
+      "claims_convergence": false,
+      "MAX_REL_CHANGE": "5.102123094056205e-02"
+    },
+    "reasons": [],
+    "findings": [],
+    "notes": [
+      "evidence_grade inferred as 1 from the presence of an exact solution: this key predates the evidence_grade field"
+    ],
+    "result_type": "order"
+  }
+}

@@ -1,0 +1,5 @@
+# Subdomain B solver output (manual assembly with scipy)
+# Thermal conductivity k = 200.0
+# Domain: (0.625, 1.5) x (0, 1)
+# Mesh: nx=14, ny=16
+NDOF = 255

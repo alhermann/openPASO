@@ -1,0 +1,1 @@
+FC2_27b_BARE_seed1, quarantined as infrastructure: its ledger records provider `error code: 504` at 372 s / 10 tool calls — a lowercase 504 the case-sensitive matcher had booked as a model failure until e75c1be8.

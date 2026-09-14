@@ -1,0 +1,15 @@
+{
+  "problem": "C9",
+  "model": "27b",
+  "condition": "MCP",
+  "seed": 21,
+  "wall_s": 1144.9,
+  "tool_calls": 40,
+  "tokens_in": 3000335,
+  "tokens_out": 41249,
+  "error": null,
+  "truncated_replies": 0,
+  "continuations": 0,
+  "graded": false,
+  "note": "grading is offline: run grade_blind.py"
+}

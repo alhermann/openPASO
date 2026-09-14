@@ -1,0 +1,843 @@
+>>> C2 probe start 2026-09-02 02:16:22 build c3762e20
+2026-09-02 02:16:49,512 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-02 02:16:49,523 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-02 02:16:49,527 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-02 02:16:49,531 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-02 02:16:49,551 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-02 02:16:49,567 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-02 02:16:49,567 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-02 02:16:49,584 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-02 02:16:49,584 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-02 02:16:49,594 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-02 02:16:49,604 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-02 02:16:49,604 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-02 02:16:49,604 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-02 02:16:49,608 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-02 02:16:49,612 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-02 02:16:49,618 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-02 02:16:49,618 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-02 02:16:49,631 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-02 02:16:49,634 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-02 02:16:49,634 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-02 02:16:49,634 [oasis] INFO: Starting OASiS MCP server
+2026-09-02 02:16:49,640 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-02 02:16:49,645 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-02 02:16:49,645 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-02 02:16:49,650 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-02 02:16:49,654 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-02 02:16:49,658 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-02 02:16:49,658 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-02 02:16:49,658 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-02 02:16:49,663 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-02 02:16:49,677 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-02 02:16:49,678 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-02 02:16:49,678 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-02 02:16:49,690 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-02 02:16:49,691 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-02 02:16:49,692 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-02 02:16:49,693 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-02 02:16:49,704 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-02 02:16:49,704 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-02 02:16:49,706 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-02 02:16:49,706 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-02 02:16:49,706 [oasis] INFO: Starting OASiS MCP server
+2026-09-02 02:16:49,724 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-02 02:16:49,724 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-02 02:16:49,734 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-02 02:16:49,738 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-02 02:16:49,738 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-02 02:16:49,753 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-02 02:16:49,753 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-02 02:16:49,753 [oasis] INFO: Starting OASiS MCP server
+2026-09-02 02:16:49,782 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-02 02:17:03,543 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:03,551 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:03,609 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:09,051 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:09,055 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:09,099 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:56,218 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:56,242 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:56,365 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:56,395 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:56,471 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:17:56,494 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:18:17,810 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:18:17,832 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:18:17,880 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:18:17,899 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:19:10,145 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-02 02:19:10,888 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-02 02:21:13,662 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:21:38,140 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:23:17,280 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_b7e2e8cd-4406-4086-b076-1d660394621a.json (5 events)
+[source build] c3762e202b0a sha256=a874d802254b1caf... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s203] done  calls=21 tok=1583013/11939 390.4s
+<<< C2 MCP seed 203 done 2026-09-02 02:23:18
+2026-09-02 02:26:37,861 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:26:44,836 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:27:09,802 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed201/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed201/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed201/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-02 02:30:27,426 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_1224bb50-3a8e-428b-929f-927f72816945.json (7 events)
+[source build] c3762e202b0a sha256=a874d802254b1caf... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s201] done  calls=42 tok=3843331/31828 820.5s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< C2 MCP seed 201 done 2026-09-02 02:30:28
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/a874d802254b1caf773d52fbe9b63c23e997bf392bf7ac5ed457b6782ca00260/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed202/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-02 02:35:23,070 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_470b6f28-bf22-434a-a3f3-d543508b18b9.json (5 events)
+[source build] c3762e202b0a sha256=a874d802254b1caf... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s202] done  calls=47 tok=4244509/43847 1116.3s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< C2 MCP seed 202 done 2026-09-02 02:35:23
+[source build] c3762e202b0a sha256=a874d802254b1caf... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b BARE s202] done  calls=72 tok=2706324/62035 1404.0s
+<<< C2 BARE seed 202 done 2026-09-02 02:40:12
+[source build] c3762e202b0a sha256=a874d802254b1caf... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b BARE s203] done  calls=143 tok=6992597/57768 1482.9s
+<<< C2 BARE seed 203 done 2026-09-02 02:41:31
+[source build] c3762e202b0a sha256=a874d802254b1caf... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b BARE s201] done  calls=122 tok=7434245/66772 1595.8s
+<<< C2 BARE seed 201 done 2026-09-02 02:43:23
+>>> C2 probe complete 2026-09-02 02:43:23
+>>> C2 probe start 2026-09-02 02:56:48 build 1665b070
+2026-09-02 02:57:15,828 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-02 02:57:15,841 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-02 02:57:15,845 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-02 02:57:15,851 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-02 02:57:15,875 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-02 02:57:15,889 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-02 02:57:15,889 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-02 02:57:15,903 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-02 02:57:15,903 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-02 02:57:15,923 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-02 02:57:15,923 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-02 02:57:15,937 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-02 02:57:15,937 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-02 02:57:15,951 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-02 02:57:15,951 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-02 02:57:15,951 [oasis] INFO: Starting OASiS MCP server
+2026-09-02 02:57:15,967 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-02 02:57:15,977 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-02 02:57:15,978 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-02 02:57:15,981 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-02 02:57:15,985 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-02 02:57:16,006 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-02 02:57:16,020 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-02 02:57:16,020 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-02 02:57:16,033 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-02 02:57:16,033 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-02 02:57:16,055 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-02 02:57:16,056 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-02 02:57:16,070 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-02 02:57:16,070 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-02 02:57:16,083 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-02 02:57:16,083 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-02 02:57:16,084 [oasis] INFO: Starting OASiS MCP server
+2026-09-02 02:57:16,114 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-02 02:57:16,129 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-02 02:57:16,139 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-02 02:57:16,143 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-02 02:57:16,148 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-02 02:57:16,167 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-02 02:57:16,180 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-02 02:57:16,180 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-02 02:57:16,194 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-02 02:57:16,194 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-02 02:57:16,214 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-02 02:57:16,214 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-02 02:57:16,228 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-02 02:57:16,228 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-02 02:57:16,242 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-02 02:57:16,242 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-02 02:57:16,242 [oasis] INFO: Starting OASiS MCP server
+2026-09-02 02:57:16,270 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-02 02:57:30,159 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:57:30,163 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:57:30,264 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:57:35,579 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:57:35,580 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:57:35,669 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:58:16,813 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:58:16,888 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:58:17,072 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:58:17,097 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:58:34,979 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:58:35,000 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:59:05,035 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-02 02:59:14,752 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:59:21,639 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:59:21,649 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:59:21,677 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 02:59:22,972 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-02 03:08:31,203 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 03:08:48,858 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 03:08:52,833 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 03:09:31,673 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 03:10:10,976 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 03:11:18,779 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed206/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed206/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed206/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed206/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-02 03:12:09,788 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed206/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed206/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed206/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed206/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-02 03:13:22,069 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 03:13:50,716 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_d615220b-6b24-4bc0-b12b-ea842c79b476.json (9 events)
+[source build] 1665b070536f sha256=95e0863b72f92c5d... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s206] done  calls=46 tok=4380607/35671 997.3s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< C2 MCP seed 206 done 2026-09-02 03:13:51
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level3.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/coupled_sim/level1_A/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+[source build] 1665b070536f sha256=95e0863b72f92c5d... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b BARE s205] done  calls=97 tok=4804188/69226 1367.4s
+<<< C2 BARE seed 205 done 2026-09-02 03:20:02
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/95e0863b72f92c5d002d63e87fef2533979fb90d56fa365bac3559c525ff67c4/src/tools/result_audit.py:505: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed205/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-02 03:20:14,948 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_c72e11d6-58ab-474a-9b4b-e468c3625afb.json (5 events)
+[source build] 1665b070536f sha256=95e0863b72f92c5d... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s205] done  calls=63 tok=6218989/56524 1381.8s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< C2 MCP seed 205 done 2026-09-02 03:20:15
+[source build] 1665b070536f sha256=95e0863b72f92c5d... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b BARE s204] done  calls=102 tok=6538900/83195 2035.1s
+<<< C2 BARE seed 204 done 2026-09-02 03:31:09
+[source build] 1665b070536f sha256=95e0863b72f92c5d... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b BARE s206] done  calls=104 tok=5721967/53382 2180.6s
+<<< C2 BARE seed 206 done 2026-09-02 03:33:34
+2026-09-02 03:41:25,428 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_4f752f85-5814-4861-8ac6-070ea70e9df4.json (7 events)
+[source build] 1665b070536f sha256=95e0863b72f92c5d... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s204] done  calls=54 tok=5097863/56848 2652.2s
+<<< C2 MCP seed 204 done 2026-09-02 03:41:26
+>>> C2 probe complete 2026-09-02 03:41:26
+>>> C2 probe start 2026-09-02 14:46:38 build 64dd054e
+2026-09-02 14:47:06,226 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-02 14:47:06,236 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-02 14:47:06,239 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-02 14:47:06,244 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-02 14:47:06,263 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-02 14:47:06,280 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-02 14:47:06,280 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-02 14:47:06,298 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-02 14:47:06,298 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-02 14:47:06,325 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-02 14:47:06,325 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-02 14:47:06,342 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-02 14:47:06,343 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-02 14:47:06,356 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-02 14:47:06,356 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-02 14:47:06,356 [oasis] INFO: Starting OASiS MCP server
+2026-09-02 14:47:06,383 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-02 14:47:06,474 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-02 14:47:06,484 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-02 14:47:06,487 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-02 14:47:06,492 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-02 14:47:06,511 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-02 14:47:06,524 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-02 14:47:06,524 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-02 14:47:06,538 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-02 14:47:06,538 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-02 14:47:06,558 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-02 14:47:06,558 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-02 14:47:06,572 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-02 14:47:06,572 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-02 14:47:06,586 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-02 14:47:06,586 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-02 14:47:06,586 [oasis] INFO: Starting OASiS MCP server
+2026-09-02 14:47:06,598 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-02 14:47:06,608 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-02 14:47:06,612 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-02 14:47:06,615 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-02 14:47:06,617 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-02 14:47:06,638 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-02 14:47:06,653 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-02 14:47:06,654 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-02 14:47:06,668 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-02 14:47:06,668 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-02 14:47:06,689 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-02 14:47:06,689 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-02 14:47:06,704 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-02 14:47:06,704 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-02 14:47:06,720 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-02 14:47:06,720 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-02 14:47:06,720 [oasis] INFO: Starting OASiS MCP server
+2026-09-02 14:47:06,750 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-02 14:47:20,136 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:47:20,724 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:47:20,938 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:47:25,500 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:47:25,897 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:47:26,029 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:47:27,419 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:47:31,090 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:48:27,260 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:48:27,284 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:48:35,924 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:48:56,185 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-02 14:48:56,206 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-02 14:48:59,863 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:49:08,551 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:49:08,559 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-02 14:49:09,269 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-02 14:49:12,777 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:49:12,782 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:49:35,836 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:49:51,721 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:49:51,753 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:629: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+2026-09-02 14:59:08,486 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:59:18,436 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 14:59:44,947 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 15:00:00,496 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 15:01:31,913 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 15:01:36,220 [mcp.server.lowlevel.server] INFO: Warning: RuntimeWarning: invalid value encountered in subtract
+2026-09-02 15:01:36,221 [mcp.server.lowlevel.server] INFO: Warning: RuntimeWarning: invalid value encountered in subtract
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-02 15:02:43,634 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 15:02:53,416 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-02 15:02:57,726 [mcp.server.lowlevel.server] INFO: Warning: RuntimeWarning: invalid value encountered in subtract
+2026-09-02 15:02:57,726 [mcp.server.lowlevel.server] INFO: Warning: RuntimeWarning: invalid value encountered in subtract
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-02 15:05:47,359 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_1f0c4940-6867-4788-bd13-10dcbd645395.json (10 events)
+[source build] 64dd054e4c1a sha256=eb50454d8deabe36... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s207] done  calls=45 tok=3989649/38152 1123.5s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< C2 MCP seed 207 done 2026-09-02 15:05:48
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+[source build] 64dd054e4c1a sha256=eb50454d8deabe36... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b BARE s209] done  calls=90 tok=3848372/61393 1334.0s
+<<< C2 BARE seed 209 done 2026-09-02 15:09:18
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+[source build] 64dd054e4c1a sha256=eb50454d8deabe36... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b BARE s208] done  calls=75 tok=3552164/62118 1363.2s
+<<< C2 BARE seed 208 done 2026-09-02 15:09:48
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/langgraph_eval/agent.py:898: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  rows = [row for row in _csv.reader(r.open()) if row]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed209/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-02 15:11:10,544 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_f5f1690d-5c70-4abf-9961-b7badde44ae9.json (9 events)
+[source build] 64dd054e4c1a sha256=eb50454d8deabe36... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s209] done  calls=91 tok=8663158/53877 1446.8s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< C2 MCP seed 209 done 2026-09-02 15:11:11
+[source build] 64dd054e4c1a sha256=eb50454d8deabe36... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b BARE s207] done  calls=75 tok=3090956/57219 1506.7s
+<<< C2 BARE seed 207 done 2026-09-02 15:12:11
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level1.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level2.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:410: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/residual_level3.csv' mode='r' encoding='UTF-8'>
+  body = tuple(r[-1].strip() for r in _csv.reader(q.open()) if r)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/.source_snapshots/eb50454d8deabe368ba06ab40b45506b0c906d4f2298424a08ab4338acdca536/src/tools/result_audit.py:525: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed208/work/solution_level1_A.csv' mode='r' encoding='UTF-8'>
+  rows = sum(1 for _ in open(sol0[0], errors="ignore")) - 1
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-09-02 15:18:35,037 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_59bbc642-3e37-4f11-82fe-fb82928905d3.json (5 events)
+[source build] 64dd054e4c1a sha256=eb50454d8deabe36... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s208] done  calls=45 tok=4439399/52772 1891.5s
+/home/alexander/.local/share/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/selector_events.py:879: ResourceWarning: unclosed transport <_SelectorSocketTransport fd=9>
+<<< C2 MCP seed 208 done 2026-09-02 15:18:35
+>>> C2 probe complete 2026-09-02 15:18:35

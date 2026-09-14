@@ -1,0 +1,13 @@
+ 5931 C3_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 5932 C3_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=INTERFACE_SATISFIED codes=[dune=PROVEN, 4C=PROVEN] coupling=('PROVEN', False, 3) reasons=['MESH_SEQUENCE_NOT_PRESCRIBED']
+        note: side B: NDOF grows 72 -> 72 (x1.00) from level 1 to 2; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not
+        note: side B: NDOF grows 72 -> 72 (x1.00) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not
+ 5933 C3_MCP   FAILED                 order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['NO_SOLUTION_FILES']
+ 6841 C1_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6842 C1_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6843 C1_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6851 C2_MCP   MALFORMED_SUBMISSION   order=None levels=[] iface=INTERFACE_SATISFIED codes=[4C=PROVEN, kratos=PROVEN] coupling=('PROVEN', False, 3) reasons=['MESH_SEQUENCE_NOT_PRESCRIBED']
+        note: side A: NDOF grows 54 -> 54 (x1.00) from level 1 to 2; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not
+        note: side A: NDOF grows 54 -> 54 (x1.00) from level 2 to 3; the prescribed halving must grow it like 2**2 (accepted 2.2..7.2). The submitted levels are not
+ 6852 C2_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']
+ 6853 C2_MCP   HONEST_INCOMPLETE      order=None levels=[] iface=None codes=[] coupling=(None, None, None) reasons=['HONEST_INCOMPLETE']

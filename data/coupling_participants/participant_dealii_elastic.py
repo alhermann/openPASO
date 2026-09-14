@@ -11,17 +11,24 @@ CONTRACT (do not change): runs in its work_dir with no arguments, reads
 imports.json (written every iteration; it is `{}` on iteration 1), writes
 exports.json LAST.
 
-Pure glue: the PDE solve is done by the compiled deal.II executable
-`elast_iface_dealii` (elast_iface_dealii.cc), which handles BOTH the Dirichlet
-and the Neumann side of the interface. This wrapper converts the partner's
-InterfaceData into the solver's plain-text input file and its plain-text output
-back into exports.json. deal.II has no Python API, so unlike every other
-backend there is a BUILD STEP before this can run at all:
+Pure glue: the PDE solve is done by a compiled deal.II executable THAT YOU
+WRITE AND BUILD YOURSELF. No C++ source ships with this contract and none is on
+this install, so do not search for one: write a program that reads the side,
+the geometry, the material, the mesh size, the source samples and the imported
+interface samples from one plain-text file your solve region writes, and
+writes the interface trace and the CONSISTENT flux (the residual of the
+assembled system with no boundary condition applied, divided by the nodal
+interface weight) to a plain-text file your solve region reads back. That pair
+of files is private to you. This wrapper is the contract around it: the
+imports.json handshake, the sign convention, the exports schema and the
+self-check. deal.II has no Python API, so unlike every other backend there is
+a BUILD STEP before this can run at all:
 
-    cmake -S <this directory> -B <build> -DDEAL_II_DIR=<deal.II install>
-    make -C <build> elast_iface_dealii
+    cmake -S <dir with YOUR .cc and a 6-line CMakeLists> -B <build> \
+          -DDEAL_II_DIR=<deal.II BUILD or INSTALL tree>
+    make -C <build>
 
-and DEALII_EXE below must point at the result.
+and DEALII_EXE below must point at YOUR binary.
 """
 import json
 import subprocess
@@ -67,7 +74,7 @@ def B_SRC(x, y):
 NX, NY    = 24, 16
 UI_X, UI_Y = 0.0, 0.0     # iteration-1 fallback interface displacement
 TI_X, TI_Y = 0.0, 0.0     # iteration-1 fallback interface traction export
-DEALII_EXE = "./elast_iface_dealii"   # the compiled solver; see the build note
+DEALII_EXE = "./dealii_side"   # YOUR compiled solver; you write and build it (docstring)
 # ─────────────────────────────────────────────────────────────────────────
 
 DEGREE = 1                # FE_Q degree used inside the FESystem
@@ -166,7 +173,7 @@ if not any(ln.startswith("BODY_FORCE on") for ln in r.stdout.splitlines()):
         sys.stderr.write(
             "B_SRC is non-zero but the solver did not report reading a body "
             "force. The binary at %s is older than the input this script "
-            "writes: rebuild elast_iface_dealii.cc. Refusing to return a "
+            "writes: rebuild your solver. Refusing to return a "
             "result that silently ignores the source term.\n" % DEALII_EXE)
         sys.exit(1)
 

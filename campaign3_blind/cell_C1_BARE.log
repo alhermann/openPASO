@@ -1,0 +1,80 @@
+>>> C1 BARE seeds 2201 2202 2203  start 2026-09-03 14:08:29
+[source build] 106ce079031c sha256=ac230f8c6af95619... (immutable)
+[source build] 106ce079031c sha256=ac230f8c6af95619... (immutable)
+[source build] 106ce079031c sha256=ac230f8c6af95619... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2201] done  calls=105 tok=4545071/57753 1364.7s
+<<< C1 seed 2201 done 2026-09-03 14:31:41
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2203] done  calls=124 tok=7001201/64559 1579.6s
+<<< C1 seed 2203 done 2026-09-03 14:35:16
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2202] done  calls=100 tok=6214078/105567 2219.4s
+<<< C1 seed 2202 done 2026-09-03 14:45:56
+>>> C1 BARE complete 2026-09-03 14:45:56
+>>> C1 BARE seeds 2301 2302 2303  start 2026-09-03 14:53:26
+[source build] 8b8ab5811238 sha256=2b93863b9ea2101a... (immutable)
+[source build] 8b8ab5811238 sha256=2b93863b9ea2101a... (immutable)
+[source build] 8b8ab5811238 sha256=2b93863b9ea2101a... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2301] done  calls=88 tok=3875949/56114 1273.0s
+<<< C1 seed 2301 done 2026-09-03 15:15:06
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2303] done  calls=95 tok=4314121/59218 1425.3s
+<<< C1 seed 2303 done 2026-09-03 15:17:38
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2302] done  calls=100 tok=7209573/92564 1901.3s
+<<< C1 seed 2302 done 2026-09-03 15:25:34
+>>> C1 BARE complete 2026-09-03 15:25:34
+>>> C1 BARE seeds 2401 2402 2403  start 2026-09-03 15:33:26
+[source build] 0e9ca61011b0 sha256=a082c62dd15642d6... (immutable)
+[source build] 0e9ca61011b0 sha256=a082c62dd15642d6... (immutable)
+[source build] 0e9ca61011b0 sha256=a082c62dd15642d6... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2403] done  calls=88 tok=4060032/70349 1385.0s
+<<< C1 seed 2403 done 2026-09-03 15:56:58
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2401] done  calls=71 tok=3469264/74010 1418.1s
+<<< C1 seed 2401 done 2026-09-03 15:57:31
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2402] done  calls=78 tok=4148951/54331 1980.0s
+<<< C1 seed 2402 done 2026-09-03 16:06:54
+>>> C1 BARE complete 2026-09-03 16:06:54
+>>> C1 BARE seeds 2501 2502 2503  start 2026-09-03 16:08:14
+[source build] 0e9ca61011b0 sha256=a082c62dd15642d6... (immutable)
+[source build] 0e9ca61011b0 sha256=a082c62dd15642d6... (immutable)
+[source build] 0e9ca61011b0 sha256=a082c62dd15642d6... (immutable)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2501] done  calls=63 tok=2646625/61027 1234.8s
+<<< C1 seed 2501 done 2026-09-03 16:29:16
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2502] done  calls=75 tok=4733349/76905 1470.6s
+<<< C1 seed 2502 done 2026-09-03 16:33:12
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C1 27b BARE s2503] done  calls=83 tok=4620639/60224 2110.0s
+<<< C1 seed 2503 done 2026-09-03 16:43:52
+>>> C1 BARE complete 2026-09-03 16:43:52

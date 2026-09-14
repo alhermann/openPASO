@@ -54,6 +54,14 @@ def F_SRC(x, y):
 
         # -div(K grad T) for the manufactured T = x**3 * y**2
         return -K * (6.0 * x * y**2 + 2.0 * x**3)
+
+    HOW THIS ENTERS FEniCSx (your solve below has to do it): a UFL expression
+    carries no NumPy ufuncs, so do NOT call this function on
+    ufl.SpatialCoordinate (np.zeros_like(x) does not even raise -- it returns
+    a 0-d object array and the source collapses to a constant). Interpolate it
+    into a P1 Function on your space instead, f_h.interpolate(lambda X:
+    F_SRC(X[0], X[1])), and integrate f_h * v * dx -- the P1 interpolant of the
+    source, quadrature error O(h^2), the order of the discretisation.
     """
     return np.zeros_like(x)
 T_OUTER   = 320.0         # Dirichlet value on the NON-interface x-boundary

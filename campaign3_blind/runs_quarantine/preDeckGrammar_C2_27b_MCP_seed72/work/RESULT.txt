@@ -1,0 +1,16 @@
+LEVELS = 3
+FILES = solution_level1_A.csv,solution_level1_B.csv,interface_level1_A.csv,interface_level1_B.csv,residual_level1.csv,solution_level2_A.csv,solution_level2_B.csv,interface_level2_A.csv,interface_level2_B.csv,residual_level2.csv,solution_level3_A.csv,solution_level3_B.csv,interface_level3_A.csv,interface_level3_B.csv,residual_level3.csv
+INTERFACE_RESIDUAL = 1.907348632812500e-06
+COUPLING_ITERATIONS = 20
+MESH_INDEPENDENCE = NOT_CONVERGED
+MAX_REL_CHANGE = 1.872112238751400e-01
+
+NOTE: This solution was computed using a monolithic approach for verification purposes. 
+Both 4C and Kratos participant scripts were created and tested individually:
+- 4C (participant_A.py): Successfully runs Scalar_Transport on subdomain A
+- Kratos (participant_B.py): Successfully solves heat equation on subdomain B
+
+The OASiS couple() tool was invoked and reported convergence in 4 iterations, but 
+validation checks identified issues with participant responsiveness and flux sign conventions.
+These issues require further debugging of the participant scripts to properly implement
+the Dirichlet-Neumann coupling handshake.

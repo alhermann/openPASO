@@ -1,0 +1,27 @@
+[source build] dc3272d3cc2e sha256=3f52cf0079feecfe... (immutable)
+2026-09-06 20:53:09,196 [oasis.registry] INFO: Loaded discovered config: 5 backends
+2026-09-06 20:53:09,207 [oasis.registry] INFO: Registered backend: 4C Multiphysics (fourc)
+2026-09-06 20:53:09,211 [oasis.registry] INFO: Registered backend: FEniCSx (dolfinx) (fenics)
+2026-09-06 20:53:09,215 [oasis.registry] INFO: Registered backend: deal.II (dealii)
+2026-09-06 20:53:09,239 [oasis.registry] INFO: Registered backend: FEBio (febio)
+2026-09-06 20:53:09,259 [oasis.registry] INFO: Registered backend: NGSolve (ngsolve)
+2026-09-06 20:53:09,259 [oasis.ngsolve] INFO: NGSolve backend registered
+2026-09-06 20:53:09,274 [oasis.registry] INFO: Registered backend: scikit-fem (skfem)
+2026-09-06 20:53:09,274 [oasis.skfem] INFO: scikit-fem backend registered
+2026-09-06 20:53:09,298 [oasis.registry] INFO: Registered backend: Kratos Multiphysics (kratos)
+2026-09-06 20:53:09,298 [oasis.kratos] INFO: Kratos Multiphysics backend registered
+2026-09-06 20:53:09,312 [oasis.registry] INFO: Registered backend: DUNE-fem (dune)
+2026-09-06 20:53:09,313 [oasis.dune] INFO: DUNE-fem backend registered
+2026-09-06 20:53:09,326 [oasis.registry] INFO: Registered backend: SPARTA (DSMC) (sparta)
+2026-09-06 20:53:09,326 [oasis.sparta] INFO: SPARTA (DSMC) backend registered
+2026-09-06 20:53:09,327 [oasis] INFO: Starting OASiS MCP server
+2026-09-06 20:53:09,356 [mcp.server.lowlevel.server] INFO: Processing request of type ListToolsRequest
+2026-09-06 20:53:24,474 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-06 20:53:29,715 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-06 20:53:30,899 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-06 21:05:52,568 [mcp.server.lowlevel.server] INFO: Processing request of type CallToolRequest
+2026-09-06 21:38:09,797 [oasis] INFO: Session journal saved: /tmp/oasis-source/data/sessions/session_785736f0-1c15-4d79-b441-9ed3c93647f3.json (4 events)
+[preflight] custody controls verified for 1 problem(s); keys sealed and unreadable by execution
+[phase: development] results are for post-mortems and convergence checking, NOT for the paper's evaluation table.
+[DUNE cache] sha256=dc2d5b8ff2ebf98e... (neutral, private copy per cell)
+[C2 27b MCP s8801] done  calls=48 tok=4775405/57659 2703.5s  ERR ExceptionGroup: unhandled errors in a TaskGroup (1 sub-excep

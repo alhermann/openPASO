@@ -1,0 +1,4 @@
+LEVELS = 4
+FILES = solution_level1.csv,solution_level2.csv,solution_level3.csv,solution_level4.csv
+MESH_INDEPENDENCE = NOT_CONVERGED
+MAX_REL_CHANGE = 1.00000000000e+00

@@ -1,0 +1,7 @@
+=== scikit-fem Subdomain B Level 1 ===
+scikit-fem v12.0.1
+Solving coupled thermal problem - Subdomain B (Neumann side)
+Domain: (0.625, 1.5) x (0, 1), k = 200
+Mesh: 7x8 elements, P1 triangles
+NDOF = 72
+Converged at iteration 21, residual = 8.08e-07

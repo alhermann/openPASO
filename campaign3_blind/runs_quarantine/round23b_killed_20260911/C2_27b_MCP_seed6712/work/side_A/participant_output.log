@@ -1,0 +1,9 @@
+iteration: 7
+command: ["python3", "/home/alexander/Schreibtisch/ofa-v2/campaign3_blind/runs/C2_27b_MCP_seed6712/work/participant_A.py"]
+returncode: 0
+--- stdout ---
+NDOF = 1089
+4C Dirichlet participant: NDOF = 1089, max|u| = 1.335559e-01
+
+--- stderr ---
+

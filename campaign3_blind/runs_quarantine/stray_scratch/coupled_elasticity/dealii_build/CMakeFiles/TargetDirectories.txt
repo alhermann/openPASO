@@ -1,3 +1,0 @@
-/tmp/coupled_elasticity/dealii_build/CMakeFiles/rebuild_cache.dir
-/tmp/coupled_elasticity/dealii_build/CMakeFiles/edit_cache.dir
-/tmp/coupled_elasticity/dealii_build/CMakeFiles/elast_iface_dealii.dir

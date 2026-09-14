@@ -1,5 +1,0 @@
-NDOF = 540
-Grid: 30x18 = 540 cells
-Cell size: 3.33e-05 x 3.33e-05 m
-Timestep: 1.0e-07 s
-Total timesteps: 6000

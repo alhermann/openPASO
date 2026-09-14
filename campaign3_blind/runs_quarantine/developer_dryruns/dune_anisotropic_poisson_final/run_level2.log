@@ -1,4 +1,0 @@
-NDOF = 289
-Elements = 512
-Converged = True
-Linear iterations = 51

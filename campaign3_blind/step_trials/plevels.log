@@ -1,5 +1,0 @@
-[plevels] sample 0: first call = spawn_subagent; levels first = False | 20s
-[plevels] sample 1: first call = spawn_subagent; levels first = False | 8s
-[plevels] sample 2: first call = spawn_subagent; levels first = False | 19s
-[plevels] sample 3: first call = spawn_subagent; levels first = False | 6s
-[plevels] levels first in 0/4

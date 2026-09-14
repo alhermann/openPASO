@@ -1,6 +1,0 @@
-NDOF = 337
-h = 0.0625
-Elements = 608
-Vertices = 337
-Solution min = -7.166539220666039e-02
-Solution max = 2.168629087009200e-02

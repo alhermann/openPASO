@@ -1,9 +1,0 @@
-[
- {
-  "i": 0,
-  "ok": true,
-  "note": "tefx6 sample 0: first attempt died in a UFL evaluate call; the first repair PASSED when re-graded with a zero-safe load check (the trial's manufactured T had a vanishing x-derivative at the interface, so its heat-flux load check divided by zero); re-graded offline from the saved scripts",
-  "info": "exports n=11 T_err=1.56e-02 ux_err=1.65e-02 uy_err=4.08e-03 load_consistency=1.63e-02 NDOF_line=True",
-  "attempts": 2
- }
-]

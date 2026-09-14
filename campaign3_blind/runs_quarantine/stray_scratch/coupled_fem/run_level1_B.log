@@ -1,2 +1,0 @@
-NDOF = 144
-deal.II attempted but failed (compilation error); using Python FEM fallback

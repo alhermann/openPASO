@@ -1,4 +1,0 @@
-NDOF = 4613
-Newton iterations: 3
-Net interface force: fx=2.680358e+01, fy=1.377592e+02
-Max |d_iface| = 9.651799e-03

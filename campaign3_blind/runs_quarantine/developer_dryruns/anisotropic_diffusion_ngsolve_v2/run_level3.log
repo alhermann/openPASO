@@ -1,6 +1,0 @@
-NDOF = 1256
-h = 0.03125
-Elements = 2382
-Vertices = 1256
-Solution min = -7.197529446459253e-02
-Solution max = 2.181891988943774e-02

@@ -1,5 +1,0 @@
-Invalid MIT-MAGIC-COOKIE-1 keyDUNE-INFO: Compiling Integrands (new)
-DUNE-INFO: Compiling Scheme (new)
-DUNE-INFO: Compiling sample( Dune::Fem::AdaptiveDiscreteFunction< Dune::Fem::DynamicLagrangeDiscreteFunctionSpace< Dune::Fem::FunctionSpace< double, double, 2, 1 >, Dune::FemPy::GridPart< Dune::ALUGrid< 2, 2, Dune::simplex >::LeafGridView >, Dune::Fem::CodegenStorage> > &, Dune::FieldVector< double, 2 > & ) (new)
-DUNE-INFO: Compiling UFLLocalFunction (new)
-DUNE-INFO: Compiling UFLLocalFunction (new)

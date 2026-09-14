@@ -1,6 +1,0 @@
-LEVELS = 3
-FILES = solution_level1_A.csv,solution_level1_B.csv,interface_level1_A.csv,interface_level1_B.csv,residual_level1.csv,run_level1_A.log,run_level1_B.log,solution_level2_A.csv,solution_level2_B.csv,interface_level2_A.csv,interface_level2_B.csv,residual_level2.csv,run_level2_A.log,run_level2_B.log,solution_level3_A.csv,solution_level3_B.csv,interface_level3_A.csv,interface_level3_B.csv,residual_level3.csv,run_level3_A.log,run_level3_B.log
-INTERFACE_RESIDUAL = 9.164232953727972e-07
-COUPLING_ITERATIONS = 20
-MESH_INDEPENDENCE = NOT_CONVERGED
-MAX_REL_CHANGE = 0.4558394968318377

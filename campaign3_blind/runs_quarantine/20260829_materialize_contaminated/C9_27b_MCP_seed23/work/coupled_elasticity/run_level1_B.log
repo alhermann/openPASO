@@ -1,4 +1,0 @@
-NDOF = 144
-NX = 8, NY = 7
-n_elements = 112
-n_nodes = 72

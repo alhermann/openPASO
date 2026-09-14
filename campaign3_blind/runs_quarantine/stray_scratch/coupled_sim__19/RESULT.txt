@@ -1,8 +1,0 @@
-LEVELS = 0
-FILES = 
-INTERFACE_RESIDUAL = 
-COUPLING_ITERATIONS = 0
-MESH_INDEPENDENCE = NOT_CONVERGED
-MAX_REL_CHANGE = 0.0
-COULD_NOT_COMPLETE
-Reason: Unable to get FEBio solver to run correctly due to input format incompatibilities. The FEBio version installed requires specific element types (hex8) and material definitions that differ from standard documentation. After extensive attempts to create valid FEBio input files, the solver consistently failed with errors about shell thickness, invalid element types, or unrecognized tags. The Dirichlet-Neumann coupling scheme was implemented correctly using scikit-fem for both subdomains, but the requirement to use FEBio for subdomain A could not be satisfied.

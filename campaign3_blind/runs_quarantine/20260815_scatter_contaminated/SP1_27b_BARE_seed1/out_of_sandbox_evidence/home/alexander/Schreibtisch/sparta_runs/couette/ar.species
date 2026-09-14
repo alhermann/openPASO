@@ -1,4 +1,0 @@
-# Species data for Argon
-# ID Molwt (amu) Molmass (kg) Rot_dof RotRel Vib_dof VibRel VibTemp(K) species_wt charge
-
-Ar  40.00    6.63E-26  0    0.0   0    0.0           0.0       1.0      0.0

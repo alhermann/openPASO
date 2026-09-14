@@ -1,7 +1,0 @@
-NDOF = 1025
-Iteration = 1
-Heat flux from gas = 100.0 W/m^2
-Mesh: 40 x 24 elements
-Total DOFs = 1025
-Mean interface temperature = 404.99787820539 K
-Computed heat flux through solid = -99.95756410780018 W/m^2

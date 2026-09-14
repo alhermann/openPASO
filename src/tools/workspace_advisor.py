@@ -479,9 +479,9 @@ def _env_after_wrapper_check(command: str) -> str:
     wrapper's complaint does not look like a solver failure.
 
     And on this machine it was not needed at all: the shell the agent gets
-    already exports LD_LIBRARY_PATH=/opt/4C-dependencies/lib, and
-    `/home/alexander/4C/build/4C --help` prints `4C - Multiphysics` through it
-    with no prefix.
+    already exports the 4C dependency library path, and running the 4C
+    binary with `--help` prints `4C - Multiphysics` through it with no
+    prefix.
     """
     toks = command.split()
     for i, tk in enumerate(toks):
@@ -554,7 +554,8 @@ def _eaten_error_check(output: str) -> str:
                    "Traceback (most recent call last)"):
         if marker in output:
             return ""
-    return (
+    from core.host_paths import resolve
+    return resolve(
         "\n\n[the command you just ran aborted and the reason is NOT in what "
         "came back]\n"
         "  * THIS IS NOT AN MPI OR ENVIRONMENT PROBLEM. 4C's stdout is "
@@ -562,7 +563,7 @@ def _eaten_error_check(output: str) -> str:
         "process down before that buffer is flushed, so the one line naming "
         "the defect is destroyed and only the MPI boilerplate survives. Run "
         "it again, unchanged, as:\n"
-        "        stdbuf -oL -eL /home/alexander/4C/build/4C deck.4C.yaml out "
+        "        stdbuf -oL -eL {FOURC_BINARY} deck.4C.yaml out "
         "2>&1 | tee run.log\n"
         "    or `mpirun -np 1 ...`. Measured on one rejected deck, same deck, "
         "three invocations: plain capture 429 bytes with NO reason; `2>&1` "

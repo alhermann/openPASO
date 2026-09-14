@@ -1,5 +1,0 @@
-[te4c13] sample 0: FAIL | kept self-check=True | attempts=1 | finish=stop | rc=1 exports=False 4C_runs_finished=0 :: terList&, FourC::Core::FE::Discretization&, FourC::Core::Elements::LocationArray&, FourC::Core::LinAlg::SerialDenseMatrix&, FourC::Core::LinAlg::SerialDenseMatrix&, FourC::Core::LinAlg::SerialDenseVector&, FourC::Core::LinAlg::SerialDenseVector&, FourC::Core:
-[te4c13] sample 1: FAIL | kept self-check=True | attempts=1 | finish=stop | rc=1 exports=False 4C_runs_finished=0 :: section names with the closest known, materials and their parameters, condition ids, element geometry) in one call
-4C DID NOT FINISH -- deck_t.4C.yaml: DESIGN LINE DIRICH CONDITIONS names E id(s) 9, 18, 27, 36, 45, 54 that no *-NODE TOPOLOGY section defines; 
-[te4c13] sample 2: FAIL | kept self-check=True | attempts=1 | finish=stop | rc=1 exports=False 4C_runs_finished=0 :: neArguments const&, FourC::Core::Communication::Communicators const&) in /home/alexander/4C/build/4C | 4# run(FourC::CommandlineArguments&, FourC::Core::Communication::Communicators&) in /home/alexander/4C/build/4C | 5# main in /home/alexander/4C/build/4C; de
-[te4c13] pass rate 0/3

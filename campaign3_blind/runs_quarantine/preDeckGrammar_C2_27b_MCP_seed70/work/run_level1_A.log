@@ -1,7 +1,0 @@
-=== scikit-fem Subdomain A Level 1 ===
-scikit-fem v12.0.1
-Solving coupled thermal problem - Subdomain A (Dirichlet side)
-Domain: (0, 0.625) x (0, 1), k = 1
-Mesh: 5x8 elements, P1 triangles
-NDOF = 54
-Converged at iteration 21, residual = 8.08e-07

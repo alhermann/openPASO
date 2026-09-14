@@ -84,7 +84,7 @@ def _curved_mms_annulus_2d(params: dict) -> str:
 
     NOTE: run the generated script with an interpreter that imports Kratos.
     RE-MEASURED 2026-08-18: the repo venv
-    (/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python, 3.12) now
+    ({PYTHON}, 3.12) now
     imports Kratos 10.3 with ConvectionDiffusion, StructuralMechanics,
     FluidDynamics AND gmsh; /mnt/kratos-tier2/kv/bin/python (3.12) imports
     Kratos 10.4.3 with the same applications but NO gmsh; /usr/bin/python3

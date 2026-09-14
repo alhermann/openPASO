@@ -1,7 +1,0 @@
-NDOF = 81967
-Level = 2
-fnum = 7.93e+10
-QOI (heat flux) = 1.356037e+03 W/m^2
-Conservation residual = 4.689680e-01
-q_bottom = -2.266520e+03 W/m^2
-q_top = -1.405492e+03 W/m^2

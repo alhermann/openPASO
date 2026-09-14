@@ -1,1 +1,0 @@
-Quarantined ungraded: the ledger records HTTP 402 'Insufficient credits' (OpenRouter) MID-RUN at 94.4 s after 14 tool calls — infrastructure, not a model result. Re-run under the unchanged round-7 tree before grading; the graded attempt is runs/C6_27b_MCP_seed11.

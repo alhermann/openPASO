@@ -51,34 +51,6 @@ specific error message really means, and how to check a result.
 
 ---
 
-## See it work
-
-```console
-$ python run_agent.py "Use the discover tool to list available solvers, then answer in one sentence."
-
-  model    deepseek/deepseek-v4.1-flash
-  starting the openPASO server ...
-
-  24 solver tools ready
-────────────────────────────────────────────────────────────────────────
-  → discover(query='list')
-    ← discover: 1 line(s)
-
-All nine backends are available on this install: 4C Multiphysics,
-FEniCSx (dolfinx 0.10.0), deal.II 9.8.0-pre, FEBio, NGSolve 6.2.2604,
-scikit-fem 12.0.1, Kratos Multiphysics 10.3, DUNE-fem, and SPARTA (DSMC).
-
-────────────────────────────────────────────────────────────────────────
-  done
-```
-
-> [!IMPORTANT]
-> This example is **Option B**, which needs a paid API key. If you use Claude Code,
-> Claude Desktop or Cursor, you never type this command — you just ask in the app.
-> Both ways are explained in [Start here](#start-here). First do the install below.
-
----
-
 ## Install
 
 Do this first, whichever way you choose afterwards.
@@ -94,13 +66,13 @@ pip install -e .
 pip install scikit-fem            # the easiest solver to start with
 ```
 
-Only if you will use **Option B** (your own API key), also install the agent packages:
+Then install the agent packages. (They are only used by one of the two ways described
+below, but installing them now costs nothing and saves you a decision you cannot make
+yet.)
 
 ```bash
 pip install -r langgraph_eval/requirements-langgraph.txt
 ```
-
-Installing them anyway does no harm.
 
 ### Check that it works
 
@@ -163,6 +135,8 @@ examples use.
 # 10.4.x wheels are labelled for a system library version they do not actually
 # work with: they install without error and then fail to import.
 # Check your system with: ldd --version | head -1
+# If it prints 2.32 or higher, either package works. Below 2.32, you need
+# the metapackage line below, which pins a build that runs on your system.
 pip install KratosMultiphysics-all
 
 # DUNE-fem: from PyPI. mpi4py is a hidden requirement; without it the first
@@ -174,6 +148,7 @@ FEniCSx is the one solver that does **not** go into `.venv`. It needs its own co
 environment, and openPASO finds it there by itself:
 
 ```bash
+# needs conda: https://docs.conda.io/projects/miniconda/
 conda create -n fenics -c conda-forge fenics-dolfinx
 ```
 
@@ -187,13 +162,16 @@ sudo apt install libdeal.ii-dev
 
 Ubuntu 20.04 ships deal.II 9.1.1, which is old enough to miss many current functions.
 Check yours with `grep DEAL_II_PACKAGE_VERSION /usr/include/deal.II/base/config.h`.
+9.3 or newer is fine. If it prints 9.1.x, openPASO will still use it, but some
+deal.II examples will not compile — build a newer one from source, or use one of
+the other solvers instead.
 If you build it yourself, use `-DCMAKE_BUILD_TYPE=DebugRelease` — a `Release` build
 removes every internal check, so mistakes fail silently instead of telling you what
 went wrong.
 
 ```bash
 # FEBio: download the binary from https://febio.org/downloads/ then
-export FEBIO_BINARY=/path/to/febio4
+export FEBIO_BINARY=/path/to/febio4      # the program file itself, not its folder
 ```
 
 Any `export` line only lasts until you close the terminal. To keep it, put the same
@@ -216,6 +194,33 @@ It answers with the route that works, the exact first-run error messages, and wh
 settings it checks rather than trusts.
 
 </details>
+
+---
+
+## See it work
+
+```console
+$ python run_agent.py "Use the discover tool to list available solvers, then answer in one sentence."
+
+  model    deepseek/deepseek-v4.1-flash
+  starting the openPASO server ...
+
+  24 solver tools ready
+────────────────────────────────────────────────────────────────────────
+  → discover(query='list')
+    ← discover: 1 line(s)
+
+All nine backends are available on this install: 4C Multiphysics,
+FEniCSx (dolfinx 0.10.0), deal.II 9.8.0-pre, FEBio, NGSolve 6.2.2604,
+scikit-fem 12.0.1, Kratos Multiphysics 10.3, DUNE-fem, and SPARTA (DSMC).
+
+────────────────────────────────────────────────────────────────────────
+  done
+```
+
+> [!NOTE]
+> This example uses **Option B** below. If you use Claude Code, Claude Desktop or
+> Cursor, you never type this command — you ask in the app instead.
 
 ---
 
@@ -243,16 +248,23 @@ This costs nothing extra. The app brings the AI model. openPASO brings the solve
 **Claude Code** — run this once, from the openPASO folder:
 
 ```bash
-claude mcp add openpaso \
-  -e PYTHONPATH=src \
+claude mcp add openpaso -s user \
+  -e PYTHONPATH="$PWD/src" \
+  -e VIRTUAL_ENV="$PWD/.venv" \
   -e PYVISTA_OFF_SCREEN=true \
   -- "$PWD/.venv/bin/python" -m server
 ```
 
-> [!WARNING]
-> The `-e` options must come **before** the `--`. Everything after `--` is the command
-> itself. If you put `-e` after the `--`, the settings are handed to Python as arguments
-> and are silently ignored.
+`$PWD` means "the folder I am in right now", so it fills in the full path for you.
+Three details matter, and each one fails silently if you get it wrong:
+
+- **`-e` must come before the `--`.** Everything after `--` is the command itself. An
+  `-e` placed after it is handed to Python as an argument and ignored.
+- **The paths must be full paths.** `PYTHONPATH=src` looks right and does not work: your
+  AI app starts openPASO from its own folder, not from this one, so a relative path
+  points at nothing.
+- **`-s user`** makes openPASO available in every folder. Without it the default is
+  "this folder only", and openPASO is simply absent everywhere else, with no message.
 
 Check that it worked:
 
@@ -271,12 +283,17 @@ Replace `/path/to/openPASO` with the real folder on your computer, twice:
       "args": ["-m", "server"],
       "env": {
         "PYTHONPATH": "/path/to/openPASO/src",
+        "VIRTUAL_ENV": "/path/to/openPASO/.venv",
         "PYVISTA_OFF_SCREEN": "true"
       }
     }
   }
 }
 ```
+
+These are full paths for the same reason as above: the app starts openPASO from its own
+folder. `VIRTUAL_ENV` is needed because some solvers build helper code at run time and
+pick their Python from the environment; without it they can pick the wrong one.
 
 **Cursor, Windsurf, or any other MCP app** — use the same three values: the command
 `/path/to/openPASO/.venv/bin/python`, the arguments `-m server`, and the two settings
@@ -300,7 +317,8 @@ cp .env.example .env
 #    Get a key at https://openrouter.ai/keys
 #    A model is already chosen for you, so you can leave the rest alone.
 
-# 3. Ask for a simulation
+# 3. Ask for a simulation. The virtual environment must be active:
+#    if your prompt does not show (.venv), run  source .venv/bin/activate
 python run_agent.py "Solve the Poisson equation on the unit square with scikit-fem, and report the maximum value."
 ```
 
@@ -335,6 +353,16 @@ do. The most common cases:
 | `the chosen model cannot use tools` | Pick a model marked with tool support on <https://openrouter.ai/models> |
 | `a Python package is missing` | Run `pip install -r langgraph_eval/requirements-langgraph.txt` |
 | `the openPASO server has no Python to run in` | Your `.venv` is missing. Redo the [Install](#install) steps |
+
+**If you used Option A and the app does not see openPASO:**
+
+| What you see | What to do |
+|---|---|
+| `claude mcp list` shows openpaso as failed or not connected | Run `claude mcp get openpaso`. `PYTHONPATH` must be a full path starting with `/`. If it shows only `src`, run `claude mcp remove openpaso -s user` and add it again from inside the openPASO folder |
+| openpaso is missing when you work in another folder | It was added for one folder only. Remove it and add it again with `-s user` |
+| the app lists it but every tool call fails | The `command` path must point at `.venv/bin/python` inside openPASO, not at your system Python |
+
+After adding the server, restart your AI app so it picks the change up.
 
 ---
 
@@ -375,6 +403,8 @@ reported as a failure. It is never presented as a result.
 ---
 
 ## The tools the model gets
+
+The server offers about two dozen tools. These are the ones you will see it use:
 
 | Tool | What it does |
 |---|---|
@@ -435,6 +465,15 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 | **validation** | checking that the model matches the real world — **not** done here |
 | **MCP** | the standard plug that connects tools to AI apps |
 | **venv** | a private Python folder for one project's packages |
+| **conda** | another such tool, needed for FEniCSx |
+| **agent** | an AI model that can use tools by itself, not only write text |
+| **server** | the background program the AI app talks to; openPASO is one |
+| **environment variable** | a setting your terminal passes to a program. `export NAME=value` sets one, and it is forgotten when you close the terminal |
+| **API key** | a password that lets a program use a paid AI service |
+| **OpenRouter** | a service giving one key access to many AI models |
+| **tool support** | whether a model is able to call tools. Not every model is |
+| **Poisson equation** | a standard textbook problem used to check that a solver works |
+| **unit square** | the square from 0 to 1 in both directions, the usual test shape |
 
 ---
 

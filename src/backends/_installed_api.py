@@ -22,7 +22,7 @@ INSTALLED_API = {
  # neither a name an agent solving a Poisson problem would request.
  "fenics": {
   "version": "0.10.0 (dolfinx)",
-  "run": "/home/alexander/miniconda3/envs/fenics/bin/python <script>.py",
+  "run": "{FENICS_PYTHON} <script>.py",
   "verified_smoke_test": (
     "import numpy as np, ufl\n"
     "from dolfinx import fem, mesh as dm, geometry\n"
@@ -61,7 +61,7 @@ INSTALLED_API = {
  # section index calls it "VTK options ... thread defaults".
  "dune": {
   "version": "2.12.0.2 (dune-fem)",
-  "run": "/home/alexander/miniconda3/envs/dune-py313/bin/python <script>.py",
+  "run": "{DUNE_PYTHON} <script>.py",
   "verified_smoke_test": (
     "import numpy as np\n"
     "from dune.grid import structuredGrid\n"
@@ -95,7 +95,7 @@ INSTALLED_API = {
  # nowhere in the served knowledge.
  "kratos": {
   "version": "10.3.0",
-  "run": "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python <script>.py",
+  "run": "{PYTHON} <script>.py",
   "verified_smoke_test": (
     "import KratosMultiphysics as KM\n"
     "m = KM.Model(); mp = m.CreateModelPart('m')\n"
@@ -126,7 +126,7 @@ INSTALLED_API = {
  # instead of hunting an API that is not there.
  "febio": {
   "version": "4.12.0",
-  "run": "/home/alexander/FEBio/bin/febio4 -i <deck>.feb",
+  "run": "{FEBIO_BINARY} -i <deck>.feb",
   "verified_smoke_test": (
     "# FEBio writes results from the DECK, not from a Python API.\n"
     "# <Output>\n"
@@ -170,7 +170,7 @@ INSTALLED_API = {
  },
  "ngsolve": {
   "version": "6.2.2604",
-  "run": "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python <script>.py",
+  "run": "{PYTHON} <script>.py",
   "verified_smoke_test": (
     "from ngsolve import *\n"
     "from netgen.geom2d import unit_square\n"
@@ -194,7 +194,7 @@ INSTALLED_API = {
  },
  "skfem": {
   "version": "12.0.1",
-  "run": "/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python <script>.py",
+  "run": "{PYTHON} <script>.py",
   "verified_smoke_test": (
     "import numpy as np\n"
     "from skfem import MeshTri, ElementTriP1, Basis, BilinearForm, LinearForm, asm, condense, solve\n"
@@ -221,8 +221,8 @@ INSTALLED_API = {
   ],
  },
  "dealii": {
-  "version": "9.8.0-pre  (build tree at /home/alexander/dealii/build)",
-  "run": "cmake -DDEAL_II_DIR=/home/alexander/dealii/build . && make && LD_LIBRARY_PATH=/opt/4C-dependencies/lib ./<exe>",
+  "version": "9.8.0-pre  (build tree at {DEALII_BUILD})",
+  "run": "cmake -DDEAL_II_DIR={DEALII_BUILD} . && make && LD_LIBRARY_PATH=/opt/4C-dependencies/lib ./<exe>",
   "verified_smoke_test": (
     "// CMakeLists.txt:\n"
     "//   CMAKE_MINIMUM_REQUIRED(VERSION 3.13.4)\n"
@@ -234,7 +234,7 @@ INSTALLED_API = {
     "//   Functions::ZeroFunction<dim>() for the BC; VectorTools::point_value(dof_handler, solution,\n"
     "//   Point<dim>(0.5,0.5)) -> ~0.0737 ; SolverCG + PreconditionIdentity.\n"),
   "gotchas": [
-    "CRITICAL: DEAL_II_DIR must be the BUILD tree `/home/alexander/dealii/build` (config at .../build/lib/cmake/deal.II). Pointing at `/home/alexander/dealii` SILENTLY falls back to the OLD system install (9.1.1 at /usr) with no error — check cmake's `-- Using the deal.II-X found at ...` line.",
+    "CRITICAL: DEAL_II_DIR must be the BUILD tree `{DEALII_BUILD}` (config at .../build/lib/cmake/deal.II). Pointing at `{DEALII_ROOT}` SILENTLY falls back to the OLD system install (9.1.1 at /usr) with no error — check cmake's `-- Using the deal.II-X found at ...` line.",
     "Runtime needs `LD_LIBRARY_PATH=/opt/4C-dependencies/lib` (shared TBB/etc).",
     "CMake order: FIND_PACKAGE(deal.II 9.0 REQUIRED HINTS ${DEAL_II_DIR}) -> DEAL_II_INITIALIZE_CACHED_VARIABLES() -> PROJECT() -> DEAL_II_SETUP_TARGET(<tgt>). INITIALIZE must precede PROJECT().",
     "Use modern idioms: fe_values.quadrature_point_indices(), fe_values.dof_indices(), fe.n_dofs_per_cell() (data member fe.dofs_per_cell is deprecated).",
@@ -245,11 +245,11 @@ INSTALLED_API = {
   ],
  },
  "fourc": {
-  "version": "build at /home/alexander/4C/build/4C",
-  "run": "LD_LIBRARY_PATH=/opt/4C-dependencies/lib /home/alexander/4C/build/4C <input>.4C.yaml <output_prefix>",
+  "version": "build at {FOURC_BINARY}",
+  "run": "LD_LIBRARY_PATH=/opt/4C-dependencies/lib {FOURC_BINARY} <input>.4C.yaml <output_prefix>",
   "verified_smoke_test": (
     "# Minimal single HEX8 linear-elastic cube (fixed at x=0, pulled at x=1), Statics, 2 steps.\n"
-    "# Started from /home/alexander/4C/tests/input_files/solid_runtime_material_element_id.4C.yaml\n"
+    "# Started from {FOURC_ROOT}/tests/input_files/solid_runtime_material_element_id.4C.yaml\n"
     "# Runs to completion: stdout ends 'processor 0 finished normally' / EXIT:0; writes <prefix>.control + VTK.\n"
     "PROBLEM TYPE: {PROBLEMTYPE: 'Structure'}\n"
     "SOLVER 1: {SOLVER: 'Superlu', NAME: 'Structure_Solver'}\n"
@@ -263,7 +263,7 @@ INSTALLED_API = {
     "NODE COORDS: ['NODE 1 COORD 0.0 0.0 0.0', ...8 nodes...]\n"
     "STRUCTURE ELEMENTS: ['1 SOLID HEX8 1 5 6 2 3 7 8 4 MAT 1 KINEM nonlinear']\n"),
   "gotchas": [
-    "Run: `LD_LIBRARY_PATH=/opt/4C-dependencies/lib /home/alexander/4C/build/4C <in>.4C.yaml <output_prefix>` — the output prefix is MANDATORY.",
+    "Run: `LD_LIBRARY_PATH=/opt/4C-dependencies/lib {FOURC_BINARY} <in>.4C.yaml <output_prefix>` — the output prefix is MANDATORY.",
     "File is one YAML map; keys are section names with spaces/slashes (e.g. 'STRUCTURAL DYNAMIC', 'IO/RUNTIME VTK OUTPUT/STRUCTURE').",
     "Required minimal: PROBLEM TYPE, SOLVER 1, STRUCTURAL DYNAMIC, MATERIALS, mesh sections, conditions.",
     "Time integrator references the linear solver via LINEAR_SOLVER: 1 (-> 'SOLVER 1').",
@@ -295,7 +295,7 @@ INSTALLED_API = {
     "facts": [
      "By DEFAULT 4C writes only a BINARY <prefix>.control + binary result files — NOT human-readable. Do NOT try to hex-decode them by hand.",
      "To get readable output, add: `IO/RUNTIME VTK OUTPUT: {INTERVAL_STEPS: 1, OUTPUT_DATA_FORMAT: ascii}` and `IO/RUNTIME VTK OUTPUT/STRUCTURE: {OUTPUT_STRUCTURE: true, DISPLACEMENT: true}` (add `STRESS_STRAIN: true` for stresses). This writes `<prefix>-vtk-files/structure-0000N-0.vtu`.",
-     "Extract with pyvista (available in /home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python): `import pyvista as pv, numpy as np; m = pv.read(LAST_vtu); d = np.asarray(m.point_data['displacement']); pts = m.points`. Find your node by coordinate: `i = np.argmin(np.linalg.norm(pts - target_xyz, axis=1))`, then `d[i]` is its displacement (stress/strain are cell or point arrays too).",
+     "Extract with pyvista (available in {PYTHON}): `import pyvista as pv, numpy as np; m = pv.read(LAST_vtu); d = np.asarray(m.point_data['displacement']); pts = m.points`. Find your node by coordinate: `i = np.argmin(np.linalg.norm(pts - target_xyz, axis=1))`, then `d[i]` is its displacement (stress/strain are cell or point arrays too).",
      "POINT EVALUATION AT NON-NODAL POINTS — and the nearest-node line above is NOT it. Snapping to the closest node is a first-order error that will not converge at the rate a P1/Q1 field does, so it is wrong for any prescribed probe grid that is deliberately off-mesh. 4C itself cannot help: its RESULT DESCRIPTION block selects by NODE/LINE/SURFACE/VOLUME and has no coordinate selector at all (checked against the live grammar dump, `4C -p`). Interpolate from the VTU instead: `probe = pv.PolyData(target_xyz_array); vals = probe.sample(pv.read(LAST_vtu))['displacement']` — pyvista's sample() locates the cell and applies the shape functions, verified exact on a linear field.",
      "Writing results: numpy.savetxt(..., fmt='%.15e'). str(float) and '%.6f' throw away digits a convergence study needs.",
      "GOTCHA: read the LAST timestep file (highest number, e.g. structure-00005-0.vtu), NOT structure-00000-0.vtu which is the INITIAL zero state -> reading step 0 gives displacement 0 everywhere and looks like the load did nothing.",
@@ -320,20 +320,26 @@ def render(backend_name: str) -> str:
     e = INSTALLED_API.get(backend_name)
     if not e:
         return ""
-    # The paths below are this machine's. That is deliberate and useful — an
-    # agent talking to THIS openPASO runs on THIS machine — but the old header said
-    # only "VERIFIED by running here", and "here" is unreadable to anyone else.
-    # An audit measured 240 host absolute paths across all 48 served 4C payloads,
-    # stated as fact. openPASO is going to be cloned, so a reader elsewhere must be
-    # told these are local observations and how to find their own install,
-    # rather than being handed one person's filesystem as universal truth.
+    # THE PATHS SERVED HERE ARE THE READER'S, NOT THE AUTHOR'S.
+    #
+    # This reference is made by running each solver and recording what worked,
+    # so it necessarily contains absolute paths -- and for a long time they were
+    # one machine's. An audit measured 240 such paths across the 48 served 4C
+    # payloads alone, stated as fact. A caveat was added telling the reader to
+    # substitute their own, which does not help a model: it reads the path and
+    # uses it verbatim, and on any other computer that command cannot run.
+    #
+    # The entries now hold tokens, and core.host_paths fills them from this
+    # machine's environment, then from what autodiscovery found, and failing
+    # both from a placeholder that names the variable to set. An honest
+    # "<your dolfinx Python -- set FENICS_PYTHON>" is worth more than a
+    # confident path that does not exist here.
     out = [f"## Installed-version API reference — {backend_name} {e['version']}",
-           "*Measured on the machine hosting this openPASO server. The absolute "
-           "paths below are LOCAL OBSERVATIONS, not universal facts: on any "
-           "other machine locate your own install (see "
-           "`knowledge(topic='install')` for the environment variable that "
-           "overrides each one) and treat the API shapes, versions and gotchas "
-           "— not the paths — as the transferable part.*",
+           "*The API shapes, versions and gotchas below were measured by "
+           "actually running each solver. The paths are filled in for THIS "
+           "machine; where one reads `<...set VARIABLE>`, openPASO could not "
+           "find that install — set the named variable, or ask "
+           "`knowledge(topic='install')`.*",
            f"Run (on this host): `{e['run']}`",
            "Minimal smoke test that ACTUALLY RUNS on this install (adapt this API; do not guess from memory):",
            "```", e["verified_smoke_test"].rstrip(), "```",
@@ -342,4 +348,5 @@ def render(backend_name: str) -> str:
     for cap in e.get("capabilities", []):
         out.append(f"\n### Verified capability: {cap['name']}")
         out += [f"- {f}" for f in cap["facts"]]
-    return "\n".join(out)
+    from core.host_paths import resolve
+    return resolve("\n".join(out))

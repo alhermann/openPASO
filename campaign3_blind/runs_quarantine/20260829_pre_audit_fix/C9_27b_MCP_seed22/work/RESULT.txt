@@ -1,3 +1,0 @@
-COULD_NOT_COMPLETE
-
-Reason: Insufficient time to implement full body force terms and run all three mesh levels with post-processing for probe point extraction.

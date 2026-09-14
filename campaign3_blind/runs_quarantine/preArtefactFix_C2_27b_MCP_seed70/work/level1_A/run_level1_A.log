@@ -1,5 +1,0 @@
-Manual assembly solver completed
-Subdomain A: [0.0, 0.625] x [0, 1.0]
-Mesh: 5 x 8 elements
-Conductivity: 1.0
-NDOF = 54

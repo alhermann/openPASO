@@ -16,7 +16,7 @@ sections, 7383 paths, 2728 distinct keys.
 WHAT IS IN HERE, AND WHAT "RUNNABLE" MEANS
 ------------------------------------------
 Each entry is a complete deck, not a skeleton with `<...>` holes. Every one was
-executed with `/home/alexander/4C/build/4C` at the rank count recorded in
+executed with `{FOURC_BINARY}` at the rank count recorded in
 `np` and exited 0. A deck that 4C rejects is worse than no deck at all,
 because it looks like help; so the rule for adding an entry here is that the
 exact bytes shipped are the exact bytes that ran.
@@ -28,7 +28,7 @@ output (VTU fields, reaction forces, interface fluxes), never assumed.
 
 HOW THE DECKS WERE BUILT
 ------------------------
-From the upstream corpus, not from the grammar. `/home/alexander/4C/tests/
+From the upstream corpus, not from the grammar. `{FOURC_ROOT}/tests/
 input_files` holds 1978 parseable decks that 4C's own CI runs; each template
 starts from a named one of those (`upstream`) and is reduced — mesh shrunk,
 regression `RESULT DESCRIPTION` deleted, Belos+XML solvers replaced by direct

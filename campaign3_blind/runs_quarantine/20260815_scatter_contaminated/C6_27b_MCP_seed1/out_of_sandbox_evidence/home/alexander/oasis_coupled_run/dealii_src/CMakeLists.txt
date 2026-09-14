@@ -1,6 +1,0 @@
-cmake_minimum_required(VERSION 3.13.4)
-find_package(deal.II 9.1.0 REQUIRED HINTS $ENV{DEAL_II_DIR} /home/alexander/dealii/build)
-deal_ii_initialize_cached_variables()
-project(coupled_heat)
-add_executable(heat_iface_dealii main.cc)
-deal_ii_setup_target(heat_iface_dealii)

@@ -1,1 +1,0 @@
-Scratch directories that prior runs created outside the sandbox (/tmp, $HOME, ~/Schreibtisch) — 119 at last count, moved here by run_blind.py's preflight `_quarantine_stray_scratch()` (transcript-driven, never deletes, `__N` suffixes are name collisions) so that later runs cannot read earlier runs' files.

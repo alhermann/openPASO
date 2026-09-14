@@ -1,9 +1,0 @@
-iteration: 32
-command: ["/home/alexander/miniconda3/envs/fenics/bin/python", "participant_A.py"]
-returncode: 0
---- stdout ---
-NDOF = 162
-4C thermo-elastic Dirichlet participant: NDOF = 162  T=[0,0.0795756] u=[-0.00224156,0.00202551]  scatra-vs-tsi T mismatch 7.57e-03
-
---- stderr ---
-

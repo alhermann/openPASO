@@ -1,5 +1,0 @@
-NDOF = 144
-Interface nodes: 9
-Side: dirichlet
-Level: 1
-NX, NY: 8, 7

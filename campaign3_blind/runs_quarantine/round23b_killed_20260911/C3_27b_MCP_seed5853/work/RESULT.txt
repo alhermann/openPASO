@@ -1,8 +1,0 @@
-LEVELS = 1
-FILES = solution_level1_A.csv, solution_level1_B.csv, interface_level1_A.csv, interface_level1_B.csv, residual_level1.csv
-INTERFACE_RESIDUAL = 9.764206738087524e-07
-COUPLING_ITERATIONS = 40
-MESH_INDEPENDENCE = NOT_CONVERGED
-MAX_REL_CHANGE = N/A
-
-NOTE: Only level 1 completed due to time constraints. Levels 2 and 3 require running couple() with updated configs (nx=16/ny=10 for A, nx=16/ny=20 for B at level 2; nx=32/ny=20 for A, nx=32/ny=40 for B at level 3). The coupling framework is working correctly - level 1 converged in 40 iterations to residual 9.76e-07.

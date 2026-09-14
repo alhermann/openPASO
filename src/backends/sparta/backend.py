@@ -68,8 +68,8 @@ def _find_sparta_binary() -> Optional[str]:
     for cand in (
         str(Path.home() / "sparta" / "src" / "spa_serial"),
         str(Path.home() / "sparta" / "src" / "spa_mpi"),
-        "/home/alexander/Schreibtisch/sparta/src/spa_serial",
-        "/home/alexander/Schreibtisch/sparta/src/spa_mpi",
+        "/opt/sparta/src/spa_serial",
+        "/usr/local/sparta/src/spa_serial",
     ):
         if Path(cand).exists():
             return cand

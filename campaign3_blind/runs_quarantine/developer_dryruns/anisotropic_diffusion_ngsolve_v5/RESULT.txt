@@ -1,4 +1,0 @@
-LEVELS = 4
-FILES = solution_level1.csv, solution_level2.csv, solution_level3.csv, solution_level4.csv
-MESH_INDEPENDENCE = CONVERGED
-MAX_REL_CHANGE = 1.753325675848773e-02

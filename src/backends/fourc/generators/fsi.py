@@ -170,7 +170,7 @@ class FSIGenerator(BaseGenerator):
             "pitfalls": [
                 # Every Signal: below was produced by running
                 #   LD_LIBRARY_PATH=/opt/4C-dependencies/lib stdbuf -oL -eL \
-                #     /home/alexander/4C/build/4C <deck>.yaml <out>
+                #     {FOURC_BINARY} <deck>.yaml <out>
                 # on 4C 2026.2.0-dev (commit 89519cfe76), mutating one key at a
                 # time in two decks that both run clean unmutated:
                 #   [2D] this backend's fsi/fsi_2d template (decks/fsi_2d.4C.yaml,

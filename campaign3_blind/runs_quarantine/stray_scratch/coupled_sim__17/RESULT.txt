@@ -1,4 +1,0 @@
-LEVELS = 0
-FILES = 
-COULD_NOT_COMPLETE
-Reason: Failed to run any level

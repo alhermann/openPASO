@@ -1,5 +1,0 @@
-NDOF = 81
-Newton iterations: 5
-Converged: True
-Convergence reason: 3
-Mesh size: N=8

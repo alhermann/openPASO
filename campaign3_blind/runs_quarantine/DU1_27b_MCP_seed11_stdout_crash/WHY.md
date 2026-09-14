@@ -1,1 +1,0 @@
-Round-7 infrastructure casualty: the ledger records `ExceptionGroup: unhandled errors in a TaskGroup` at 410 s / 25 tool calls — the stdout-corruption crash named in CONVERGENCE.md's round-7 entry; quarantined ungraded and the cell re-run before round-7 grading (the graded attempt is runs/DU1_27b_MCP_seed11).

@@ -1,9 +1,0 @@
-ITEM: MESH
-2
-ITEM: SURFACE IDS
-1 2
-ITEM: SURFACE TYPES
-plane plane
-ITEM: SURFACE PARAMETERS
-0 0 1 0    # normal (0,0,1) doesn't work for 2D, need (0,1,0) for y-direction
-0 0 -1 0

@@ -185,7 +185,7 @@ class TSIGenerator(BaseGenerator):
             "pitfalls": [
                 # Every Signal: below was produced by running
                 #   LD_LIBRARY_PATH=/opt/4C-dependencies/lib stdbuf -oL -eL \
-                #     /home/alexander/4C/build/4C <deck>.yaml <out>
+                #     {FOURC_BINARY} <deck>.yaml <out>
                 # on 4C 2026.2.0-dev (commit 89519cfe76), mutating one key at a
                 # time in upstream decks that all run clean unmutated:
                 #   tests/input_files/tsi_lindilatation_geolin.4C.yaml

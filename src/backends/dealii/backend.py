@@ -38,7 +38,7 @@ class DealiiRootOverrideError(RuntimeError):
     silently searching elsewhere means the install openPASO reports is not
     the install the user named. `DEAL_II_DIR=/tmp` used to log a warning
     and CONTINUE discovery, so the backend reported
-    `available — deal.II 9.8.0-pre at /home/alexander/dealii/build` while
+    `available — deal.II 9.8.0-pre at {DEALII_BUILD}` while
     the variable pointed at /tmp. Every surface then agreed the backend
     was fine, and the only place the wrong path would surface was the
     compile error, much later, naming neither variable.

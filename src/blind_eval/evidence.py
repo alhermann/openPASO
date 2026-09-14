@@ -263,7 +263,7 @@ PER_CODE_SIGNATURES = {
         r"^ N O R M A L   T E R M I N A T I O N$",
         r"^      F I N I T E   E L E M E N T S   F O R   B I O M E C H A N I C S",
     ],
-    # SPARTA is INSTALLED and runs here (/home/alexander/Schreibtisch/sparta/
+    # SPARTA is INSTALLED and runs here ({SPARTA_ROOT}/
     # src/spa_serial) -- the old comment claiming it was absent is stale. The
     # full `Loop time` line has four fields in fixed order; `child grid cells`
     # is SPARTA's hierarchical-grid term; the banner is a DATE in parentheses.

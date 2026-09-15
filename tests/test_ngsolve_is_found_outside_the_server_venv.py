@@ -72,3 +72,34 @@ def test_an_explicit_override_is_verified_not_trusted(finder, monkeypatch):
     found = finder._find_ngsolve_python()
     assert found is None or str(found) != bare, (
         "an NGSOLVE_PYTHON that cannot import ngsolve was accepted on trust")
+
+
+def test_it_resolves_inside_the_isolated_shell(finder, tmp_path):
+    """The case that actually bit: HOME is not HOME inside the sandbox.
+
+    `_sandboxed_process_argv` sets HOME to the cell's own work directory, so a
+    conda scan under `Path.home()` searches an empty tree. Measured: a run with
+    ngsolve present on the machine spent its entire budget calling
+    setup_backend(action='install') and pip-installing what was already there.
+    The discovered-backends config holds an absolute path that survives the
+    tmpfs, which is why it is consulted before any scan.
+    """
+    import shutil
+    import subprocess as sp
+
+    if shutil.which("bwrap") is None:
+        pytest.skip("bubblewrap is not installed on this machine")
+    if finder._find_ngsolve_python() is None:
+        pytest.skip("no interpreter on this machine can run ngsolve")
+
+    from langgraph_eval.agent import _sandboxed_process_argv
+    code = ("import sys,logging;logging.disable(logging.INFO);"
+            "sys.path.insert(0,'/tmp/openpaso-source/src');"
+            "from backends.ngsolve.backend import NgsolveBackend;"
+            "print(NgsolveBackend().check_availability()[0].value)")
+    argv = _sandboxed_process_argv(tmp_path, [sys.executable, "-c", code],
+                                   source_repo=REPO)
+    done = sp.run(argv, capture_output=True, text=True, timeout=600)
+    assert "available" in done.stdout, (
+        "inside the sandbox openPASO cannot see an NGSolve that is installed on "
+        f"this machine, so an agent will try to install it.\n{done.stderr[-1200:]}")

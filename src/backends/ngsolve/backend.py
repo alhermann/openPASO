@@ -73,6 +73,22 @@ def _find_ngsolve_python() -> Optional[Path]:
         if p.is_file():
             candidates.append((-1, str(p)))
 
+    # WHAT AUTODISCOVERY ALREADY RECORDED, and this is the entry that matters
+    # inside the sandbox. The isolated shell sets HOME to the cell's own work
+    # directory, so the conda scan below looks in an empty tree and finds
+    # nothing: measured, a run with ngsolve on the machine spent its whole
+    # budget calling setup_backend(action='install') and pip-installing what
+    # was already there. The discovered config holds an ABSOLUTE path that
+    # survives the tmpfs, and the repo it lives in is bound read-only.
+    try:
+        from core.autodiscovery import load_discovered_config
+        entry = ((load_discovered_config() or {}).get("backends") or {}).get("ngsolve")
+        recorded = (entry or {}).get("location")
+        if recorded and Path(recorded).is_file():
+            candidates.append((-3, str(recorded)))
+    except Exception:                                        # noqa: BLE001
+        pass
+
     candidates.append((0, sys.executable))
 
     for conda_base in (Path.home() / "miniconda3" / "envs",

@@ -132,7 +132,13 @@ def _interpreter(backend: str):
         from backends.fenics.backend import _find_fenics_python
         p = _find_fenics_python()
         return str(p) if p else None
-    if backend in ("skfem", "ngsolve"):
+    if backend == "ngsolve":
+        # See test_coupling_participants_run._interpreter: NGSolve is no
+        # longer required to live in openPASO's own venv.
+        from backends.ngsolve.backend import _find_ngsolve_python
+        found = _find_ngsolve_python()
+        return str(found) if found else None
+    if backend == "skfem":
         return sys.executable
     if backend == "dune":
         from backends.dune.backend import _find_dune_python

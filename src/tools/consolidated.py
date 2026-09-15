@@ -2590,6 +2590,112 @@ def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
             f"need to solve the problem.\n")
 
 
+def _verify_elastic(solution_files: str, source_term: str, coefficient: str,
+                    domain: str, equation: str) -> str:
+    """The elasticity branch of verify_pde_consistency.
+
+    Kept beside the scalar one rather than inside it because it needs three
+    things the scalar path does not: TWO source expressions, TWO material
+    constants, and four columns per row.
+    """
+    import csv as _csv
+    import json as _json
+    from pathlib import Path
+
+    from tools.pde_consistency import check_levels_elastic
+
+    def _fail(msg: str) -> str:
+        return "REFUSED: " + msg
+
+    # Two source expressions. A vector equation needs one per component, and
+    # guessing which single expression the agent meant is how a check starts
+    # answering about a problem it was not given.
+    parts = None
+    try:
+        loaded = _json.loads(source_term)
+        if isinstance(loaded, (list, tuple)) and len(loaded) == 2:
+            parts = [str(e) for e in loaded]
+    except Exception:                                        # noqa: BLE001
+        pass
+    if parts is None and ";" in str(source_term):
+        halves = str(source_term).split(";")
+        if len(halves) == 2:
+            parts = [h.strip() for h in halves]
+    if parts is None:
+        return _fail(
+            "your equation is vector elasticity, so this check needs BOTH "
+            "components of f. Pass source_term as a JSON pair, "
+            '\'["<f_x>", "<f_y>"]\', or as the two expressions separated by a '
+            "semicolon. One expression cannot be matched to a component, and "
+            "guessing is how a check answers about a problem it was not given.")
+
+    lam = mu = None
+    try:
+        got = _json.loads(coefficient)
+        if isinstance(got, dict):
+            low = {str(k).strip().lower(): v for k, v in got.items()}
+            for key in ("lambda", "lam", "lmbda", "l"):
+                if key in low:
+                    lam = float(low[key])
+                    break
+            for key in ("mu", "m", "g", "shear"):
+                if key in low:
+                    mu = float(low[key])
+                    break
+    except Exception:                                        # noqa: BLE001
+        pass
+    if lam is None or mu is None:
+        return _fail(
+            "elasticity needs both Lame constants, as "
+            '\'{"lambda": 480, "mu": 1200}\'. They are stated in your task; '
+            "this check will not infer them from the field, because a wrong "
+            "pair would make a right answer look wrong.")
+
+    try:
+        box = [tuple(float(v) for v in pair) for pair in _json.loads(domain)]
+    except Exception:                                        # noqa: BLE001
+        return _fail(f"domain {domain!r} must be JSON like [[0,1],[0,1]]")
+    if len(box) != 2:
+        return _fail("this elasticity check is written for two dimensions")
+
+    levels, problems = {}, []
+    for i, raw in enumerate(str(solution_files).split(","), start=1):
+        path = Path(raw.strip())
+        if not path.is_file():
+            problems.append(f"{path} does not exist")
+            continue
+        rows = []
+        try:
+            with path.open() as fh:
+                for row in _csv.reader(fh):
+                    try:
+                        rows.append(tuple(float(c) for c in row))
+                    except ValueError:
+                        continue                              # header
+        except OSError as exc:
+            problems.append(f"{path}: {exc}")
+            continue
+        rows = [r[:4] for r in rows if len(r) >= 4]
+        if not rows:
+            problems.append(
+                f"{path}: needs four numeric columns x, y, ux, uy — a vector "
+                f"problem is checked on both components")
+            continue
+        levels[i] = rows
+    if not levels:
+        return _fail("no readable level files. " + "; ".join(problems))
+
+    try:
+        result = check_levels_elastic(levels, parts[0], parts[1], lam, mu, box)
+    except Exception as exc:                                  # noqa: BLE001
+        return f"{type(exc).__name__}: {exc}"
+    out = result.as_dict()
+    out["operator"] = "-div(sigma(u)) = f, constant lambda and mu"
+    if problems:
+        out["files_skipped"] = problems
+    return _json.dumps(out, indent=2) + _UNIVERSAL_CORE
+
+
 def register_consolidated_tools(mcp: FastMCP):
     """Register all consolidated tools — ~12 tools instead of 48."""
     _MUST_READ_STATE["served"] = False
@@ -4470,6 +4576,30 @@ def register_consolidated_tools(mcp: FastMCP):
         _m = _OP.match(_eq)
         _matched = bool(_m and (_m.group(1) or "") in ("", "k", "a")
                         and (_m.group(4) or "") in _QUAL)
+
+        # LINEAR ELASTICITY IS A SECOND OPERATOR THIS CHECK NOW MODELS.
+        #
+        # It used to be the headline refusal, and rightly: the scalar adjoint
+        # applied to a displacement field reported it converging to the wrong
+        # solution, which meant nothing. But for CONSTANT lambda and mu the
+        # elasticity operator is self-adjoint exactly as constant-K diffusion
+        # is, so the same weak identity holds with L*v = -div(sigma(v)), and
+        # the sin^2 test function kills both boundary terms for a coupled side
+        # too. Calibration is in _adjoint_elastic_flat's docstring: on a
+        # manufactured case the exact field falls 64.8x while a 3 % error in
+        # ONE component stays flat.
+        #
+        # This matters beyond tidiness. The campaign family this refusal
+        # covered, C9, is the one with the only recent CORRECT cell -- so the
+        # single coupled problem that had started working was the one nothing
+        # could check.
+        _ELASTIC = _re.compile(
+            r"^-div\(sigma\(([a-z]+)\)\)=f"
+            r"(?:,sigma\(\1\)=.*)?$")
+        _is_elastic = bool(_ELASTIC.match(_eq))
+        if _is_elastic:
+            return _verify_elastic(solution_files, source_term, coefficient,
+                                   domain, equation)
         if not _eq:
             return (
                 "REFUSED: pass `equation=` exactly as your task states it.\n\n"
@@ -4551,6 +4681,7 @@ def register_consolidated_tools(mcp: FastMCP):
         if problems:
             out["files_skipped"] = problems
         return _json.dumps(out, indent=2) + _UNIVERSAL_CORE
+
 
     @mcp.tool()
     def verify_interface_flux(interface_files: str,

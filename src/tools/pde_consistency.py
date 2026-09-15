@@ -284,6 +284,18 @@ def check_levels(levels: dict, source_expr: str, coefficient,
         denom = max(abs(rhs), 1e-300)
         res.levels.append(LevelResult(lvl, len(rows), abs(lhs - rhs) / denom,
                                       f"lhs={lhs:.6e} rhs={rhs:.6e}"))
+    return _decide(res)
+
+
+def _decide(res: ConsistencyResult) -> ConsistencyResult:
+    """Turn per-level residuals into a verdict.
+
+    Shared by the scalar and the elasticity path so one operator cannot drift
+    into a different rule than the other: the verdict reads the FALL, and the
+    round-off, meaningless-magnitude and too-few-levels branches below are the
+    ones both operators need.
+    """
+    import math
     # A RESIDUAL OF 1e+297 IS NOT A VERDICT. Measured on real runs
     # outside this check's operator, the relative residual came back as
     # 1.197e+297 and 5.190e+293 — the ratio of two quantities that have nothing
@@ -352,3 +364,115 @@ def check_levels(levels: dict, source_expr: str, coefficient,
             f"which condition. A run that reports this honestly scores above "
             f"one that submits it as converged.")
     return res
+
+
+def _adjoint_elastic_flat(lam: float, mu: float, pts, box, direction: int):
+    """v and L*v for LINEAR ELASTICITY, v with value and slope zero on the box.
+
+    For constant lambda and mu the elasticity operator is self-adjoint, exactly
+    as constant-K diffusion is, so the same weak identity holds componentwise:
+
+        integral u . (L* v)  =  integral f . v ,
+        L* v = -div(sigma(v)) = -[ mu lap(v) + (mu + lambda) grad(div v) ]
+
+    and with a v whose value AND normal slope vanish on every face, both
+    boundary terms go for any u -- including a coupled side whose interface
+    carries the partner's displacement.
+
+    `direction` picks v = (W, 0) or (0, W) with W = prod sin^2, so the two
+    calls together test both momentum equations rather than a single mixture
+    that a sign error in one component could hide.
+
+    WHY THIS EXISTS. The scalar check REFUSES elasticity, deliberately: handed
+    an elasticity result set it once reported the field converging to the wrong
+    solution, which was meaningless. That refusal covers the campaign's C9
+    family, whose equation is exactly this one -- so the one coupled family
+    with a recent CORRECT was the one nothing could check.
+
+    Calibrated on a manufactured case deliberately not zero on the boundary
+    (u = (sin(pi x) sin(pi y) + x, (sin(pi x) sin(pi y))/2 + y/2), f computed
+    from it symbolically, lambda = 480, mu = 1200), levels 16 to 128, worst of
+    the two directions:
+
+        field                      residual                     fall
+        exact                      5.578e-03 -> 8.611e-05       64.8x
+        3 % low on ux              3.501e-02 -> 3.008e-02        1.2x
+        3 % low on uy              3.541e-02 -> 3.008e-02        1.2x
+        half amplitude             5.028e-01 -> 5.000e-01        1.0x
+        uy dropped entirely        1.000e+00 -> 1.000e+00        1.0x
+
+    The exact field falls at the documented factor of four per refinement and
+    every wrong one stays flat, including a 3 % amplitude error in a single
+    component.
+    """
+    import numpy as np
+
+    if len(box) != 2:
+        raise ValueError("the elasticity identity here is written for 2D")
+    xs = [np.asarray([p[d] for p in pts], dtype=float) for d in range(2)]
+    Ls = [float(hi - lo) for lo, hi in box]
+    a, b = math.pi / Ls[0], math.pi / Ls[1]
+    ax = a * (xs[0] - box[0][0])
+    by = b * (xs[1] - box[1][0])
+    S, T = np.sin(ax) ** 2, np.sin(by) ** 2
+    Sp, Tp = a * np.sin(2 * ax), b * np.sin(2 * by)
+    Spp, Tpp = 2 * a * a * np.cos(2 * ax), 2 * b * b * np.cos(2 * by)
+
+    W = S * T
+    lap = Spp * T + S * Tpp
+    Wxx, Wxy, Wyy = Spp * T, Sp * Tp, S * Tpp
+
+    if direction == 0:                       # v = (W, 0)
+        Lvx = -(mu * lap + (mu + lam) * Wxx)
+        Lvy = -((mu + lam) * Wxy)
+        return (W, np.zeros_like(W)), (Lvx, Lvy)
+    Lvx = -((mu + lam) * Wxy)                # v = (0, W)
+    Lvy = -(mu * lap + (mu + lam) * Wyy)
+    return (np.zeros_like(W), W), (Lvx, Lvy)
+
+
+def check_levels_elastic(levels: dict, source_x: str, source_y: str,
+                         lam: float, mu: float, box: list) -> ConsistencyResult:
+    """Does a DISPLACEMENT field satisfy -div(sigma(u)) = f on this box?
+
+    `levels` maps a level number to rows of (x, y, ux, uy). Both momentum
+    equations are tested and the WORST of the two decides the level, so a
+    component that is right cannot cover for one that is not.
+    """
+    import numpy as np
+
+    res = ConsistencyResult()
+    for lvl in sorted(levels):
+        rows = levels[lvl]
+        if not rows:
+            res.levels.append(LevelResult(lvl, 0, float("nan"), "no rows"))
+            continue
+        pts = [r[:2] for r in rows]
+        ux = np.asarray([r[2] for r in rows], dtype=float)
+        uy = np.asarray([r[3] for r in rows], dtype=float)
+        if not (np.all(np.isfinite(ux)) and np.all(np.isfinite(uy))):
+            res.levels.append(LevelResult(
+                lvl, len(rows), float("nan"),
+                "the delivered field carries a non-finite value"))
+            continue
+        weight, why = _detect_midpoint_grid(pts)
+        if weight is None:
+            res.levels.append(LevelResult(lvl, len(rows), float("nan"), why))
+            continue
+        fx = _eval_source(source_x, pts, 2)
+        fy = _eval_source(source_y, pts, 2)
+        worst, detail = -1.0, ""
+        for direction, f_here in ((0, fx), (1, fy)):
+            (vx, vy), (Lvx, Lvy) = _adjoint_elastic_flat(lam, mu, pts, box,
+                                                         direction)
+            lhs = float(np.sum(ux * Lvx + uy * Lvy) * weight)
+            rhs = float(np.sum(f_here * (vx if direction == 0 else vy))
+                        * weight)
+            rel = abs(lhs - rhs) / max(abs(rhs), 1e-300)
+            if rel > worst:
+                worst, detail = rel, (f"worst component is the "
+                                      f"{'x' if direction == 0 else 'y'} "
+                                      f"momentum equation: "
+                                      f"lhs={lhs:.6e} rhs={rhs:.6e}")
+        res.levels.append(LevelResult(lvl, len(rows), worst, detail))
+    return _decide(res)

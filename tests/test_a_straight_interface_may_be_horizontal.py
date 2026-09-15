@@ -286,7 +286,11 @@ y_if = vxy[iface_v, AL]"""
         "coordinates": [[float(x), 0.625] for x in xs],
         "values": [[0.0, 0.0] for _ in xs],
         "normal_fluxes": [[0.0, float(300.0 * np.sin(np.pi * x))] for x in xs]}}))
-    r = subprocess.run([str(VENV), "p.py"], cwd=tmp_path, capture_output=True, text=True, timeout=900)
+    # NOT the openPASO interpreter: NGSolve may live in another environment,
+    # and running its participant here fails with ModuleNotFoundError for a
+    # reason that has nothing to do with the horizontal-interface contract.
+    ngs_py = backend_probe.solver_python("ngsolve")
+    r = subprocess.run([str(ngs_py), "p.py"], cwd=tmp_path, capture_output=True, text=True, timeout=900)
     assert r.returncode == 0, f"the horizontal vector side did not run:\n{(r.stderr or r.stdout)[-1500:]}"
     e = json.loads((tmp_path / "exports.json").read_text())
     co = np.asarray(e["coordinates"], float)

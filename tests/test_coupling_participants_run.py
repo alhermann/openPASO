@@ -50,7 +50,16 @@ def _interpreter(backend: str):
         from backends.fenics.backend import _find_fenics_python
         p = _find_fenics_python()
         return str(p) if p else None
-    if backend in ("skfem", "ngsolve", "fourc", "dealii", "febio", "kratos"):
+    if backend == "ngsolve":
+        # NOT sys.executable. That was true while NGSolve could only ever be
+        # in openPASO's own venv; the backend now resolves an interpreter
+        # elsewhere, and a participant pointed at the wrong one fails with
+        # ModuleNotFoundError for a reason that has nothing to do with the
+        # contract under test.
+        from backends.ngsolve.backend import _find_ngsolve_python
+        found = _find_ngsolve_python()
+        return str(found) if found else None
+    if backend in ("skfem", "fourc", "dealii", "febio", "kratos"):
         return sys.executable                    # the wrapper runs here
     if backend == "dune":
         from backends.dune.backend import _find_dune_python

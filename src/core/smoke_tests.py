@@ -75,7 +75,16 @@ gfu = ngs.GridFunction(V)
 gfu.vec.data = a.mat.Inverse(V.FreeDofs()) * f.vec
 print(f'{{"ok": true, "max": {max(gfu.vec):.6f}, "version": "{ngs.__version__}"}}')
 '''
-    ok, stdout, stderr = _run_script(sys.executable, script)
+    # NOT `sys.executable`. NGSolve usually lives in its own environment, and
+    # the backend already resolves which interpreter that is -- so running the
+    # smoke script in openPASO's own Python asks a question about the wrong
+    # machine. Measured the moment the backend learned to look outside its own
+    # venv: check_availability() reported NGSolve 6.2.2604 and this smoke test
+    # answered "No module named 'ngsolve'" in the same second. Same defect the
+    # DUNE smoke test carried below, one backend over.
+    from backends.ngsolve.backend import _find_ngsolve_python
+    interpreter = str(_find_ngsolve_python() or sys.executable)
+    ok, stdout, stderr = _run_script(interpreter, script)
     dt = (time.time() - t0) * 1000
     if ok:
         try:

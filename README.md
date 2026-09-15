@@ -654,6 +654,30 @@ FEniCSx    deal.II       4C    NGSolve   skfem    Kratos     DUNE    FEBio   SPA
 
 ---
 
+## What is in this folder
+
+You need three of these. Everything else is for people working on openPASO itself, and
+**nothing in the second group needs to be run to use it.**
+
+| You use this | What it is |
+|---|---|
+| `README.md` | this page |
+| `.env.example` | copy to `.env` and put your OpenRouter key in it (Option B) |
+| `check_install.py` | the no-key install check above |
+| `run_agent.py` | one simulation from the command line (Option B) |
+
+| Not part of using openPASO | What it is |
+|---|---|
+| `src/` | openPASO itself — the MCP server and the nine backends |
+| `tests/`, `benchmarks/`, `validation/` | the test suite and measured results |
+| `scripts/` | development and measurement tooling |
+| `langgraph_eval/` | the agent loop `run_agent.py` is built on |
+| `webui/` | a browser front end for local model servers (vLLM on ports 8000–8002). It is a research setup, not one of the two ways above. See `webui/README.md` if that is what you want. |
+| `clear_history.sh`, `check_solver_updates.sh` | maintenance helpers for developers. **You do not need either.** `clear_history.sh` deletes your Claude Code conversation transcripts for this folder (it asks first); `check_solver_updates.sh` looks for new solver releases. |
+| `data/`, `docs/`, `logo/`, `simulation_outputs/` | solver knowledge, notes, artwork, and output from past runs |
+
+---
+
 ## Contributing
 
 Contributions are welcome. One rule stands above the rest: **every improvement must help

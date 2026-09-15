@@ -31,10 +31,20 @@ MIN_PYTHON, MAX_TESTED_PYTHON = (3, 10), (3, 13)
 
 
 def _first_line(text: object, limit: int = 88) -> str:
-    """Backends report failures as whole tracebacks. One line is the news."""
+    """Backends report failures as whole tracebacks. One line is the news.
+
+    THE MIDDLE IS WHAT GETS DROPPED, NOT THE END. These lines end in the path
+    the backend was found at, and that path is the whole point: it is how a
+    reader tells openPASO's own virtual environment apart from some other
+    Python on the same machine. Cutting the tail off throws away the evidence
+    and keeps the prefix every line shares.
+    """
     line = str(text or "").strip().splitlines()
     head = line[0] if line else ""
-    return head if len(head) <= limit else head[: limit - 1] + "…"
+    if len(head) <= limit:
+        return head
+    keep = limit - 3
+    return head[: keep // 3] + "…" + head[-(keep - keep // 3):]
 
 
 def _looks_like_a_version(text: object) -> bool:

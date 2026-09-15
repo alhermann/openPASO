@@ -395,7 +395,7 @@ Measured on this machine, per code:
     levels 1-2 give 1). Or ngsolve.solvers.CG(..., printrates=True), which is
     pure Python and works at the default level.
   * DUNE-fem           parameters={"linear.verbose": True} on galerkin(...).
-    `fem.solver.verbose` does NOT work. Ignore the DUNE-INFO "Compiling Space"
+    `fem.solver.verbose` does NOT work. Ignore the "Compiling Space"
     lines: they appear only on a cold JIT cache and vanish on a second run.
   * scikit-fem         logging.basicConfig(level=logging.INFO), or print(basis).
     Its log goes to STDERR, so `> log` without `2>&1` LOSES it.

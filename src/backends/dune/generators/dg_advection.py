@@ -245,7 +245,7 @@ KNOWLEDGE = {
                 "[Performance] Rebuilding the scheme inside the time "
                 "loop costs a full C++ compile per iteration. Signal: "
                 "the run produces no output for tens of minutes and "
-                "stderr fills with repeated DUNE-INFO: Compiling "
+                "stderr fills with repeated Compiling "
                 "Integrands (new) lines. That line has no literal "
                 "anywhere: dune/generator/cmakebuilder.py:378 builds "
                 "the tail as an f-string and Python's logging module "

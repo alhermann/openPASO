@@ -557,7 +557,7 @@ EXECUTED_API: dict = {
             "Lagrange spaces and then aluConformGrid + aluSimplexGrid "
             "+ aluCubeGrid in 2D and aluSimplexGrid + aluCubeGrid in "
             "3D took 439 s wall END TO END, of which the four "
-            "'DUNE-INFO: Compiling HierarchicalGrid (new)' builds "
+            "'Compiling HierarchicalGrid (new)' builds "
             "-- see also the p1Bubble note in _general['spaces']: a "
             "space the grid does not support burns the full build "
             "time and then fails on a C++ static_assert, not on a "
@@ -599,7 +599,7 @@ EXECUTED_API: dict = {
             "backends other than the default numpy were not "
             "exercised."),
         "Signal": (
-            "[Performance] A DUNE-INFO: Compiling <X> (new) line on "
+            "[Performance] A Compiling <X> (new) line on "
             "stderr — Python logging wrapping "
             "dune/common/__init__.py:49's "
             "'DUNE-%(levelname)s: %(message)s' around the f-string at "
@@ -1447,7 +1447,7 @@ EXECUTED_PITFALLS: list[str] = [
         "[Performance] The JIT cache is at <sys.prefix>/.cache/dune-py "
         "(inside a venv or conda env) or ~/.cache/dune-py otherwise, "
         "overridable with $DUNE_PY_DIR; the compiled modules are "
-        "<that>/python/dune/generated/*.so. Signal: a DUNE-INFO: "
+        "<that>/python/dune/generated/*.so. Signal: a "
         "Compiling <X> (new) line on stderr — Python logging "
         "rendering 'DUNE-%(levelname)s: %(message)s' from "
         "dune/common/__init__.py:49 around the f-string at "

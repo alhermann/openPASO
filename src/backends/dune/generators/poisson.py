@@ -160,7 +160,7 @@ KNOWLEDGE = {
             (
                 "[Performance] First DUNE-fem run triggers "
                 "JIT compilation of C++ code. Signal: a "
-                "'simple' Poisson solve prints DUNE-INFO: "
+                "'simple' Poisson solve prints "
                 "Compiling <X> (new) on stderr — assembled by "
                 "Python logging from dune/common/__init__.py:49, "
                 "'DUNE-%(levelname)s: %(message)s', around the "

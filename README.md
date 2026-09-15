@@ -57,7 +57,25 @@ specific error message really means, and how to check a result.
 
 ## Install
 
-Do this first, whichever way you choose afterwards.
+> [!IMPORTANT]
+> **openPASO is not useful on its own.** It is the part that drives the solvers; the
+> thinking is done by an AI model, which you bring. So before you install, know which of
+> these two you will have — the install itself is the same either way, but it is a
+> ten-minute install and you should not reach the end and find out you have neither.
+
+There are two ways to use openPASO. **Pick one.**
+
+|  | Option A — an AI app | Option B — your own API key |
+|---|---|---|
+| **You need** | Claude Code, Claude Desktop or Cursor | an account at openrouter.ai |
+| **Extra cost** | none beyond your subscription | you pay for what you use |
+| **Choice of model** | whatever the app offers | any model on OpenRouter |
+| **Good for** | trying it out, everyday work | scripting, experiments, cheap models |
+
+Not sure whether your app works? If you have **Claude Code**, type `claude mcp list` in a
+terminal. If the command exists, use Option A.
+
+Now install. Do this whichever way you picked.
 
 You need **Python 3.10 to 3.13** and **at least one** solver. You do not need all nine —
 openPASO tells you what is missing and how to get it.
@@ -113,26 +131,36 @@ pip install -r langgraph_eval/requirements-langgraph.txt
 
 ### Check that it works
 
-```bash
-cd src
-python -m server
-```
-
-You should see a list of lines ending with:
-
-```
-INFO: Starting openPASO MCP server
-```
-
-That is success. The program then waits and prints nothing more — this is correct, it is
-waiting for an AI model to talk to it. Press **Ctrl+C** to stop it, then go back up:
+One command. It needs no API key, no AI app and no network:
 
 ```bash
-cd ..            # the next steps expect you here, in the openPASO folder
+python check_install.py
 ```
 
-If you instead see `ModuleNotFoundError`, your virtual environment is not active. Run
-`source .venv/bin/activate` and try again.
+It prints which of the nine solvers openPASO can actually see on your machine, and for
+each one it cannot see, the command that installs it. If you installed `scikit-fem`
+above, it must appear with a tick:
+
+```
+✔ Python 3.12 — supported.
+✔ openPASO imports, and its tools are registered.
+
+Solvers openPASO can see on this machine — 1 of 9:
+
+  ✔ scikit-fem
+      scikit-fem 12.0.2 at /home/you/openPASO/.venv/bin/python
+  ✘ NGSolve
+      not installed — to get it:  python -m pip install ngsolve
+  ...
+
+✔ Install is working: 1 solver(s) ready.
+```
+
+**One tick in that list is enough to go on.** You do not need all nine.
+
+If it says `openPASO itself does not import`, your virtual environment is not active:
+run `source .venv/bin/activate` and try again. If it says `No solver is usable`, run
+`pip install scikit-fem` and check again.
 
 > [!NOTE]
 > **Windows:** the commands above are for Linux and macOS. On Windows use
@@ -249,47 +277,9 @@ settings it checks rather than trusts.
 
 ---
 
-## See it work
-
-> [!NOTE]
-> The example below is **Option B**, one of the two ways to use openPASO. It needs an
-> OpenRouter key. If you use Claude Code, Claude Desktop or Cursor, you never type this
-> command — you ask in the app instead. Both ways are in [Start here](#start-here).
-
-```console
-$ python run_agent.py "Use the discover tool to list available solvers, then answer in one sentence."
-
-  model    deepseek/deepseek-v4.1-flash
-  starting the openPASO server ...
-
-  24 solver tools ready
-────────────────────────────────────────────────────────────────────────
-  → discover(query='list')
-    ← discover: 1 line(s)
-
-All nine backends are available on this install: 4C Multiphysics,
-FEniCSx (dolfinx 0.10.0), deal.II 9.8.0-pre, FEBio, NGSolve 6.2.2604,
-scikit-fem 12.0.1, Kratos Multiphysics 10.3, DUNE-fem, and SPARTA (DSMC).
-
-────────────────────────────────────────────────────────────────────────
-  done
-```
-
----
-
 ## Start here
 
-There are two ways to use openPASO. **Pick one.**
-
-|  | Option A — an AI app | Option B — your own API key |
-|---|---|---|
-| **You need** | Claude Code, Claude Desktop or Cursor | an account at openrouter.ai |
-| **Extra cost** | none beyond your subscription | you pay for what you use |
-| **Choice of model** | whatever the app offers | any model on OpenRouter |
-| **Good for** | trying it out, everyday work | scripting, experiments, cheap models |
-
-Not sure whether your app works? If you have **Claude Code**, type `claude mcp list` in a
-terminal. If the command exists, use Option A.
+You picked A or B at the top of [Install](#install). Here is each one in full.
 
 ### Option A — you already pay for an AI app
 
@@ -322,10 +312,15 @@ Three details matter, and each one fails silently if you get it wrong:
 Check that it worked:
 
 ```bash
-claude mcp list          # openpaso should be listed, and connected
+claude mcp list          # openpaso should be listed, and ✔ Connected
 ```
 
 If Claude Code was already running, restart it so it picks up the new server.
+
+If instead of `✔ Connected` you see **`⏸ Pending approval`**, you used `-s project` or
+`-s local` rather than `-s user`. Those scopes write the server into the current folder
+and ask you to approve it: start `claude` in that folder and accept, or remove it with
+`claude mcp remove openpaso` and run the command above again exactly as written.
 
 **Claude Desktop** — first get your full path. In the openPASO folder run:
 
@@ -425,7 +420,8 @@ pick their Python from the environment; without it they can pick the wrong one.
 >
 > Without this the solver installs correctly, works in your terminal, and openPASO still
 > reports it as missing. The same applies to `FOURC_BINARY`, `SPARTA_BINARY` and
-> `DUNE_PYTHON`.
+> `DUNE_PYTHON`. To see what openPASO itself finds, run `python check_install.py` — but
+> run it with the same variables set, or it will not see them either.
 
 **Cursor, Windsurf, or any other MCP app** — use the command
 `/path/to/openPASO/.venv/bin/python`, the arguments `-m server`, and **all three**
@@ -495,6 +491,35 @@ do. The most common cases:
 | openpaso is missing when you work in another folder | It was added for one folder only. Remove it and add it again with `-s user` |
 | the app lists it but every tool call fails | The `command` path must point at `.venv/bin/python` inside openPASO, not at your system Python |
 
+
+---
+
+## What a run looks like
+
+This is a real transcript of Option B, so you can see the shape of a session before you
+start one. If you chose Option A you never type this command — you ask the same thing
+inside your app and see the same tool calls there.
+
+```console
+$ python run_agent.py "Use the discover tool to list available solvers, then answer in one sentence."
+
+  model    deepseek/deepseek-v4.1-flash
+  starting the openPASO server ...
+
+  24 solver tools ready
+────────────────────────────────────────────────────────────────────────
+  → discover(query='list')
+    ← discover: 1 line(s)
+
+All nine backends are available on this install: 4C Multiphysics,
+FEniCSx (dolfinx 0.10.0), deal.II 9.8.0-pre, FEBio, NGSolve 6.2.2604,
+scikit-fem 12.0.1, Kratos Multiphysics 10.3, DUNE-fem, and SPARTA (DSMC).
+
+────────────────────────────────────────────────────────────────────────
+  done
+```
+
+---
 
 ---
 

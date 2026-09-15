@@ -25,10 +25,10 @@ T2_MUTATE="${T2_MUTATE:-0}"
 export T2_MUTATE
 
 echo "=== hp::Refinement p-adaptivity symbols that exist in this library"
-grep -o "p_adaptivity_[a-z_]*" /home/user/dealii/include/deal.II/hp/refinement.h \
+grep -o "p_adaptivity_[a-z_]*" ${DEALII_ROOT:-$HOME/dealii}/include/deal.II/hp/refinement.h \
   | sort -u | sed 's/^/hp_refinement_symbol=/'
 echo -n "p_adaptivity_from_smoothness_occurrences_in_headers="
 grep -rc "p_adaptivity_from_smoothness" \
-  /home/user/dealii/include/deal.II/hp/refinement.h || true
+  ${DEALII_ROOT:-$HOME/dealii}/include/deal.II/hp/refinement.h || true
 
 exec bash "$HERE/../_shared/run.sh" hp_family release no_smoothness_estimator

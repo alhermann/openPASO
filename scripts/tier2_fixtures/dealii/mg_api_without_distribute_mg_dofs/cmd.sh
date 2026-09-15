@@ -35,7 +35,7 @@ for s in "n_dofs(level) can only be called after distribute_mg_dofs" \
          "prerequisite for multigrid transfers" \
          "The level dofs are not set up properly"; do
   echo -n "message_files[$s]="
-  grep -rl "$s" /home/user/dealii/include /home/user/dealii/source \
+  grep -rl "$s" ${DEALII_ROOT:-$HOME/dealii}/include ${DEALII_ROOT:-$HOME/dealii}/source \
     2>/dev/null | wc -l
 done
 

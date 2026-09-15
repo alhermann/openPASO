@@ -18,14 +18,14 @@
 #
 # 2026-06-01: written against 4C 2026.3.0-dev, where SOLID won.
 # 2026-08-03: re-run against the deployed 4C 2026.2.0-dev
-#             (git 89519cf) at /home/user/4C/build/4C, where WALL
+#             (git 89519cf) at ${FOURC_ROOT:-$HOME/4C}/build/4C, where WALL
 #             wins — the original one-sided expectation was falsified
 #             on this host, which is why the fixture is now
 #             era-agnostic instead of being deleted or inverted.
 set -u
 # Resolve the 4C binary: explicit override first, then the paths this
 # repo has been verified against (2026-08-03 verification host runs
-# 4C 2026.2.0-dev at /home/user/4C/build/4C).
+# 4C 2026.2.0-dev at ${FOURC_ROOT:-$HOME/4C}/build/4C).
 for _c in "${FOURC_BINARY:-}" "$HOME/4C/build/4C" "$HOME/Schreibtisch/4C-src/4C/build/4C"; do
   [ -x "$_c" ] && BIN="$_c" && break
 done

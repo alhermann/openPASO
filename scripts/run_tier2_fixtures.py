@@ -661,6 +661,27 @@ def _eval_fixture(fixture_dir: Path,
             that from the path.
             """
             cands = [env.get(env_var)]
+
+            # ASK openPASO FIRST. The env-name list is a guess and it goes
+            # stale: it holds ofa-dune, dune-fem-env and dune311 while the
+            # DUNE install on this host is dune-py313, so every candidate
+            # failed the import probe and 38 of 41 DUNE fixtures were recorded
+            # as fixture failures rather than as a lookup that found nothing.
+            # openPASO resolves this for its own use; adding another name to
+            # the list only postpones the next time it is wrong.
+            try:
+                import sys as _s
+                _s.path.insert(0, str(REPO_ROOT / "src"))
+                if probe_module.startswith("dune"):
+                    from backends.dune.backend import _find_dune_python
+                    cands.append(_find_dune_python())
+                elif probe_module.startswith("dolfinx"):
+                    from backends.fenics.backend import _find_fenics_python
+                    _f = _find_fenics_python()
+                    cands.append(str(_f) if _f else None)
+            except Exception:                      # noqa: BLE001
+                pass
+
             for name in env_names:
                 cands.append(str(Path.home() / "miniconda3" / "envs" / name
                                  / "bin" / "python"))

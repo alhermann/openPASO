@@ -11,8 +11,8 @@
 # Mutation control: T2_MUTATE=1 compiles the same file without naming any SLEPc
 # class, so it builds and the diagnostic disappears.
 set -u
-REL=/home/user/dealii/build
-SRC=/home/user/dealii
+REL=${DEALII_ROOT:-$HOME/dealii}/build
+SRC=${DEALII_ROOT:-$HOME/dealii}
 W="$(mktemp -d)"; trap 'rm -rf "$W"' EXIT
 
 echo "=== config.h is the availability test"

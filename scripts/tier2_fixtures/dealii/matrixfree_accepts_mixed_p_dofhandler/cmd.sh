@@ -28,9 +28,9 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 
 echo -n "files_with_all_cells_must_have_same_active_fe_index="
 grep -rl "all cells must have same active_fe_index" \
-  /home/user/dealii/include /home/user/dealii/source 2>/dev/null | wc -l
+  ${DEALII_ROOT:-$HOME/dealii}/include ${DEALII_ROOT:-$HOME/dealii}/source 2>/dev/null | wc -l
 echo -n "files_with_hp_fevalues_requires_hp_mappingcollection="
 grep -rl "hp-FEValues requires hp::MappingCollection" \
-  /home/user/dealii/include /home/user/dealii/source 2>/dev/null | wc -l
+  ${DEALII_ROOT:-$HOME/dealii}/include ${DEALII_ROOT:-$HOME/dealii}/source 2>/dev/null | wc -l
 
 exec bash "$HERE/../_shared/run.sh" hp_family release matrixfree_hp_support

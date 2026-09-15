@@ -64,7 +64,7 @@ def build_model(model_id: str, api_key: str, temperature: float):
 
 
 async def run(task: str, *, model_id: str, api_key: str, workdir: Path | None,
-              temperature: float, step_limit: int) -> int:
+              temperature: float, step_limit: int, keep_going: int = 0) -> int:
     # LangGraph 1.0 moved this factory and renamed its prompt argument.
     try:
         from langchain.agents import create_agent
@@ -86,28 +86,73 @@ async def run(task: str, *, model_id: str, api_key: str, workdir: Path | None,
         print(f"  {len(tools)} solver tools ready\n" + "─" * 72, flush=True)
         agent = create_agent(build_model(model_id, api_key, temperature),
                              tools=tools, **{prompt_kwarg: INSTRUCTIONS})
+        history = [("user", task)]
         final = None
-        async for step in agent.astream(
-                {"messages": [("user", task)]},
-                {"recursion_limit": step_limit},
-                stream_mode="values"):
-            message = step["messages"][-1]
-            final = message
-            kind = getattr(message, "type", "")
-            for call in getattr(message, "tool_calls", None) or []:
-                print(f"  → {call['name']}({_short(call.get('args'))})", flush=True)
-            if kind == "tool":
-                # The solver's own answer goes to the model, not to the screen;
-                # a raw tool payload is long and is not written for a reader.
-                lines = str(getattr(message, "content", "")).count("\n") + 1
-                print(f"    ← {message.name}: {lines} line(s)", flush=True)
-                continue
-            text = getattr(message, "content", "")
-            if text and kind == "ai" and not getattr(message, "tool_calls", None):
-                print(f"\n{text}\n", flush=True)
+        for attempt in range(keep_going + 1):
+            final = None
+            async for step in agent.astream(
+                    {"messages": history},
+                    {"recursion_limit": step_limit},
+                    stream_mode="values"):
+                message = step["messages"][-1]
+                final = message
+                history = list(step["messages"])
+                kind = getattr(message, "type", "")
+                for call in getattr(message, "tool_calls", None) or []:
+                    print(f"  → {call['name']}({_short(call.get('args'))})", flush=True)
+                if kind == "tool":
+                    # The solver's own answer goes to the model, not to the
+                    # screen; a raw tool payload is long and is not written
+                    # for a reader.
+                    lines = str(getattr(message, "content", "")).count("\n") + 1
+                    print(f"    ← {message.name}: {lines} line(s)", flush=True)
+                    continue
+                text = getattr(message, "content", "")
+                if text and kind == "ai" and not getattr(message, "tool_calls", None):
+                    print(f"\n{text}\n", flush=True)
+            if attempt >= keep_going:
+                break
+            print(f"  ── the model stopped without a tool call; continuing "
+                  f"({attempt + 1} of {keep_going}) ──", flush=True)
+            history.append(("user", _KEEP_GOING_NUDGE))
         print("─" * 72)
-        print("  done" if final is not None else "  the model returned nothing")
+        if final is None:
+            print("  the model returned nothing")
+        elif keep_going == 0 and not _looks_finished(final):
+            # A ONE-SHOT RUN ENDS WHEN THE MODEL STOPS CALLING TOOLS, AND A
+            # MODEL OFTEN STOPS BY ASKING A QUESTION. Measured on a coupled
+            # task here: it wrote both participant scripts, hit an API error,
+            # printed "Would you like me to continue debugging ...?" and the
+            # run ended at 20 of 200 allowed steps with none of the requested
+            # files written. Nothing said the job was unfinished.
+            print("  done — but the model ended by asking rather than "
+                  "finishing.")
+            print("  If you want it to carry on by itself, re-run with "
+                  "--keep-going 8.")
+        else:
+            print("  done")
     return 0
+
+
+_KEEP_GOING_NUDGE = (
+    "Your last turn ended without a tool call, so this task is not finished. "
+    "Nothing will stop you except the step budget. Continue from exactly where "
+    "you stopped, and do not ask whether to continue -- there is nobody to "
+    "answer. If you have genuinely exhausted what you can do, say so plainly "
+    "and state what is missing."
+)
+
+
+def _looks_finished(message) -> bool:
+    """Did the model end by finishing, or by asking?
+
+    Deliberately crude: it only decides which of two closing lines to print,
+    never whether to keep working. A question mark in the last sentence of a
+    final message is the shape of "shall I go on?", which is the case worth
+    naming.
+    """
+    text = str(getattr(message, "content", "") or "").strip()
+    return not text.endswith("?")
 
 
 def _short(args, width: int = 90) -> str:
@@ -126,6 +171,10 @@ def main() -> int:
                     help="folder for this run's files (default: the current folder)")
     ap.add_argument("--temperature", type=float, default=0.2,
                     help="0.0 is the most repeatable, 1.0 the most varied (default 0.2)")
+    ap.add_argument("--keep-going", type=int, default=0, metavar="N",
+                    help="if the model stops without finishing, tell it to "
+                         "continue, up to N times. Use it for unattended runs; "
+                         "0 (the default) ends when the model stops.")
     ap.add_argument("--step-limit", type=int, default=200,
                     help="stop after this many agent steps (default 200)")
     args = ap.parse_args()
@@ -164,7 +213,8 @@ def main() -> int:
         return asyncio.run(run(task, model_id=model_id, api_key=api_key,
                                workdir=args.workdir,
                                temperature=args.temperature,
-                               step_limit=args.step_limit))
+                               step_limit=args.step_limit,
+                               keep_going=max(0, args.keep_going)))
     except KeyboardInterrupt:
         print("\n  stopped by you")
         return 130

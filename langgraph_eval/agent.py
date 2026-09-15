@@ -38,6 +38,7 @@ import os
 import shutil
 import signal
 import subprocess
+import sys
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -356,7 +357,27 @@ def _sandboxed_process_argv(workdir: Path, process: list[str], *,
     private_tmp = sandbox_scratch_for(work)
     home = Path.home().resolve()
     workspace = REPO.parent.resolve()
+    # THE INTERPRETER RUNNING THIS MUST SURVIVE THE tmpfs OVER $HOME, and it is
+    # named here by where it actually is rather than by a checkout name.
+    #
+    # The list below used to start at `workspace / "open-fem-agent/.venv"`,
+    # a sibling directory that happened to be this machine's older checkout.
+    # openPASO's own `.venv` was not in it. A clone anywhere under $HOME --
+    # which is what the README tells a reader to make -- therefore had its
+    # virtual environment hidden by the tmpfs, and `run_agent.py` died before
+    # the first model call with `McpError: Connection closed` above a bare
+    # `bwrap: execvp .../.venv/bin/python: No such file or directory`. Nothing
+    # in that pair names the cause. It was invisible here because a clone
+    # OUTSIDE $HOME (in /tmp, say) is not hidden and works fine.
+    #
+    # `sys.prefix` and `sys.base_prefix` cover a venv layered on conda or on a
+    # system Python, where the executable is a symlink out of the venv; REPO's
+    # own `.venv` covers the symlink path itself, which must exist to be
+    # followed.
     runtime_paths = (
+        REPO / ".venv",
+        Path(sys.prefix),
+        Path(sys.base_prefix),
         workspace / "open-fem-agent/.venv",
         workspace / "febio-src/cbuild",
         workspace / "sparta/src",

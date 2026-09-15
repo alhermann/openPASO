@@ -63,6 +63,21 @@ _TRAPS: tuple[tuple[str, str, str, str], ...] = (
     ("ngsolve", r"\bimport\s*\([^)]*\binverse\b|,\s*inverse\s*[,)]\s*$",
      "ImportError: cannot import name 'inverse' from 'ngsolve'",
      "`inverse` is a KEYWORD of Inverse: a.mat.Inverse(fes.FreeDofs(), inverse='sparsecholesky')"),
+    # THE MOST COMMON NGSOLVE FAILURE ON RECORD, and the write-side is where it
+    # is cheap: measured across the graded vector-elasticity cells,
+    # `cannot import name 'sym' from 'ngsolve'` is the single most frequent
+    # NGSolve error, and a live full-task trial burned its budget on `Div`,
+    # reporting "the NGSolve version installed has different function names
+    # (lowercase div vs uppercase Div)". Both names are unguessable because
+    # NGSolve capitalises the opposite way to every other code here.
+    ("ngsolve", r"from\s+ngsolve\s+import[^\n]*\bsym\b|\bngsolve\.sym\s*\(",
+     "ImportError: cannot import name 'sym' from 'ngsolve'",
+     "ngsolve exports Sym, Trace, Grad, grad, div, Id, InnerProduct -- and does NOT export "
+     "sym, trace or Div. Sym and Trace act on a MATRIX only, so the strain is Sym(Grad(u)) "
+     "and never Sym(u); the identity is Id(mesh.dim), never Id()"),
+    ("ngsolve", r"(?<![A-Za-z_.])Div\s*\(|\bngsolve\.Div\b",
+     "AttributeError / ImportError: ngsolve has no 'Div'",
+     "the divergence is lowercase div(u); inside a stress it is Trace(Sym(Grad(u)))"),
     ("ngsolve", r"\.vec\.vec\b",
      "AttributeError: 'BaseVector' object has no attribute 'vec'",
      "a LinearForm's vector is f.vec and it is already the BaseVector"),
@@ -278,6 +293,14 @@ _ERROR_FIXES: tuple = (
     ("cannot import name 'inverse' from 'ngsolve'",
      "NGSolve: `inverse` is a KEYWORD of Inverse, not an import -- "
      "a.mat.Inverse(fes.FreeDofs(), inverse='sparsecholesky')"),
+    ("cannot import name 'sym' from 'ngsolve'",
+     "NGSolve: there is no `sym`. Sym and Trace exist but act on a MATRIX -- the strain is "
+     "Sym(Grad(u)), never Sym(u) (that raises 'Sym of non-matrix called') -- and the identity "
+     "is Id(mesh.dim), never Id()"),
+    ("Sym of non-matrix called",
+     "NGSolve: Sym takes a matrix, so build the strain from the gradient -- Sym(Grad(u)), not Sym(u)"),
+    ("cannot import name 'Div' from 'ngsolve'",
+     "NGSolve: the divergence is lowercase div(u); inside a stress it is Trace(Sym(Grad(u)))"),
     ("BaseVector' object has no attribute 'vec'",
      "NGSolve: a LinearForm's vector IS f.vec; assign through .data and read numbers with FV().NumPy()"),
     ("must not have TrialFunction",

@@ -26,11 +26,91 @@ from .generators import GENERATORS, KNOWLEDGE
 logger = logging.getLogger("openpaso.ngsolve")
 
 
+_NGSOLVE_PYTHON_CACHE: dict[str, Optional[str]] = {}
+
+
 def _find_ngsolve_python() -> Optional[Path]:
-    """Locate the Python binary with ngsolve installed."""
+    """Locate and VERIFY the Python interpreter that can run ngsolve.
+
+    THIS USED TO RETURN sys.executable AND NOTHING ELSE, which made NGSolve
+    the one backend that could not be pointed anywhere. On a machine with
+    ngsolve installed in two separate interpreters, openPASO reported
+    "No Python with ngsolve found" and an agent given an NGSolve task spent
+    its run trying to install what was already there. Both callers are fixed
+    by fixing this one function: check_availability() and run() share it, so
+    the interpreter that answers the question is the one that does the work.
+
+    Resolution order, mirroring DUNE and FEniCSx:
+      * NGSOLVE_PYTHON      -- an explicit interpreter
+      * NGSOLVE_CONDA_PREFIX -- an explicit conda env root
+      * the active interpreter, because `pip install ngsolve` into openPASO's
+        own virtual environment is the documented easy route and needs no
+        subprocess hop
+      * a conda env whose name mentions ngsolve or netgen
+      * any other conda env
+
+    Every candidate is VERIFIED by building a mesh and a function space, not
+    by importing the package. DUNE taught this the expensive way: an import
+    can succeed against a broken C-ABI and fail the moment real work starts,
+    so openPASO picked the poisoned interpreter and four coupled runs died on
+    it. NGSolve has the same shape -- a Python package over a compiled core.
+    """
+    import subprocess
     import sys
-    # 1. The Python running this server (venv-aware)
-    return Path(sys.executable)
+
+    if "python" in _NGSOLVE_PYTHON_CACHE:
+        found = _NGSOLVE_PYTHON_CACHE["python"]
+        return Path(found) if found else None
+
+    candidates: list[tuple[int, str]] = []
+
+    env_python = os.environ.get("NGSOLVE_PYTHON", "")
+    if env_python and Path(env_python).is_file():
+        candidates.append((-2, env_python))
+    env_prefix = os.environ.get("NGSOLVE_CONDA_PREFIX", "")
+    if env_prefix:
+        p = Path(env_prefix) / "bin" / "python"
+        if p.is_file():
+            candidates.append((-1, str(p)))
+
+    candidates.append((0, sys.executable))
+
+    for conda_base in (Path.home() / "miniconda3" / "envs",
+                       Path.home() / "anaconda3" / "envs",
+                       Path.home() / "miniforge3" / "envs"):
+        if not conda_base.is_dir():
+            continue
+        for env_dir in sorted(conda_base.iterdir()):
+            py = env_dir / "bin" / "python"
+            if py.is_file():
+                name = env_dir.name.lower()
+                priority = 1 if ("ngsolve" in name or "netgen" in name) else 2
+                candidates.append((priority, str(py)))
+
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for _priority, py in sorted(candidates, key=lambda x: x[0]):
+        if py not in seen:
+            seen.add(py)
+            ordered.append(py)
+
+    probe = ("from netgen.geom2d import unit_square\n"
+             "from ngsolve import Mesh, H1\n"
+             "H1(Mesh(unit_square.GenerateMesh(maxh=0.5)), order=1)\n"
+             "print('OK')\n")
+    for python in ordered:
+        try:
+            result = subprocess.run([python, "-c", probe],
+                                    stdin=subprocess.DEVNULL,
+                                    capture_output=True, text=True, timeout=60)
+            if result.returncode == 0 and "OK" in result.stdout:
+                _NGSOLVE_PYTHON_CACHE["python"] = python
+                return Path(python)
+        except Exception:                                    # noqa: BLE001
+            continue
+
+    _NGSOLVE_PYTHON_CACHE["python"] = None
+    return None
 
 
 class NgsolveBackend(SolverBackend):

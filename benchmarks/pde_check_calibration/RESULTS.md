@@ -21,23 +21,29 @@ separates three self-consistent coupled runs, one right and two wrong.
 That argument had not been measured. The cells are still on disk with their graded
 outcomes, so it can be.
 
-## What the numbers say
+## Headline
 
-**219 graded coupled cells replayed. 94 have solution files to check.**
+**219 graded coupled cells replayed. 94 have solution files to check.** The first
+measurement found two defects in the check; both were fixed here, and the table is the
+same 94 cells before and after.
 
-| | cells | check says INCONSISTENT |
-|---|---|---|
-| graded **CORRECT** | 14 | **1** — a false alarm |
-| graded **wrong** (confidently wrong + unphysical) | 17 | **6** — caught |
-| | | 11 wrong cells: silent |
+| version of the check | false alarms on CORRECT | wrong cells caught | no verdict |
+|---|---|---|---|
+| as shipped (test function = product of sines) | **1 of 14** | 6 of 17 | 78 |
+| sines, with sin² behind a size test | 1 of 14 | 16 of 17 | 35 |
+| **sin² always (now shipped)** | **0 of 14** | **14 of 17** | 35 |
 
-Three findings, in order of how much they matter.
+The middle row catches two more wrong cells and is the one **not** adopted: the campaign's
+own admission rule is that a gate must speak on **zero** of the CORRECT cells —
+`run_log_identity_findings` was withdrawn at 9 of 32, `ndof_ladder_findings` at 8 of 32.
+A gate at 1 of 14 does not qualify however many wrong cells it catches, because a false
+accusation tells an agent to throw away work that is right.
 
-### 1. It refuses the family that motivated it
+## Finding 1 — it refuses the family that motivated it
 
-The three cells quoted in the campaign log as the reason for by-default adoption —
-8631 CORRECT, 8632 COMPLETED_UNPHYSICAL, 8472 CONFIDENTLY_WRONG — are all **C9, linear
-elasticity**. Replayed, all three come back `REFUSED`:
+Unchanged, and not fixable by anything here. The three cells quoted in the campaign log as
+the reason for by-default adoption — 8631 CORRECT, 8632 COMPLETED_UNPHYSICAL, 8472
+CONFIDENTLY_WRONG — are all **C9, linear elasticity**. All three come back `REFUSED`:
 
 ```
 C9  8631   CORRECT                -> REFUSED
@@ -48,64 +54,103 @@ C9  8472   CONFIDENTLY_WRONG      -> REFUSED
 The check implements one operator, `-div(K grad u) = f` with constant symmetric K, and
 refuses anything else on purpose — the guard exists because unguarded it once called an
 elasticity result INCONSISTENT and blessed a biharmonic one. C9 states
-`-div(sigma(u)) = f`, so the guard fires. **C3 is refused too** (`-div(k grad u) + c*u = f`
-on one subdomain), and C3 is the most productive coupled family in the record, 17 of the
-33 CORRECT cells.
+`-div(sigma(u)) = f`, so the guard fires. **C3 is refused too**
+(`-div(k grad u) + c*u = f` on one subdomain), and C3 is the most productive coupled
+family in the record, 17 of the 33 CORRECT cells.
 
 Accepted: C2, C8, C10. Refused: C3, C9.
 
-### 2. On a coupled problem, one side is almost always NOT_APPLICABLE
+## Finding 2 — one side of a coupled problem was almost always NOT_APPLICABLE, and is not any more
 
-Across the 94 cells with files, side B came back `NOT_APPLICABLE` **92 times**. The check
-explains this itself:
+In the first measurement, side B came back `NOT_APPLICABLE` **92 times out of 94**. The
+check explained itself honestly: its identity needed `u = 0` on the whole boundary, which
+one side of a partitioned coupling never has, because the interface carries the partner's
+data. So the check could not speak about almost any coupled problem — which is exactly
+where it was about to run by default.
 
-> "the delivered field is not near zero on the boundary of the box. This check's identity
-> needs u = 0 on the whole boundary, so it does not apply here — **which is the normal
-> case for one side of a coupled problem, where the interface carries the partner's
-> data.** Nothing is asserted."
-
-That is not a defect in the check. It is the check being honest about a limit that
-happens to coincide with the shape of every coupled problem in the campaign.
-
-### 3. It fires on a cell that is right
-
-`C2 seed 6751`, graded **CORRECT**, side A:
+**That limit was removable.** Integrating the identity by parts twice leaves two boundary
+terms:
 
 ```
-verdict     : INCONSISTENT
-observed    : rate 0.16, weak residual FLAT 1.324e-02 -> 1.060e-02 over 3 levels
-explanation : "the field is converging to something that is not the solution of the
-               stated problem. Look at the source term first ..."
+closed_int  -K grad(u).n v   -> zero because v = 0 on the face
+closed_int   u K grad(v).n   -> survives unless u = 0 on the face
 ```
 
-Side B of the same cell is `NOT_APPLICABLE` for the boundary reason above — so the
-boundary test caught the coupling on one side and did not on the other, and where it did
-not, it produced a confident wrong verdict.
+A product of half-period sines kills only the first. A product of **sin²** has value *and*
+normal slope zero on every face, so both go for any `u` at all, and no assumption about
+the field's boundary trace is needed.
 
-This matters against the campaign's own admission rule. Every gate admitted overnight had
-to speak on **0 of the 32/33 CORRECT cells**; `run_log_identity_findings` was withdrawn at
-9 of 32, `ndof_ladder_findings` at 8 of 32. By that standard this check, run by default on
-coupled levels, speaks on **1 of 14**.
+Calibrated on a manufactured case deliberately not zero on the boundary
+(`u = sin(pi x) sin(pi y) + x`, so `-lap u = 2 pi² sin sin`), levels 16 → 128:
 
-The risk is the one the check's own source names: *"The first tells an agent to throw away
-work that may be right."*
+| test function | correct field | wrong field (½ amplitude) |
+|---|---|---|
+| sines | 8.13e-01 flat | 3.13e-01 flat |
+| **sin²** | **4.87e-03 → 7.53e-05 (falls 64.7×)** | 5.02e-01 flat |
 
-## What this does and does not establish
+The sines cannot tell them apart at all and rank the correct field *worse*. sin² separates
+them and falls at the documented factor of four per refinement. It holds at `k = 200` on an
+off-unit box, catches a 3 % amplitude error (3.47e-02 flat) and catches the near-zero field
+shape C9 keeps producing. Where `u` really is zero on the boundary the sines are exact
+(1.8e-16) and sin² merely converges — that is the entire cost, and the verdict reads the
+*fall*, not an absolute floor.
 
-**Does:** run by default on every converged coupled level, this check would be silent on
-C3 and C9 entirely, silent on one side of every other coupled problem, catch about a third
-of wrong cells, and occasionally tell an agent its correct answer is wrong.
+`NOT_APPLICABLE` drops from 78 to 35. The 35 that remain are cells with fewer than two
+usable levels or a non-uniform export grid, not a limitation of the identity.
 
-**Does not:** say the idea is wrong. Making the check automatic instead of asking for it
-is well supported — two wordings failed. What the numbers question is whether *this*
-check, with *this* operator and *this* boundary requirement, is the one to make automatic.
+## Finding 3 — the one false alarm was the routing, not the field
+
+`C2 seed 6751`, graded **CORRECT**, side A, was called `INCONSISTENT` with a residual that
+is flat and non-monotone: `1.324e-02 → 5.787e-03 → 1.060e-02`, rate 0.16.
+
+The first fix put sin² behind a size test — use it only when the outermost probe layer is
+large relative to the field — and 6751 **survived it**. Diagnosing that is what produced
+the real answer.
+
+Its boundary layer is 0.067 of the field's own scale, under the 0.25 threshold, so it went
+to the sines. Forced through sin², the **same three files** give:
+
+| level | sines | sin² |
+|---|---|---|
+| 1 | 1.3238e-02 | 1.2506e-02 |
+| 2 | 5.7869e-03 | 3.7640e-03 |
+| 3 | 1.0603e-02 | **1.5867e-03** |
+
+Monotone, rate ≈ 2.4, verdict `CONSISTENT`. The field was right the whole time.
+
+**The size test cannot be made to work, at any threshold.** On a grid of cell midpoints the
+outermost probe sits `h/2` inside the face, so a field that *is* zero on the boundary still
+reads `|grad u| h/2` there — percent-level, the same order as a face genuinely carrying a
+partner's data. The two cases are not separable by magnitude, and the probe grid here is
+fixed across levels (1936 points at every level), so they are not separable by how the
+layer shrinks either. So the size test was deleted along with the sines, and sin² is
+unconditional.
+
+Two quadrature checks were run before concluding this, to rule out the cheaper
+explanations: the grid is exactly the midpoint grid of `extent_a` (44 × 44, first node at
+`h/2`), and the grid value of `int f v` agrees with the exact symbolic integral to
+3.5e-07 relative. The residual was measuring the field, not the integration.
+
+## What this establishes
+
+Run by default on every converged coupled level, the check as it now stands is silent on
+C3 and C9 entirely (operator guard), answers **both** sides of the families it does accept,
+catches **14 of 17** wrong cells, and accuses **none** of the 14 correct ones. That clears
+the campaign's own admission bar, which the shipped version did not.
+
+The three wrong cells it misses are all `COMPLETED_UNPHYSICAL` (C2 6633, 6952, 7212) and
+all read `CONSISTENT` on both sides. That is a real and explainable limit rather than
+noise: a test function that vanishes on the boundary annihilates boundary data by
+construction, so a field that satisfies its equation in the interior but carries the wrong
+condition on a face is invisible to this identity. Catching those needs a different
+instrument, not a threshold.
 
 **Caveat, stated plainly.** The arguments were reconstructed from `spec_public.json`:
 per-side sources from `source_public`, per-side rectangles from `extent_a`/`extent_b`, and
 `k` parsed out of the prose line "thermal conductivity k = 1 in subdomain A; k = 1000 in
 subdomain B". An agent reading its task would supply these itself and might phrase them
-differently. The refusals in finding 1 do not depend on that — they are decided by the
-`equation` string alone — but the rates in finding 3 could move.
+differently. Finding 1 does not depend on that — it is decided by the `equation` string
+alone — but the rates could move.
 
 **A smaller thing worth noting:** the public spec gives `k` only in prose, while the check
 wants a number or a JSON matrix. Whatever else is decided, an agent handed

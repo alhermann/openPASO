@@ -9,9 +9,13 @@ whether to run this check automatically on every converged coupled level.
      biharmonic one at "rate 2.09, for an operator this check does not model at
      all". Two of the campaign's coupled families state operators it refuses.
 
-  2. Its identity needs u = 0 on the whole boundary, which one side of a
-     coupled problem never has, because the interface carries the partner's
-     data. The check says so itself and reports NOT_APPLICABLE.
+  2. It now ANSWERS a side whose boundary carries the partner's data, which is
+     every side of a partitioned coupling. It did not use to: its test function
+     vanished on the box but its slope did not, so the weak identity needed
+     u = 0 there as well and the check refused 92 of 94 coupled sides. A test
+     function whose value AND slope vanish removes that limit. The separation
+     it buys is pinned below on a manufactured pair, so it is measured here and
+     not only in the replay.
 
 If either limit changes, this test should fail and the RESULTS numbers should be
 re-measured before anything is decided on them.
@@ -84,29 +88,57 @@ def test_it_refuses_rather_than_guesses_when_no_equation_is_given(check):
     assert _refused(reply)
 
 
-def test_a_coupled_side_is_reported_not_applicable_not_wrong(check):
-    """The limit that decides whether by-default adoption can work.
+def _write_levels(tmp_path, amplitude):
+    """A field that is NOT zero on the boundary, at three refinements.
 
-    Replayed over 94 graded coupled cells with solution files, side B came back
-    NOT_APPLICABLE 92 times. A cell whose field is not zero on the box boundary
-    must get NOT_APPLICABLE -- saying INCONSISTENT there would tell an agent its
-    answer is wrong on evidence the check does not have.
+    u = sin(pi x) sin(pi y) + x solves -lap u = 2 pi^2 sin(pi x) sin(pi y) on
+    the unit square and carries u = x on three of its four faces, which is the
+    shape of a coupled subdomain: the interface holds the partner's data. The
+    `amplitude` scales only the sine part, so 1.0 is the field that solves the
+    stated equation and anything else is a field that does not.
     """
-    campaign = Path.home() / "Schreibtisch" / "ofa-v2" / "campaign3_blind"
-    cell = campaign / "runs" / "C8_27b_MCP_seed8652" / "work"
-    if not cell.is_dir():
-        pytest.skip("the campaign run directory is not on this machine")
-    files = sorted(cell.glob("solution_level*_A.csv"))
-    if not files:
-        pytest.skip("that cell exported no side-A solution files")
+    import math
 
-    reply = check(solution_files=",".join(str(f) for f in files),
-                  source_term="1.0", coefficient="1",
-                  domain="[[0.0, 0.625], [0.0, 1.0]]",
-                  equation="-div(k grad u) = f in each subdomain")
-    verdict = json.loads(reply.split("\n\n")[0]).get("verdict")
-    assert verdict in ("NOT_APPLICABLE", "INCONSISTENT", "CONSISTENT"), verdict
-    if verdict == "NOT_APPLICABLE":
-        assert "boundary" in reply, (
-            "NOT_APPLICABLE must say why, so a reader can tell it apart from a "
-            "verdict about their field")
+    files = []
+    for level, n in enumerate((32, 64, 128), start=1):
+        path = tmp_path / f"solution_level{level}.csv"
+        lines = ["x,y,u"]
+        for i in range(n):
+            x = (i + 0.5) / n
+            for j in range(n):
+                y = (j + 0.5) / n
+                u = amplitude * math.sin(math.pi * x) * math.sin(math.pi * y) + x
+                lines.append(f"{x!r},{y!r},{u!r}")
+        path.write_text("\n".join(lines) + "\n")
+        files.append(str(path))
+    return ",".join(files)
+
+
+def _verdict(check, files):
+    reply = check(solution_files=files,
+                  source_term="2*pi**2*sin(pi*x)*sin(pi*y)", coefficient="1",
+                  domain="[[0.0, 1.0], [0.0, 1.0]]",
+                  equation="-div(k grad u) = f")
+    return json.loads(reply.split("\n\n")[0]).get("verdict")
+
+
+def test_it_answers_a_field_that_is_not_zero_on_the_boundary(check, tmp_path):
+    """The limit that decided whether by-default adoption can work at all.
+
+    A coupled side used to come back NOT_APPLICABLE -- 92 of 94 graded cells --
+    so the check could not speak about almost any coupled problem, which is
+    precisely where it was about to run by default. This field carries data on
+    its boundary and solves its equation, so the answer must be CONSISTENT.
+    """
+    assert _verdict(check, _write_levels(tmp_path, 1.0)) == "CONSISTENT"
+
+
+def test_it_still_catches_a_wrong_field_with_the_same_boundary_data(check, tmp_path):
+    """Answering more cells is worth nothing if it answers CONSISTENT to all.
+
+    Same boundary trace, same source, amplitude off by half. Measured over the
+    94 graded coupled cells this separation is 14 of 17 wrong cells caught
+    against 0 of 14 correct ones accused (RESULTS.md); here it is pinned on a
+    case with no campaign data behind it.
+    """
+    assert _verdict(check, _write_levels(tmp_path, 0.5)) == "INCONSISTENT"

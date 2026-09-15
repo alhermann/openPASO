@@ -100,62 +100,74 @@ def _detect_midpoint_grid(coords: list) -> tuple:
     return weight, ""
 
 
-def _boundary_layer_ratio(pts, u, box):
-    """How big is the outermost probe layer, relative to the field's scale?
+def _adjoint_of_v_flat(coeff, pts, box):
+    """L* v and v for a v whose VALUE AND SLOPE both vanish on the box.
 
-    On a midpoint grid a field that vanishes on the box boundary has an
-    outermost layer of size O(h); a face carrying imposed data does not. This
-    is the only way to tell, from the delivered field alone, whether the weak
-    identity above is applicable.
-    """
-    import numpy as np
-    arr = np.asarray(u, dtype=float)
-    scale = float(np.abs(arr).max())
-    if scale <= 0.0:
-        return None
-    worst = 0.0
-    for d, (lo, hi) in enumerate(box):
-        coord = np.asarray([p[d] for p in pts], dtype=float)
-        vals = np.unique(np.round(coord, 12))
-        if len(vals) < 3:
-            continue
-        for edge in (vals[0], vals[-1]):
-            layer = np.abs(arr[np.isclose(coord, edge)])
-            if layer.size:
-                worst = max(worst, float(layer.max()) / scale)
-    return worst
+    WHY THIS v AND NOT THE OBVIOUS ONE. Integrating the identity by parts twice
+    leaves two boundary terms:
 
+        boundary integral of  -K grad(u).n v   -> zero because v = 0
+        boundary integral of   u K grad(v).n   -> survives unless u = 0 there
 
-def _adjoint_of_v(kind: str, coeff, pts, box):
-    """L* v and v at the given points, for v that vanishes on the box.
+    The natural choice, a product of half-period sines, is zero on every face
+    but its slope is not, so the second term only vanishes when the FIELD is
+    zero on the boundary -- which one side of a coupled problem never is,
+    because the interface carries the partner's data. That version refused
+    nearly every coupled side: measured across 94 graded coupled cells, side B
+    came back NOT_APPLICABLE 92 times.
 
-    v is a product of half-period sines over the box, so it is smooth and zero
-    on every face. For -div(K grad .) with constant symmetric K the operator is
-    self-adjoint, and
+    v = prod sin^2 has value and normal derivative both zero on every face, so
+    BOTH terms vanish for any u at all, and it is used for every case.
 
-        L* v = - sum_ij K_ij d2v/dx_i dx_j
+    Measured on a manufactured case deliberately not zero on the boundary
+    (u = sin(pi x) sin(pi y) + x, so -lap u = 2 pi^2 sin sin), levels 16 to 128:
+
+        v                 correct field          wrong field (0.5x amplitude)
+        sines             8.13e-01 flat          3.13e-01 flat
+        sin^2 (here)      4.87e-03 -> 7.53e-05   5.02e-01 flat
+                          falls 64.7x
+
+    The sines cannot tell them apart at all, and rank the correct field WORSE.
+    sin^2 separates them, and the fall is the documented factor of four per
+    refinement. It also holds at k = 200 on an off-unit box, catches a 3 %
+    amplitude error (3.47e-02 flat), and catches the near-zero field shape that
+    C9 keeps producing. Where u IS zero on the boundary the sines are exact
+    (residual 1.8e-16) and this one merely converges -- that is the whole cost,
+    and the verdict reads the fall rather than an absolute floor.
+
+    Replayed over the 94 graded coupled cells of the accepted operator
+    (benchmarks/pde_check_calibration):
+
+        v                          false alarms   wrong caught   no verdict
+        sines                          1 of 14        6 of 17           78
+        sin^2 behind a size test       1 of 14       16 of 17           35
+        sin^2 always (this)            0 of 14       14 of 17           35
     """
     import numpy as np
     dim = len(box)
     xs = [np.asarray([p[d] for p in pts], dtype=float) for d in range(dim)]
     Ls = [float(hi - lo) for lo, hi in box]
     args = [math.pi * (xs[d] - box[d][0]) / Ls[d] for d in range(dim)]
-    sin = [np.sin(a) for a in args]
-    cos = [np.cos(a) for a in args]
+    sin2 = [np.sin(a) ** 2 for a in args]
+
     v = np.ones_like(xs[0])
-    for s in sin:
+    for s in sin2:
         v = v * s
-    # second derivatives of the product of sines
+
+    # d2/dx_i^2 of sin^2(a_i) = 2 (pi/L_i)^2 cos(2 a_i); the cross terms
+    # d2/dx_i dx_j carry sin(2a_i) sin(2a_j) (pi/L_i)(pi/L_j).
     def d2(i, j):
         out = np.ones_like(xs[0])
         for d in range(dim):
-            if d == i and d == j:
-                out = out * (-(math.pi / Ls[d]) ** 2) * sin[d]
+            if i == j:
+                out = out * (2.0 * (math.pi / Ls[d]) ** 2 * np.cos(2 * args[d])
+                             if d == i else sin2[d])
             elif d == i or d == j:
-                out = out * (math.pi / Ls[d]) * cos[d]
+                out = out * (math.pi / Ls[d]) * np.sin(2 * args[d])
             else:
-                out = out * sin[d]
+                out = out * sin2[d]
         return out
+
     K = _as_tensor(coeff, dim)
     Lv = np.zeros_like(xs[0])
     for i in range(dim):
@@ -240,18 +252,32 @@ def check_levels(levels: dict, source_expr: str, coefficient,
         # Detected from the delivered field alone: on a grid of cell midpoints
         # a field vanishing on the boundary has an outermost layer of size
         # O(h) relative to its own scale, while a face carrying data does not.
-        edge = _boundary_layer_ratio(pts, u, box)
-        if edge is not None and edge > 0.25:
-            res.levels.append(LevelResult(
-                lvl, len(rows), float("nan"),
-                f"the delivered field is not near zero on the boundary of the "
-                f"box (outermost probe layer is {edge:.0%} of the field's own "
-                f"scale). This check's identity needs u = 0 on the whole "
-                f"boundary, so it does not apply here -- which is the normal "
-                f"case for one side of a coupled problem, where the interface "
-                f"carries the partner's data. Nothing is asserted"))
-            continue
-        v, Lv = _adjoint_of_v("poisson", coefficient, pts, box)
+        # A FIELD CARRYING DATA ON ITS BOUNDARY IS THE NORMAL COUPLED CASE, AND
+        # IT USED TO BE REFUSED. The sines below vanish on every face but their
+        # slope does not, so the identity needs u = 0 there too. Measured across
+        # 94 graded coupled cells, that refused side B 92 times -- i.e. this
+        # check could not speak about one side of almost any coupled problem,
+        # which is exactly where it was about to be run by default.
+        #
+        # `_adjoint_of_v_flat` uses a v whose value AND slope vanish, so both
+        # boundary terms go for any u, and it is used UNCONDITIONALLY.
+        #
+        # IT WAS A FALLBACK BEHIND A SIZE TEST ON THAT OUTERMOST LAYER, AND THE
+        # SIZE TEST CANNOT BE MADE TO WORK. On a midpoint grid the outermost
+        # probe sits h/2 inside the face, so a field that IS zero on the
+        # boundary still reads |grad u| h/2 there -- percent-level, the same
+        # order as a face genuinely carrying a partner's data. The two cases
+        # are not separable by magnitude. Measured: C2 seed 6751, graded
+        # CORRECT, has a layer of 0.067 of its own scale, went to the sines,
+        # and was called INCONSISTENT -- 1.32e-02 -> 5.79e-03 -> 1.06e-02, flat
+        # and non-monotone. The same three files under the v below fall
+        # 1.25e-02 -> 3.76e-03 -> 1.59e-03, monotone, and read CONSISTENT. The
+        # field was right the whole time; the routing was wrong.
+        #
+        # The sines are exact (1.8e-16) where u really does vanish and this v
+        # merely converges there, which is the only thing given up, and the
+        # verdict reads the FALL not an absolute floor. Convergence is enough.
+        v, Lv = _adjoint_of_v_flat(coefficient, pts, box)
         f = _eval_source(source_expr, pts, dim)
         lhs = float(np.sum(u * Lv) * weight)
         rhs = float(np.sum(f * v) * weight)

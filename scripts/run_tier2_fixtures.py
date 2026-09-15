@@ -835,6 +835,27 @@ def _eval_fixture(fixture_dir: Path,
     return result
 
 
+
+def _without_host_paths(row: dict) -> dict:
+    """Strip this machine's directory layout out of a row before it is stored.
+
+    `tier2_results.json` IS SHIPPED. Captured solver output carries absolute
+    paths -- a timeout message quotes the whole argv -- and one of them reached
+    the repository, the scanning user's conda prefix inside a DUNE timeout,
+    caught by tests/test_no_host_paths_in_shipped_code.py. The home directory
+    of whoever ran the scan is not a fact about openPASO, and the field's own
+    comment already claimed it was sanitised. Now it is.
+    """
+    home = str(Path.home())
+    for key in ("captured_head", "notes"):
+        value = row.get(key)
+        if isinstance(value, str) and home in value:
+            row[key] = value.replace(home, "~")
+        elif isinstance(value, list):
+            row[key] = [s.replace(home, "~") if isinstance(s, str) else s
+                        for s in value]
+    return row
+
 def run(backend: str | None = None, fixture: str | None = None) -> dict:
     """Evaluate the fixtures, optionally narrowed to one backend and/or one
     fixture id.
@@ -915,7 +936,7 @@ def run(backend: str | None = None, fixture: str | None = None) -> dict:
                         f"result will otherwise be silently overwritten."
                     )
                     r.status = "failed"
-            out_map[r.key] = asdict(r)
+            out_map[r.key] = _without_host_paths(asdict(r))
             status_glyph = {
                 "passed": "✓", "failed": "✗",
                 "harness_pending": "⏳", "skipped": "↷",

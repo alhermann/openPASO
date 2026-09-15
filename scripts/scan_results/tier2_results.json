@@ -4174,7 +4174,7 @@
       "notes": [
         "missing in output: ['bogus_amg_rejected=True', 'bogus_enumerates_the_valid_names=True', 'bogus_fieldsplit_rejected=True', 'bogus_ilu_rejected=True', 'bogus_names_the_parameter=True', 'dune_preconditioner_enumeration_verified=True']"
       ],
-      "captured_head": "(timeout after 2400s) Command '['/home/alexander/miniconda3/envs/dune-py313/bin/python', '/home/alexander/Schreibtisch/openpaso/scripts/tier2_fixtures/dune/preconditioner_enumeration_is_short/source.py']' timed out after 2400 seconds",
+      "captured_head": "(timeout after 2400s) Command '['~/miniconda3/envs/dune-py313/bin/python', '~/Schreibtisch/openpaso/scripts/tier2_fixtures/dune/preconditioner_enumeration_is_short/source.py']' timed out after 2400 seconds",
       "co_defends": []
     },
     "dune::mixed_methods::1": {

@@ -1,12 +1,12 @@
 {
   "summary": {
-    "n_fixtures": 1332,
-    "passed": 1250,
+    "n_fixtures": 1333,
+    "passed": 1251,
     "failed": 82,
     "harness_pending": 0,
     "skipped": 0
   },
-  "fixture_fingerprint": "bdb4dd39e52f9e3091ccd50ee9418e5fc4f7684ceb99a61a008970cc2c268561",
+  "fixture_fingerprint": "939c90e7e029c63ef2587f49ce80d3c99d2fd45bec992a8578ca32f7d4c7add0",
   "results": {
     "coupling::relaxation::41": {
       "key": "coupling::relaxation::41",
@@ -200,7 +200,7 @@
         "missing in output: ['failures_count=0', 'fourc_meshes_nonmatching=True', 'pairs_run=2', 'skfem_converged=True']",
         "forbidden tokens appeared: ['Traceback', 'FAIL:']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nparticipant[fluid]=fenics interpreter=~/miniconda3/envs/fenics/bin/python\nparticipant[solid]=fourc interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nfourc_converged=True\nfourc_iterations=20\nfourc_validation_empty=True\nfourc_verdict_not_verified=True\nfourc_equilibrium_x_rel=3.698e-05\nfourc_equilibrium_y_rel=6.424e-05\nfourc_kinematic_x_rel=2.388e-14\nfourc_kinematic_y_rel=2.746e-13\nfourc_reference_status=checked\nfourc_reference_rel_l2=4.817e-10\nFAIL: fixture raised\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/_lib/couplinglib.py\", line 1550, in main\n    fn()\n    ~~^^\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/fsi_pair_fenics_fourc/source.py\", line 57, in body\n    d4 = F.max_dy(a)\n  F",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\nparticipant[fluid]=fenics interpreter=~/miniconda3/envs/fenics/bin/python\nparticipant[solid]=fourc interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nfourc_converged=True\nfourc_iterations=20\nfourc_validation_empty=True\nfourc_verdict_not_verified=True\nfourc_equilibrium_x_rel=3.698e-05\nfourc_equilibrium_y_rel=6.424e-05\nfourc_kinematic_x_rel=2.453e-14\nfourc_kinematic_y_rel=2.746e-13\nfourc_reference_status=checked\nfourc_reference_rel_l2=4.817e-10\nFAIL: fixture raised\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/_lib/couplinglib.py\", line 1550, in main\n    fn()\n    ~~^^\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/fsi_pair_fenics_fourc/source.py\", line 57, in body\n    d4 = F.max_dy(a)\n  F",
       "co_defends": []
     },
     "coupling::fsi_partitioned_two_way::32": {
@@ -224,7 +224,7 @@
         "missing in output: ['configurations_run=6', 'cross_meshes_nonmatching=True', 'failures_count=0', 'noload_validation_nonempty=True', 'rigid_validation_nonempty=True', 'same_converged=True', 'same_validation_empty=True', 'signflip_caught_only_by_closed_form=True', 'signflip_deflects_the_other_way=True']",
         "forbidden tokens appeared: ['Traceback', 'FAIL:']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nparticipant[fluid]=fenics interpreter=~/miniconda3/envs/fenics/bin/python\nparticipant[solid]=skfem interpreter=~/Schreibtisch/openpaso/.venv/bin/python\ncross_converged=True\ncross_iterations=19\ncross_validation_empty=True\ncross_verdict_not_verified=True\ncross_equilibrium_x_rel=2.621e-04\ncross_equilibrium_y_rel=7.375e-04\ncross_kinematic_x_rel=3.475e-12\ncross_kinematic_y_rel=4.075e-11\ncross_reference_status=checked\ncross_reference_rel_l2=2.201e-10\nFAIL: fixture raised\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/_lib/couplinglib.py\", line 1550, in main\n    fn()\n    ~~^^\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/fsi_partitioned_two_way/source.py\", line 58, in body\n    d_cross = F.max_dy",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\nparticipant[fluid]=fenics interpreter=~/miniconda3/envs/fenics/bin/python\nparticipant[solid]=skfem interpreter=~/Schreibtisch/openpaso/.venv/bin/python\ncross_converged=True\ncross_iterations=19\ncross_validation_empty=True\ncross_verdict_not_verified=True\ncross_equilibrium_x_rel=2.621e-04\ncross_equilibrium_y_rel=7.375e-04\ncross_kinematic_x_rel=3.476e-12\ncross_kinematic_y_rel=4.075e-11\ncross_reference_status=checked\ncross_reference_rel_l2=2.201e-10\nFAIL: fixture raised\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/_lib/couplinglib.py\", line 1550, in main\n    fn()\n    ~~^^\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/fsi_partitioned_two_way/source.py\", line 58, in body\n    d_cross = F.max_dy",
       "co_defends": []
     },
     "coupling::pair_dune_dealii::6": {
@@ -247,7 +247,7 @@
         "missing in output: ['dealii_D_dune_N_converged=True', 'dealii_D_dune_N_interface_q_matches_reference=True', 'dealii_D_dune_N_matches_monolithic=True', 'dune_D_dealii_N_flux_balanced=True', 'dune_D_dealii_N_flux_signs_are_opposite=True', 'dune_D_dealii_N_interface_T_matches_reference=True', 'dune_D_dealii_N_interface_q_matches_reference=True', 'dune_D_dealii_N_matches_monolithic=True', 'dune_D_dealii_N_meshes_nonmatching=True', 'dune_D_dealii_N_validation_empty=True', 'failures_count=0', 'pairs_run=2']",
         "forbidden tokens appeared: ['Traceback', 'FAIL:']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\ndealii_solver_built=True\n--- dune_D_dealii_N: left=dune/dirichlet right=dealii/neumann theta=0.692308\nparticipant[left]=dune interpreter=~/Schreibtisch/open-fem-agent/.venv/bin/python\nparticipant[right]=dealii interpreter=~/Schreibtisch/openpaso/.venv/bin/python\ndune_D_dealii_N_iterations=29\ndune_D_dealii_N_residual=6.581e-09\ndune_D_dealii_N_converged=True\nFAIL: fixture raised\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/_lib/couplinglib.py\", line 1550, in main\n    fn()\n    ~~^^\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/pair_dune_dealii/source.py\", line 36, in body\n    L.heat_arrangement(\"dune_D_dealii_N\", \"dune\", \"dealii\", \"left\")\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\ndealii_solver_built=True\n--- dune_D_dealii_N: left=dune/dirichlet right=dealii/neumann theta=0.692308\nparticipant[left]=dune interpreter=~/miniconda3/envs/dune-py313/bin/python\nparticipant[right]=dealii interpreter=~/Schreibtisch/openpaso/.venv/bin/python\ndune_D_dealii_N_iterations=29\ndune_D_dealii_N_residual=6.581e-09\ndune_D_dealii_N_converged=True\nFAIL: fixture raised\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/_lib/couplinglib.py\", line 1550, in main\n    fn()\n    ~~^^\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/pair_dune_dealii/source.py\", line 36, in body\n    L.heat_arrangement(\"dune_D_dealii_N\", \"dune\", \"dealii\", \"left\")\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
       "co_defends": []
     },
     "coupling::pair_febio_febio::7": {
@@ -314,7 +314,7 @@
         "missing in output: ['dune_D_fenics_N_flux_balanced=True', 'dune_D_fenics_N_flux_signs_are_opposite=True', 'dune_D_fenics_N_interface_T_matches_reference=True', 'dune_D_fenics_N_interface_q_matches_reference=True', 'dune_D_fenics_N_matches_monolithic=True', 'dune_D_fenics_N_meshes_nonmatching=True', 'dune_D_fenics_N_validation_empty=True', 'failures_count=0', 'fenics_D_dune_N_converged=True', 'fenics_D_dune_N_interface_q_matches_reference=True', 'fenics_D_dune_N_matches_monolithic=True', 'pairs_run=2']",
         "forbidden tokens appeared: ['Traceback', 'FAIL:']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\n--- dune_D_fenics_N: left=dune/dirichlet right=fenics/neumann theta=0.692308\nparticipant[left]=dune interpreter=~/Schreibtisch/open-fem-agent/.venv/bin/python\nparticipant[right]=fenics interpreter=~/miniconda3/envs/fenics/bin/python\ndune_D_fenics_N_iterations=29\ndune_D_fenics_N_residual=6.581e-09\ndune_D_fenics_N_converged=True\nFAIL: fixture raised\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/_lib/couplinglib.py\", line 1550, in main\n    fn()\n    ~~^^\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/pair_fenics_dune/source.py\", line 38, in body\n    L.heat_arrangement(\"dune_D_fenics_N\", \"dune\", \"fenics\", \"left\")\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"~/Sch",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\n--- dune_D_fenics_N: left=dune/dirichlet right=fenics/neumann theta=0.692308\nparticipant[left]=dune interpreter=~/miniconda3/envs/dune-py313/bin/python\nparticipant[right]=fenics interpreter=~/miniconda3/envs/fenics/bin/python\ndune_D_fenics_N_iterations=29\ndune_D_fenics_N_residual=6.581e-09\ndune_D_fenics_N_converged=True\nFAIL: fixture raised\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/_lib/couplinglib.py\", line 1550, in main\n    fn()\n    ~~^^\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/coupling/pair_fenics_dune/source.py\", line 38, in body\n    L.heat_arrangement(\"dune_D_fenics_N\", \"dune\", \"fenics\", \"left\")\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"~/Schreibtis",
       "co_defends": []
     },
     "coupling::pair_fenics_fourc::3": {
@@ -347,16 +347,19 @@
       "fixture_id": "coupling/pair_fenics_ngsolve",
       "mode": "python",
       "status": "failed",
-      "expect_matched": [],
+      "expect_matched": [
+        "pairs_run=3"
+      ],
       "forbid_violated": [
         "Traceback",
-        "FAIL:"
+        "FAIL:",
+        "did_not_converge"
       ],
       "notes": [
-        "missing in output: ['failures_count=0', 'fenics_D_ngsolve_N_converged=True', 'fenics_D_ngsolve_N_flux_balanced=True', 'fenics_D_ngsolve_N_flux_signs_are_opposite=True', 'fenics_D_ngsolve_N_interface_T_matches_reference=True', 'fenics_D_ngsolve_N_interface_q_matches_reference=True', 'fenics_D_ngsolve_N_matches_monolithic=True', 'fenics_D_ngsolve_N_meshes_nonmatching=True', 'fenics_D_ngsolve_N_validation_empty=True', 'fenics_N_ngsolve_D_converged=True', 'fenics_N_ngsolve_D_interface_T_matches_reference=True', 'fenics_N_ngsolve_D_matches_monolithic=True', 'ngsolve_D_fenics_N_converged=True', 'ngsolve_D_fenics_N_interface_q_matches_reference=True', 'ngsolve_D_fenics_N_matches_monolithic=True', 'pairs_run=3']",
-        "forbidden tokens appeared: ['Traceback', 'FAIL:']"
+        "missing in output: ['failures_count=0', 'fenics_D_ngsolve_N_converged=True', 'fenics_D_ngsolve_N_flux_balanced=True', 'fenics_D_ngsolve_N_flux_signs_are_opposite=True', 'fenics_D_ngsolve_N_interface_T_matches_reference=True', 'fenics_D_ngsolve_N_interface_q_matches_reference=True', 'fenics_D_ngsolve_N_matches_monolithic=True', 'fenics_D_ngsolve_N_meshes_nonmatching=True', 'fenics_D_ngsolve_N_validation_empty=True', 'fenics_N_ngsolve_D_converged=True', 'fenics_N_ngsolve_D_interface_T_matches_reference=True', 'fenics_N_ngsolve_D_matches_monolithic=True', 'ngsolve_D_fenics_N_converged=True', 'ngsolve_D_fenics_N_interface_q_matches_reference=True', 'ngsolve_D_fenics_N_matches_monolithic=True']",
+        "forbidden tokens appeared: ['Traceback', 'FAIL:', 'did_not_converge']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nFAIL: this fixture cannot run here \u2014 backend 'ngsolve' is not available on this install (ngsolve import failed: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import ngsolve; print(ngsolve.__version__)\n    ^^^^^^^^^^^^). A fixture must not report a pass on a host that cannot run it.\n",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\n--- fenics_D_ngsolve_N: left=fenics/dirichlet right=ngsolve/neumann theta=0.692308\nparticipant[left]=fenics interpreter=~/miniconda3/envs/fenics/bin/python\nparticipant[right]=ngsolve interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nFAIL: fenics_D_ngsolve_N_did_not_converge participant right wrote no exports.json (rc=1). stderr tail: Traceback (most recent call last):\n  File \"/tmp/t2cpl_fenics_D_ngsolve_N_bu2zvquh/right/participant_right.py\", line 11, in <module>\n    import ngsolve                # the MODULE, so ngsolve.ngsglobals.msg_level = 3 resolves:\n    ^^^^^^^^^\n--- ngsolve_D_fenics_N: left=ngsolve/dirichlet right=fenics/neumann theta=0.692308\nparticipant[left]=ngsolve interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nparticipant[right]=fenics ",
       "co_defends": []
     },
     "coupling::pair_fenics_skfem::0": {
@@ -413,16 +416,19 @@
       "fixture_id": "coupling/pair_ngsolve_skfem",
       "mode": "python",
       "status": "failed",
-      "expect_matched": [],
+      "expect_matched": [
+        "combinations_run=4"
+      ],
       "forbid_violated": [
         "Traceback",
-        "FAIL:"
+        "FAIL:",
+        "did_not_converge"
       ],
       "notes": [
-        "missing in output: ['combinations_run=4', 'failures_count=0', 'ngs_L_D_skf_R_N_converged=True', 'ngs_L_D_skf_R_N_flux_balanced=True', 'ngs_L_D_skf_R_N_flux_signs_are_opposite=True', 'ngs_L_D_skf_R_N_interface_T_matches_reference=True', 'ngs_L_D_skf_R_N_interface_q_matches_reference=True', 'ngs_L_D_skf_R_N_matches_monolithic=True', 'ngs_L_D_skf_R_N_meshes_nonmatching=True', 'ngs_L_D_skf_R_N_validation_empty=True', 'ngs_L_N_skf_R_D_converged=True', 'ngs_L_N_skf_R_D_interface_q_matches_reference=True', 'ngs_L_N_skf_R_D_matches_monolithic=True', 'skf_L_D_ngs_R_N_converged=True', 'skf_L_D_ngs_R_N_interface_T_matches_reference=True', 'skf_L_D_ngs_R_N_matches_monolithic=True', 'skf_L_N_ngs_R_D_converged=True', 'skf_L_N_ngs_R_D_interface_T_matches_reference=True', 'skf_L_N_ngs_R_D_matches_monolithic=True']",
-        "forbidden tokens appeared: ['Traceback', 'FAIL:']"
+        "missing in output: ['failures_count=0', 'ngs_L_D_skf_R_N_converged=True', 'ngs_L_D_skf_R_N_flux_balanced=True', 'ngs_L_D_skf_R_N_flux_signs_are_opposite=True', 'ngs_L_D_skf_R_N_interface_T_matches_reference=True', 'ngs_L_D_skf_R_N_interface_q_matches_reference=True', 'ngs_L_D_skf_R_N_matches_monolithic=True', 'ngs_L_D_skf_R_N_meshes_nonmatching=True', 'ngs_L_D_skf_R_N_validation_empty=True', 'ngs_L_N_skf_R_D_converged=True', 'ngs_L_N_skf_R_D_interface_q_matches_reference=True', 'ngs_L_N_skf_R_D_matches_monolithic=True', 'skf_L_D_ngs_R_N_converged=True', 'skf_L_D_ngs_R_N_interface_T_matches_reference=True', 'skf_L_D_ngs_R_N_matches_monolithic=True', 'skf_L_N_ngs_R_D_converged=True', 'skf_L_N_ngs_R_D_interface_T_matches_reference=True', 'skf_L_N_ngs_R_D_matches_monolithic=True']",
+        "forbidden tokens appeared: ['Traceback', 'FAIL:', 'did_not_converge']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nFAIL: this fixture cannot run here \u2014 backend 'ngsolve' is not available on this install (ngsolve import failed: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import ngsolve; print(ngsolve.__version__)\n    ^^^^^^^^^^^^). A fixture must not report a pass on a host that cannot run it.\n",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\n--- ngs_L_D_skf_R_N: left=ngsolve/dirichlet right=skfem/neumann theta=0.692308\nparticipant[left]=ngsolve interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nparticipant[right]=skfem interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nFAIL: ngs_L_D_skf_R_N_did_not_converge participant left wrote no exports.json (rc=1). stderr tail: Traceback (most recent call last):\n  File \"/tmp/t2cpl_ngs_L_D_skf_R_N_ec2if590/left/participant_left.py\", line 11, in <module>\n    import ngsolve                # the MODULE, so ngsolve.ngsglobals.msg_level = 3 resolves:\n    ^^^^^^^^^^^^^^\n--- ngs_L_N_skf_R_D: left=ngsolve/neumann right=skfem/dirichlet theta=0.307692\nparticipant[left]=ngsolve interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nparticipant[right]=skfem interpret",
       "co_defends": []
     },
     "coupling::precice_availability::9": {
@@ -472,7 +478,7 @@
         "forbidden tokens appeared: ['FAIL:']",
         "shares 'coupling::precice_coupled_run::18' with 'coupling/precice_can_verdicts_proven_by_a_real_run' by mutual declaration (co_defends)"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nFAIL: this fixture cannot run here \u2014 backend 'sparta' is not available on this install (SPARTA binary not found (set SPARTA_BINARY or build spa_serial)). A fixture must not report a pass on a host that cannot run it.\n",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\nFAIL: this fixture cannot run here \u2014 preCICE is not usable from this install (preCICE Python bindings not importable (No module named 'precice'). Install a pyprecice whose version matches libprecice in /opt/precice/lib: pip install 'pyprecice==<libver>'). A fixture must not report a pass on a host that cannot run it.\n",
       "co_defends": [
         "precice_can_verdicts_for_the_other_four",
         "precice_can_verdicts_proven_by_a_real_run"
@@ -545,7 +551,7 @@
         "missing in output: ['dealii_launch_names_DEALII_EXE=True', 'failures_count=0', 'febio_launch_names_FEBIO=True', 'fenics_served_verbatim=True', 'fourc_launch_names_FOURC_BIN=True', 'fourc_launch_says_wrapper=True', 'payloads_served=9', 'scripts_executed=7', 'scripts_served_verbatim=9', 'sparta_launch_names_SPARTA=True']",
         "forbidden tokens appeared: ['Traceback', 'FAIL:']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nfenics_payload_chars=48415\nfenics_served_verbatim=False\nFAIL: fenics_served_text_differs_from_the_file the served payload and the file the test suite executes have drifted apart, which is the exact failure the file-not-literal design was chosen to prevent\nfenics_parses=True\nFAIL: fenics_launch_does_not_send_you_to_discover a non-wrapper backend's `command` is that backend's own interpreter, which the payload must resolve through discover rather than hard-coding\nFAIL: fenics_served_script_wrote_no_exports rc=1 stderr=Traceback (most recent call last):\n  File \"/tmp/t2cpl_served_fenics_j27qkuio/participant_left.py\", line 176, in <module>\n    Amat = _fp.assemble_matrix(fem.form(a))              # no bcs= on purpose\n                                        ^\nName",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\nfenics_payload_chars=48415\nfenics_served_verbatim=False\nFAIL: fenics_served_text_differs_from_the_file the served payload and the file the test suite executes have drifted apart, which is the exact failure the file-not-literal design was chosen to prevent\nfenics_parses=True\nFAIL: fenics_launch_does_not_send_you_to_discover a non-wrapper backend's `command` is that backend's own interpreter, which the payload must resolve through discover rather than hard-coding\nFAIL: fenics_served_script_wrote_no_exports rc=1 stderr=Traceback (most recent call last):\n  File \"/tmp/t2cpl_served_fenics_b0dqev17/participant_left.py\", line 176, in <module>\n    Amat = _fp.assemble_matrix(fem.form(a))              # no bcs= on purpose\n                                        ^\nName",
       "co_defends": []
     },
     "coupling::sides_table_coverage::10": {
@@ -581,16 +587,23 @@
       "pitfall_index": 8,
       "fixture_id": "coupling/sparta_no_native_flux_bc",
       "mode": "python",
-      "status": "failed",
-      "expect_matched": [],
-      "forbid_violated": [
-        "FAIL:"
+      "status": "passed",
+      "expect_matched": [
+        "sparta_payload_states_no_native_flux_bc=True",
+        "sides_table_says_sparta_neumann_not_natively=True",
+        "surf_collide_styles=9",
+        "thermal_styles=4",
+        "thermal_names=cll,diffuse,impulsive,td",
+        "surf_collide_flux_mentions=0",
+        "fix_surf_temp_sb_prefactor=True",
+        "fix_surf_temp_fourth_root=True",
+        "doc_disclaimer_present=True",
+        "claims_checked=7",
+        "failures_count=0"
       ],
-      "notes": [
-        "missing in output: ['claims_checked=7', 'doc_disclaimer_present=True', 'failures_count=0', 'fix_surf_temp_fourth_root=True', 'fix_surf_temp_sb_prefactor=True', 'sides_table_says_sparta_neumann_not_natively=True', 'sparta_payload_states_no_native_flux_bc=True', 'surf_collide_flux_mentions=0', 'surf_collide_styles=9', 'thermal_names=cll,diffuse,impulsive,td', 'thermal_styles=4']",
-        "forbidden tokens appeared: ['FAIL:']"
-      ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nFAIL: this fixture cannot run here \u2014 backend 'sparta' is not available on this install (SPARTA binary not found (set SPARTA_BINARY or build spa_serial)). A fixture must not report a pass on a host that cannot run it.\n",
+      "forbid_violated": [],
+      "notes": [],
+      "captured_head": "checkout=~/Schreibtisch/openpaso\nsparta_src=~/Schreibtisch/sparta/src\nsurf_collide_styles=9\nsurf_collide_names=adiabatic,cll,diffuse,impulsive,piston,specular,td,transparent,vanish\nthermal_styles=4\nthermal_names=cll,diffuse,impulsive,td\nsurf_collide_flux_mentions=0\nfix_surf_temp_sb_prefactor=True\nfix_surf_temp_fourth_root=True\ndoc_disclaimer_present=True\nsparta_payload_states_no_native_flux_bc=True\nsparta_table_rows=1\nsides_table_says_sparta_neumann_not_natively=True\nclaims_checked=7\nfailures_count=0\n",
       "co_defends": []
     },
     "coupling::stochastic_convergence::30": {
@@ -601,15 +614,26 @@
       "fixture_id": "coupling/stochastic_noise_floor_makes_dsmc_gradable",
       "mode": "python",
       "status": "failed",
-      "expect_matched": [],
+      "expect_matched": [
+        "sparta_binary_resolved=True",
+        "sparta_data_staged=3",
+        "seed_mode=vary",
+        "arm_plain_reports_failure=True",
+        "arm_plain_residual_stalled_above_tol=True",
+        "arm_noise_aware_converged_at_floor=True",
+        "floor_exceeds_requested_tol=True",
+        "result_names_the_floor_to_the_agent=True",
+        "noise_aware_validation_stayed_empty=True"
+      ],
       "forbid_violated": [
+        "Traceback",
         "FAIL:"
       ],
       "notes": [
-        "missing in output: ['arm_noise_aware_converged_at_floor=True', 'arm_plain_reports_failure=True', 'arm_plain_residual_stalled_above_tol=True', 'arms_compared=3', 'coupled_matches_independent_reference=True', 'deterministic_arm_unaffected=True', 'deterministic_floor_is_exactly_zero=True', 'deterministic_interface_T_matches_reference=True', 'deterministic_matches_monolithic=True', 'deterministic_validation_stayed_empty=True', 'failures_count=0', 'fixed_seed_caveat_is_reported_out_of_band=True', 'floor_exceeds_requested_tol=True', 'noise_aware_validation_stayed_empty=True', 'result_names_the_floor_to_the_agent=True', 'seed_mode=vary', 'sparta_binary_resolved=True', 'sparta_data_staged=3']",
-        "forbidden tokens appeared: ['FAIL:']"
+        "missing in output: ['arms_compared=3', 'coupled_matches_independent_reference=True', 'deterministic_arm_unaffected=True', 'deterministic_floor_is_exactly_zero=True', 'deterministic_interface_T_matches_reference=True', 'deterministic_matches_monolithic=True', 'deterministic_validation_stayed_empty=True', 'failures_count=0', 'fixed_seed_caveat_is_reported_out_of_band=True']",
+        "forbidden tokens appeared: ['Traceback', 'FAIL:']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nFAIL: this fixture cannot run here \u2014 backend 'sparta' is not available on this install (SPARTA binary not found (set SPARTA_BINARY or build spa_serial)). A fixture must not report a pass on a host that cannot run it.\n",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\nsparta_binary_resolved=True\nsparta_data_staged=3\nseed_mode=vary\nreference_probe_T=400_qbar=4.403605e+03\nreference_probe_T=700_qbar=4.081606e+03\nreference_probe_T=1000_qbar=3.819603e+03\nindependent_fixed_point_T=800.4760\narm_plain_converged=False\narm_plain_iterations=18\narm_plain_residual=5.552e-02\narm_plain_reports_failure=True\narm_plain_residual_stalled_above_tol=True\narm_noise_aware_converged=True\narm_noise_aware_iterations=5\narm_noise_aware_residual=5.685e-02\narm_noise_aware_converged_at_floor=True\nmeasured_noise_floor=6.9006e-02\nfloor_exceeds_requested_tol=True\nresult_names_the_floor_to_the_agent=True\nnoise_aware_validation_stayed_empty=True\nFAIL: fixture raised\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/co",
       "co_defends": []
     },
     "coupling::relaxation::17": {
@@ -733,16 +757,19 @@
       "fixture_id": "coupling/tsi_twoway_ngsolve_fenics",
       "mode": "python",
       "status": "failed",
-      "expect_matched": [],
+      "expect_matched": [
+        "pairs_run=2"
+      ],
       "forbid_violated": [
         "Traceback",
-        "FAIL:"
+        "FAIL:",
+        "_converged=False"
       ],
       "notes": [
-        "missing in output: ['failures_count=0', 'ngsolve_T_fenics_M_1way_tool_reported_one_way=True', 'ngsolve_T_fenics_M_2way_converged=True', 'ngsolve_T_fenics_M_2way_matches_monolithic=True', 'ngsolve_T_fenics_M_2way_validation_empty=True', 'ngsolve_T_fenics_M_both_directions_active=True', 'ngsolve_T_fenics_M_meshes_nonmatching=True', 'pairs_run=2', 'skfem_T_ngsolve_M_1way_tool_reported_one_way=True', 'skfem_T_ngsolve_M_2way_converged=True', 'skfem_T_ngsolve_M_2way_matches_monolithic=True', 'skfem_T_ngsolve_M_2way_validation_empty=True', 'skfem_T_ngsolve_M_both_directions_active=True', 'skfem_T_ngsolve_M_meshes_nonmatching=True']",
-        "forbidden tokens appeared: ['Traceback', 'FAIL:']"
+        "missing in output: ['failures_count=0', 'ngsolve_T_fenics_M_1way_tool_reported_one_way=True', 'ngsolve_T_fenics_M_2way_converged=True', 'ngsolve_T_fenics_M_2way_matches_monolithic=True', 'ngsolve_T_fenics_M_2way_validation_empty=True', 'ngsolve_T_fenics_M_both_directions_active=True', 'ngsolve_T_fenics_M_meshes_nonmatching=True', 'skfem_T_ngsolve_M_1way_tool_reported_one_way=True', 'skfem_T_ngsolve_M_2way_converged=True', 'skfem_T_ngsolve_M_2way_matches_monolithic=True', 'skfem_T_ngsolve_M_2way_validation_empty=True', 'skfem_T_ngsolve_M_both_directions_active=True', 'skfem_T_ngsolve_M_meshes_nonmatching=True']",
+        "forbidden tokens appeared: ['Traceback', 'FAIL:', '_converged=False']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nFAIL: this fixture cannot run here \u2014 backend 'ngsolve' is not available on this install (ngsolve import failed: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import ngsolve; print(ngsolve.__version__)\n    ^^^^^^^^^^^^). A fixture must not report a pass on a host that cannot run it.\n",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\n--- ngsolve_T_fenics_M: thermal=ngsolve mech=fenics delta=1.247716 theta=0.444896 amplification(theta=1)=1.1170\nparticipant[thermal]=ngsolve/thermal interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nparticipant[mech]=fenics/mech interpreter=~/miniconda3/envs/fenics/bin/python\nngsolve_T_fenics_M_2way_converged=False\nngsolve_T_fenics_M_2way_iterations=1\nngsolve_T_fenics_M_2way_residual=nan\nFAIL: ngsolve_T_fenics_M_2way_did_not_converge participant thermal wrote no exports.json (rc=1). stderr tail: Traceback (most recent call last):\n  File \"/tmp/t2cpl_ngsolve_T_fenics_M_2way_jlp16qxc/thermal/participant_thermal.py\", line 49, in <module>\n    from netgen.geom2d import SplineGeometry\nModuleNotFoundError: No module named 'netgen'\n--- skfem_T_ngsolve_M: thermal=",
       "co_defends": []
     },
     "coupling::tsi_twoway_skfem_skfem::5": {
@@ -871,16 +898,19 @@
       "fixture_id": "coupling/vector_pair_ngsolve_skfem",
       "mode": "python",
       "status": "failed",
-      "expect_matched": [],
+      "expect_matched": [
+        "vector_arrangements_run=3"
+      ],
       "forbid_violated": [
         "Traceback",
-        "FAIL:"
+        "FAIL:",
+        "did_not_converge"
       ],
       "notes": [
-        "missing in output: ['failures_count=0', 'ngsolve_D_skfem_N_both_components_live=True', 'ngsolve_D_skfem_N_converged=True', 'ngsolve_D_skfem_N_displacement_continuous=True', 'ngsolve_D_skfem_N_interface_matches_closed_form=True', 'ngsolve_D_skfem_N_matches_monolithic=True', 'ngsolve_D_skfem_N_meshes_nonmatching=True', 'ngsolve_D_skfem_N_traction_balanced=True', 'ngsolve_D_skfem_N_traction_in_equilibrium=True', 'ngsolve_D_skfem_N_validation_empty=True', 'ngsolve_D_skfem_N_vector_exchange=True', 'ngsolve_N_skfem_D_converged=True', 'ngsolve_N_skfem_D_displacement_continuous=True', 'ngsolve_N_skfem_D_interface_matches_closed_form=True', 'ngsolve_N_skfem_D_matches_monolithic=True', 'ngsolve_N_skfem_D_traction_in_equilibrium=True', 'skfem_D_ngsolve_N_converged=True', 'skfem_D_ngsolve_N_displacement_continuous=True', 'skfem_D_ngsolve_N_interface_matches_closed_form=True', 'skfem_D_ngsolve_N_matches_monolithic=True', 'skfem_D_ngsolve_N_traction_in_equilibrium=True', 'vector_arrangements_run=3']",
-        "forbidden tokens appeared: ['Traceback', 'FAIL:']"
+        "missing in output: ['failures_count=0', 'ngsolve_D_skfem_N_both_components_live=True', 'ngsolve_D_skfem_N_converged=True', 'ngsolve_D_skfem_N_displacement_continuous=True', 'ngsolve_D_skfem_N_interface_matches_closed_form=True', 'ngsolve_D_skfem_N_matches_monolithic=True', 'ngsolve_D_skfem_N_meshes_nonmatching=True', 'ngsolve_D_skfem_N_traction_balanced=True', 'ngsolve_D_skfem_N_traction_in_equilibrium=True', 'ngsolve_D_skfem_N_validation_empty=True', 'ngsolve_D_skfem_N_vector_exchange=True', 'ngsolve_N_skfem_D_converged=True', 'ngsolve_N_skfem_D_displacement_continuous=True', 'ngsolve_N_skfem_D_interface_matches_closed_form=True', 'ngsolve_N_skfem_D_matches_monolithic=True', 'ngsolve_N_skfem_D_traction_in_equilibrium=True', 'skfem_D_ngsolve_N_converged=True', 'skfem_D_ngsolve_N_displacement_continuous=True', 'skfem_D_ngsolve_N_interface_matches_closed_form=True', 'skfem_D_ngsolve_N_matches_monolithic=True', 'skfem_D_ngsolve_N_traction_in_equilibrium=True']",
+        "forbidden tokens appeared: ['Traceback', 'FAIL:', 'did_not_converge']"
       ],
-      "captured_head": "checkout=~/Schreibtisch/openpaso\nFAIL: this fixture cannot run here \u2014 backend 'ngsolve' is not available on this install (ngsolve import failed: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import ngsolve; print(ngsolve.__version__)\n    ^^^^^^^^^^^^). A fixture must not report a pass on a host that cannot run it.\n",
+      "captured_head": "checkout=~/Schreibtisch/openpaso\n--- ngsolve_D_skfem_N: left=ngsolve/dirichlet right=skfem/neumann theta=0.714286 rho_x=0.400000 rho_y=0.400000\nparticipant[left]=ngsolve interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nparticipant[right]=skfem interpreter=~/Schreibtisch/openpaso/.venv/bin/python\nFAIL: ngsolve_D_skfem_N_did_not_converge participant left wrote no exports.json (rc=1). stderr tail: Traceback (most recent call last):\n  File \"/tmp/t2cpl_ngsolve_D_skfem_N_5ct_reok/left/participant_left.py\", line 35, in <module>\n    import ngsolve                # the MODULE, so ngsolve.ngsglobals.msg_level = 3 resolves:\n    ^^^^^^^^^^^^^\n--- skfem_D_ngsolve_N: left=skfem/dirichlet right=ngsolve/neumann theta=0.714286 rho_x=0.400000 rho_y=0.400000\nparticipant[left]=skfem interpreter=~/Schreibt",
       "co_defends": []
     },
     "coupling::vector_relaxation_needs_the_worst_component::0": {
@@ -1003,7 +1033,6 @@
         "fenics::dg_methods::2d_rc=0",
         "skfem::poisson::3d_rc=0",
         "kratos::dam::2d_rc=0",
-        "kratos::cable_net::2d_rc=0",
         "fenics::poisson::rectangle_rc=0",
         "fenics::poisson::l_domain_rc=0",
         "fenics::heat::rectangle_rc=0",
@@ -1011,10 +1040,8 @@
         "fenics::linear_elasticity::plate_hole_rc=0",
         "fenics::navier_stokes::channel_cylinder_rc=0",
         "kratos::poromechanics::2d_rc=0",
-        "kratos::optimization::2d_rc=0",
         "kratos::cosimulation::2d_rc=0",
         "kratos::constitutive_laws::2d_rc=0",
-        "kratos::dem_structures_coupling::2d_rc=0",
         "skfem::poisson::2d_tri_rc=0",
         "kratos::auxiliary_overview::N/A_rc=0",
         "skfem::navier_stokes::2d_rc=0",
@@ -1028,11 +1055,12 @@
         "skfem::hydraulic_resistance::2d_rc=0"
       ],
       "forbid_violated": [
+        "Traceback",
         "FAIL:"
       ],
       "notes": [
-        "missing in output: ['failures=0', 'kratos::chimera::2d_rc=0', 'kratos::compressible_potential::2d_rc=0', 'kratos::droplet_dynamics::2d_rc=0', 'kratos::fem_to_dem::2d_rc=0', 'kratos::fluid::2d_cavity_rc=0', 'kratos::fluid_biomedical::2d_rc=0', 'kratos::fluid_hydraulics::2d_rc=0', 'kratos::free_surface::2d_rc=0', 'kratos::fsi::2d_rc=0', 'kratos::geomechanics::2d_rc=0', 'kratos::iga::2d_rc=0', 'kratos::pfem2::2d_rc=0', 'kratos::pfem_fluid::2d_rc=0', 'kratos::pfem_solid::2d_rc=0', 'kratos::rans::2d_rc=0', 'kratos::rom::2d_rc=0', 'kratos::swimming_dem::2d_rc=0', 'kratos::thermal_dem::2d_rc=0', 'kratos::topology_optimization::2d_rc=0', 'kratos::wind_engineering::2d_rc=0', 'ngsolve::contact::2d_rc=0', 'ngsolve::convection_diffusion::2d_dg_rc=0', 'ngsolve::dg_methods::2d_rc=0', 'ngsolve::eigenvalue::2d_rc=0', 'ngsolve::hdivdiv::2d_rc=0', 'ngsolve::heat::2d_rc=0', 'ngsolve::heat::2d_steady_rc=0', 'ngsolve::heat::2d_transient_rc=0', 'ngsolve::helmholtz::2d_rc=0', 'ngsolve::hyperelasticity::2d_rc=0', 'ngsolve::hyperelasticity::3d_rc=0', 'ngsolve::linear_elasticity::2d_rc=0', 'ngsolve::linear_elasticity::3d_rc=0', 'ngsolve::maxwell::3d_magnetostatics_rc=0', 'ngsolve::mhd::2d_rc=0', 'ngsolve::mixed_poisson::2d_rc=0', 'ngsolve::navier_stokes::2d_rc=0', 'ngsolve::nonlinear_elasticity::2d_rc=0', 'ngsolve::nonlinear_elasticity::3d_rc=0', 'ngsolve::phase_field::2d_rc=0', 'ngsolve::phase_field::fracture_2d_rc=0', 'ngsolve::plasticity::2d_rc=0', 'ngsolve::poisson::2d_rc=0', 'ngsolve::poisson::3d_rc=0', 'ngsolve::stokes::2d_hdg_rc=0', 'ngsolve::stokes::2d_rc=0', 'ngsolve::surface_pde::3d_rc=0', 'ngsolve::thermal_structural::2d_rc=0', 'ngsolve::time_dependent_ns::2d_rc=0', 'total_executed=129']",
-        "forbidden tokens appeared: ['FAIL:']"
+        "missing in output: ['failures=0', 'kratos::cable_net::2d_rc=0', 'kratos::chimera::2d_rc=0', 'kratos::compressible_potential::2d_rc=0', 'kratos::dem_structures_coupling::2d_rc=0', 'kratos::droplet_dynamics::2d_rc=0', 'kratos::fem_to_dem::2d_rc=0', 'kratos::fluid::2d_cavity_rc=0', 'kratos::fluid_biomedical::2d_rc=0', 'kratos::fluid_hydraulics::2d_rc=0', 'kratos::free_surface::2d_rc=0', 'kratos::fsi::2d_rc=0', 'kratos::geomechanics::2d_rc=0', 'kratos::iga::2d_rc=0', 'kratos::optimization::2d_rc=0', 'kratos::pfem2::2d_rc=0', 'kratos::pfem_fluid::2d_rc=0', 'kratos::pfem_solid::2d_rc=0', 'kratos::rans::2d_rc=0', 'kratos::rom::2d_rc=0', 'kratos::swimming_dem::2d_rc=0', 'kratos::thermal_dem::2d_rc=0', 'kratos::topology_optimization::2d_rc=0', 'kratos::wind_engineering::2d_rc=0', 'ngsolve::contact::2d_rc=0', 'ngsolve::convection_diffusion::2d_dg_rc=0', 'ngsolve::dg_methods::2d_rc=0', 'ngsolve::eigenvalue::2d_rc=0', 'ngsolve::hdivdiv::2d_rc=0', 'ngsolve::heat::2d_rc=0', 'ngsolve::heat::2d_steady_rc=0', 'ngsolve::heat::2d_transient_rc=0', 'ngsolve::helmholtz::2d_rc=0', 'ngsolve::hyperelasticity::2d_rc=0', 'ngsolve::hyperelasticity::3d_rc=0', 'ngsolve::linear_elasticity::2d_rc=0', 'ngsolve::linear_elasticity::3d_rc=0', 'ngsolve::maxwell::3d_magnetostatics_rc=0', 'ngsolve::mhd::2d_rc=0', 'ngsolve::mixed_poisson::2d_rc=0', 'ngsolve::navier_stokes::2d_rc=0', 'ngsolve::nonlinear_elasticity::2d_rc=0', 'ngsolve::nonlinear_elasticity::3d_rc=0', 'ngsolve::phase_field::2d_rc=0', 'ngsolve::phase_field::fracture_2d_rc=0', 'ngsolve::plasticity::2d_rc=0', 'ngsolve::poisson::2d_rc=0', 'ngsolve::poisson::3d_rc=0', 'ngsolve::stokes::2d_hdg_rc=0', 'ngsolve::stokes::2d_rc=0', 'ngsolve::surface_pde::3d_rc=0', 'ngsolve::thermal_structural::2d_rc=0', 'ngsolve::time_dependent_ns::2d_rc=0', 'total_executed=129']",
+        "forbidden tokens appeared: ['Traceback', 'FAIL:']"
       ],
       "captured_head": "repo_venv_python=~/Schreibtisch/openpaso/.venv/bin/python\nskfem::poisson::2d_rc=0\nkratos::poisson::2d_rc=0\nngsolve::poisson::2d SKIPPED (no env)\nfenics::poisson::2d_rc=0\nskfem::linear_elasticity::2d_rc=0\nkratos::linear_elasticity::2d_rc=0\nngsolve::linear_elasticity::2d SKIPPED (no env)\nfenics::linear_elasticity::2d_rc=0\nskfem::heat::2d_rc=0\nkratos::heat::2d_rc=0\nngsolve::stokes::2d SKIPPED (no env)\nskfem::stokes::2d_rc=0\nfenics::stokes::2d_rc=0\nngsolve::heat::2d SKIPPED (no env)\nfenics::heat::2d_steady_rc=0\nfenics::helmholtz::2d_rc=0\nfenics::maxwell::2d_rc=0\nfenics::nearly_incompressible_elasticity::2d_rc=0\nfenics::fracture::2d_rc=0\nfenics::stokes_darcy::2d_rc=0\nfenics::navier_stokes::2d_rc=0\nfenics::hyperelasticity::3d_rc=0\nfenics::eigenvalue::2d_rc=0\nngsolve::eigenvalue::2d SKIPPED (no e",
       "co_defends": []
@@ -1052,7 +1080,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "available_backends_count=6\ngenerate_input_successes=194\ngenerate_input_other_failures=0\ngenerate_input_nameerrors=0\n",
+      "captured_head": "available_backends_count=9\ngenerate_input_successes=256\ngenerate_input_other_failures=0\ngenerate_input_nameerrors=0\n",
       "co_defends": []
     },
     "kratos::auxiliary_overview::100": {
@@ -1080,7 +1108,7 @@
         "missing in output: ['failures_count=0']",
         "forbidden tokens appeared: ['FAIL:']"
       ],
-      "captured_head": "discover_list_chars=1271\nfenics_ok\nfourc_ok\ndealii_ok\nngsolve_ok\nskfem_ok\nkratos_ok\ntotal_probes=18\nfailures_count=1\n  fail: prep_error_tok=fourc::poisson::'^ERROR:'\nFAIL: MCP-tool surface coverage regression\n",
+      "captured_head": "discover_list_chars=1356\nfenics_ok\nfourc_ok\ndealii_ok\nngsolve_ok\nskfem_ok\nkratos_ok\ntotal_probes=18\nfailures_count=1\n  fail: prep_error_tok=fourc::poisson::'^ERROR:'\nFAIL: MCP-tool surface coverage regression\n",
       "co_defends": []
     },
     "kratos::auxiliary_overview::101": {
@@ -1122,7 +1150,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "=== config.h is the availability test\nconfig_h_/* #undef DEAL_II_WITH_ADOLC */\nconfig_h_/* #undef DEAL_II_WITH_TRILINOS */\nconfig_h_/* #undef DEAL_II_TRILINOS_WITH_SACADO */\nconfig_h_#ifdef DEAL_II_WITH_TRILINOS\nadolc_enabled=false\nsacado_enabled=false\nad_enabled=false\n=== is the header present at all?\nheader_present=true\n=== what guards the class definitions\nguard_line_#if defined(DEAL_II_WITH_ADOLC) || defined(DEAL_II_TRILINOS_WITH_SACADO)\n=== does the header INCLUDE cleanly?\nheader_includes_cleanly=true\n=== naming the two AD helpers the claim tells you to choose between\nnames_an_ad_class=true\ncompiles=false\ncompile_error_/tmp/tmp.LdlZyhs3CW/use.cc:3:32: error: \u2018EnergyFunctional\u2019 is not a member of \u2018dealii::Differentiation::AD\u2019\ncompile_error_/tmp/tmp.LdlZyhs3CW/use.cc:4:60: error: expect",
+      "captured_head": "=== config.h is the availability test\nconfig_h_/* #undef DEAL_II_WITH_ADOLC */\nconfig_h_/* #undef DEAL_II_WITH_TRILINOS */\nconfig_h_/* #undef DEAL_II_TRILINOS_WITH_SACADO */\nconfig_h_#ifdef DEAL_II_WITH_TRILINOS\nadolc_enabled=false\nsacado_enabled=false\nad_enabled=false\n=== is the header present at all?\nheader_present=true\n=== what guards the class definitions\nguard_line_#if defined(DEAL_II_WITH_ADOLC) || defined(DEAL_II_TRILINOS_WITH_SACADO)\n=== does the header INCLUDE cleanly?\nheader_includes_cleanly=true\n=== naming the two AD helpers the claim tells you to choose between\nnames_an_ad_class=true\ncompiles=false\ncompile_error_/tmp/tmp.axIHygLcR9/use.cc:3:32: error: \u2018EnergyFunctional\u2019 is not a member of \u2018dealii::Differentiation::AD\u2019\ncompile_error_/tmp/tmp.axIHygLcR9/use.cc:4:60: error: expect",
       "co_defends": []
     },
     "dealii::navier_stokes::3": {
@@ -1826,7 +1854,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "phantom_exception_string_files=0\n=== variant=release\ndealii_variant=release\nconsumer_DEBUG=0\nprobe=fe_index_past_collection\nmutate=0\nfe_collection_size=2\nn_active_cells=4\nactive_fe_index_set_on_one_cell=5\nindex_is_inside_the_collection=false\nbefore_distribute_dofs\ntimeout: der beobachtete Befehl erzeugte einen Speicherauszug\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/dealii/fe_index_past_the_collection/../_shared/run.sh: Zeile 12: 2143043 Speicherzugriffsfehler  timeout \"${T2_TIMEOUT:-300}\" \"$EXE\" \"$@\" 2>&1\nexit_code=139\nsummary_release_rc=139\nsummary_release_distribute_dofs_returned=false\n=== variant=debug\ndealii_variant=debug\nconsumer_DEBUG=1\nprobe=fe_index_past_collection\nmutate=0\nfe_collection_size=2\nn_active_cells=4\nactive_fe_index_set_on_one_cell=5\nindex_is_inside_the_collection=",
+      "captured_head": "phantom_exception_string_files=0\n=== variant=release\ndealii_variant=release\nconsumer_DEBUG=0\nprobe=fe_index_past_collection\nmutate=0\nfe_collection_size=2\nn_active_cells=4\nactive_fe_index_set_on_one_cell=5\nindex_is_inside_the_collection=false\nbefore_distribute_dofs\ntimeout: der beobachtete Befehl erzeugte einen Speicherauszug\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/dealii/fe_index_past_the_collection/../_shared/run.sh: Zeile 12: 307738 Speicherzugriffsfehler  timeout \"${T2_TIMEOUT:-300}\" \"$EXE\" \"$@\" 2>&1\nexit_code=139\nsummary_release_rc=139\nsummary_release_distribute_dofs_returned=false\n=== variant=debug\ndealii_variant=debug\nconsumer_DEBUG=1\nprobe=fe_index_past_collection\nmutate=0\nfe_collection_size=2\nn_active_cells=4\nactive_fe_index_set_on_one_cell=5\nindex_is_inside_the_collection=f",
       "co_defends": []
     },
     "dealii::matrix_free::1": {
@@ -2130,7 +2158,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "phantom_vertex_data_enumerator_files=0\nreal_datavectortype_enumerators=9\n=== variant=release probe=rt_map_support_points\ndealii_variant=release\nprobe=rt_map_support_points\nmutate=0\nn_dofs=12\nbefore_map_dofs_to_support_points\ntimeout: der beobachtete Befehl erzeugte einen Speicherauszug\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/dealii/hdiv_dofs_are_face_functionals_not_nodal/../_shared/run.sh: Zeile 12: 2143951 Speicherzugriffsfehler  timeout \"${T2_TIMEOUT:-300}\" \"$EXE\" \"$@\" 2>&1\nexit_code=139\nsummary_release_rt_map_support_points_rc=139\n=== variant=debug probe=rt_map_support_points\ndealii_variant=debug\nprobe=rt_map_support_points\nmutate=0\nn_dofs=12\nbefore_map_dofs_to_support_points\n\n--------------------------------------------------------\nAn error occurred in line <2480> of file <~/de",
+      "captured_head": "phantom_vertex_data_enumerator_files=0\nreal_datavectortype_enumerators=9\n=== variant=release probe=rt_map_support_points\ndealii_variant=release\nprobe=rt_map_support_points\nmutate=0\nn_dofs=12\nbefore_map_dofs_to_support_points\ntimeout: der beobachtete Befehl erzeugte einen Speicherauszug\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/dealii/hdiv_dofs_are_face_functionals_not_nodal/../_shared/run.sh: Zeile 12: 308830 Speicherzugriffsfehler  timeout \"${T2_TIMEOUT:-300}\" \"$EXE\" \"$@\" 2>&1\nexit_code=139\nsummary_release_rt_map_support_points_rc=139\n=== variant=debug probe=rt_map_support_points\ndealii_variant=debug\nprobe=rt_map_support_points\nmutate=0\nn_dofs=12\nbefore_map_dofs_to_support_points\n\n--------------------------------------------------------\nAn error occurred in line <2480> of file <~/dea",
       "co_defends": []
     },
     "dealii::helmholtz::0": {
@@ -2367,7 +2395,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "dealii_variant=release\nprobe=mf_no_global_matrix\nmutate=0\noperator_under_test=assembled_sparse_matrix\nn_dofs=4913 global_matrix_bytes=1343472 sparsity_pattern_entries=167913 matrix_free_bytes=170727\nsetup_seconds_under_test=0.028403186 matrix_free_apply_seconds=0.000202315\noperator_under_test_stores_a_global_matrix=true\noperator_under_test_builds_a_sparsity_pattern=true\nmatrix_free_object_stores_no_sparsity_pattern=true\nmatrix_free_relative_difference_from_the_assembled_product=4.4546422e-16\nthe_two_paths_agree_to_roundoff=true\nVERDICT=operator_under_test_fell_back_to_a_global_sparse_matrix\nexit_code=0\n",
+      "captured_head": "dealii_variant=release\nprobe=mf_no_global_matrix\nmutate=0\noperator_under_test=assembled_sparse_matrix\nn_dofs=4913 global_matrix_bytes=1343472 sparsity_pattern_entries=167913 matrix_free_bytes=170727\nsetup_seconds_under_test=0.027304438 matrix_free_apply_seconds=0.00022049\noperator_under_test_stores_a_global_matrix=true\noperator_under_test_builds_a_sparsity_pattern=true\nmatrix_free_object_stores_no_sparsity_pattern=true\nmatrix_free_relative_difference_from_the_assembled_product=4.4546422e-16\nthe_two_paths_agree_to_roundoff=true\nVERDICT=operator_under_test_fell_back_to_a_global_sparse_matrix\nexit_code=0\n",
       "co_defends": []
     },
     "dealii::hp_adaptive::5": {
@@ -2457,7 +2485,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "message_files[n_dofs(level) can only be called after distribute_mg_dofs]=1\nmessage_files[prerequisite for multigrid transfers]=0\nmessage_files[The level dofs are not set up properly]=1\n=== variant=release call=n_dofs\ndealii_variant=release\nprobe=mg_no_level_dofs\nmutate=0\ncalled_distribute_mg_dofs=false has_level_dofs=false n_levels=4\ncheap_guard_has_level_dofs_is_true=false\ncall_under_test=n_dofs\nbefore_the_call\ntimeout: der beobachtete Befehl erzeugte einen Speicherauszug\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/dealii/mg_api_without_distribute_mg_dofs/../_shared/run.sh: Zeile 12: 2145091 Speicherzugriffsfehler  timeout \"${T2_TIMEOUT:-300}\" \"$EXE\" \"$@\" 2>&1\nexit_code=139\nsummary_release_n_dofs_rc=139\n=== variant=release call=transfer\ndealii_variant=release\nprobe=mg_no_level_dofs\nmut",
+      "captured_head": "message_files[n_dofs(level) can only be called after distribute_mg_dofs]=1\nmessage_files[prerequisite for multigrid transfers]=0\nmessage_files[The level dofs are not set up properly]=1\n=== variant=release call=n_dofs\ndealii_variant=release\nprobe=mg_no_level_dofs\nmutate=0\ncalled_distribute_mg_dofs=false has_level_dofs=false n_levels=4\ncheap_guard_has_level_dofs_is_true=false\ncall_under_test=n_dofs\nbefore_the_call\ntimeout: der beobachtete Befehl erzeugte einen Speicherauszug\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/dealii/mg_api_without_distribute_mg_dofs/../_shared/run.sh: Zeile 12: 310109 Speicherzugriffsfehler  timeout \"${T2_TIMEOUT:-300}\" \"$EXE\" \"$@\" 2>&1\nexit_code=139\nsummary_release_n_dofs_rc=139\n=== variant=release call=transfer\ndealii_variant=release\nprobe=mg_no_level_dofs\nmuta",
       "co_defends": []
     },
     "dealii::multigrid::1": {
@@ -2645,7 +2673,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "dealii_variant=release\nprobe=vtu_every_step_cost\nmutate=0\n=== TimerOutput::print_summary, CG+SSOR per step\n\n\n+---------------------------------------------+------------+------------+\n| Total wallclock time elapsed since start    |     0.483s |            |\n|                                             |            |            |\n| Section                         | no. calls |  wall time | % of total |\n+---------------------------------+-----------+------------+------------+\n| assemble_system                 |       120 |  0.000241s |         0% |\n| output_results                  |       120 |     0.248s |        51% |\n| solve                           |       120 |     0.233s |        48% |\n+---------------------------------+-----------+------------+------------+\n\nsolve_section_seconds=0.",
+      "captured_head": "dealii_variant=release\nprobe=vtu_every_step_cost\nmutate=0\n=== TimerOutput::print_summary, CG+SSOR per step\n\n\n+---------------------------------------------+------------+------------+\n| Total wallclock time elapsed since start    |     0.489s |            |\n|                                             |            |            |\n| Section                         | no. calls |  wall time | % of total |\n+---------------------------------+-----------+------------+------------+\n| assemble_system                 |       120 |  0.000236s |         0% |\n| output_results                  |       120 |     0.249s |        51% |\n| solve                           |       120 |     0.238s |        49% |\n+---------------------------------+-----------+------------+------------+\n\nsolve_section_seconds=0.",
       "co_defends": []
     },
     "dealii::advection_dg::3": {
@@ -2815,7 +2843,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "dealii_variant=release\nprobe=reassemble_cost\nmutate=0\nn_dofs=4225\nreassembling_seconds=0.334117 assemble_once_seconds=0.0976096\nassemble_fraction_of_reassembling_loop=0.697445\nslowdown=3.42299\nassembly_calls_in_loop_reassembling=40 assembly_calls_in_loop_once=0\nreassembling_does_one_assembly_per_step=true\nassembly_fraction_in_claimed_60_to_80_band=true\nreassembling_is_measurably_slower=true\nVERDICT=reassembly_costs_multiples_for_the_same_answer\nexit_code=0\n",
+      "captured_head": "dealii_variant=release\nprobe=reassemble_cost\nmutate=0\nn_dofs=4225\nreassembling_seconds=0.326303 assemble_once_seconds=0.0993456\nassemble_fraction_of_reassembling_loop=0.670788\nslowdown=3.28453\nassembly_calls_in_loop_reassembling=40 assembly_calls_in_loop_once=0\nreassembling_does_one_assembly_per_step=true\nassembly_fraction_in_claimed_60_to_80_band=true\nreassembling_is_measurably_slower=true\nVERDICT=reassembly_costs_multiples_for_the_same_answer\nexit_code=0\n",
       "co_defends": []
     },
     "dealii::wave::1": {
@@ -2833,7 +2861,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "dealii_variant=release\nprobe=reassemble_each_step\nmutate=0\n=== TimerOutput::print_summary of the loop under test\n\n\n+---------------------------------------------+------------+------------+\n| Total wallclock time elapsed since start    |     0.463s |            |\n|                                             |            |            |\n| Section                         | no. calls |  wall time | % of total |\n+---------------------------------+-----------+------------+------------+\n| assemble_system                 |        60 |     0.281s |        61% |\n| solve                           |        60 |     0.181s |        39% |\n+---------------------------------+-----------+------------+------------+\n\n=== TimerOutput::print_summary of the loop under test\n\n\n+-----------------------------------",
+      "captured_head": "dealii_variant=release\nprobe=reassemble_each_step\nmutate=0\n=== TimerOutput::print_summary of the loop under test\n\n\n+---------------------------------------------+------------+------------+\n| Total wallclock time elapsed since start    |     0.476s |            |\n|                                             |            |            |\n| Section                         | no. calls |  wall time | % of total |\n+---------------------------------+-----------+------------+------------+\n| assemble_system                 |        60 |      0.29s |        61% |\n| solve                           |        60 |     0.185s |        39% |\n+---------------------------------+-----------+------------+------------+\n\n=== TimerOutput::print_summary of the loop under test\n\n\n+-----------------------------------",
       "co_defends": []
     },
     "dealii::hp_adaptive::0": {
@@ -2855,7 +2883,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "=== variant=release\ndealii_variant=release\nconsumer_DEBUG=0\nprobe=refine_after_final_solve\nmutate=0\nCycle 0: 25 DOFs, 16 cells\nCycle 1: 41 DOFs, 28 cells\nCycle 2: 69 DOFs, 52 cells\nrefined_after_the_last_solve=true\nsolution_vector_size=69 dof_handler_n_dofs=69 triangulation_cells=100\nbefore_data_out\ntimeout: der beobachtete Befehl erzeugte einen Speicherauszug\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/dealii/refining_after_the_final_solve_kills_data_out/../_shared/run.sh: Zeile 12: 2146305 Speicherzugriffsfehler  timeout \"${T2_TIMEOUT:-300}\" \"$EXE\" \"$@\" 2>&1\nexit_code=139\nsummary_release_rc=139\nsummary_release_data_out_completed=false\n=== variant=debug\ndealii_variant=debug\nconsumer_DEBUG=1\nprobe=refine_after_final_solve\nmutate=0\nCycle 0: 25 DOFs, 16 cells\nCycle 1: 41 DOFs, 28 cells\nCy",
+      "captured_head": "=== variant=release\ndealii_variant=release\nconsumer_DEBUG=0\nprobe=refine_after_final_solve\nmutate=0\nCycle 0: 25 DOFs, 16 cells\nCycle 1: 41 DOFs, 28 cells\nCycle 2: 69 DOFs, 52 cells\nrefined_after_the_last_solve=true\nsolution_vector_size=69 dof_handler_n_dofs=69 triangulation_cells=100\nbefore_data_out\ntimeout: der beobachtete Befehl erzeugte einen Speicherauszug\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/dealii/refining_after_the_final_solve_kills_data_out/../_shared/run.sh: Zeile 12: 311338 Speicherzugriffsfehler  timeout \"${T2_TIMEOUT:-300}\" \"$EXE\" \"$@\" 2>&1\nexit_code=139\nsummary_release_rc=139\nsummary_release_data_out_completed=false\n=== variant=debug\ndealii_variant=debug\nconsumer_DEBUG=1\nprobe=refine_after_final_solve\nmutate=0\nCycle 0: 25 DOFs, 16 cells\nCycle 1: 41 DOFs, 28 cells\nCyc",
       "co_defends": []
     },
     "dealii::time_dependent_heat::0": {
@@ -3096,7 +3124,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "=== config.h is the availability test\nconfig_h_/* #undef DEAL_II_WITH_PETSC */\nconfig_h_/* #undef DEAL_II_WITH_SLEPC */\nconfig_h_#ifdef DEAL_II_WITH_PETSC\nconfig_h_#ifdef DEAL_II_WITH_SLEPC\nslepc_enabled=false\n=== is the header present at all?\nheader_present=true\n=== does the header INCLUDE cleanly?\nheader_includes_cleanly=true\n=== naming a SLEPc class\nnames_a_slepc_class=true\ncompiles=false\ncompile_error_/tmp/tmp.lNk9oHfT4a/use.cc:2:21: error: \u2018dealii::SLEPcWrappers\u2019 has not been declared\ncompile_error_/tmp/tmp.lNk9oHfT4a/use.cc:2:55: error: \u2018p\u2019 was not declared in this scope\n",
+      "captured_head": "=== config.h is the availability test\nconfig_h_/* #undef DEAL_II_WITH_PETSC */\nconfig_h_/* #undef DEAL_II_WITH_SLEPC */\nconfig_h_#ifdef DEAL_II_WITH_PETSC\nconfig_h_#ifdef DEAL_II_WITH_SLEPC\nslepc_enabled=false\n=== is the header present at all?\nheader_present=true\n=== does the header INCLUDE cleanly?\nheader_includes_cleanly=true\n=== naming a SLEPc class\nnames_a_slepc_class=true\ncompiles=false\ncompile_error_/tmp/tmp.p7k6oWauuP/use.cc:2:21: error: \u2018dealii::SLEPcWrappers\u2019 has not been declared\ncompile_error_/tmp/tmp.p7k6oWauuP/use.cc:2:55: error: \u2018p\u2019 was not declared in this scope\n",
       "co_defends": []
     },
     "dealii::linear_elasticity::0": {
@@ -3259,7 +3287,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "=== config.h is the availability test\nconfig_h_#define DEAL_II_WITH_KOKKOS\nconfig_h_/* #undef DEAL_II_WITH_SUNDIALS */\nconfig_h_#ifdef DEAL_II_WITH_KOKKOS\nconfig_h_#ifdef DEAL_II_WITH_SUNDIALS\nsundials_enabled=false\n=== is the header present at all?\nheader_present=true\n=== does the header INCLUDE cleanly?\nheader_includes_cleanly=true\n=== naming a SLEPc class\nnames_a_sundials_class=true\ncompiles=false\ncompile_error_/tmp/tmp.1NbAvdCXLX/use.cc:3:21: error: \u2018dealii::SUNDIALS\u2019 has not been declared\ncompile_error_/tmp/tmp.1NbAvdCXLX/use.cc:3:61: error: expected primary-expression before \u2018>\u2019 token\n",
+      "captured_head": "=== config.h is the availability test\nconfig_h_#define DEAL_II_WITH_KOKKOS\nconfig_h_/* #undef DEAL_II_WITH_SUNDIALS */\nconfig_h_#ifdef DEAL_II_WITH_KOKKOS\nconfig_h_#ifdef DEAL_II_WITH_SUNDIALS\nsundials_enabled=false\n=== is the header present at all?\nheader_present=true\n=== does the header INCLUDE cleanly?\nheader_includes_cleanly=true\n=== naming a SLEPc class\nnames_a_sundials_class=true\ncompiles=false\ncompile_error_/tmp/tmp.2UE8TjXYPb/use.cc:3:21: error: \u2018dealii::SUNDIALS\u2019 has not been declared\ncompile_error_/tmp/tmp.2UE8TjXYPb/use.cc:3:61: error: expected primary-expression before \u2018>\u2019 token\n",
       "co_defends": []
     },
     "dealii::convection_diffusion::3": {
@@ -3608,6 +3636,31 @@
       "captured_head": "has_product=True\nhas_composite=True\nhas_product_space=False\nproduct_space_import_raises=ModuleNotFoundError\nproduct_dimRange_size=3,187\ncomposite_dimRange_size=3,187\nproduct_and_composite_agree=True\ntrialfunctions_len=1\ntrialfunctions_shapes=[(3,)]\ntestfunctions_len=1\none_tuple_unpacks_without_error=(3,)\ntwo_name_unpack_rejected=ValueError\ntwo_name_unpack_message=not enough values to unpack (expected 2, got 1)\nsliced_velocity_shape=(2,)\nsliced_pressure_shape=()\ndune_composite_space_unpacking_verified=True\nInvalid MIT-MAGIC-COOKIE-1 key",
       "co_defends": []
     },
+    "dune::dg_advection_diffusion::0": {
+      "key": "dune::dg_advection_diffusion::0",
+      "backend": "dune",
+      "physics": "dg_advection_diffusion",
+      "pitfall_index": 0,
+      "fixture_id": "dune/dg_advection_diffusion_sipg_traps",
+      "mode": "python",
+      "status": "passed",
+      "expect_matched": [
+        "ufl_celldiameter_is_refused=True",
+        "and_it_is_a_TypeError=True",
+        "and_it_names_the_replacement=True",
+        "cg_does_not_solve_the_nonsymmetric_system=True",
+        "gmres_does=True",
+        "the_probe_ran=True",
+        "an_unseen_form_compiles_before_its_first_solve=True",
+        "the_same_form_reused_does_not_compile_again=True",
+        "and_the_line_reads_Compiling_X_new=True",
+        "dune_sipg_traps_verified=True"
+      ],
+      "forbid_violated": [],
+      "notes": [],
+      "captured_head": "ufl_celldiameter_is_refused=True   # TypeError\nand_it_is_a_TypeError=True   # TypeError\nand_it_names_the_replacement=True   # the message spells out `from dune.ufl import DuneCellDiameter`\n   # cg converged=False iterations=-2000\n   # gmres converged=True iterations=103\ncg_does_not_solve_the_nonsymmetric_system=True\ngmres_does=True\n   # first run compiles=1, same form again compiles=0\nthe_probe_ran=True\nan_unseen_form_compiles_before_its_first_solve=True\nthe_same_form_reused_does_not_compile_again=True\nand_the_line_reads_Compiling_X_new=True\ndune_sipg_traps_verified=True\nInvalid MIT-MAGIC-COOKIE-1 key",
+      "co_defends": []
+    },
     "dune::dg_advection::0": {
       "key": "dune::dg_advection::0",
       "backend": "dune",
@@ -3710,7 +3763,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "n_dofs=625\nn_boundary_dofs=96\nn_interior_dofs=529\nconstrained_rows_are_identity_rows=True\nconstrained_matrix_asymmetry=0.333333\nconstrained_matrix_is_not_symmetric=True\nconstrained_spectrum_size=625\ninterior_spectrum_size=529\nextra_mode_count_expected=96\nextra_modes_found=96\nextra_modes_min=494.3119\nextra_modes_max=13560.1917\nfirst_physical_eigenvalue=19.7674\nextra_modes_are_above_the_physical_bottom=True\none_over_Mii_boundary_values=[2592.0, 5184.0]\nextra_modes_at_one_over_Mii=0\none_over_Mii_prediction_is_false=True\nsigma0_on_constrained=[19.7417 49.5089 49.5279 79.1467]\nanalytic_smallest=[19.7392 49.348  49.348  78.9568]\nsigma0_max_relative_error=7.85e-03\nsigma0_returns_physics_not_pollution=True\ninterior_submatrix_shape=(529, 529)\nclean_smallest=[19.7674 49.5881 49.5881 79.4088]\nclean_m",
+      "captured_head": "n_dofs=625\nn_boundary_dofs=96\nn_interior_dofs=529\nconstrained_rows_are_identity_rows=True\nconstrained_matrix_asymmetry=0.333333\nconstrained_matrix_is_not_symmetric=True\nconstrained_spectrum_size=625\ninterior_spectrum_size=529\nextra_mode_count_expected=96\nextra_modes_found=96\nextra_modes_min=494.3119\nextra_modes_max=13560.1917\nfirst_physical_eigenvalue=19.7674\nextra_modes_are_above_the_physical_bottom=True\none_over_Mii_boundary_values=[2592.0, 5184.0]\nextra_modes_at_one_over_Mii=0\none_over_Mii_prediction_is_false=True\nsigma0_on_constrained=[19.7475 49.4312 49.4511 79.1663]\nanalytic_smallest=[19.7392 49.348  49.348  78.9568]\nsigma0_max_relative_error=6.53e-03\nsigma0_returns_physics_not_pollution=True\ninterior_submatrix_shape=(529, 529)\nclean_smallest=[19.7674 49.5881 49.5881 79.4088]\nclean_m",
       "co_defends": []
     },
     "dune::adaptive_poisson::3": {
@@ -3845,7 +3898,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "grid_nx=40\np1_dofs=1681\np3_dofs=14641\np1_elements_per_wavelength_20_k=12.57\np1_elements_per_wavelength_20_rel_error=1.117784e-01\np1_elements_per_wavelength_10_k=25.13\np1_elements_per_wavelength_10_rel_error=6.259823e-01\np1_elements_per_wavelength_4_k=62.83\np1_elements_per_wavelength_4_rel_error=9.543712e-01\np1_error_grows_as_resolution_drops=True\np1_at_20_per_wavelength_error=0.1118\np1_at_20_per_wavelength_is_the_best=True\np1_below_5_per_wavelength_is_tens_of_percent=True\nsame_mesh_k=62.83\nsame_mesh_p1_rel_error=9.543712e-01\nsame_mesh_p3_rel_error=4.604336e-02\np3_over_p1_error_ratio=0.0482\np3_recovers_on_the_same_mesh=True\ndune_pollution_and_resolution_verified=True\nInvalid MIT-MAGIC-COOKIE-1 keyDUNE-INFO: Compiling UFLLocalFunction (new)\nDUNE-INFO: Compiling UFLLocalFunction (new)\n",
+      "captured_head": "grid_nx=40\np1_dofs=1681\np3_dofs=14641\np1_elements_per_wavelength_20_k=12.57\np1_elements_per_wavelength_20_rel_error=1.117784e-01\np1_elements_per_wavelength_10_k=25.13\np1_elements_per_wavelength_10_rel_error=6.259823e-01\np1_elements_per_wavelength_4_k=62.83\np1_elements_per_wavelength_4_rel_error=9.543712e-01\np1_error_grows_as_resolution_drops=True\np1_at_20_per_wavelength_error=0.1118\np1_at_20_per_wavelength_is_the_best=True\np1_below_5_per_wavelength_is_tens_of_percent=True\nsame_mesh_k=62.83\nsame_mesh_p1_rel_error=9.543712e-01\nsame_mesh_p3_rel_error=4.604336e-02\np3_over_p1_error_ratio=0.0482\np3_recovers_on_the_same_mesh=True\ndune_pollution_and_resolution_verified=True\nInvalid MIT-MAGIC-COOKIE-1 key",
       "co_defends": []
     },
     "dune::hyperelasticity::0": {
@@ -3930,7 +3983,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "cache_dir_ends_with=.cache/dune-py\ncache_is_under_sys_prefix=True\ngenerated_so_dir_exists=True\nhome_dot_dune_exists=False\ncold_run_finished=True\ncold_run_announced_a_compile=True\ncold_level_times=[(4, 18.833), (8, 0.045), (16, 0.087)]\ncold_run_added_so_files=1\nfirst_level_pays_the_compile=True\nlater_levels_are_free=True\nconstant_value_change_seconds=0.0001\nconstant_value_change_added_so=0\nconstant_value_change_is_free=True\nidentical_form_rebuild_seconds=0.0047\nidentical_form_added_so=0\nidentical_form_is_free=True\nfloat_literal_is_part_of_the_code=True\nplain_ufl_constant_rejected=AttributeError\ndune_constant_takes_a_bare_value=True\nreuse_scheme_seconds_for_20_steps=0.0015\nrebuild_scheme_seconds_for_20_steps=0.1006\nrebuild_over_reuse_ratio=65.9\nrebuilding_the_scheme_costs_more=True\ndune_jit_",
+      "captured_head": "cache_dir_ends_with=.cache/dune-py\ncache_is_under_sys_prefix=True\ngenerated_so_dir_exists=True\nhome_dot_dune_exists=False\ncold_run_finished=True\ncold_run_announced_a_compile=True\ncold_level_times=[(4, 22.272), (8, 0.042), (16, 0.096)]\ncold_run_added_so_files=1\nfirst_level_pays_the_compile=True\nlater_levels_are_free=True\nconstant_value_change_seconds=0.0001\nconstant_value_change_added_so=0\nconstant_value_change_is_free=True\nidentical_form_rebuild_seconds=0.0053\nidentical_form_added_so=0\nidentical_form_is_free=True\nfloat_literal_is_part_of_the_code=True\nplain_ufl_constant_rejected=AttributeError\ndune_constant_takes_a_bare_value=True\nreuse_scheme_seconds_for_20_steps=0.0017\nrebuild_scheme_seconds_for_20_steps=0.1217\nrebuild_over_reuse_ratio=70.6\nrebuilding_the_scheme_costs_more=True\ndune_jit_",
       "co_defends": []
     },
     "dune::linear_elasticity::3": {
@@ -4368,7 +4421,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "initial_max=1.000000\nupdated_u_old_max=0.906890\nfrozen_u_old_max=0.980644\nupdating_u_old_advances_the_solution=True\nfrozen_u_old_repeats_the_first_step=True\nper_step_first=0.002414\nper_step_mean_tail=0.002371\nper_step_max_over_mean_tail=1.03\nscheme_reuses_its_operator=True\nBE_errors=4.323124e-04,2.158010e-04,1.065227e-04,5.162473e-05\nBE_observed_order=1.045\nCN_errors=1.452362e-06,3.628501e-07,9.064549e-08,2.259711e-08\nCN_observed_order=2.004\nbackward_euler_is_first_order=True\ncrank_nicolson_is_second_order=True\nimplicit_euler_factor_costs_an_order=True\nexplicit_cfl_dt=1.953125e-02\nimplicit_dt_used=1.953125e+01\ndt_over_cfl_limit=1000\nbe_result_is_finite=True\nbe_result_decayed=1.058414e-08\nbe_is_unconditionally_stable=True\ndune_time_stepping_traps_verified=True\nInvalid MIT-MAGIC-COOKIE-1 key",
+      "captured_head": "initial_max=1.000000\nupdated_u_old_max=0.906890\nfrozen_u_old_max=0.980644\nupdating_u_old_advances_the_solution=True\nfrozen_u_old_repeats_the_first_step=True\nper_step_first=0.002543\nper_step_mean_tail=0.002443\nper_step_max_over_mean_tail=1.02\nscheme_reuses_its_operator=True\nBE_errors=4.323124e-04,2.158010e-04,1.065227e-04,5.162473e-05\nBE_observed_order=1.045\nCN_errors=1.452362e-06,3.628501e-07,9.064549e-08,2.259711e-08\nCN_observed_order=2.004\nbackward_euler_is_first_order=True\ncrank_nicolson_is_second_order=True\nimplicit_euler_factor_costs_an_order=True\nexplicit_cfl_dt=1.953125e-02\nimplicit_dt_used=1.953125e+01\ndt_over_cfl_limit=1000\nbe_result_is_finite=True\nbe_result_decayed=1.058414e-08\nbe_is_unconditionally_stable=True\ndune_time_stepping_traps_verified=True\nInvalid MIT-MAGIC-COOKIE-1 key",
       "co_defends": []
     },
     "dune::poisson::11": {
@@ -4622,7 +4675,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "missing_solid: rc=1 read_failed=1 named_with_material_name=1\nmissing_fluid: rc=1 read_failed=1 named_with_material_name=1\nmissing_permeability: rc=1 read_failed=1 named_with_material_name=1\nidentical_runs_max_relative_deviation=7.510e-10 bit_identical=0\nphi0_omitted: rc=0 normal=1 steps=10 named_error=0 max_rel_dev_vs_shipped=5.279e-10\nphi0_zero: rc=0 normal=1 steps=10 named_error=0 max_rel_dev_vs_shipped=5.679e-10\nphi0_high: rc=0 normal=1 steps=10 named_error=0 max_rel_dev_vs_shipped=9.508e-10\nproperties_named_when_missing=3 of 3\nphi0_is_a_silent_default_not_a_named_error=1\nshipped_deck_cannot_see_phi0=1 (tolerance 1.0e-06)\nbiphasic_fsi_properties=reproduced_with_correction\n",
+      "captured_head": "missing_solid: rc=1 read_failed=1 named_with_material_name=1\nmissing_fluid: rc=1 read_failed=1 named_with_material_name=1\nmissing_permeability: rc=1 read_failed=1 named_with_material_name=1\nidentical_runs_max_relative_deviation=4.667e-10 bit_identical=0\nphi0_omitted: rc=0 normal=1 steps=10 named_error=0 max_rel_dev_vs_shipped=7.372e-10\nphi0_zero: rc=0 normal=1 steps=10 named_error=0 max_rel_dev_vs_shipped=7.330e-10\nphi0_high: rc=0 normal=1 steps=10 named_error=0 max_rel_dev_vs_shipped=9.409e-10\nproperties_named_when_missing=3 of 3\nphi0_is_a_silent_default_not_a_named_error=1\nshipped_deck_cannot_see_phi0=1 (tolerance 1.0e-06)\nbiphasic_fsi_properties=reproduced_with_correction\n",
       "co_defends": []
     },
     "febio::multiphasic::1": {
@@ -4873,7 +4926,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "dynamic_rho1: rc=0 normal=1 steps=10 warnings=0\ndynamic_omitted: rc=0 normal=1 steps=10 warnings=0\ndynamic_rho1000: rc=0 normal=1 steps=10 warnings=0\ndynamic_rho0: rc=0 normal=1 steps=10 warnings=0\nstatic_rho1: rc=0 normal=1 steps=10 warnings=0\nsolver_noise_floor=2.931e-11 identity_tolerance=2.931e-09\nomitted_equals_density_1: max_rel_dev=1.319e-11 within_noise=1\ndensity_1000_differs: max_rel_dev=1.861e+00 far_above_noise=1\ndensity_0_equals_STATIC: max_rel_dev=1.215e-10 within_noise=1\ndensity_default=reproduced\n",
+      "captured_head": "dynamic_rho1: rc=0 normal=1 steps=10 warnings=0\ndynamic_omitted: rc=0 normal=1 steps=10 warnings=0\ndynamic_rho1000: rc=0 normal=1 steps=10 warnings=0\ndynamic_rho0: rc=0 normal=1 steps=10 warnings=0\nstatic_rho1: rc=0 normal=1 steps=10 warnings=0\nsolver_noise_floor=2.638e-11 identity_tolerance=2.638e-09\nomitted_equals_density_1: max_rel_dev=2.111e-11 within_noise=1\ndensity_1000_differs: max_rel_dev=1.861e+00 far_above_noise=1\ndensity_0_equals_STATIC: max_rel_dev=1.076e-10 within_noise=1\ndensity_default=reproduced\n",
       "co_defends": []
     },
     "febio::heat::5": {
@@ -5900,7 +5953,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "reuse_seconds=0.047 one_problem_seconds=0.581 fresh_problem_seconds=0.729\nreuse_integral=0.5000000000 one_problem_integral=0.5000000000 fresh_integral=0.5000000000\nall_three_give_the_same_answer=True\nreuse_at_least_2x_faster_and_fresh_is_slowest=True\nVERDICT=only_wall_time_reveals_the_reassembly\n",
+      "captured_head": "reuse_seconds=0.047 one_problem_seconds=0.616 fresh_problem_seconds=0.807\nreuse_integral=0.5000000000 one_problem_integral=0.5000000000 fresh_integral=0.5000000000\nall_three_give_the_same_answer=True\nreuse_at_least_2x_faster_and_fresh_is_slowest=True\nVERDICT=only_wall_time_reveals_the_reassembly\n",
       "co_defends": []
     },
     "fenics::matrix_free_poisson::1": {
@@ -5963,7 +6016,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "facets=432 allpairs_ms=6.076 tree_ms=9.409 tree_speedup=0.65 nearest_facet_agreement=1.000\nfacets=768 allpairs_ms=18.347 tree_ms=16.292 tree_speedup=1.13 nearest_facet_agreement=1.000\nfacets=1452 allpairs_ms=70.888 tree_ms=36.661 tree_speedup=1.93 nearest_facet_agreement=1.000\nfacets=3072 allpairs_ms=321.383 tree_ms=77.969 tree_speedup=4.12 nearest_facet_agreement=1.000\nallpairs_scaling_exponent=2.033 tree_scaling_exponent=1.097\nsame_nearest_facet_both_ways=True\nallpairs_scaling_is_quadratic=True\ntree_scaling_is_not_near_linear=True\nallpairs_faster_at_a_few_hundred_facets=True\ntree_faster_at_three_thousand_facets=True\ntree_speedup_at_three_thousand_facets_is_single_digit=True\nVERDICT=bbtree_is_a_modest_win_not_a_near_linear_one\n",
+      "captured_head": "facets=432 allpairs_ms=6.080 tree_ms=9.415 tree_speedup=0.65 nearest_facet_agreement=1.000\nfacets=768 allpairs_ms=18.316 tree_ms=16.193 tree_speedup=1.13 nearest_facet_agreement=1.000\nfacets=1452 allpairs_ms=71.181 tree_ms=36.816 tree_speedup=1.93 nearest_facet_agreement=1.000\nfacets=3072 allpairs_ms=319.467 tree_ms=82.304 tree_speedup=3.88 nearest_facet_agreement=1.000\nallpairs_scaling_exponent=2.031 tree_scaling_exponent=1.124\nsame_nearest_facet_both_ways=True\nallpairs_scaling_is_quadratic=True\ntree_scaling_is_not_near_linear=True\nallpairs_faster_at_a_few_hundred_facets=True\ntree_faster_at_three_thousand_facets=True\ntree_speedup_at_three_thousand_facets_is_single_digit=True\nVERDICT=bbtree_is_a_modest_win_not_a_near_linear_one\n",
       "co_defends": []
     },
     "fenics::mixed_poisson::5": {
@@ -6497,7 +6550,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "ndofs=12288 dofs_per_cell=6 ncells=2048\ndofmap_is_cell_blocked=True\nmass_offblock_entries=0 implicit_operator_offblock_entries=216576\nmass_matrix_is_block_diagonal=True\nimplicit_dg_operator_is_not_block_diagonal=True\nevery_row_has_one_block_of_entries=True\nslot_best_ms=7.194 local_solve_best_ms=1.082 ratio=6.65\nsame_answer_both_ways=True\ngeneric_sparse_solver_is_slower=True\nVERDICT=dg_mass_is_block_diagonal_invert_it_per_cell\n",
+      "captured_head": "ndofs=12288 dofs_per_cell=6 ncells=2048\ndofmap_is_cell_blocked=True\nmass_offblock_entries=0 implicit_operator_offblock_entries=216576\nmass_matrix_is_block_diagonal=True\nimplicit_dg_operator_is_not_block_diagonal=True\nevery_row_has_one_block_of_entries=True\nslot_best_ms=7.666 local_solve_best_ms=1.138 ratio=6.73\nsame_answer_both_ways=True\ngeneric_sparse_solver_is_slower=True\nVERDICT=dg_mass_is_block_diagonal_invert_it_per_cell\n",
       "co_defends": []
     },
     "fenics::dg_methods::1": {
@@ -6537,7 +6590,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "tri_rt1_n24_superlu          factoriser=superlu_dist  reason= -11 mass_balance=inf algebraic_residual=nan pressure_range=[nan, nan]\ntri_rt1_n24_mumps            factoriser=mumps         reason=   4 mass_balance=1.286e-08 algebraic_residual=1.735e-15 pressure_range=[-0.933, 0.946]\ntri_rt1_n24_umfpack          factoriser=umfpack       reason=   4 mass_balance=1.286e-08 algebraic_residual=1.286e-14 pressure_range=[-0.933, 0.946]\ntri_rt2_n16_mumps            factoriser=mumps         reason= -11 mass_balance=inf algebraic_residual=nan pressure_range=[nan, nan]\ntri_rt2_n16_mumps_icntl14    factoriser=mumps         reason=   4 mass_balance=2.523e-07 algebraic_residual=1.701e-15 pressure_range=[-1.009, 1.009]\ntri_rt2_n16_superlu          factoriser=superlu_dist  reason=   4 mass_balance=2.523e-07 ",
+      "captured_head": "tri_rt1_n24_superlu          factoriser=superlu_dist  reason= -11 mass_balance=inf algebraic_residual=nan pressure_range=[nan, nan]\ntri_rt1_n24_mumps            factoriser=mumps         reason=   4 mass_balance=1.286e-08 algebraic_residual=1.767e-15 pressure_range=[-0.933, 0.946]\ntri_rt1_n24_umfpack          factoriser=umfpack       reason=   4 mass_balance=1.286e-08 algebraic_residual=1.286e-14 pressure_range=[-0.933, 0.946]\ntri_rt2_n16_mumps            factoriser=mumps         reason= -11 mass_balance=inf algebraic_residual=nan pressure_range=[nan, nan]\ntri_rt2_n16_mumps_icntl14    factoriser=mumps         reason=   4 mass_balance=2.523e-07 algebraic_residual=1.750e-15 pressure_range=[-1.009, 1.009]\ntri_rt2_n16_superlu          factoriser=superlu_dist  reason=   4 mass_balance=2.523e-07 ",
       "co_defends": []
     },
     "fenics::heat::1": {
@@ -6784,20 +6837,16 @@
       "pitfall_index": 9,
       "fixture_id": "fenics/field_extrema_and_integrals_are_rank_local",
       "mode": "python",
-      "status": "passed",
-      "expect_matched": [
-        "ranks_that_reported=2",
-        "array_includes_ghost_entries=True",
-        "ranks_report_different_maxima=True",
-        "ranks_report_different_integrals=True",
-        "at_least_one_rank_reports_a_wrong_max=True",
-        "per_rank_integrals_sum_to_the_global_one=True",
-        "child_returncode=0",
-        "VERDICT=extrema_and_integrals_are_rank_local_without_a_reduction"
+      "status": "failed",
+      "expect_matched": [],
+      "forbid_violated": [
+        "VERDICT=could_not_launch_two_ranks"
       ],
-      "forbid_violated": [],
-      "notes": [],
-      "captured_head": "mpiexec=~/miniconda3/envs/fenics/bin/mpiexec\nT2RANK rank=0 size=2 owned=579 ghosts=25 array_rows=604 reported_max=3.642338145467e-02 reported_integral=0.000000000000e+00 global_max=4.387119055181e-02 global_integral=1.562500000000e+04\nT2RANK rank=1 size=2 owned=573 ghosts=25 array_rows=598 reported_max=4.387119055181e-02 reported_integral=1.562500000000e+04 global_max=4.387119055181e-02 global_integral=1.562500000000e+04\nranks_that_reported=2\nreported_maxima=[0.03642338145467, 0.04387119055181]\nreported_integrals=[0.0, 15625.0]\nglobal_max=4.387119055181e-02 global_integral=1.562500000000e+04\narray_includes_ghost_entries=True\nranks_report_different_maxima=True\nranks_report_different_integrals=True\nranks_whose_max_is_not_the_global_max=1\nat_least_one_rank_reports_a_wrong_max=True\nper_rank_in",
+      "notes": [
+        "missing in output: ['VERDICT=extrema_and_integrals_are_rank_local_without_a_reduction', 'array_includes_ghost_entries=True', 'at_least_one_rank_reports_a_wrong_max=True', 'child_returncode=0', 'per_rank_integrals_sum_to_the_global_one=True', 'ranks_report_different_integrals=True', 'ranks_report_different_maxima=True', 'ranks_that_reported=2']",
+        "forbidden tokens appeared: ['VERDICT=could_not_launch_two_ranks']"
+      ],
+      "captured_head": "mpiexec=~/miniconda3/envs/fenics/bin/mpiexec\nT2RANK rank=0 size=2 owned=579 ghosts=25 array_rows=604 reported_max=3.642338145467e-02 reported_integral=0.000000000000e+00 global_max=4.387119055181e-02 global_integral=1.562500000000e+04T2RANK rank=1 size=2 owned=573 ghosts=25 array_rows=598 reported_max=4.387119055181e-02 reported_integral=1.562500000000e+04 global_max=4.387119055181e-02 global_integral=1.562500000000e+04\nranks_that_reported=1\nmpi_child_output_tail=T2RANK rank=0 size=2 owned=579 ghosts=25 array_rows=604 reported_max=3.642338145467e-02 reported_integral=0.000000000000e+00 global_max=4.387119055181e-02 global_integral=1.562500000000e+04T2RANK rank\nVERDICT=could_not_launch_two_ranks\n",
       "co_defends": []
     },
     "fenics::mixed_poisson::0": {
@@ -7239,7 +7288,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "legacy_newtonsolver_pairing_raised=True AttributeError: 'NonlinearProblem' object has no attribute 'a'\nlegacy_warning_categories=['DeprecationWarning']\nlegacy_warning_text=dolfinx.nls.petsc.NewtonSolver is deprecated. Use dolfinx.fem.petsc.NonlinearProblem, a high level interface to PETSc SNES.\nsnes_object_type=SNES\nsnes_converged_reason=3 snes_iterations=20\nmax_abs_displacement=3.578737e-01\nsnes_path_works=True\nlegacy_pairing_fails_on_missing_attribute_a=True\nlegacy_pairing_warned_deprecated=True\nVERDICT=read_hyperelastic_newton_signals_off_snes\nException ignored in: <function NewtonSolver.__del__ at 0x7f4cc2c91c60>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/nls/petsc.py\", line 67, in __del__\n    for obj in filter(lambda obj: o",
+      "captured_head": "legacy_newtonsolver_pairing_raised=True AttributeError: 'NonlinearProblem' object has no attribute 'a'\nlegacy_warning_categories=['DeprecationWarning']\nlegacy_warning_text=dolfinx.nls.petsc.NewtonSolver is deprecated. Use dolfinx.fem.petsc.NonlinearProblem, a high level interface to PETSc SNES.\nsnes_object_type=SNES\nsnes_converged_reason=3 snes_iterations=20\nmax_abs_displacement=3.578737e-01\nsnes_path_works=True\nlegacy_pairing_fails_on_missing_attribute_a=True\nlegacy_pairing_warned_deprecated=True\nVERDICT=read_hyperelastic_newton_signals_off_snes\nException ignored in: <function NewtonSolver.__del__ at 0x7f1c1ae85c60>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/nls/petsc.py\", line 67, in __del__\n    for obj in filter(lambda obj: o",
       "co_defends": []
     },
     "fenics::hyperelasticity::1": {
@@ -7343,7 +7392,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "poisson_ndofs=4225 poisson_assemble_s=0.0023\nc0ip_ndofs=4225 c0ip_assemble_s=0.0236 c0ip_over_poisson_per_dof=10.28\nmixed_ndofs=8450 mixed_assemble_s=0.0100 mixed_over_poisson=4.37 mixed_over_poisson_per_dof=2.19\nprimary_over_poisson_assembly_ratio=10.28 primary_over_poisson_per_dof=10.28\nprimary_assembly_costs_more_than_5x_poisson_per_dof=True\ninterior_penalty_costs_more_than_the_ds_free_mixed_form=True\nmixed_formulation_doubles_the_dof_count=True\nVERDICT=interior_facet_integrals_dominate_biharmonic_assembly\n",
+      "captured_head": "poisson_ndofs=4225 poisson_assemble_s=0.0024\nc0ip_ndofs=4225 c0ip_assemble_s=0.0247 c0ip_over_poisson_per_dof=10.13\nmixed_ndofs=8450 mixed_assemble_s=0.0105 mixed_over_poisson=4.29 mixed_over_poisson_per_dof=2.15\nprimary_over_poisson_assembly_ratio=10.13 primary_over_poisson_per_dof=10.13\nprimary_assembly_costs_more_than_5x_poisson_per_dof=True\ninterior_penalty_costs_more_than_the_ds_free_mixed_form=True\nmixed_formulation_doubles_the_dof_count=True\nVERDICT=interior_facet_integrals_dominate_biharmonic_assembly\n",
       "co_defends": []
     },
     "fenics::matrix_free_poisson::10": {
@@ -7601,7 +7650,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "prefix_omitted_construction_raised=True TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'\nerror_names_the_missing_kwarg=True\npetsc_index_type=int32\npetsc_int_is_32_bit=True\npetsc_scalar_type=float64\ndirect_solver=mumps converged_reason=4 max_Az=3.713228e-02\ndirect_solver=superlu_dist converged_reason=4 max_Az=3.713228e-02\nmumps_solve_converged=True\nsuperlu_dist_also_available=True\nVERDICT=prefix_is_required_and_mumps_works_on_32bit_indices\nException ignored in: <function LinearProblem.__del__ at 0x7f8e08b50fe0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/fem/petsc.py\", line 883, in __del__\n    lambda obj: obj is not None, (self._solver, self._A, self._b, self._x, self._P_mat)\n   ",
+      "captured_head": "prefix_omitted_construction_raised=True TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'\nerror_names_the_missing_kwarg=True\npetsc_index_type=int32\npetsc_int_is_32_bit=True\npetsc_scalar_type=float64\ndirect_solver=mumps converged_reason=4 max_Az=3.713228e-02\ndirect_solver=superlu_dist converged_reason=4 max_Az=3.713228e-02\nmumps_solve_converged=True\nsuperlu_dist_also_available=True\nVERDICT=prefix_is_required_and_mumps_works_on_32bit_indices\nException ignored in: <function LinearProblem.__del__ at 0x7f8289870fe0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/fem/petsc.py\", line 883, in __del__\n    lambda obj: obj is not None, (self._solver, self._A, self._b, self._x, self._P_mat)\n   ",
       "co_defends": []
     },
     "fenics::magnetostatics::6": {
@@ -7689,7 +7738,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "primary_transform_solved=False caught=SystemError: <cyfunction EPS.solve at 0x7f620a5abc10> returned a result with an exception set\npetsc_error_chain>>>\nerror code 71\n[0] EPSSolve() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_slepc_1773064174/work/src/eps/interface/epssolve.c:140\n[0] EPSSetUp() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_slepc_1773064174/work/src/eps/interface/epssetup.c:408\n[0] STSetUp() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_slepc_1773064174/work/src/sys/classes/st/interface/stsolve.c:545\n[0] STSetUp_Shift() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_slepc_1773064174/work/src/sys/classes/st/impls/shift/shift.c:190\n[0] KSPSetUp() at /home/conda/feedstock_root/build_artifacts/bld/rattler-",
+      "captured_head": "primary_transform_solved=False caught=SystemError: <cyfunction EPS.solve at 0x7f0f60cc3c10> returned a result with an exception set\npetsc_error_chain>>>\nerror code 71\n[0] EPSSolve() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_slepc_1773064174/work/src/eps/interface/epssolve.c:140\n[0] EPSSetUp() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_slepc_1773064174/work/src/eps/interface/epssetup.c:408\n[0] STSetUp() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_slepc_1773064174/work/src/sys/classes/st/interface/stsolve.c:545\n[0] STSetUp_Shift() at /home/conda/feedstock_root/build_artifacts/bld/rattler-build_slepc_1773064174/work/src/sys/classes/st/impls/shift/shift.c:190\n[0] KSPSetUp() at /home/conda/feedstock_root/build_artifacts/bld/rattler-",
       "co_defends": []
     },
     "fenics::eigenvalue::3": {
@@ -7754,7 +7803,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "dolfinx.PETScKrylovSolver -> AttributeError: module 'dolfinx' has no attribute 'PETScKrylovSolver'\nLinearProblem(a, L, bcs=[bc]) -> TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'\nnames_containing_krylov_in_dolfinx_tree=[]\npetsc4py_ksp_type=cg converged_reason=2 iterations=57\nksp_vs_linearproblem_max_diff=6.030e-13\npetsckrylovsolver_raises_attributeerror=True\nno_krylov_name_anywhere_in_dolfinx=True\nlinearproblem_without_prefix_raises_typeerror=True\npetsc4py_ksp_converged=True\nprefixed_linearproblem_agrees_with_petsc4py_ksp=True\nVERDICT=no_petsckrylovsolver_and_linearproblem_needs_the_prefix\nException ignored in: <function LinearProblem.__del__ at 0x7f592dd04ea0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/pyth",
+      "captured_head": "dolfinx.PETScKrylovSolver -> AttributeError: module 'dolfinx' has no attribute 'PETScKrylovSolver'\nLinearProblem(a, L, bcs=[bc]) -> TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'\nnames_containing_krylov_in_dolfinx_tree=[]\npetsc4py_ksp_type=cg converged_reason=2 iterations=57\nksp_vs_linearproblem_max_diff=6.030e-13\npetsckrylovsolver_raises_attributeerror=True\nno_krylov_name_anywhere_in_dolfinx=True\nlinearproblem_without_prefix_raises_typeerror=True\npetsc4py_ksp_converged=True\nprefixed_linearproblem_agrees_with_petsc4py_ksp=True\nVERDICT=no_petsckrylovsolver_and_linearproblem_needs_the_prefix\nException ignored in: <function LinearProblem.__del__ at 0x7f89571f0ea0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/pyth",
       "co_defends": []
     },
     "fenics::magnetostatics::1": {
@@ -8025,7 +8074,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "legacy_pairing_raised=True AttributeError: 'NonlinearProblem' object has no attribute 'a'\nsupported_path_solver_type=SNES\nsupported_path_converged_reason=3\nsupported_path_converged=True\nVERDICT=legacy_newtonsolver_pairing_is_broken_on_0_10\nException ignored in: <function NewtonSolver.__del__ at 0x7f298181dee0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/nls/petsc.py\", line 67, in __del__\n    for obj in filter(lambda obj: obj is not None, (self._A, self._b)):\n                                                    ^^^^^^^\nAttributeError: 'NewtonSolver' object has no attribute '_A'\n",
+      "captured_head": "legacy_pairing_raised=True AttributeError: 'NonlinearProblem' object has no attribute 'a'\nsupported_path_solver_type=SNES\nsupported_path_converged_reason=3\nsupported_path_converged=True\nVERDICT=legacy_newtonsolver_pairing_is_broken_on_0_10\nException ignored in: <function NewtonSolver.__del__ at 0x7fccf7115ee0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/nls/petsc.py\", line 67, in __del__\n    for obj in filter(lambda obj: obj is not None, (self._A, self._b)):\n                                                    ^^^^^^^\nAttributeError: 'NewtonSolver' object has no attribute '_A'\n",
       "co_defends": []
     },
     "fenics::cahn_hilliard::3": {
@@ -8155,7 +8204,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "positional_bcs_raises=True\nno_prefix_raises=True\nno_prefix_diag_has_prefix_name=True\ncorrect_form_ok=True\nlinear_problem_no_prefix_raises=True\nException ignored in: <function NonlinearProblem.__del__ at 0x7f48a57bdbc0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/fem/petsc.py\", line 1361, in __del__\n    lambda obj: obj is not None, (self._snes, self._A, self._b, self._x, self._P_mat)\n                                  ^^^^^^^^^^\nAttributeError: 'NonlinearProblem' object has no attribute '_snes'\nException ignored in: <function NonlinearProblem.__del__ at 0x7f48a57bdbc0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/fem/petsc.py\", line 1361, in __del__\n    lambda obj: obj is ",
+      "captured_head": "positional_bcs_raises=True\nno_prefix_raises=True\nno_prefix_diag_has_prefix_name=True\ncorrect_form_ok=True\nlinear_problem_no_prefix_raises=True\nException ignored in: <function NonlinearProblem.__del__ at 0x7fa65727dbc0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/fem/petsc.py\", line 1361, in __del__\n    lambda obj: obj is not None, (self._snes, self._A, self._b, self._x, self._P_mat)\n                                  ^^^^^^^^^^\nAttributeError: 'NonlinearProblem' object has no attribute '_snes'\nException ignored in: <function NonlinearProblem.__del__ at 0x7fa65727dbc0>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/fem/petsc.py\", line 1361, in __del__\n    lambda obj: obj is ",
       "co_defends": []
     },
     "fenics::reaction_diffusion::10": {
@@ -8455,7 +8504,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "LinearProblem_without_prefix_raised=True TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'\nNonlinearProblem_without_prefix_raised=True TypeError: NonlinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'\nVERDICT=petsc_options_prefix_is_required_on_both\nException ignored in: <function LinearProblem.__del__ at 0x7f7d4dbdd120>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/fem/petsc.py\", line 883, in __del__\n    lambda obj: obj is not None, (self._solver, self._A, self._b, self._x, self._P_mat)\n                                  ^^^^^^^^^^^^\nAttributeError: 'LinearProblem' object has no attribute '_solver'\nException ignored in: <function NonlinearProbl",
+      "captured_head": "LinearProblem_without_prefix_raised=True TypeError: LinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'\nNonlinearProblem_without_prefix_raised=True TypeError: NonlinearProblem.__init__() missing 1 required keyword-only argument: 'petsc_options_prefix'\nVERDICT=petsc_options_prefix_is_required_on_both\nException ignored in: <function LinearProblem.__del__ at 0x7f41eb9e1120>\nTraceback (most recent call last):\n  File \"~/miniconda3/envs/fenics/lib/python3.12/site-packages/dolfinx/fem/petsc.py\", line 883, in __del__\n    lambda obj: obj is not None, (self._solver, self._A, self._b, self._x, self._P_mat)\n                                  ^^^^^^^^^^^^\nAttributeError: 'LinearProblem' object has no attribute '_solver'\nException ignored in: <function NonlinearProbl",
       "co_defends": []
     },
     "fenics::navier_stokes::1": {
@@ -8494,7 +8543,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "serial_step0_range=[-1.0000, 0.8115]\nworker ghosts rank=0 owned=547 local_len=591\nworker ghosts rank=1 owned=542 local_len=587\nworker step=0 phi in [-1.0000, 0.8115]\nworker step=0 phi in [-1.0000, 0.2743]\nworker step=1 phi in [-1.0000, 0.7841]\nworker step=1 phi in [-1.0000, 0.2032]\nworker step=2 phi in [-1.0000, 0.7533]\nworker step=2 phi in [-1.0000, 0.1299]\nevery_step_line_printed_once_per_rank=True\nthe_two_ranks_disagree_about_the_range=True\nat_least_one_rank_misreported_the_global_range=True\nlocal_array_carries_ghost_entries_on_every_rank=True\nVERDICT=local_min_max_is_rank_local_and_prints_duplicate\n",
+      "captured_head": "serial_step0_range=[-1.0000, 0.8115]\nworker ghosts rank=0 owned=547 local_len=591\nworker step=0 phi in [-1.0000, 0.8115]\nworker step=1 phi in [-1.0000, 0.7841]\nworker step=2 phi in [-1.0000, 0.7533]\nworker ghosts rank=1 owned=542 local_len=587\nworker step=0 phi in [-1.0000, 0.2743]\nworker step=1 phi in [-1.0000, 0.2032]\nworker step=2 phi in [-1.0000, 0.1299]\nevery_step_line_printed_once_per_rank=True\nthe_two_ranks_disagree_about_the_range=True\nat_least_one_rank_misreported_the_global_range=True\nlocal_array_carries_ghost_entries_on_every_rank=True\nVERDICT=local_min_max_is_rank_local_and_prints_duplicate\n",
       "co_defends": []
     },
     "fenics::reaction_diffusion::4": {
@@ -9103,7 +9152,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "step= 1 traction=0.050 displacement_reasons=[3, 3, 3, 3] damage_reasons=[4, 4, 4, 4] max_d=1.0180 min_d=7.85e-03 surface_energy=2.2390e-03 max_abs_u=5.333e-03\nstep= 2 traction=0.155 displacement_reasons=[3, 3, 3, 3] damage_reasons=[4, 4, 4, 4] max_d=1.0058 min_d=5.31e-02 surface_energy=2.7549e-03 max_abs_u=3.392e-02\nstep= 3 traction=0.259 displacement_reasons=[3, 3, 3, -6] damage_reasons=[4, 4, 4, 4] max_d=1.0000 min_d=8.03e-02 surface_energy=7.6439e-03 max_abs_u=1.512e+03\nstep= 4 traction=0.364 displacement_reasons=[-6, -6, -6, -6] damage_reasons=[4, 4, 4, 4] max_d=1.0000 min_d=8.03e-02 surface_energy=7.6867e-03 max_abs_u=7.661e+25\nstep= 5 traction=0.468 displacement_reasons=[-6, -6, -6, -6] damage_reasons=[4, 4, 4, 4] max_d=1.0000 min_d=8.05e-02 surface_energy=7.8213e-03 max_abs_u=1.130e",
+      "captured_head": "step= 1 traction=0.050 displacement_reasons=[3, 3, 3, 3] damage_reasons=[4, 4, 4, 4] max_d=1.0180 min_d=7.85e-03 surface_energy=2.2390e-03 max_abs_u=5.333e-03\nstep= 2 traction=0.155 displacement_reasons=[3, 3, 3, 3] damage_reasons=[4, 4, 4, 4] max_d=1.0058 min_d=5.31e-02 surface_energy=2.7549e-03 max_abs_u=3.392e-02\nstep= 3 traction=0.259 displacement_reasons=[3, 3, 3, -5] damage_reasons=[4, 4, 4, 4] max_d=1.0000 min_d=8.03e-02 surface_energy=7.6487e-03 max_abs_u=1.759e+10\nstep= 4 traction=0.364 displacement_reasons=[-5, -6, -6, -6] damage_reasons=[4, 4, 4, 4] max_d=1.0000 min_d=8.03e-02 surface_energy=7.6802e-03 max_abs_u=9.403e+25\nstep= 5 traction=0.468 displacement_reasons=[-6, -6, -6, -6] damage_reasons=[4, 4, 4, 4] max_d=1.0000 min_d=8.07e-02 surface_energy=7.8821e-03 max_abs_u=2.681e",
       "co_defends": []
     },
     "fenics::fracture::3": {
@@ -9151,7 +9200,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "attempt1_error=ArityMismatch\nattempt1_message=Adding expressions with non-matching form arguments () vs ('v_1',).\ncache_after_failure=['libffcx_forms_e6dcb1db17c786715333a56c1327bb824d92b1b7.c']\nfailed_compile_left_a_c_file=True\nattempt2_error=TimeoutError after_seconds=3.0\nattempt2_message=JIT compilation timed out, probably due to a failed previous compile. Try cleaning cache (e.g. remove /tmp/t2_ffcx_cache_qtit3xu9/libffcx_forms_e6dcb1db17c786715333a56c1327bb824d92b1b7.c) or increase timeout option.\nattempt2_chained_from=FileExistsError: [Errno 17] File exists: '/tmp/t2_ffcx_cache_qtit3xu9/libffcx_forms_e6dcb1db17c786715333a56c1327bb824d92b1b7.c'\nsecond_run_hides_the_real_error=True\nattempt3_error=ArityMismatch\ndeleting_the_named_file_restores_the_real_error=True\nVERDICT=stale_ffcx_cach",
+      "captured_head": "attempt1_error=ArityMismatch\nattempt1_message=Adding expressions with non-matching form arguments () vs ('v_1',).\ncache_after_failure=['libffcx_forms_e6dcb1db17c786715333a56c1327bb824d92b1b7.c']\nfailed_compile_left_a_c_file=True\nattempt2_error=TimeoutError after_seconds=3.0\nattempt2_message=JIT compilation timed out, probably due to a failed previous compile. Try cleaning cache (e.g. remove /tmp/t2_ffcx_cache_b9ec2imf/libffcx_forms_e6dcb1db17c786715333a56c1327bb824d92b1b7.c) or increase timeout option.\nattempt2_chained_from=FileExistsError: [Errno 17] File exists: '/tmp/t2_ffcx_cache_b9ec2imf/libffcx_forms_e6dcb1db17c786715333a56c1327bb824d92b1b7.c'\nsecond_run_hides_the_real_error=True\nattempt3_error=ArityMismatch\ndeleting_the_named_file_restores_the_real_error=True\nVERDICT=stale_ffcx_cach",
       "co_defends": []
     },
     "fenics::cahn_hilliard::6": {
@@ -9577,7 +9626,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "type_of_bilinear_form=ufl.form.Form\na.action(ui) -> AttributeError: 'Form' object has no attribute 'action'\nfem.assemble_vector(y.array, M_uncompiled) -> AttributeError: 'Form' object has no attribute '_cpp_object'\nfem.assemble_vector(M_uncompiled) -> AttributeError: 'Form' object has no attribute 'function_spaces'\naction_vs_matvec_rel_diff=1.105e-13\ncompiled_once_s=0.0006 recompiled_each_iteration_s=0.0125 ratio=20.3 (context only, warm ffcx cache)\nform_dot_action_raises_attributeerror=True\nuncompiled_inplace_assembly_raises_attributeerror=True\nuncompiled_oneshot_message_differs_from_inplace_one=True\npreviously_quoted_runtime_error_text_absent=True\nufl_action_compiled_once_equals_matvec=True\nVERDICT=form_has_no_action_method_and_uncompiled_forms_do_not_assemble\n",
+      "captured_head": "type_of_bilinear_form=ufl.form.Form\na.action(ui) -> AttributeError: 'Form' object has no attribute 'action'\nfem.assemble_vector(y.array, M_uncompiled) -> AttributeError: 'Form' object has no attribute '_cpp_object'\nfem.assemble_vector(M_uncompiled) -> AttributeError: 'Form' object has no attribute 'function_spaces'\naction_vs_matvec_rel_diff=1.105e-13\ncompiled_once_s=0.0005 recompiled_each_iteration_s=0.0124 ratio=22.6 (context only, warm ffcx cache)\nform_dot_action_raises_attributeerror=True\nuncompiled_inplace_assembly_raises_attributeerror=True\nuncompiled_oneshot_message_differs_from_inplace_one=True\npreviously_quoted_runtime_error_text_absent=True\nufl_action_compiled_once_equals_matvec=True\nVERDICT=form_has_no_action_method_and_uncompiled_forms_do_not_assemble\n",
       "co_defends": []
     },
     "fenics::stokes::98": {
@@ -9702,7 +9751,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "gauge_term_present=False\nsolver=mumps_lu converged_reason=4 residual=0.000e+00 L2_norm_A=44.97854354579378 L2_norm_curl_A=2.54271697550782\nsolver=cg_jacobi converged_reason=2 residual=2.075e-11 L2_norm_A=0.43181658837441 L2_norm_curl_A=2.54271697550782\nsolver=gmres_ilu converged_reason=2 residual=2.420e-10 L2_norm_A=0.53047510534145 L2_norm_curl_A=2.54271697553300\nA_norm_spread_max_over_min=104.1612\ncurl_A_norm_spread_max_over_min=1.000000000010\nevery_solver_reported_converged=True\nA_differs_between_solvers_by_more_than_2x=True\ncurl_A_agrees_across_solvers_to_9_digits=True\nVERDICT=ungauged_curl_curl_is_silently_solver_dependent_in_A\n",
+      "captured_head": "gauge_term_present=False\nsolver=mumps_lu converged_reason=4 residual=0.000e+00 L2_norm_A=46.58964745348999 L2_norm_curl_A=2.54271697550782\nsolver=cg_jacobi converged_reason=2 residual=2.075e-11 L2_norm_A=0.43181658837441 L2_norm_curl_A=2.54271697550782\nsolver=gmres_ilu converged_reason=2 residual=2.420e-10 L2_norm_A=0.53047510534145 L2_norm_curl_A=2.54271697553300\nA_norm_spread_max_over_min=107.8922\ncurl_A_norm_spread_max_over_min=1.000000000010\nevery_solver_reported_converged=True\nA_differs_between_solvers_by_more_than_2x=True\ncurl_A_agrees_across_solvers_to_9_digits=True\nVERDICT=ungauged_curl_curl_is_silently_solver_dependent_in_A\n",
       "co_defends": []
     },
     "fenics::cahn_hilliard::1": {
@@ -9807,7 +9856,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "space_under_test=lagrange_degree_1 eps_ratio=100\nlevel=8x8 relative_L2_error_under_test=2.631846e-01 relative_L2_error_n1curl=1.090443e-13\nlevel=16x16 relative_L2_error_under_test=1.861713e-01 relative_L2_error_n1curl=1.754306e-13\nlevel=32x32 relative_L2_error_under_test=1.316562e-01 relative_L2_error_n1curl=9.848991e-13\nform_compiles_on_the_space_under_test=True\nobserved_orders_under_test=[0.499, 0.5]\nn1curl_reproduces_the_exact_field_to_machine_precision=True\nunder_test_error_stays_above_5_percent=True\nunder_test_order_is_below_one=True\nVERDICT=lagrange_cannot_carry_the_normal_jump_n1curl_is_exact\n",
+      "captured_head": "space_under_test=lagrange_degree_1 eps_ratio=100\nlevel=8x8 relative_L2_error_under_test=2.631846e-01 relative_L2_error_n1curl=1.090443e-13\nlevel=16x16 relative_L2_error_under_test=1.861713e-01 relative_L2_error_n1curl=1.754530e-13\nlevel=32x32 relative_L2_error_under_test=1.316562e-01 relative_L2_error_n1curl=9.848502e-13\nform_compiles_on_the_space_under_test=True\nobserved_orders_under_test=[0.499, 0.5]\nn1curl_reproduces_the_exact_field_to_machine_precision=True\nunder_test_error_stays_above_5_percent=True\nunder_test_order_is_below_one=True\nVERDICT=lagrange_cannot_carry_the_normal_jump_n1curl_is_exact\n",
       "co_defends": []
     },
     "fenics::magnetostatics::2": {
@@ -10344,7 +10393,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_LIEGROUP=0\nEXIT_GENALPHA=1\nEXIT_GANOMASS=139\nprocessor 0 finished normally\nLIEGROUP_STEPS=20\nLIEGROUP_RESULT_FAILURES=0\nMASSLIN=ml_rotations is not supported by classical GenAlpha! Choose GenAlphaLieGroup instead!\nPROC 0 ERROR in ~/4C/src/structure_new/src/implicit/4C_structure_new_impl_genalpha.cpp, line 140:\n[kevin:2188191] Signal: Segmentation fault (11)\n[kevin:2188191] [ 1] ~/4C/build/lib4C.so(_ZN5FourC7Discret8Elements6Beam3r34calc_inertia_force_and_mass_matrixILj3ELj3ELj1EEEvRKNS_4Core6LinAlg6MatrixIXmlmlLi3ET1_T0_ELj1EdEERKSt6vectorINS6_ILj4ELj1EdEESaISB_EEPNS5_17SerialDenseMatrixEPNS5_17SerialDenseVectorE+0x264b)[0x7f2f7ada258b]\nGANOMASS_4C_DIAGNOSTICS=0\nGENALPHA_STEPS=0\nGANOMASS_STEPS=0\n",
+      "captured_head": "EXIT_LIEGROUP=0\nEXIT_GENALPHA=1\nEXIT_GANOMASS=139\nprocessor 0 finished normally\nLIEGROUP_STEPS=20\nLIEGROUP_RESULT_FAILURES=0\nMASSLIN=ml_rotations is not supported by classical GenAlpha! Choose GenAlphaLieGroup instead!\nPROC 0 ERROR in ~/4C/src/structure_new/src/implicit/4C_structure_new_impl_genalpha.cpp, line 140:\n[kevin:465503] Signal: Segmentation fault (11)\n[kevin:465503] [ 1] ~/4C/build/lib4C.so(_ZN5FourC7Discret8Elements6Beam3r34calc_inertia_force_and_mass_matrixILj3ELj3ELj1EEEvRKNS_4Core6LinAlg6MatrixIXmlmlLi3ET1_T0_ELj1EdEERKSt6vectorINS6_ILj4ELj1EdEESaISB_EEPNS5_17SerialDenseMatrixEPNS5_17SerialDenseVectorE+0x264b)[0x7fa47064758b]\nGANOMASS_4C_DIAGNOSTICS=0\nGENALPHA_STEPS=0\nGANOMASS_STEPS=0\n",
       "co_defends": []
     },
     "fourc::beams::0": {
@@ -10371,7 +10420,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_LITERAL=0\nEXIT_FROMMESH=1\nEXIT_NOTRIADS=1\nRead mesh from file '/tmp/tmp.vxUiGGJyqa/beamline.exo'\nMesh consists of 6 points and 5 cells organized in 1 cell-blocks and 2 point-sets.\n  cell-block 1 (): 5 cells of type line2\nprocessor 0 finished normally\nEXODUS_BEAM_STEPS=10\nThe cell data does not contain the key 'TRIADS'.\nPROC 0 ERROR in ~/4C/src/core/io/src/4C_io_mesh.hpp, line 800:\nCould not match this input\nCLAIMED_EXODUS_REFUSAL_TEXT=0\n",
+      "captured_head": "EXIT_LITERAL=0\nEXIT_FROMMESH=1\nEXIT_NOTRIADS=1\nRead mesh from file '/tmp/tmp.OLzUUJlUcj/beamline.exo'\nMesh consists of 6 points and 5 cells organized in 1 cell-blocks and 2 point-sets.\n  cell-block 1 (): 5 cells of type line2\nprocessor 0 finished normally\nEXODUS_BEAM_STEPS=10\nThe cell data does not contain the key 'TRIADS'.\nPROC 0 ERROR in ~/4C/src/core/io/src/4C_io_mesh.hpp, line 800:\nCould not match this input\nCLAIMED_EXODUS_REFUSAL_TEXT=0\n",
       "co_defends": []
     },
     "fourc::beams::4": {
@@ -10567,7 +10616,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_ROTATIONS=0\nEXIT_NONE=139\nprocessor 0 finished normally\nROTATIONS_STEPS=20\n[kevin:2188717] Signal: Segmentation fault (11)\n[kevin:2188717] [13] ~/4C/build/lib4C.so(_ZN5FourC5Solid8IMPLICIT16GenAlphaLieGroup10post_setupEv+0x128)[0x7f94106dd548]\n[kevin:2188717] [12] ~/4C/build/lib4C.so(_ZN5FourC5Solid10Integrator32compute_mass_matrix_and_init_accEv+0x29f)[0x7f941069beef]\n[kevin:2188717] [ 1] ~/4C/build/lib4C.so(_ZN5FourC7Discret8Elements6Beam3r34calc_inertia_force_and_mass_matrixILj3ELj3ELj1EEEvRKNS_4Core6LinAlg6MatrixIXmlmlLi3ET1_T0_ELj1EdEERKSt6vectorINS6_ILj4ELj1EdEESaISB_EEPNS5_17SerialDenseMatrixEPNS5_17SerialDenseVectorE+0x264b)[0x7f940666058b]\nNONE_4C_DIAGNOSTICS=0\nNONE_STEPS=0\nCLAIMED_INCONSISTENT_MASS_LIN_TEXT=0\n",
+      "captured_head": "EXIT_ROTATIONS=0\nEXIT_NONE=139\nprocessor 0 finished normally\nROTATIONS_STEPS=20\n[kevin:466057] Signal: Segmentation fault (11)\n[kevin:466057] [13] ~/4C/build/lib4C.so(_ZN5FourC5Solid8IMPLICIT16GenAlphaLieGroup10post_setupEv+0x128)[0x7fad50b43548]\n[kevin:466057] [12] ~/4C/build/lib4C.so(_ZN5FourC5Solid10Integrator32compute_mass_matrix_and_init_accEv+0x29f)[0x7fad50b01eef]\n[kevin:466057] [ 1] ~/4C/build/lib4C.so(_ZN5FourC7Discret8Elements6Beam3r34calc_inertia_force_and_mass_matrixILj3ELj3ELj1EEEvRKNS_4Core6LinAlg6MatrixIXmlmlLi3ET1_T0_ELj1EdEERKSt6vectorINS6_ILj4ELj1EdEESaISB_EEPNS5_17SerialDenseMatrixEPNS5_17SerialDenseVectorE+0x264b)[0x7fad46ac658b]\nNONE_4C_DIAGNOSTICS=0\nNONE_STEPS=0\nCLAIMED_INCONSISTENT_MASS_LIN_TEXT=0\n",
       "co_defends": []
     },
     "fourc::beams::3": {
@@ -10885,7 +10934,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_RUN1=1\nEXIT_RUN2=1\nRESULT_LINES=3\nDETERMINISTIC_WITHIN_BUILD=yes\nBROWNDYN_DECKS_RUN=10\nBROWNDYN_DECKS_REPRODUCING_THEIR_REFERENCE=5\nBROWNDYN_REFERENCE_OUTCOME_IS_MIXED=yes\nMISMATCH_IS_LEADING_DIGIT=yes\nEXIT_CONTROL=0\nNON_BROWNIAN_BEAM_DECK_REPRODUCES=yes\nEXIT_NOVISC=136\nEXIT_NOPROB=136\nNOVISC_IS_A_SIGNAL=yes\nNOVISC_FOURC_ERROR_BLOCKS=0\nNOVISC_NAMES_THE_KEY=no\nNOPROB_IS_A_SIGNAL=yes\nNOPROB_FOURC_ERROR_BLOCKS=0\nNOPROB_NAMES_THE_KEY=no\n[kevin:2189563] Signal code: Floating point divide-by-zero (3)\n",
+      "captured_head": "EXIT_RUN1=1\nEXIT_RUN2=1\nRESULT_LINES=3\nDETERMINISTIC_WITHIN_BUILD=yes\nBROWNDYN_DECKS_RUN=10\nBROWNDYN_DECKS_REPRODUCING_THEIR_REFERENCE=5\nBROWNDYN_REFERENCE_OUTCOME_IS_MIXED=yes\nMISMATCH_IS_LEADING_DIGIT=yes\nEXIT_CONTROL=0\nNON_BROWNIAN_BEAM_DECK_REPRODUCES=yes\nEXIT_NOVISC=136\nEXIT_NOPROB=136\nNOVISC_IS_A_SIGNAL=yes\nNOVISC_FOURC_ERROR_BLOCKS=0\nNOVISC_NAMES_THE_KEY=no\nNOPROB_IS_A_SIGNAL=yes\nNOPROB_FOURC_ERROR_BLOCKS=0\nNOPROB_NAMES_THE_KEY=no\n[kevin:467034] Signal code: Floating point divide-by-zero (3)\n",
       "co_defends": []
     },
     "fourc::brownian_dynamics::0": {
@@ -11101,7 +11150,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_INDEPENDENT=0\nEXIT_DEPENDENT=136\nprocessor 0 finished normally\nINDEPENDENT_RESULT_FAILURES=0\n[kevin:2190090] Signal: Floating point exception (8)\n[kevin:2190090] [ 1] /lib/x86_64-linux-gnu/libumfpack.so.5(umfdi_usolve+0x13e)[0x7f80892a76ee]\n[kevin:2190090] [ 9] ~/4C/build/lib4C.so(_ZN5FourC11Constraints16ConstraintSolver12solve_directERNS_4Core6LinAlg12SparseMatrixES5_S5_RNS3_6VectorIdEES8_S8_S8_+0x4dc)[0x7f809814affc]\n[kevin:2190090] [10] ~/4C/build/lib4C.so(_ZN5FourC5Solid10TimIntImpl24uzawa_linear_newton_fullEv+0x870)[0x7f80a06e44d0]\nDEPENDENT_4C_DIAGNOSTICS=0\nCLAIMED_ZERO_PIVOT_TEXT=0\nDEPENDENT_MENTIONS_RANK_OR_SINGULAR=0\n",
+      "captured_head": "EXIT_INDEPENDENT=0\nEXIT_DEPENDENT=136\nprocessor 0 finished normally\nINDEPENDENT_RESULT_FAILURES=0\n[kevin:467558] Signal: Floating point exception (8)\n[kevin:467558] [ 1] /lib/x86_64-linux-gnu/libumfpack.so.5(umfdi_usolve+0x13e)[0x7fc02a18b6ee]\n[kevin:467558] [ 9] ~/4C/build/lib4C.so(_ZN5FourC11Constraints16ConstraintSolver12solve_directERNS_4Core6LinAlg12SparseMatrixES5_S5_RNS3_6VectorIdEES8_S8_S8_+0x4dc)[0x7fc03902effc]\n[kevin:467558] [10] ~/4C/build/lib4C.so(_ZN5FourC5Solid10TimIntImpl24uzawa_linear_newton_fullEv+0x870)[0x7fc0415c84d0]\nDEPENDENT_4C_DIAGNOSTICS=0\nCLAIMED_ZERO_PIVOT_TEXT=0\nDEPENDENT_MENTIONS_RANK_OR_SINGULAR=0\n",
       "co_defends": []
     },
     "fourc::constraint::1": {
@@ -11781,7 +11830,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_NORAD=136\nEXIT_FLOOR=1\nEXIT_WITHRAD=0\nNORAD_DIED_ON_A_SIGNAL=yes\n[kevin:2191936] Signal: Floating point exception (8)\n[kevin:2191936] Signal code: Floating point divide-by-zero (3)\nNORAD_FOURC_ERROR_BLOCKS=0\nNORAD_RADIUS_DIAGNOSTICS=0\nNORAD_STEPS_PRINTED=0\nminimum particle radius smaller than minimum allowed particle radius!\nMIN_RADIUS_FLOOR_CATCHES_IT=yes\nprocessor 0 finished normally\nWITH_RAD_RUNS=yes\n",
+      "captured_head": "EXIT_NORAD=136\nEXIT_FLOOR=1\nEXIT_WITHRAD=0\nNORAD_DIED_ON_A_SIGNAL=yes\n[kevin:469663] Signal: Floating point exception (8)\n[kevin:469663] Signal code: Floating point divide-by-zero (3)\nNORAD_FOURC_ERROR_BLOCKS=0\nNORAD_RADIUS_DIAGNOSTICS=0\nNORAD_STEPS_PRINTED=0\nminimum particle radius smaller than minimum allowed particle radius!\nMIN_RADIUS_FLOOR_CATCHES_IT=yes\nprocessor 0 finished normally\nWITH_RAD_RUNS=yes\n",
       "co_defends": []
     },
     "fourc::particle_dem::5": {
@@ -11912,7 +11961,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "COLD_ARM_PreVisCoeff:0.0\nDEAD_ARM_PreVisCoeff:0.112\nEXIT_ALPHA0=1\nEXIT_RAMP=1\nEXIT_DEAD=136\nChecking results of 4 tests:\nSTRUCTURE: structure       dispx    at node 125\t is WRONG --> actresult=-9.60868104353842085e-05, givenresult=-1.11566649270006406e-04, abs(diff)= 1.54798388346221978e-05 > 1.00000000000000004e-10\nResult check failed with 4 errors out of 4 tests\nChecking results of 4 tests:\n[kevin:2192264] Signal: Floating point exception (8)\nALPHA0_TIME_STEPS_RUN=2\nRAMP_TIME_STEPS_RUN=2\nALPHA0_REACHED_RESULT_TEST=1\nRAMP_REACHED_RESULT_TEST=1\nDEAD_REACHED_RESULT_TEST=0\nDEAD_4C_ERROR_LINES=0\nDEAD_NEWTON_TABLE_ROWS=2\n",
+      "captured_head": "COLD_ARM_PreVisCoeff:0.0\nDEAD_ARM_PreVisCoeff:0.112\nEXIT_ALPHA0=1\nEXIT_RAMP=1\nEXIT_DEAD=136\nChecking results of 4 tests:\nSTRUCTURE: structure       dispx    at node 125\t is WRONG --> actresult=-9.60868104353842085e-05, givenresult=-1.11566649270006406e-04, abs(diff)= 1.54798388346221978e-05 > 1.00000000000000004e-10\nResult check failed with 4 errors out of 4 tests\nChecking results of 4 tests:\n[kevin:470016] Signal: Floating point exception (8)\nALPHA0_TIME_STEPS_RUN=2\nRAMP_TIME_STEPS_RUN=2\nALPHA0_REACHED_RESULT_TEST=1\nRAMP_REACHED_RESULT_TEST=1\nDEAD_REACHED_RESULT_TEST=0\nDEAD_4C_ERROR_LINES=0\nDEAD_NEWTON_TABLE_ROWS=2\n",
       "co_defends": []
     },
     "fourc::ehl::1": {
@@ -12027,7 +12076,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "BAD_ARM_PreVisCoeff:1.12\nRELAX_ARM_HAS_OMEGA_KEYS=1\nEXIT_TUNED=0\nEXIT_BIGALPHA=136\nEXIT_RELAX=136\nprocessor 0 finished normally\nOK (4)\n[kevin:2192648] Signal: Floating point exception (8)\n[kevin:2192648] Signal code: Floating point divide-by-zero (3)\nLubricationEleCalc\n[kevin:2192661] Signal: Floating point exception (8)\nBIGALPHA_4C_ERROR_LINES=0\nBIGALPHA_NONCONVERGENCE_MESSAGES=0\nBIGALPHA_RESULT_TEST_LINES=0\nRELAX_ARM_STILL_DIES=1\nRELAX_IGNORED_WARNINGS=0\n",
+      "captured_head": "BAD_ARM_PreVisCoeff:1.12\nRELAX_ARM_HAS_OMEGA_KEYS=1\nEXIT_TUNED=0\nEXIT_BIGALPHA=136\nEXIT_RELAX=136\nprocessor 0 finished normally\nOK (4)\n[kevin:470534] Signal: Floating point exception (8)\n[kevin:470534] Signal code: Floating point divide-by-zero (3)\nLubricationEleCalc\n[kevin:470553] Signal: Floating point exception (8)\nBIGALPHA_4C_ERROR_LINES=0\nBIGALPHA_NONCONVERGENCE_MESSAGES=0\nBIGALPHA_RESULT_TEST_LINES=0\nRELAX_ARM_STILL_DIES=1\nRELAX_IGNORED_WARNINGS=0\n",
       "co_defends": []
     },
     "fourc::ehl::5": {
@@ -12058,7 +12107,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "OFF_ARM_ADD_SQUEEZE_TERM:false\nCLAIMED_KEY_IN_DECK=1\nEXIT_SQUEEZE_ON=0\nEXIT_CLAIMEDKEY=1\nEXIT_SQUEEZE_OFF=136\nOK (7)\nprocessor 0 finished normally\nCould not match this input\nPROC 0 ERROR in ~/4C/src/core/io/src/4C_io_input_spec_builders.cpp, line 633:\nLUBRICATION DYNAMIC:\n    [!] The following data remains unused:\n[kevin:2192728] Signal: Floating point exception (8)\nCLAIMEDKEY_FIELDS_BUILT=0\nCLAIMEDKEY_NAMES_THE_UNUSED_KEY=1\nCLAIMEDKEY_ENUMERATES_REAL_KEY=1\nSQUEEZE_OFF_DIES=1\nSQUEEZE_OFF_REACHED_RESULT_TEST=0\n",
+      "captured_head": "OFF_ARM_ADD_SQUEEZE_TERM:false\nCLAIMED_KEY_IN_DECK=1\nEXIT_SQUEEZE_ON=0\nEXIT_CLAIMEDKEY=1\nEXIT_SQUEEZE_OFF=136\nOK (7)\nprocessor 0 finished normally\nCould not match this input\nPROC 0 ERROR in ~/4C/src/core/io/src/4C_io_input_spec_builders.cpp, line 633:\nLUBRICATION DYNAMIC:\n    [!] The following data remains unused:\n[kevin:470634] Signal: Floating point exception (8)\nCLAIMEDKEY_FIELDS_BUILT=0\nCLAIMEDKEY_NAMES_THE_UNUSED_KEY=1\nCLAIMEDKEY_ENUMERATES_REAL_KEY=1\nSQUEEZE_OFF_DIES=1\nSQUEEZE_OFF_REACHED_RESULT_TEST=0\n",
       "co_defends": []
     },
     "fourc::ehl::6": {
@@ -12089,7 +12138,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "SLIP_ARM_VISCOSITY:4e-05\nEXIT_SI=0\nEXIT_SLIP=136\nEXIT_SLIP_NOSCALE=136\nOK (7)\nprocessor 0 finished normally\n[kevin:2192824] Signal: Floating point exception (8)\n[kevin:2192824] Signal code: Invalid floating point operation (7)\nInvRowSums\nscale_system\numfdi_kernel_init\nSLIP_4C_ERROR_LINES=0\nSLIP_MPI_ABORT_LINES=0\nSLIP_REACHED_RESULT_TEST=0\nSLIP_DIES_IN_ROW_SCALING=1\nSLIP_NOSCALE_DIES_IN_UMFPACK=1\n",
+      "captured_head": "SLIP_ARM_VISCOSITY:4e-05\nEXIT_SI=0\nEXIT_SLIP=136\nEXIT_SLIP_NOSCALE=136\nOK (7)\nprocessor 0 finished normally\n[kevin:470810] Signal: Floating point exception (8)\n[kevin:470810] Signal code: Invalid floating point operation (7)\nInvRowSums\nscale_system\numfdi_kernel_init\nSLIP_4C_ERROR_LINES=0\nSLIP_MPI_ABORT_LINES=0\nSLIP_REACHED_RESULT_TEST=0\nSLIP_DIES_IN_ROW_SCALING=1\nSLIP_NOSCALE_DIES_IN_UMFPACK=1\n",
       "co_defends": []
     },
     "fourc::structural_mechanics::13": {
@@ -12126,7 +12175,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_NL_50=0\nEXIT_LIN_50=1\nEXIT_NL_100=0\nEXIT_LIN_100=1\nEXIT_NL_300=0\nEXIT_LIN_300=136\nprocessor 0 finished normally\nRESULT_FAILURES_NL_50=0\nRESULT_FAILURES_NL_100=0\nRESULT_FAILURES_NL_300=0\nLINEAR_ERROR_PERCENT_AT_LOAD_50=-1.8\nLOAD_50_ONLY_ERROR_IS_THE_RESULT_TEST=yes\nLINEAR_ERROR_PERCENT_AT_LOAD_100=-2.9\nLOAD_100_ONLY_ERROR_IS_THE_RESULT_TEST=yes\nLINEAR_ERROR_GROWS_WITH_LOAD=yes\nLINEAR_IS_TOO_SOFT_OR_TOO_STIFF=too_stiff\n[kevin:2192967] Signal: Floating point exception (8)\n[kevin:2192967] Signal code: Invalid floating point operation (7)\nLIN_300_FOURC_ERROR_BLOCKS=0\nLIN_300_STACK_NAMES_ELASTHYPER=1\nLIN_300_STACK_NAMES_LINEAR_KINEMATICS=1\nLIN_300_MENTIONS_KINEM=0\n",
+      "captured_head": "EXIT_NL_50=0\nEXIT_LIN_50=1\nEXIT_NL_100=0\nEXIT_LIN_100=1\nEXIT_NL_300=0\nEXIT_LIN_300=136\nprocessor 0 finished normally\nRESULT_FAILURES_NL_50=0\nRESULT_FAILURES_NL_100=0\nRESULT_FAILURES_NL_300=0\nLINEAR_ERROR_PERCENT_AT_LOAD_50=-1.8\nLOAD_50_ONLY_ERROR_IS_THE_RESULT_TEST=yes\nLINEAR_ERROR_PERCENT_AT_LOAD_100=-2.9\nLOAD_100_ONLY_ERROR_IS_THE_RESULT_TEST=yes\nLINEAR_ERROR_GROWS_WITH_LOAD=yes\nLINEAR_IS_TOO_SOFT_OR_TOO_STIFF=too_stiff\n[kevin:470943] Signal: Floating point exception (8)\n[kevin:470943] Signal code: Invalid floating point operation (7)\nLIN_300_FOURC_ERROR_BLOCKS=0\nLIN_300_STACK_NAMES_ELASTHYPER=1\nLIN_300_STACK_NAMES_LINEAR_KINEMATICS=1\nLIN_300_MENTIONS_KINEM=0\n",
       "co_defends": []
     },
     "fourc::electrochemistry::4": {
@@ -12403,7 +12452,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "MESH_NODES=2197\nMESH_ELEMENTS=1728\nINLINE_DECK_LINES=4306\nEXODUS_DECK_LINES=388\nINLINE_OVER_1000_LINES=yes\nDECK_LINE_RATIO_OVER_5=yes\nEXIT_INLINE=0\nEXIT_EXODUS=0\nprocessor 0 finished normally\nprocessor 0 finished normally\nINLINE_CORRECT=1\nEXODUS_CORRECT=1\nEXODUS_READ_THE_MESH=1\n(informational) inline input phase: Total wall time for INPUT:        1.020e-01 sec \n(informational) exodus input phase: Total wall time for INPUT:        1.230e-01 sec \n",
+      "captured_head": "MESH_NODES=2197\nMESH_ELEMENTS=1728\nINLINE_DECK_LINES=4306\nEXODUS_DECK_LINES=388\nINLINE_OVER_1000_LINES=yes\nDECK_LINE_RATIO_OVER_5=yes\nEXIT_INLINE=0\nEXIT_EXODUS=0\nprocessor 0 finished normally\nprocessor 0 finished normally\nINLINE_CORRECT=1\nEXODUS_CORRECT=1\nEXODUS_READ_THE_MESH=1\n(informational) inline input phase: Total wall time for INPUT:        1.050e-01 sec \n(informational) exodus input phase: Total wall time for INPUT:        8.800e-02 sec \n",
       "co_defends": []
     },
     "fourc::fbi::0": {
@@ -12508,7 +12557,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_BASE=0\nEXIT_BINSIZE=0\nEXIT_PRESORT=0\nOK (6)\nprocessor 0 finished normally\nFBI::FBICoupler::Search                                    7.7465e-04 (6)             \nFBI::FBIBinningCoupler::Search                             8.0430e-04 (6)             \nBASE_BINNING_TIMER=0\nBINSIZE_BINNING_TIMER=0\nPRESORT_BINNING_TIMER=1\nBINSIZE_IGNORED_WARNINGS=0\nBINSIZE_FAILED_TESTS=0\nPRESORT_FAILED_TESTS=0\n",
+      "captured_head": "EXIT_BASE=0\nEXIT_BINSIZE=0\nEXIT_PRESORT=0\nOK (6)\nprocessor 0 finished normally\nFBI::FBICoupler::Search                                    8.2449e-04 (6)             \nFBI::FBIBinningCoupler::Search                             8.6920e-04 (6)             \nBASE_BINNING_TIMER=0\nBINSIZE_BINNING_TIMER=0\nPRESORT_BINNING_TIMER=1\nBINSIZE_IGNORED_WARNINGS=0\nBINSIZE_FAILED_TESTS=0\nPRESORT_FAILED_TESTS=0\n",
       "co_defends": []
     },
     "fourc::fbi::1": {
@@ -12807,7 +12856,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "ZERO_ARM_INITPOROSITY:0.0\nONE_ARM_INITPOROSITY:1.0\nEXIT_MID=0\nEXIT_ZERO=136\nEXIT_ONE=1\nOK (2)\nprocessor 0 finished normally\n[kevin:2194874] Signal: Floating point exception (8)\n[kevin:2194874] Signal code: Invalid floating point operation (7)\nPoroLawNeoHooke\nResult check failed with 2 errors out of 2 tests\nSTRUCTURE: structure       dispy    at node   5\t is WRONG --> actresult=-9.09103870480934269e-05, givenresult=-1.19548743943767580e-04, abs(diff)= 2.86383568956741528e-05 > 1.00000000000000004e-10\nZERO_4C_ERROR_LINES=0\nZERO_REACHED_RESULT_TEST=0\nCLAIMED_NAN_AT_POROSITY_ZERO=0\nONE_REACHED_RESULT_TEST=1\nONE_FAILED_TESTS=2\nONE_POROSITY_WARNINGS=0\n",
+      "captured_head": "ZERO_ARM_INITPOROSITY:0.0\nONE_ARM_INITPOROSITY:1.0\nEXIT_MID=0\nEXIT_ZERO=136\nEXIT_ONE=1\nOK (2)\nprocessor 0 finished normally\n[kevin:473069] Signal: Floating point exception (8)\n[kevin:473069] Signal code: Invalid floating point operation (7)\nPoroLawNeoHooke\nResult check failed with 2 errors out of 2 tests\nSTRUCTURE: structure       dispy    at node   5\t is WRONG --> actresult=-9.09103870480934269e-05, givenresult=-1.19548743943767580e-04, abs(diff)= 2.86383568956741528e-05 > 1.00000000000000004e-10\nZERO_4C_ERROR_LINES=0\nZERO_REACHED_RESULT_TEST=0\nCLAIMED_NAN_AT_POROSITY_ZERO=0\nONE_REACHED_RESULT_TEST=1\nONE_FAILED_TESTS=2\nONE_POROSITY_WARNINGS=0\n",
       "co_defends": []
     },
     "fourc::fpsi::4": {
@@ -13202,7 +13251,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "NOMAP_CLONING_SECTIONS=0\nEXIT_WITHMAP=0\nEXIT_NOMAP=1\nCreated discretization ale as a clone of discretization fluid in....1.204e-04 secs\nOK (6)\nAt least one material pairing required in --CLONING MATERIAL MAP.\nPROC 0 ERROR in ~/4C/src/core/fem/src/general/utils/4C_fem_general_utils_createdis.hpp, line 318:\n 1# void FourC::Core::FE::clone_discretization<FourC::ALE::Utils::AleCloneStrategy>(FourC::Core::FE::Discretization&, FourC::Core::FE::Discretization&, std::map<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > >, std::less<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, ",
+      "captured_head": "NOMAP_CLONING_SECTIONS=0\nEXIT_WITHMAP=0\nEXIT_NOMAP=1\nCreated discretization ale as a clone of discretization fluid in....1.415e-04 secs\nOK (6)\nAt least one material pairing required in --CLONING MATERIAL MAP.\nPROC 0 ERROR in ~/4C/src/core/fem/src/general/utils/4C_fem_general_utils_createdis.hpp, line 318:\n 1# void FourC::Core::FE::clone_discretization<FourC::ALE::Utils::AleCloneStrategy>(FourC::Core::FE::Discretization&, FourC::Core::FE::Discretization&, std::map<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > >, std::less<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, ",
       "co_defends": []
     },
     "fourc::fsi::19": {
@@ -13602,7 +13651,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "SHARED_NODES_IN_BOTH_FIELDS=4\nSEPARATE_NODES_IN_BOTH_FIELDS=0\nEXIT_SEPARATE=0\nEXIT_SHARED=1\nprocessor 0 finished normally\nSEPARATE_TIME_STEPS_RUN=10\nSEPARATE_NONCONVERGENCE=0\nCreated discretization ale as a clone of discretization fluid in....1.279e-04 secs\nNonlinear solver did not converge in 20 iterations in time step 7.\nPROC 0 ERROR in ~/4C/src/fsi/src/monolithic/4C_fsi_monolithic.cpp, line 740:\n 0# FourC::FSI::Monolithic::non_lin_error_check() in ~/4C/build/lib4C.so\nSHARED_TIME_STEPS_RUN=7\nSHARED_CLAIMED_TEXT=0\nSHARED_ANY_INTERFACE_WARNING=0\n",
+      "captured_head": "SHARED_NODES_IN_BOTH_FIELDS=4\nSEPARATE_NODES_IN_BOTH_FIELDS=0\nEXIT_SEPARATE=0\nEXIT_SHARED=1\nprocessor 0 finished normally\nSEPARATE_TIME_STEPS_RUN=10\nSEPARATE_NONCONVERGENCE=0\nCreated discretization ale as a clone of discretization fluid in....1.456e-04 secs\nNonlinear solver did not converge in 20 iterations in time step 7.\nPROC 0 ERROR in ~/4C/src/fsi/src/monolithic/4C_fsi_monolithic.cpp, line 740:\n 0# FourC::FSI::Monolithic::non_lin_error_check() in ~/4C/build/lib4C.so\nSHARED_TIME_STEPS_RUN=7\nSHARED_CLAIMED_TEXT=0\nSHARED_ANY_INTERFACE_WARNING=0\n",
       "co_defends": []
     },
     "fourc::fsi::17": {
@@ -13698,7 +13747,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "UPSTREAM_SOLVER_BLOCKS=1\nUPSTREAM_FIELDS_POINTING_AT_A_SOLVER=4\nDANGLING_ALE_SOLVER_ID=7\nDANGLING_HAS_THAT_SOLVER_BLOCK=0\nEXIT_SHARED=0\nEXIT_DANGLING=134\nprocessor 0 finished normally\nOK (6)\nSHARED_SOLVER_WARNINGS=0\n remaining.terminate called after throwing an instance of 'Teuchos::Exceptions::InvalidParameterName'\n remaining.terminate called after throwing an instance of 'Teuchos::Exceptions::InvalidParameterName'\n  what():  Error!  The parameter \"SOLVER\" does not exist\nin the parameter (sub)list \"ROOT->SOLVER 7\".\n[kevin:2196947] [10] ~/4C/build/lib4C.so(_ZN5FourC7Adapter16AleBaseAlgorithm9setup_aleERKN7Teuchos13ParameterListESt10shared_ptrINS_4Core2FE14DiscretizationEE+0x321)[0x7f6f9393b6d1]\nDANGLING_HAS_PROC0_ERROR_BLOCK=0\nDANGLING_HAS_MPI_ABORT_BANNER=0\nDANGLING_CLAIMED_TEXT=0\nDANGLIN",
+      "captured_head": "UPSTREAM_SOLVER_BLOCKS=1\nUPSTREAM_FIELDS_POINTING_AT_A_SOLVER=4\nDANGLING_ALE_SOLVER_ID=7\nDANGLING_HAS_THAT_SOLVER_BLOCK=0\nEXIT_SHARED=0\nEXIT_DANGLING=134\nprocessor 0 finished normally\nOK (6)\nSHARED_SOLVER_WARNINGS=0\n remaining.terminate called after throwing an instance of 'Teuchos::Exceptions::InvalidParameterName'\n remaining.terminate called after throwing an instance of 'Teuchos::Exceptions::InvalidParameterName'\n  what():  Error!  The parameter \"SOLVER\" does not exist\nin the parameter (sub)list \"ROOT->SOLVER 7\".\n[kevin:476098] [10] ~/4C/build/lib4C.so(_ZN5FourC7Adapter16AleBaseAlgorithm9setup_aleERKN7Teuchos13ParameterListESt10shared_ptrINS_4Core2FE14DiscretizationEE+0x321)[0x7f667a9e26d1]\nDANGLING_HAS_PROC0_ERROR_BLOCK=0\nDANGLING_HAS_MPI_ABORT_BANNER=0\nDANGLING_CLAIMED_TEXT=0\nDANGLING",
       "co_defends": []
     },
     "fourc::input_format::1": {
@@ -14331,7 +14380,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_CONSISTENT=0\nEXIT_ZEROFIELD=136\nprocessor 0 finished normally\nCONSISTENT_RESULT_FAILURES=0\nZEROFIELD_INITIALFIELDS_SWITCHED=2\n[kevin:2198637] Signal: Floating point exception (8)\n[kevin:2198637] Signal code: Floating point divide-by-zero (3)\nZEROFIELD_FOURC_THROW=0\nZEROFIELD_REACHED_RESULT_TEST=0\n",
+      "captured_head": "EXIT_CONSISTENT=0\nEXIT_ZEROFIELD=136\nprocessor 0 finished normally\nCONSISTENT_RESULT_FAILURES=0\nZEROFIELD_INITIALFIELDS_SWITCHED=2\n[kevin:478549] Signal: Floating point exception (8)\n[kevin:478549] Signal code: Floating point divide-by-zero (3)\nZEROFIELD_FOURC_THROW=0\nZEROFIELD_REACHED_RESULT_TEST=0\n",
       "co_defends": []
     },
     "fourc::lubrication::3": {
@@ -14560,7 +14609,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_TRANSVERSE_LOAD=1\nEXIT_NO_INPLANE_STRESS=136\nEXIT_INPLANE_TENSION=0\nmembrane pressure on 1st dof only!\nPROC 0 ERROR in ~/4C/src/membrane/4C_membrane_evaluate.cpp, line 537:\nNO_INPLANE_STRESS_STEPS=0\nNO_INPLANE_STRESS_4C_ERROR_LINES=0\n[kevin:2199235] Signal: Floating point exception (8)\numfpack\nprocessor 0 finished normally\nINPLANE_TENSION_STEPS=4\n",
+      "captured_head": "EXIT_TRANSVERSE_LOAD=1\nEXIT_NO_INPLANE_STRESS=136\nEXIT_INPLANE_TENSION=0\nmembrane pressure on 1st dof only!\nPROC 0 ERROR in ~/4C/src/membrane/4C_membrane_evaluate.cpp, line 537:\nNO_INPLANE_STRESS_STEPS=0\nNO_INPLANE_STRESS_4C_ERROR_LINES=0\n[kevin:480167] Signal: Floating point exception (8)\numfpack\nprocessor 0 finished normally\nINPLANE_TENSION_STEPS=4\n",
       "co_defends": []
     },
     "fourc::membrane::1": {
@@ -14585,7 +14634,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_PRESSURE_ONLY=136\nEXIT_PRESTRESS_MULF=136\nEXIT_INPLANE_TENSION=0\nEXIT_CURVED_PRESSURE=0\nPRESSURE_ONLY_STEPS=0\nPRESTRESS_MULF_STEPS=0\n[kevin:2199276] Signal: Floating point exception (8)\n[kevin:2199291] Signal: Floating point exception (8)\nprocessor 0 finished normally\nINPLANE_TENSION_STEPS=4\nCURVED_PRESSURE_STEPS=10\n",
+      "captured_head": "EXIT_PRESSURE_ONLY=136\nEXIT_PRESTRESS_MULF=136\nEXIT_INPLANE_TENSION=0\nEXIT_CURVED_PRESSURE=0\nPRESSURE_ONLY_STEPS=0\nPRESTRESS_MULF_STEPS=0\n[kevin:480215] Signal: Floating point exception (8)\n[kevin:480296] Signal: Floating point exception (8)\nprocessor 0 finished normally\nINPLANE_TENSION_STEPS=4\nCURVED_PRESSURE_STEPS=10\n",
       "co_defends": []
     },
     "fourc::membrane::3": {
@@ -15459,7 +15508,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_NUE_0_3=0\nEXIT_NUE_0_4999=0\nEXIT_NUE_0_5=1\nEXIT_NUE_0_6=1\nEXIT_NUE_MINUS_1=136\nEXIT_NUE_BELOW_MINUS_1=1\nprocessor 0 finished normally\nprocessor 0 finished normally\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\nFailed to match specification in section 'MATERIALS'. The error was:\nPROC 0 ERROR in ~/4C/src/global_data/4C_global_data_read.cpp, line 1377:\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\nNUE_0_5_REACHED_FILL_COMPLETE=0\nNUE_MINUS_1_REACHED_FILL_COMPLETE=2\nNUE_MINUS_1_VALIDATION_COMPLAINTS=0\n[kevin:2201982] Signal: Floating point exception (8)\n",
+      "captured_head": "EXIT_NUE_0_3=0\nEXIT_NUE_0_4999=0\nEXIT_NUE_0_5=1\nEXIT_NUE_0_6=1\nEXIT_NUE_MINUS_1=136\nEXIT_NUE_BELOW_MINUS_1=1\nprocessor 0 finished normally\nprocessor 0 finished normally\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\nFailed to match specification in section 'MATERIALS'. The error was:\nPROC 0 ERROR in ~/4C/src/global_data/4C_global_data_read.cpp, line 1377:\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\nNUE_0_5_REACHED_FILL_COMPLETE=0\nNUE_MINUS_1_REACHED_FILL_COMPLETE=2\nNUE_MINUS_1_VALIDATION_COMPLAINTS=0\n[kevin:486347] Signal: Floating point exception (8)\n",
       "co_defends": []
     },
     "fourc::input_format::29": {
@@ -15485,7 +15534,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_INSIDE=0\nEXIT_HALF=1\nEXIT_OVER=1\nEXIT_MINUS1=136\nSTRUCTURE: structure       dispy    at node   3\t is CORRECT, abs(diff)= 0.00000000000000000e+00 < 9.99999999999999980e-13\nprocessor 0 finished normally\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\nFailed to match specification in section 'MATERIALS'. The error was:\nMINUS1_FAILED_VALIDATION=0\nMINUS1_FOURC_ERROR_BLOCKS=0\n[kevin:2202067] Signal: Floating point exception (8)\n",
+      "captured_head": "EXIT_INSIDE=0\nEXIT_HALF=1\nEXIT_OVER=1\nEXIT_MINUS1=136\nSTRUCTURE: structure       dispy    at node   3\t is CORRECT, abs(diff)= 0.00000000000000000e+00 < 9.99999999999999980e-13\nprocessor 0 finished normally\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\n              [!] Candidate parameter 'NUE' does not pass validation: in_range[-1,0.5)\nFailed to match specification in section 'MATERIALS'. The error was:\nMINUS1_FAILED_VALIDATION=0\nMINUS1_FOURC_ERROR_BLOCKS=0\n[kevin:486461] Signal: Floating point exception (8)\n",
       "co_defends": []
     },
     "fourc::input_format::28": {
@@ -15788,7 +15837,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_NOMATID=139\nEXIT_WRONGMATID=139\nEXIT_NODLB=1\nEXIT_SPHNOMATID=139\n[kevin:2202831] Signal: Segmentation fault (11)\nMISSING_MATID_SEGFAULTS=yes\nNOMATID_FOURC_ERROR_BLOCKS=0\nNOMATID_PHASE_DIAGNOSTICS=0\nNOMATID_STEPS_PRINTED=0\nWRONG_MATID_ALSO_SEGFAULTS=yes\nparticle type 'phase1' of initial particle not defined!\nMISSING_DYNLOADBALFAC_NAMES_THE_PHASE=yes\nSPH_SIDE_SEGFAULTS_TOO=yes\n",
+      "captured_head": "EXIT_NOMATID=139\nEXIT_WRONGMATID=139\nEXIT_NODLB=1\nEXIT_SPHNOMATID=139\n[kevin:487575] Signal: Segmentation fault (11)\nMISSING_MATID_SEGFAULTS=yes\nNOMATID_FOURC_ERROR_BLOCKS=0\nNOMATID_PHASE_DIAGNOSTICS=0\nNOMATID_STEPS_PRINTED=0\nWRONG_MATID_ALSO_SEGFAULTS=yes\nparticle type 'phase1' of initial particle not defined!\nMISSING_DYNLOADBALFAC_NAMES_THE_PHASE=yes\nSPH_SIDE_SEGFAULTS_TOO=yes\n",
       "co_defends": []
     },
     "fourc::particles::7": {
@@ -16002,7 +16051,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "DEM_MATERIALS_STILL_PRESENT=2\nDEM_SUBSECTION_STILL_PRESENT=1\nEXIT_DEM=0\nprocessor 0 finished normally\nDEM_FAILURES=0\nEXIT_MISMATCH=139\n================= Overview of chosen time stepping: ==================\n[kevin:2203397] Signal: Segmentation fault (11)\n[kevin:2203397] Signal code: Address not mapped (1)\nMISMATCH_PROC_ERROR_BLOCKS=0\nCLAIMED_INTERACTION_TYPE_MISMATCH_TEXT=0\nMISMATCH_REACHED_RESULT_TEST=0\nMISMATCH_DIED_ON_A_SIGNAL=yes\n",
+      "captured_head": "DEM_MATERIALS_STILL_PRESENT=2\nDEM_SUBSECTION_STILL_PRESENT=1\nEXIT_DEM=0\nprocessor 0 finished normally\nDEM_FAILURES=0\nEXIT_MISMATCH=139\n================= Overview of chosen time stepping: ==================\n[kevin:488325] Signal: Segmentation fault (11)\n[kevin:488325] Signal code: Address not mapped (1)\nMISMATCH_PROC_ERROR_BLOCKS=0\nCLAIMED_INTERACTION_TYPE_MISMATCH_TEXT=0\nMISMATCH_REACHED_RESULT_TEST=0\nMISMATCH_DIED_ON_A_SIGNAL=yes\n",
       "co_defends": []
     },
     "fourc::pasi::2": {
@@ -16170,7 +16219,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_THINSLAB=0\nEXIT_TWOCOORD=1\nEXIT_FLATBOX=136\nprocessor 0 finished normally\nTHINSLAB_FAILURES=0\nCould not parse 'PDBODYID' as a double value.\n4C_io_value_parser.cpp, line 107\nCLAIMED_EXPECTED_3_COORDINATES_TEXT=0\nTWOCOORD_DIAGNOSTIC_MENTIONS_COORDINATES=no\n[kevin:2203751] Signal: Floating point exception (8)\n[kevin:2203751] Signal code: Floating point divide-by-zero (3)\ninit_binning_strategy\nFLATBOX_HAS_PROC_ERROR_BLOCK=0\nFLATBOX_DIED_ON_A_SIGNAL=yes\n",
+      "captured_head": "EXIT_THINSLAB=0\nEXIT_TWOCOORD=1\nEXIT_FLATBOX=136\nprocessor 0 finished normally\nTHINSLAB_FAILURES=0\nCould not parse 'PDBODYID' as a double value.\n4C_io_value_parser.cpp, line 107\nCLAIMED_EXPECTED_3_COORDINATES_TEXT=0\nTWOCOORD_DIAGNOSTIC_MENTIONS_COORDINATES=no\n[kevin:488792] Signal: Floating point exception (8)\n[kevin:488792] Signal code: Floating point divide-by-zero (3)\ninit_binning_strategy\nFLATBOX_HAS_PROC_ERROR_BLOCK=0\nFLATBOX_DIED_ON_A_SIGNAL=yes\n",
       "co_defends": []
     },
     "fourc::particle_pd::4": {
@@ -16558,7 +16607,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_NP1=134\nEXIT_NP2=0\nEXIT_NP4=0\nSAME_DECK_SHA=d667279d4198eabb\nNP1_HAS_BALANCE_LOAD=1\nNP1_HAS_TERMINATE_INT=1\nNP1_NAMES_PERIODIC_SECTION=0\nNP1_HAS_PROC0_ERROR=0\nNP2_FINISHED=2\nNP4_FINISHED=4\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/fourc/periodic_bcs_need_more_than_one_rank/cmd.sh: Zeile 117: 2204659 Abgebrochen             (Speicherabzug geschrieben) stdbuf -oL -eL \"$BIN\" \"$NP1_DECK\" \"$TMP/o1\" > \"$TMP/np1.log\" 2>&1\n",
+      "captured_head": "EXIT_NP1=134\nEXIT_NP2=0\nEXIT_NP4=0\nSAME_DECK_SHA=d667279d4198eabb\nNP1_HAS_BALANCE_LOAD=1\nNP1_HAS_TERMINATE_INT=1\nNP1_NAMES_PERIODIC_SECTION=0\nNP1_HAS_PROC0_ERROR=0\nNP2_FINISHED=2\nNP4_FINISHED=4\n~/Schreibtisch/openpaso/scripts/tier2_fixtures/fourc/periodic_bcs_need_more_than_one_rank/cmd.sh: Zeile 117: 489971 Abgebrochen             (Speicherabzug geschrieben) stdbuf -oL -eL \"$BIN\" \"$NP1_DECK\" \"$TMP/o1\" > \"$TMP/np1.log\" 2>&1\n",
       "co_defends": []
     },
     "fourc::poisson::5": {
@@ -16945,7 +16994,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_POROOK=0\nEXIT_POROZERO=1\nEXIT_MULTIZERO=136\nprocessor 0 finished normally\nzero or negative permeability\n4C_mat_fluidporo.cpp\n[kevin:2205811] Signal: Floating point exception (8)\nEvaluatorMassPressure\nPOROZERO_HAS_4C_ERROR_BANNER=1\nMULTIZERO_HAS_4C_ERROR_BANNER=0\nMULTIPHASE_RESIDUAL_BLOWUP=1\nCLAIMED_ZERO_PIVOT_TEXT=0\nCLAIMED_SOLVER_STATUS_MINUS3_TEXT=0\n",
+      "captured_head": "EXIT_POROOK=0\nEXIT_POROZERO=1\nEXIT_MULTIZERO=136\nprocessor 0 finished normally\nzero or negative permeability\n4C_mat_fluidporo.cpp\n[kevin:494143] Signal: Floating point exception (8)\nEvaluatorMassPressure\nPOROZERO_HAS_4C_ERROR_BANNER=1\nMULTIZERO_HAS_4C_ERROR_BANNER=0\nMULTIPHASE_RESIDUAL_BLOWUP=1\nCLAIMED_ZERO_PIVOT_TEXT=0\nCLAIMED_SOLVER_STATUS_MINUS3_TEXT=0\n",
       "co_defends": []
     },
     "fourc::structural_mechanics::6": {
@@ -18346,7 +18395,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_NOCAPBOUND=1\nEXIT_NOCONDFLUID=136\nEXIT_BASE=0\nOK (2)\nBASE_PASSES=yes\nthermal capacity for particles of type 'boundaryphase' not positive!\nCAPACITY_ABORT_NAMES_THE_PHASE=yes\nCAPACITY_BLAMES_THE_FLUID=no\n[kevin:2209702] Signal: Floating point exception (8)\nCONDUCTIVITY_IS_A_SIGNAL=yes\nCONDUCTIVITY_FOURC_ERROR_BLOCKS=0\nCONDUCTIVITY_DIAGNOSTICS=0\nCONDUCTIVITY_REACHED_RESULT_TESTS=no\n",
+      "captured_head": "EXIT_NOCAPBOUND=1\nEXIT_NOCONDFLUID=136\nEXIT_BASE=0\nOK (2)\nBASE_PASSES=yes\nthermal capacity for particles of type 'boundaryphase' not positive!\nCAPACITY_ABORT_NAMES_THE_PHASE=yes\nCAPACITY_BLAMES_THE_FLUID=no\n[kevin:538509] Signal: Floating point exception (8)\nCONDUCTIVITY_IS_A_SIGNAL=yes\nCONDUCTIVITY_FOURC_ERROR_BLOCKS=0\nCONDUCTIVITY_DIAGNOSTICS=0\nCONDUCTIVITY_REACHED_RESULT_TESTS=no\n",
       "co_defends": []
     },
     "fourc::ssi::4": {
@@ -18713,7 +18762,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_REF=0\nEXIT_NOELCHCTRL=1\nEXIT_STANDARD=136\nprocessor 0 finished normally\nInvalid type of closing equation for electric potential!\n4C_scatra_ele_parameter_elch.cpp\n[kevin:2210496] Signal: Floating point exception (8)\nScaTraEleCalcElchElectrodeSTIThermo\nSTANDARD_HAS_4C_ERROR_BANNER=0\nSTANDARD_NAMES_SCATRATIMINTTYPE=0\nSTANDARD_WROTE_INITIAL_OUTPUT=1\nNOELCHCTRL_RESULT_TESTS_PERFORMED=0\nSTANDARD_RESULT_TESTS_PERFORMED=0\n",
+      "captured_head": "EXIT_REF=0\nEXIT_NOELCHCTRL=1\nEXIT_STANDARD=136\nprocessor 0 finished normally\nInvalid type of closing equation for electric potential!\n4C_scatra_ele_parameter_elch.cpp\n[kevin:543678] Signal: Floating point exception (8)\nScaTraEleCalcElchElectrodeSTIThermo\nSTANDARD_HAS_4C_ERROR_BANNER=0\nSTANDARD_NAMES_SCATRATIMINTTYPE=0\nSTANDARD_WROTE_INITIAL_OUTPUT=1\nNOELCHCTRL_RESULT_TESTS_PERFORMED=0\nSTANDARD_RESULT_TESTS_PERFORMED=0\n",
       "co_defends": []
     },
     "fourc::sti::2": {
@@ -18824,7 +18873,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_LIEGROUP=0\nEXIT_CLASSICAL_GENALPHA=1\nEXIT_LIEGROUP_NO_MASSLIN=139\nprocessor 0 finished normally\nLIEGROUP_STEPS=5\nMASSLIN=ml_rotations is not supported by classical GenAlpha! Choose GenAlphaLieGroup instead!\nPROC 0 ERROR in ~/4C/src/structure_new/src/implicit/4C_structure_new_impl_genalpha.cpp, line 140:\nNO_MASSLIN_STEPS=0\nNO_MASSLIN_4C_ERROR_LINES=0\n[kevin:2210777] Signal: Segmentation fault (11)\nGenAlphaLieGroup10post_setup\n",
+      "captured_head": "EXIT_LIEGROUP=0\nEXIT_CLASSICAL_GENALPHA=1\nEXIT_LIEGROUP_NO_MASSLIN=139\nprocessor 0 finished normally\nLIEGROUP_STEPS=5\nMASSLIN=ml_rotations is not supported by classical GenAlpha! Choose GenAlphaLieGroup instead!\nPROC 0 ERROR in ~/4C/src/structure_new/src/implicit/4C_structure_new_impl_genalpha.cpp, line 140:\nNO_MASSLIN_STEPS=0\nNO_MASSLIN_4C_ERROR_LINES=0\n[kevin:545580] Signal: Segmentation fault (11)\nGenAlphaLieGroup10post_setup\n",
       "co_defends": []
     },
     "fourc::structural_dynamics::10": {
@@ -18874,7 +18923,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_STABLE=0\nEXIT_UNSTABLE=136\nEXIT_TYPO=1\nSTABLE_STEPS=8\nprocessor 0 finished normally\nSTABLE_LAST_DX=||dx||=0.00575135\nUNSTABLE_LAST_DX=||dx||=3.38936e+100\nUNSTABLE_STEPS=7\n[kevin:2210878] Signal: Floating point exception (8)\nCFL_MENTIONED=0\nCould not match this input\n  DYNAMICTYPE: \"ExplEuler\"\n",
+      "captured_head": "EXIT_STABLE=0\nEXIT_UNSTABLE=136\nEXIT_TYPO=1\nSTABLE_STEPS=8\nprocessor 0 finished normally\nSTABLE_LAST_DX=||dx||=0.00575135\nUNSTABLE_LAST_DX=||dx||=3.38936e+100\nUNSTABLE_STEPS=7\n[kevin:546150] Signal: Floating point exception (8)\nCFL_MENTIONED=0\nCould not match this input\n  DYNAMICTYPE: \"ExplEuler\"\n",
       "co_defends": []
     },
     "fourc::structural_dynamics::7": {
@@ -19224,7 +19273,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_FOURIER=0\nEXIT_SCATRA1=139\nEXIT_SCATRA2=139\nEXIT_SCATRA3=139\nTHERMAL  : thermo          temp     at node   2\t is CORRECT, abs(diff)= 0.00000000000000000e+00 < 1.00000000000000002e-08\n[kevin:2211849] Signal: Segmentation fault (11)\nSCATRA_FOUR_C_ERROR_BLOCKS=0\nSCATRA_REACHED_FILL_COMPLETE=2\nWelcome to Thermal Time Integration \nSCATRA_BACKTRACE_NAMES_TIMINTIMPL=1\n",
+      "captured_head": "EXIT_FOURIER=0\nEXIT_SCATRA1=139\nEXIT_SCATRA2=139\nEXIT_SCATRA3=139\nTHERMAL  : thermo          temp     at node   2\t is CORRECT, abs(diff)= 0.00000000000000000e+00 < 1.00000000000000002e-08\n[kevin:550061] Signal: Segmentation fault (11)\nSCATRA_FOUR_C_ERROR_BLOCKS=0\nSCATRA_REACHED_FILL_COMPLETE=2\nWelcome to Thermal Time Integration \nSCATRA_BACKTRACE_NAMES_TIMINTIMPL=1\n",
       "co_defends": []
     },
     "fourc::thermo::2": {
@@ -19910,7 +19959,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_BASE=0\nEXIT_WALLNURBS=1\nEXIT_NODELINES=139\nprocessor 0 finished normally\nBASE_HAS_PLAIN_WALL_ELEMENTS=4\nUnknown type 'WALL' of finite element\nPROC 0 ERROR in ~/4C/src/core/comm/src/4C_comm_parobjectfactory.cpp, line 153:\n[kevin:2213940] Signal: Segmentation fault (11)\nNODELINES_FOURC_ERROR_BLOCKS=0\nNURBS_DECK_HAS_SHAPEFCT=yes\nNURBS_DECK_HAS_KNOTVECTORS=yes\nNURBS_DECK_CP_LINES=16\n",
+      "captured_head": "EXIT_BASE=0\nEXIT_WALLNURBS=1\nEXIT_NODELINES=139\nprocessor 0 finished normally\nBASE_HAS_PLAIN_WALL_ELEMENTS=4\nUnknown type 'WALL' of finite element\nPROC 0 ERROR in ~/4C/src/core/comm/src/4C_comm_parobjectfactory.cpp, line 153:\n[kevin:558501] Signal: Segmentation fault (11)\nNODELINES_FOURC_ERROR_BLOCKS=0\nNURBS_DECK_HAS_SHAPEFCT=yes\nNURBS_DECK_HAS_KNOTVECTORS=yes\nNURBS_DECK_CP_LINES=16\n",
       "co_defends": []
     },
     "fourc::structural_mechanics::10": {
@@ -20151,7 +20200,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_TESS=0\nEXIT_MF=139\nprocessor 0 finished normally\nTESS_RESULT_FAILURES=0\n[kevin:2214663] Signal: Segmentation fault (11)\n[kevin:2214663] [ 1] ~/4C/build/lib4C.so(_ZNK5FourC4Core2FE20GaussPointsComposite10num_pointsEv+0x34)[0x7f06527e9194]\nMF_REACHED_RESULT_TEST=0\nCLAIMED_FALLBACK_TEXT=0\n",
+      "captured_head": "EXIT_TESS=0\nEXIT_MF=139\nprocessor 0 finished normally\nTESS_RESULT_FAILURES=0\n[kevin:562711] Signal: Segmentation fault (11)\n[kevin:562711] [ 1] ~/4C/build/lib4C.so(_ZNK5FourC4Core2FE20GaussPointsComposite10num_pointsEv+0x34)[0x7f82d6745194]\nMF_REACHED_RESULT_TEST=0\nCLAIMED_FALLBACK_TEXT=0\n",
       "co_defends": []
     },
     "fourc::xfem_fluid::5": {
@@ -20273,7 +20322,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_WITHGP=0\nEXIT_NOGP=1\nEXIT_ZEROFAC=1\nprocessor 0 finished normally\nWITHGP_RESULT_FAILURES=0\nNOGP_REACHED_RESULT_TEST=1\nNOGP_RESULT_FAILURES=6\nZEROFAC_RESULT_FAILURES=6\nSTRUCTURE: structure       dispx    at node  19\t is WRONG --> actresult= 8.67991806613846900e-05, givenresult= 8.89037247841968647e-05, abs(diff)= 2.10454412281217468e-06 > 9.99999999999999939e-12\nCLAIMED_CONDITIONING_TEXT=0\nLINEAR_SOLVER_FAILED=0\n",
+      "captured_head": "EXIT_WITHGP=0\nEXIT_NOGP=1\nEXIT_ZEROFAC=1\nprocessor 0 finished normally\nWITHGP_RESULT_FAILURES=0\nNOGP_REACHED_RESULT_TEST=1\nNOGP_RESULT_FAILURES=6\nZEROFAC_RESULT_FAILURES=6\nSTRUCTURE: structure       dispx    at node  19\t is WRONG --> actresult= 8.67991806616253423e-05, givenresult= 8.89037247841968647e-05, abs(diff)= 2.10454412257152245e-06 > 9.99999999999999939e-12\nCLAIMED_CONDITIONING_TEXT=0\nLINEAR_SOLVER_FAILED=0\n",
       "co_defends": []
     },
     "fourc::fsi_xfem::6": {
@@ -20324,7 +20373,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "EXIT_DEFAULT=0\nEXIT_LO=1\nEXIT_HI=1\nprocessor 0 finished normally\nDEFAULT_RESULT_FAILURES=0\nLO_RESULT_FAILURES=6\nHI_RESULT_FAILURES=6\nLO_REACHED_RESULT_TEST=1\nHI_REACHED_RESULT_TEST=1\nSTRUCTURE: structure       dispx    at node  19\t is WRONG --> actresult= 2.26870827905110436e-04, givenresult= 8.89037247841968647e-05, abs(diff)= 1.37967103120913571e-04 > 9.99999999999999939e-12\nCLAIMED_JUMP_OR_COND_TEXT=0\n",
+      "captured_head": "EXIT_DEFAULT=0\nEXIT_LO=1\nEXIT_HI=1\nprocessor 0 finished normally\nDEFAULT_RESULT_FAILURES=0\nLO_RESULT_FAILURES=6\nHI_RESULT_FAILURES=6\nLO_REACHED_RESULT_TEST=1\nHI_REACHED_RESULT_TEST=1\nSTRUCTURE: structure       dispx    at node  19\t is WRONG --> actresult= 2.26870827905113472e-04, givenresult= 8.89037247841968647e-05, abs(diff)= 1.37967103120916607e-04 > 9.99999999999999939e-12\nCLAIMED_JUMP_OR_COND_TEXT=0\n",
       "co_defends": []
     },
     "fourc::fsi_xfem::2": {
@@ -21741,7 +21790,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": " |  /           |                  \n ' /   __| _` | __|  _ \\   __|    \n . \\  |   (   | |   (   |\\__ \\  \n_|\\_\\_|  \\__,_|\\__|\\___/ ____/\n           Multi-Physics 10.3.\"0\"-Release-10.3.0-14ee273e-Release-x86_64\n           Compiled for GNU/Linux and Python3.12 with GCC-10.2\nCompiled with threading and MPI support. Threading support with OpenMP.\nMaximum number of threads: 32.\nRunning without MPI.\nDeregistering KratosMultiphysics\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/kratos/friction_angle_wrong_module/source.py\", line 39, in main\n    KM.FRICTION_ANGLE\n  File \"~/Schreibtisch/ofa-v3/.venv/lib/python3.12/site-packages/KratosMultiphysics/__init__.py\", line 64, in __getattr__\n    raise AttributeError(f\"Module {__name__} has no attribute {name}.\")\nAt",
+      "captured_head": " |  /           |                  \n ' /   __| _` | __|  _ \\   __|    \n . \\  |   (   | |   (   |\\__ \\  \n_|\\_\\_|  \\__,_|\\__|\\___/ ____/\n           Multi-Physics 10.3.\"0\"-Release-10.3.0-14ee273e-Release-x86_64\n           Compiled for GNU/Linux and Python3.12 with GCC-10.2\nCompiled with threading and MPI support. Threading support with OpenMP.\nMaximum number of threads: 32.\nRunning without MPI.\nDeregistering KratosMultiphysics\nTraceback (most recent call last):\n  File \"~/Schreibtisch/openpaso/scripts/tier2_fixtures/kratos/friction_angle_wrong_module/source.py\", line 39, in main\n    KM.FRICTION_ANGLE\n  File \"~/Schreibtisch/open-fem-agent/.venv/lib/python3.12/site-packages/KratosMultiphysics/__init__.py\", line 64, in __getattr__\n    raise AttributeError(f\"Module {__name__} has no attribute {nam",
       "co_defends": []
     },
     "kratos::fsi::0": {
@@ -25297,7 +25346,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "mesh_ne=634 ndof=352\nsemi_implicit_linear_solves=60\nsemi_implicit_nonlinear_iterations=0\nnewton_total_iterations=180\nnewton_iters_per_step_gt_2=True\nnewton_converged_every_step=True\nnewton_printed_iteration_banner=True\nnewton_chatter_head=['Newton iteration  0', 'err =  0.018680868450424166']\nsemi_and_newton_agree_within_1pct=True\nnewton_over_semi_time_observed=26.22\nsemi_implicit_solves_per_step=1.00\nnewton_solves_per_step=3.00\nnewton_needs_at_least_3x_the_linear_solves=True\nbigdt_semi_range=(29.2044,130.3709)\nbigdt_newton_range=(0.0000,0.0000)\nbigdt_semi_implicit_blew_up=True\nbigdt_newton_stayed_bounded=True\n",
+      "captured_head": "mesh_ne=634 ndof=352\nsemi_implicit_linear_solves=60\nsemi_implicit_nonlinear_iterations=0\nnewton_total_iterations=180\nnewton_iters_per_step_gt_2=True\nnewton_converged_every_step=True\nnewton_printed_iteration_banner=True\nnewton_chatter_head=['Newton iteration  0', 'err =  0.018680868450424166']\nsemi_and_newton_agree_within_1pct=True\nnewton_over_semi_time_observed=17.89\nsemi_implicit_solves_per_step=1.00\nnewton_solves_per_step=3.00\nnewton_needs_at_least_3x_the_linear_solves=True\nbigdt_semi_range=(29.2044,130.3709)\nbigdt_newton_range=(0.0000,0.0000)\nbigdt_semi_implicit_blew_up=True\nbigdt_newton_stayed_bounded=True\n",
       "co_defends": []
     },
     "ngsolve::phase_field::4": {
@@ -25894,7 +25943,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "surface_ndof=851 normal_cf=CoefficientFunction\nnormal_component_ratio_lt_1em25=True\nmanual_projection_is_a_noop=True\nsame_sparsity=True\nproj_assemble_time_ratio_observed=2.024\nplain_integrand_nodes=3 proj_integrand_nodes=19\nproj_integrand_strictly_larger=True\nproj_matrix_identical_to_plain=True\nproj_solution_identical_to_plain=True\nproxy_without_trace_raised=True\nproxy_without_trace_msg='Trialfunction does not support BND-forms, maybe a Trace() operator is missing, type = grad'\ngridfunction_grad_without_trace_matches_traced=True\n",
+      "captured_head": "surface_ndof=851 normal_cf=CoefficientFunction\nnormal_component_ratio_lt_1em25=True\nmanual_projection_is_a_noop=True\nsame_sparsity=True\nproj_assemble_time_ratio_observed=2.031\nplain_integrand_nodes=3 proj_integrand_nodes=19\nproj_integrand_strictly_larger=True\nproj_matrix_identical_to_plain=True\nproj_solution_identical_to_plain=True\nproxy_without_trace_raised=True\nproxy_without_trace_msg='Trialfunction does not support BND-forms, maybe a Trace() operator is missing, type = grad'\ngridfunction_grad_without_trace_matches_traced=True\n",
       "co_defends": []
     },
     "ngsolve::surface_pde::5": {
@@ -28855,7 +28904,7 @@
       ],
       "forbid_violated": [],
       "notes": [],
-      "captured_head": "element=ElementQuad1\nskfem_has_GridFunction=False\nn_dofs=289 n_elements=256\nscalar_matrix_shape=289x289 scalar_nnz=2401\nscalar u=[0.04637, 0.52703] mean=0.22512\nscalar_max_u_between_seed_and_carrying_capacity=True\nblock_matrix_shape=578x578 block_nnz=9604\nblock_ndofs_is_double=True\nblock_nnz_over_scalar_nnz=4.0\nblock_nnz_ratio_eq_4=True\nscalar_mean_spsolve_ms=0.86 block_mean_spsolve_ms=1.97\nblock_solve_time_ratio=2.27\nblock_spsolve_slower_gt_1p3x=True\nredundant_block_u_maxdev=1.110e-16\nredundant_block_matches_scalar=True\ncontaminated u=[0.03523, 0.86854]\ncontaminated_block_u_maxdev=3.4151e-01\ncontaminated_block_u_maxdev_gt_0p1=True\ncontaminated_relative_to_true_max=0.65\n",
+      "captured_head": "element=ElementQuad1\nskfem_has_GridFunction=False\nn_dofs=289 n_elements=256\nscalar_matrix_shape=289x289 scalar_nnz=2401\nscalar u=[0.04637, 0.52703] mean=0.22512\nscalar_max_u_between_seed_and_carrying_capacity=True\nblock_matrix_shape=578x578 block_nnz=9604\nblock_ndofs_is_double=True\nblock_nnz_over_scalar_nnz=4.0\nblock_nnz_ratio_eq_4=True\nscalar_mean_spsolve_ms=0.96 block_mean_spsolve_ms=2.31\nblock_solve_time_ratio=2.41\nblock_spsolve_slower_gt_1p3x=True\nredundant_block_u_maxdev=1.110e-16\nredundant_block_matches_scalar=True\ncontaminated u=[0.03523, 0.86854]\ncontaminated_block_u_maxdev=3.4151e-01\ncontaminated_block_u_maxdev_gt_0p1=True\ncontaminated_relative_to_true_max=0.65\n",
       "co_defends": []
     },
     "skfem::reaction_diffusion::7": {

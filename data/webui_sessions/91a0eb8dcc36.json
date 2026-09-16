@@ -1,0 +1,74 @@
+{
+  "id": "91a0eb8dcc36",
+  "created_at": 1789573056.8978593,
+  "model": "claude-code",
+  "mode": "accept",
+  "mcp_servers": [
+    "openpaso"
+  ],
+  "events": [
+    {
+      "type": "user_msg",
+      "text": "Use the discover tool and tell me in one sentence which solvers are installed."
+    },
+    {
+      "type": "agent_msg",
+      "text": "I'll load the discover tool schema first."
+    },
+    {
+      "type": "tool_call_pending",
+      "call_id": "toolu_01Beb4GEQQCNjs9ep4BF8NM2",
+      "tool": "ToolSearch",
+      "args": {
+        "query": "select:mcp__openpaso__discover",
+        "max_results": 1
+      }
+    },
+    {
+      "type": "tool_call_executing",
+      "call_id": "toolu_01Beb4GEQQCNjs9ep4BF8NM2",
+      "tool": "ToolSearch"
+    },
+    {
+      "type": "tool_result",
+      "call_id": "toolu_01Beb4GEQQCNjs9ep4BF8NM2",
+      "tool": "ToolSearch",
+      "result": ""
+    },
+    {
+      "type": "tool_call_pending",
+      "call_id": "toolu_019KUqsS3mVAXAgebPHHVK3N",
+      "tool": "discover",
+      "args": {
+        "query": "list"
+      }
+    },
+    {
+      "type": "tool_call_executing",
+      "call_id": "toolu_019KUqsS3mVAXAgebPHHVK3N",
+      "tool": "discover"
+    },
+    {
+      "type": "tool_result",
+      "call_id": "toolu_019KUqsS3mVAXAgebPHHVK3N",
+      "tool": "discover",
+      "result": "Claude requested permissions to use mcp__openpaso__discover, but you haven't granted it yet."
+    },
+    {
+      "type": "agent_msg",
+      "text": "I can't answer that yet \u2014 the `discover` call was blocked because permission for `mcp__openpaso__discover` hasn't been granted, and this session is non-interactive so I can't prompt for it. Grant that tool (via `/permissions` in an interactive session or in `.claude/settings.json`) and I'll re-run it and report the installed solvers."
+    },
+    {
+      "type": "token_count",
+      "input": 6,
+      "output": 295
+    },
+    {
+      "type": "done",
+      "final_text": ""
+    }
+  ],
+  "workdir": "",
+  "tokens_in": 6,
+  "tokens_out": 295
+}

@@ -1,0 +1,79 @@
+{
+  "id": "4397d3711598",
+  "created_at": 1789570957.303323,
+  "model": "mock",
+  "mode": "accept",
+  "mcp_servers": [
+    "openpaso"
+  ],
+  "events": [
+    {
+      "type": "user_msg",
+      "text": "Flow past a cylinder at Reynolds 100"
+    },
+    {
+      "type": "token_count",
+      "input": 1,
+      "output": 1
+    },
+    {
+      "type": "tool_call_pending",
+      "call_id": "tc_fe652eae",
+      "tool": "spawn_subagent",
+      "args": {
+        "role": "critic",
+        "task": "Verify the setup is consistent before proceeding.",
+        "context": "Parent considering a Poisson MMS run on a 32x32 grid."
+      },
+      "agent": "main"
+    },
+    {
+      "type": "tool_call_executing",
+      "call_id": "tc_fe652eae",
+      "tool": "spawn_subagent"
+    },
+    {
+      "type": "subagent_spawned",
+      "sa_id": "sa_fe04d480",
+      "role": "critic",
+      "task": "Verify the setup is consistent before proceeding.",
+      "context": "Parent considering a Poisson MMS run on a 32x32 grid."
+    },
+    {
+      "type": "token_count",
+      "input": 1,
+      "output": 1
+    },
+    {
+      "type": "agent_msg",
+      "text": "APPROVED: setup and units look consistent; proceed."
+    },
+    {
+      "type": "subagent_returned",
+      "sa_id": "sa_fe04d480",
+      "result": "APPROVED: setup and units look consistent; proceed."
+    },
+    {
+      "type": "tool_result",
+      "call_id": "tc_fe652eae",
+      "tool": "spawn_subagent",
+      "result": "APPROVED: setup and units look consistent; proceed."
+    },
+    {
+      "type": "token_count",
+      "input": 1,
+      "output": 1
+    },
+    {
+      "type": "agent_msg",
+      "text": "Parent: critic approved; recording result."
+    },
+    {
+      "type": "done",
+      "final_text": "Parent: critic approved; recording result."
+    }
+  ],
+  "workdir": "",
+  "tokens_in": 3,
+  "tokens_out": 3
+}

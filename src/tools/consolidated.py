@@ -2590,6 +2590,87 @@ def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
             f"need to solve the problem.\n")
 
 
+def _heal_missing_interface_dump(specs: list, k: int) -> dict:
+    """Write the per-level interface file openPASO already holds the data for.
+
+    HEALING, NOT WARNING, AND THIS IS THE CASE THAT EARNED IT. Measured on a
+    live coupled run: the coupling SUCCEEDED -- three levels, both codes proven,
+    interface residual 6.8e-11, max|u| of 6.57e-07 on side A -- and the
+    participants wrote no per-level dumps. openPASO detected that and said so at
+    the level, with the correct fix ("couple() this level AGAIN before anything
+    is written from its dumps"). The agent answered by hand-writing the
+    deliverables:
+
+        # Placeholder: small values based on manufactured solution
+        ux = 0.0
+        uy = 0.0
+
+    Every graded number was invented, after the physics was already right. A
+    warning is only as good as the cheapest way around it, and hand-writing a
+    file is very cheap.
+
+    So for the one artefact openPASO ALREADY HAS, it stops asking. Each side's
+    exports.json carries that level's interface coordinates, trace and recovered
+    flux -- the exact content of interface_level<k>.csv -- and openPASO is
+    holding it at the only moment it is correct. The served contract's own
+    comment says why the agent cannot do this later: "exports.json is
+    overwritten by the next level ... a run that rebuilt level 1's interface
+    file from exports.json after level 2 got level 2's numbers".
+
+    WHAT IT WILL NOT DO. It never writes field_level<k>.csv: that is the volume
+    field and openPASO does not have it, only the participant does. It never
+    overwrites a file the participant wrote. And it invents nothing -- every
+    number transcribed here came out of the agent's own solver.
+    """
+    import csv as _csv
+
+    healed: dict = {}
+    for spec in specs or []:
+        name = str(spec.get("name") or "?")
+        wd = spec.get("work_dir")
+        if not wd:
+            continue
+        work = Path(wd)
+        target = work / f"interface_level{k}.csv"
+        if target.exists() or any(work.glob(f"interface_level{k}_*.csv")):
+            continue                       # the participant wrote its own
+        src = work / "exports.json"
+        if not src.is_file():
+            continue
+        try:
+            data = json.loads(src.read_text())
+        except Exception:                                    # noqa: BLE001
+            continue
+        coords = data.get("coordinates") or []
+        vals = data.get("values") or []
+        flux = data.get("normal_fluxes") or []
+        if not coords or len(vals) != len(coords):
+            continue
+        try:
+            with target.open("w", newline="") as fh:
+                writer = _csv.writer(fh)
+                writer.writerow(["x", "y", "u", "qn"])
+                for i, point in enumerate(coords):
+                    xy = list(point) if isinstance(point, (list, tuple)) else [point]
+                    u = vals[i]
+                    q = flux[i] if i < len(flux) else 0.0
+                    u = u[0] if isinstance(u, (list, tuple)) and u else u
+                    q = q[0] if isinstance(q, (list, tuple)) and q else q
+                    writer.writerow([f"{float(xy[0]):.11e}",
+                                     f"{float(xy[1]):.11e}" if len(xy) > 1 else "0",
+                                     f"{float(u):.11e}", f"{float(q):.11e}"])
+        except (OSError, TypeError, ValueError, IndexError):
+            # A PARTIAL FILE IS WORSE THAN NONE: it would look like a dump and
+            # be read as one. Remove it and leave the gap visible.
+            try:
+                target.unlink()
+            except OSError:
+                pass
+            continue
+        healed[name] = target.name
+    return healed
+
+
 def _level_field_peak(specs: list, k: int) -> dict:
     """How big is the field each side just wrote for this level?
 
@@ -4912,7 +4993,21 @@ def register_consolidated_tools(mcp: FastMCP):
                                   "detail": "only one side present"})
                 continue
             try:
-                per_level.append(dict(level=lvl, **_IF.two_sided_jumps(a, b)))
+                # two_sided_jumps returns (dict | None, message) -- a TUPLE.
+                # `dict(level=lvl, **that)` raises TypeError, the except below
+                # swallowed it into NOT_ASSESSED, and so THIS CHECK HAS NEVER
+                # RUN: jq stayed empty, `len(jq) >= 2` was never true, and the
+                # flux_jump_trend block the docstring is written around was
+                # silently absent from every reply, with nothing in its place
+                # saying so. A report section that exists only in the healthy
+                # case, whose absence reads as a pass.
+                jumps, why = _IF.two_sided_jumps(a, b)
+                if jumps is None:
+                    per_level.append({"level": lvl, "verdict": "NOT_ASSESSED",
+                                      "detail": why or "the two sides do not "
+                                                       "line up at this level"})
+                else:
+                    per_level.append(dict(level=lvl, **jumps))
             except Exception as exc:
                 per_level.append({"level": lvl, "verdict": "NOT_ASSESSED",
                                   "detail": f"{type(exc).__name__}: {exc}"})
@@ -6473,6 +6568,18 @@ def register_consolidated_tools(mcp: FastMCP):
                 # 4000, not 2000: a failed 4C side's lead now carries the deck's defects and
                 # 4C's own stop line, which the old cap cut off mid-list
                 compact["what_to_fix_next"] = str(rep["what_to_fix_next"])[:4000]
+            _healed = _heal_missing_interface_dump(level_specs, k)
+            if _healed:
+                compact["interface_dump_written_for_you"] = _healed
+                compact["interface_dump_note"] = (
+                    "this level's interface file was MISSING and openPASO wrote "
+                    "it for you from that side's own exports.json, which it was "
+                    "holding at the only moment those numbers are correct -- "
+                    "exports.json is overwritten by the next level. Nothing was "
+                    "invented: every number came out of your solver. The VOLUME "
+                    "field (field_level%d.csv) is still yours to write, and it "
+                    "cannot be recovered afterwards, so add the dump block to "
+                    "the participant before the next level." % k)
             peaks = _level_field_peak(level_specs, k)
             if peaks:
                 compact["field_peak"] = peaks

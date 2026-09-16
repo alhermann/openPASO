@@ -132,3 +132,52 @@ def test_it_is_silent_on_every_correct_cell():
                 spoke.append(f"{run.name}/{py.name}")
                 break
     assert not spoke, "the check speaks on cells graded CORRECT: " + ", ".join(spoke[:5])
+
+
+ONE_CONSTANT = '''
+def write_solution_file(fn, probes, u):
+    """writes solution_level1_A.csv"""
+    with open(fn, "w") as f:
+        for px, py in probes:
+            u = 0.0
+            f.write(f"{px},{py},{u}\\n")
+'''
+
+ALL_LITERAL = '''
+def write_header(fn):
+    """writes solution_level1_A.csv"""
+    with open(fn, "w") as f:
+        a = 1.0
+        b = 2.0
+        f.write(f"{a},{b}\\n")
+'''
+
+
+def test_one_invented_column_is_enough(check, tmp_path):
+    """Requiring TWO constants was a hole the size of the measured failure.
+
+    The shape that produced 132 interface points of literal 0.0 is one value
+    column beside real coordinates:
+
+        f.write(f"{px},{py},{u}\\n")   with u = 0.0
+
+    That binds exactly ONE literal name in the f-string, so a `>= 2` test never
+    fired on it. What matters is that a value column is invented, not how many.
+    """
+    p = tmp_path / "gen.py"
+    p.write_text(ONE_CONSTANT)
+    out = check(p, p.read_text())
+    assert out, "a single invented value column must be named"
+    assert "invented" in out
+
+
+def test_a_line_of_only_literals_is_not_a_data_row(check, tmp_path):
+    """What keeps the loosened test off correct runs.
+
+    A written line whose every name is a literal is a header or a separator.
+    A data row carries coordinates that came from the mesh, so at least one
+    non-literal name appears beside the invented one.
+    """
+    p = tmp_path / "gen.py"
+    p.write_text(ALL_LITERAL)
+    assert check(p, p.read_text()) == ""

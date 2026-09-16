@@ -676,7 +676,20 @@ def _constant_deliverable_check(written: Path, content: str) -> str:
                          if isinstance(v, ast.FormattedValue)
                          for n in ast.walk(v.value) if isinstance(n, ast.Name)}
                 written_consts = {n for n in names if n in literal and n not in other}
-                if written_consts and len(written_consts) >= 2:
+                # ONE CONSTANT IS ENOUGH, and requiring two was a hole the
+                # size of the measured failure. The shape that produced 132
+                # interface points of literal 0.0 is
+                #     f.write(f"{px},{py},{u}\n")   with u = 0.0
+                # where px and py come from the mesh and bind nothing: exactly
+                # ONE literal name in the f-string, and the >= 2 test never
+                # fired. What matters is that a value column is invented, not
+                # how many of them are.
+                #
+                # The coordinates are what keep this off correct runs: a line
+                # whose ONLY names are literals is a header or a separator, not
+                # a data row, so at least one non-literal name must also appear.
+                non_literal = names - written_consts
+                if written_consts and non_literal:
                     hits.append((fn.name, sorted(written_consts)))
                     break
             if hits and hits[-1][0] == fn.name:

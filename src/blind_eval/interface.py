@@ -130,6 +130,35 @@ def two_sided_jumps(side_a, side_b, coord_tol: float = 1e-6):
         dq += [a + b for a, b in zip(qa[i], qb[j])]
         scale_u += list(va[i])
         scale_q += list(qa[i])
+        scale_u += list(vb[j])
+        scale_q += list(qb[j])
+    # TWO DEAD SIDES MUST NOT CERTIFY EACH OTHER.
+    #
+    # The jumps are relative to a scale, and both scales are floored at 1e-30
+    # so the division is safe. That made the DEGENERATE case read as the
+    # PERFECT one: two sides exporting identically zero traces and fluxes give
+    # du = dq = 0, both ratios come out 0.0, and assess() then stamps
+    # INTERFACE_SATISFIED because 0.0 < 5e-3. Measured on a live coupled run
+    # whose three levels carried 132 and 88 interface points of literal 0.0 and
+    # which reported an interface residual of 6.8e-11 as evidence of success.
+    #
+    # A ratio whose numerator AND denominator are both zero is not a small
+    # number, it is an undefined one, and reporting 0.0 for it is the single
+    # most flattering thing this module could do. The same lesson is already
+    # written twice elsewhere in this tree: "d == 0 IS THE DEFECT AT ITS MOST
+    # BLATANT, NOT A REASON TO SKIP" (result_audit), and the near-zero test
+    # that must "INCLUDE exact zero" because three runs delivered literal 0.0
+    # everywhere.
+    #
+    # The scale now includes BOTH sides, too. It was built from side A alone,
+    # so the same physical defect scored thirty orders of magnitude apart
+    # depending on which file happened to be named first.
+    if _rms(scale_u) <= 0.0 and _rms(scale_q) <= 0.0:
+        return None, ("both sides exported an interface that is identically "
+                      "zero in value and in flux, so there is no jump to "
+                      "measure and nothing here says the transmission "
+                      "condition holds: two sides exchanging nothing cannot "
+                      "disagree")
     return {"jump_u": _rms(du), "jump_q": _rms(dq),
             "jump_u_rel": _rms(du) / max(_rms(scale_u), 1e-30),
             "jump_q_rel": _rms(dq) / max(_rms(scale_q), 1e-30)}, "ok"

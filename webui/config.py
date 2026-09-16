@@ -29,6 +29,38 @@ MODELS = {
                     "weights": None},
 }
 
+# Models reached over an API instead of a local GPU. Most people have a key and
+# no GPU, so without these the interface was unusable to them even though
+# run_agent.py could already do it. The key is read from the same places
+# run_agent.py reads it, so one .env serves both.
+OPENROUTER_URL = "https://openrouter.ai/api/v1"
+
+# Claude Code, driven headless. No key and no GPU: it uses the subscription
+# the person already has, which for most people is the easiest path there is.
+CLAUDE_CODE_ID = "claude-code"
+
+OPENROUTER_MODELS = {
+    "deepseek/deepseek-v4.1-flash": "DeepSeek v4.1 Flash",
+    "qwen/qwen3.5-27b":             "Qwen 3.5 27B",
+    "qwen/qwen3.5-122b-a10b":       "Qwen 3.5 122B",
+}
+
+
+def openrouter_key() -> str | None:
+    """The key from the environment, or from a .env next to the repo."""
+    if os.environ.get("OPENROUTER_API_KEY"):
+        return os.environ["OPENROUTER_API_KEY"]
+    for candidate in (REPO / ".env", Path.home() / "Schreibtisch" / "qwen_uplift_test" / ".env"):
+        if not candidate.is_file():
+            continue
+        for raw in candidate.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if line.startswith("OPENROUTER_API_KEY="):
+                value = line.split("=", 1)[1].strip().strip("'\"")
+                if value:
+                    return value
+    return None
+
 # MCP servers selectable in the UI. The openPASO server is the main one;
 # additional rows are placeholders for future plug-ins.
 MCP_SERVERS = {

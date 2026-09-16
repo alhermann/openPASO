@@ -185,6 +185,17 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
     # ── LLM
     if model == "mock":
         llm = _mock_chat_model()
+    elif model in config.OPENROUTER_MODELS:
+        key = config.openrouter_key()
+        if not key:
+            raise ValueError(
+                "No OpenRouter key. Copy .env.example to .env and paste your "
+                "key after OPENROUTER_API_KEY=, then pick this model again.")
+        from langchain_openai import ChatOpenAI
+        llm = ChatOpenAI(
+            base_url=config.OPENROUTER_URL, api_key=key, model=model,
+            temperature=0.2, timeout=600,
+        )
     else:
         if model not in config.MODELS:
             raise ValueError(f"unknown model: {model}")

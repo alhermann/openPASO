@@ -1,0 +1,18 @@
+{
+  "id": "e94c52a37f05",
+  "created_at": 1789570716.635674,
+  "model": "mock",
+  "mode": "accept",
+  "mcp_servers": [
+    "openpaso"
+  ],
+  "events": [
+    {
+      "type": "user_msg",
+      "text": "Flow past a cylinder at Reynolds 100"
+    }
+  ],
+  "workdir": "",
+  "tokens_in": 0,
+  "tokens_out": 0
+}

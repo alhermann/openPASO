@@ -62,7 +62,16 @@ async def get_models():
     out = []
     for k, m in config.MODELS.items():
         out.append({"id": k, "label": m["label"], "port": m["port"]})
-    return {"models": out, "default": config.DEFAULT_MODEL}
+    from . import claude_code
+    if claude_code.available():
+        out.append({"id": config.CLAUDE_CODE_ID,
+                    "label": "Claude Code (uses your subscription)", "port": None})
+    have_key = bool(config.openrouter_key())
+    for k, label in config.OPENROUTER_MODELS.items():
+        out.append({"id": k, "label": label, "port": None,
+                    "needs_key": not have_key})
+    return {"models": out, "default": config.DEFAULT_MODEL,
+            "openrouter_key": have_key}
 
 
 @app.get("/api/mcp_servers")
@@ -300,12 +309,26 @@ async def _handle_inbound(ses: WSSession, msg: dict):
                             "message": "previous turn is still running"})
             return
         await ses.emit({"type": "user_msg", "text": text})
-        await ses.ensure_agent()
+
+        use_claude_code = ses.state.get("model") == config.CLAUDE_CODE_ID
+        if not use_claude_code:
+            await ses.ensure_agent()
 
         async def _run():
             try:
-                await stream_turn(agent=ses.agent, user_text=text,
-                                  emitter=ses.emit)
+                if use_claude_code:
+                    from . import claude_code
+                    from .runner import _session_workdir
+                    await ses.emit({"type": "status", "message": "thinking…"})
+                    await claude_code.stream_turn(
+                        text,
+                        workdir=_session_workdir(ses.state["id"]),
+                        servers=list(ses.state.get("mcp_servers") or []),
+                        model=None, mode=ses.mode, emit=ses.emit)
+                    await ses.emit({"type": "done", "final_text": ""})
+                else:
+                    await stream_turn(agent=ses.agent, user_text=text,
+                                      emitter=ses.emit)
             except Exception:
                 pass
             finally:

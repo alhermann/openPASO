@@ -275,7 +275,7 @@ function openpasoApp() {
         const a = Math.abs(t);
         const end = t < 0 ? neg : pos;
         // ease so the quiet field stays dark and structure reads early
-        const w = Math.pow(a, 0.65);
+        const w = Math.pow(a, 1.10);
         for (let c = 0; c < 3; c++) {
           lut[i * 3 + c] = Math.round(zero[c] + (end[c] - zero[c]) * w);
         }

@@ -768,8 +768,51 @@ def pair(specs: list[dict], **kw) -> dict:
     return couple([a, b], **kw)
 
 
+# WHERE A WORKED COUPLING IS ALLOWED TO LAND.
+#
+# These fixtures solve coupled problems for real, so every directory this
+# creates holds a WORKED ANSWER. The blind campaign's custody preflight refuses
+# to launch a round while any readable one exists in the shared /tmp -- and it
+# checks ONCE, at launch, against a condition that is not stable for the next
+# 45 minutes.
+#
+# Measured on 2026-09-16, and the ordering is the whole point: a
+# `run_tier2_fixtures.py --write-results` regeneration started at 14:20 was
+# still creating these at 15:03, while the campaign session was reading the
+# listing and attributing them to its own regression suite. Nothing warned
+# either of us. A fixture suite has no reason to think it is dangerous, and a
+# gate at t=0 cannot see what appears at t+40min.
+#
+# So the default moves off the shared /tmp. T2_COUPLING_WORKROOT overrides it,
+# then TMPDIR; the fallback is a directory beside this repo, which is private to
+# whoever checked it out and is gitignored.
+#
+# ONE WARNING ABOUT TMPDIR ON THIS PROJECT'S HARDWARE: pointing it at the
+# exFAT PortableSSD has broken fixtures before -- no symlinks, no permission
+# bits, and nine 4C fixtures failed for that reason alone. If you set either
+# variable, set it to a real filesystem. Nothing here seals or deletes: that is the campaign's
+# business and its preflight still decides. This only stops the fixtures from
+# writing into the one place two sessions share.
+_WORKROOT_ENV = ("T2_COUPLING_WORKROOT", "TMPDIR")
+
+
+def _workroot_base() -> Path:
+    for name in _WORKROOT_ENV:
+        raw = os.environ.get(name, "").strip()
+        if raw:
+            base = Path(raw)
+            try:
+                base.mkdir(parents=True, exist_ok=True)
+                return base
+            except OSError:
+                continue
+    base = Path(__file__).resolve().parents[4] / ".tier2_coupling_work"
+    base.mkdir(parents=True, exist_ok=True)
+    return base
+
+
 def workroot(tag: str) -> Path:
-    return Path(tempfile.mkdtemp(prefix=f"t2cpl_{tag}_"))
+    return Path(tempfile.mkdtemp(prefix=f"t2cpl_{tag}_", dir=_workroot_base()))
 
 
 # ── one arrangement of one pair, checked against the closed form ───────────

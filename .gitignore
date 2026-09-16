@@ -104,3 +104,11 @@ data/blind_key_commitment.json
 # Tests of the evaluation campaign. They need campaign3_blind/, which lives on
 # consolidation/v2, and they pass there. Keeping them here would ship a suite that
 # cannot go green on a fresh clone.
+
+# The agent's sandbox. Work directories, session scratch and sampled field data
+# land here at run time; none of it is something a user installs.
+eval_interactive/
+
+# Worked couplings from the tier-2 coupling fixtures. Never shared, never
+# committed: each one is a solved coupled problem.
+.tier2_coupling_work/

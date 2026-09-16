@@ -212,16 +212,51 @@ def main() -> None:
                          "array negated, bit for bit: a copy, not a recovery from "
                          "this side's own assembled system")
 
+    # THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its OWN.
+    # The audit and the hand-in read that exact shape, and they read it PER
+    # LEVEL: it is how a grader tells a refined mesh from the same mesh run
+    # three times. A number inside a prose sentence does not count, and a
+    # wrong number is worse than none -- one coupled run that was right in
+    # every other respect reported NDOF = 1 at all three levels, and its
+    # refined mesh could not be told from an unrefined one.
+    try:
+        print(f"\nNDOF = {int(len(mp.Nodes))}")
+    except Exception as _ndof_exc:
+        print(f"[kratos] could not report NDOF: {_ndof_exc!r}. Your task's"
+              f" execution log needs `NDOF = <integer>` on a line of its own,"
+              f" so print your own degree-of-freedom count here.")
+
     # PER-LEVEL PERSISTENCE: this level's field and interface data, named by
     # LEVEL; exports.json is overwritten by the next level, these are not.
-    with open(f"field_level{LEVEL}.csv", "w") as _f:
-        _f.write("x,y,u\n")
-        for n in mp.Nodes:
-            _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(n.GetSolutionStepValue(KM.TEMPERATURE)):.11e}\n")
-    with open(f"interface_level{LEVEL}.csv", "w") as _f:
-        _f.write("x,y,u,qn\n")
-        for y, t, q in zip(y_if, T_if, q_out):
-            _f.write(f"{float(X1):.11e},{float(y):.11e},{float(t):.11e},{float(q):.11e}\n")
+    # Interpolate THESE onto the probe points your task names. A file the next
+    # level overwrites cannot carry a mesh study.
+    # A DUMP DEFECT MUST NOT COST YOU THE SOLVE. exports.json is the driver's
+    # proof that this participant succeeded, and it is written after these files,
+    # so an exception here would throw away a coupling iteration that worked.
+    try:
+        with open(f"field_level{LEVEL}.csv", "w") as _f:
+            _f.write("x,y,u\n")
+            for n in mp.Nodes:
+                _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(n.GetSolutionStepValue(KM.TEMPERATURE)):.11e}\n")
+        with open(f"interface_level{LEVEL}.csv", "w") as _f:
+            _f.write("x,y,u,qn\n")
+            for y, t, q in zip(y_if, T_if, q_out):
+                _f.write(f"{float(X1):.11e},{float(y):.11e},{float(t):.11e},{float(q):.11e}\n")
+    except Exception as _dump_exc:
+        # AND LEAVE NO HALF-WRITTEN FILE BEHIND. `open(..., "w")` truncates
+        # before it fails, so a dump that died mid-way leaves a header-only
+        # CSV -- a file that looks like a submission and carries no rows.
+        for _partial in (f"field_level{LEVEL}.csv", f"interface_level{LEVEL}.csv"):
+            try:
+                if Path(_partial).is_file() and len(
+                        Path(_partial).read_text().splitlines()) <= 1:
+                    Path(_partial).unlink()
+            except OSError:
+                pass
+        print(f"[kratos per-level dump] level {LEVEL} dump failed: "
+              f"{_dump_exc!r}. exports.json is still written, so the coupling\n"
+              f"continues, but this level has no field file to hand in. Fix the\n"
+              f"names the dump reads and run this level again.")
     Path("exports.json").write_text(json.dumps({
         "field_name": "temperature",
         "n_points": len(T_if),

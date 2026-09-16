@@ -41,16 +41,27 @@ the coupling effect; only a monolithic or native TSI comparison sees that.
 UNITS: SI throughout (m, s, K, Pa, W/(m K), J/(m^3 K)). `RHO_C` is the
 VOLUMETRIC heat capacity rho*c, not the specific one.
 """
+import ngsolve
 import json
 from pathlib import Path
 
 import numpy as np
+# MAKE THIS CODE SPEAK, BEFORE THE SOLVE RUNS. It is silent by default, and a
+# per-level run log carrying no line the solver itself emitted cannot
+# establish which code ran on this side, however right its numbers are.
+# It sits HERE, beside the level rule, and not up with the imports:
+# measured over agent-written participants, a line placed in the import
+# block survived in about half of them because that block gets rewritten,
+# while everything beside the level rule survived in all of them.
+ngsolve.ngsglobals.msg_level = 3
+
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 from netgen.geom2d import SplineGeometry
 from ngsolve import (VERTEX, BilinearForm, CoefficientFunction, GridFunction,
                      H1, LinearForm, Mesh, NodeId, TaskManager, dx, grad)
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
+
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
 #    Replace ALL of them with your problem's geometry, material and BCs.
@@ -158,6 +169,21 @@ sol = np.array([gfu.vec[int(d)] for d in vdof], float)
 print(f"[ngsolve thermal] n={len(sol)} coupling={COUPLING} "
       f"e_in=[{evol_nodal.min():.6e},{evol_nodal.max():.6e}] "
       f"T=[{sol.min():.6f},{sol.max():.6f}]")
+
+# ── EXPORT SELF-CHECK ─ keep this block. An export that is not finite is
+#    worthless however well the iteration behaved, and a field that came out
+#    identically zero still couples, still converges and still hands in tidy
+#    levels. A zero temperature change is what a thermal side reports when its source never arrived.
+_chk_vals = np.asarray([t - T_REF for t in sol], float).ravel()
+if not np.isfinite(_chk_vals).all():
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values; the "
+                     "solve did not produce a usable field, so nothing was "
+                     "exported")
+if _chk_vals.size and np.abs(_chk_vals).max() == 0.0:
+    raise SystemExit("EXPORT SELF-CHECK: every exported interface value is "
+                     "exactly zero. That is the no-response answer, not a "
+                     "solve: the partner's data never reached the assembled "
+                     "system. Fix the application; do not couple on")
 
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature_change",

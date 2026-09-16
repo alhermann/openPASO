@@ -325,6 +325,7 @@ Steklov-Poincare operators) are the well-behaved case; anything else wants
 `accelerator="aitken"`.
 """
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -403,9 +404,26 @@ TOL = 1e-9 * max(X1 - X0, Y1 - Y0)
 
 DECK = "cpl.feb"
 LOG_U = "cpl_u.csv"        # ux, uy at the interface nodes
+LOG_F = "nodal_out.csv"   # x;y;z;ux;uy;uz over the WHOLE mesh -- the
+                          # per-level field dump below reads it
 LOG_R = "cpl_r.csv"        # Rx, Ry at the interface nodes (Dirichlet side only)
 LOG_E = "cpl_e.csv"        # sx, sxy per element (Neumann side only)
 
+
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides the mesh knobs and names the level. The dumps
+#    at the foot of this file carry that level in their NAME, so a mesh study
+#    leaves one file per level instead of the fine mesh overwriting the coarse.
+LEVEL = 1
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
 
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 def _n(v):
@@ -970,7 +988,113 @@ print(f"[febio {SIDE}] interface n={len(U)} "
       f"tx=[{Q[:,0].min():.6g},{Q[:,0].max():.6g}] "
       f"ty=[{Q[:,1].min():.6g},{Q[:,1].max():.6g}]")
 
+# PER-LEVEL PERSISTENCE: this level's interface trace and traction, and -- when
+# the deck logged the whole mesh -- this level's field, named by LEVEL.
+# exports.json is overwritten by the next level; these files are not.
+# Interpolate THESE onto the probe points your task names. A file the next
+# level overwrites cannot carry a mesh study.
+# A DUMP DEFECT MUST NOT COST YOU THE SOLVE. exports.json is the driver's
+# proof that this participant succeeded, and it is written after these files,
+# so an exception here would throw away a coupling iteration that worked.
+try:
+    with open(f"interface_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,ux,uy,qx,qy\n")
+        for _yy, (_ux, _uy), (_qx, _qy) in zip(y_if, U, Q):
+            _px, _py = ((float(IFACE_X), float(_yy)) if AX == 0
+                        else (float(_yy), float(IFACE_X)))
+            _f.write(f"{_px:.11e},{_py:.11e},{float(_ux):.11e},"
+                     f"{float(_uy):.11e},{float(_qx):.11e},{float(_qy):.11e}\n")
+    # FEBio is XML-in / logfile-out, so the FIELD comes from the deck's own whole-mesh
+    # node log -- <node_data data="x;y;z;ux;uy;uz" delim="," file="nodal_out.csv"/>
+    # with NO node_set, inside <Output><logfile>. Without that one line there is no
+    # field to hand in, whatever the solve did. This slab is one element thick in z,
+    # so the two z-layers of a node average to its plane value.
+    if Path(LOG_F).is_file():
+        _acc = {}
+        _body = Path(LOG_F).read_text().split("*Step")[-1]
+        for _ln in _body.splitlines():
+            _c = _ln.strip().split(",")
+            if len(_c) < 7 or _ln.strip().startswith("*"):
+                continue
+            try:
+                _v = [float(_t) for _t in _c[1:7]]
+            except ValueError:
+                continue
+            _k = (round(_v[0], 12), round(_v[1], 12))
+            _a = _acc.setdefault(_k, [0.0, 0.0, 0])
+            _a[0] += _v[3]; _a[1] += _v[4]; _a[2] += 1
+        with open(f"field_level{LEVEL}.csv", "w") as _f:
+            _f.write("x,y,ux,uy\n")
+            for (_px, _py), (_sx, _sy, _n) in sorted(_acc.items()):
+                _f.write(f"{_px:.11e},{_py:.11e},{_sx / _n:.11e},{_sy / _n:.11e}\n")
+        print(f"[febio {SIDE}] field_level{LEVEL}.csv: {len(_acc)} in-plane nodes")
+    else:
+        print(f"[febio {SIDE}] NO {LOG_F}: the deck logged only the interface, so "
+              f"this level has no field to hand in. Add <node_data "
+              f'data="x;y;z;ux;uy;uz" delim="," file="{LOG_F}"/> (no node_set) '
+              f"inside <Output><logfile> and run this level again.")
+except Exception as _dump_exc:
+    # AND LEAVE NO HALF-WRITTEN FILE BEHIND. `open(..., "w")` truncates
+    # before it fails, so a dump that died mid-way leaves a header-only
+    # CSV -- a file that looks like a submission and carries no rows.
+    for _partial in (f"field_level{LEVEL}.csv", f"interface_level{LEVEL}.csv"):
+        try:
+            if Path(_partial).is_file() and len(
+                    Path(_partial).read_text().splitlines()) <= 1:
+                Path(_partial).unlink()
+        except OSError:
+            pass
+    print(f"[febio_elastic per-level dump] level {LEVEL} dump failed: "
+          f"{_dump_exc!r}. exports.json is still written, so the coupling\n"
+          f"continues, but this level has no field file to hand in. Fix the\n"
+          f"names the dump reads and run this level again.")
+
 # exports.json LAST: the driver takes its existence as proof of success.
+# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its OWN, printed
+# PER LEVEL -- it is how a grader tells a refined mesh from the same mesh run
+# three times. Two displacement dofs per in-plane node, counted from the
+# whole-mesh node log the field dump above read; without that log this script
+# cannot count them, and says so rather than printing a number it guessed. The
+# leading newline is deliberate: a program that writes without a trailing
+# newline glues its text onto the front of the next line.
+try:
+    print(f"\nNDOF = {2 * len(_acc)}")
+except NameError:
+    print(f"[febio {SIDE}] cannot report NDOF: the deck logged no whole-mesh "
+          f"node data, so there is no node count to report. Your task's "
+          f"execution log needs `NDOF = <integer>` on a line of its own.")
+
+# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+#    fine and are worthless: a non-finite field; a Neumann side whose imported
+#    load never entered the assembled system (it returns the no-load answer and
+#    a traction of ~0 against a nonzero partner); and a traction that is the
+#    partner's array negated instead of a recovery from THIS side's own system.
+_chk_vals = np.asarray(U, float).ravel()
+_chk_flux = np.asarray(Q, float).ravel()
+if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or "
+                     "tractions; the solve did not produce a usable field, so "
+                     "nothing was exported")
+_chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+            if Path("imports.json").is_file() else {})
+_chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                            for _d in _chk_imp.values()])
+            if _chk_imp else np.zeros(0))
+if SIDE == "neumann" and _chk_qin.size and np.abs(_chk_qin).max() > 0 \
+        and np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max():
+    raise SystemExit("EXPORT SELF-CHECK: the recovered interface traction is ~0 "
+                     "against a nonzero imported traction: the imported load "
+                     "never entered the assembled system (the facet term / "
+                     "boundary condition that integrates it is missing). Fix "
+                     "the application; do not couple on")
+# (Dirichlet role only: a Neumann side's consistent recovery of a CONSTANT
+#  applied load can legitimately reproduce it to the last bit.)
+if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size \
+        and np.array_equal(_chk_flux, -_chk_qin):
+    raise SystemExit("EXPORT SELF-CHECK: the exported traction is the partner's "
+                     "array negated, bit for bit: a copy, not a recovery from "
+                     "this side's own assembled system")
+
 Path("exports.json").write_text(json.dumps({
     "field_name": "displacement",
     "n_points": int(len(y_if)),

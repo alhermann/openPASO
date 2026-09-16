@@ -452,6 +452,46 @@ def main():
     # that is right.
     t_applied = np.column_stack([eval_expr(exprs[0], ux), eval_expr(exprs[1], ux)])
 
+    # THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its OWN, printed
+    # PER LEVEL. It is how a grader tells a refined mesh from the same mesh run
+    # three times. The LEADING NEWLINE is deliberate: a program that writes without
+    # a trailing newline glues its text onto the front of the next line.
+    try:
+        print(f"\nNDOF = {int(2 * len(ux))}")
+    except Exception as _ndof_exc:
+        print(f"[fsi-solid] could not report NDOF: {_ndof_exc!r}. Your task's execution"
+              f" log needs `NDOF = <integer>` on a line of its own, so print your"
+              f" own degree-of-freedom count here.")
+
+    # ── EXPORT SELF-CHECK ─ keep this block. TWO of the three checks, and the
+    #    third DELIBERATELY LEFT OUT. A non-finite export is worthless, and so
+    #    is a structure that returns ~0 displacement while the fluid handed it a
+    #    real traction: that is the load never having entered the assembled
+    #    system, and it still couples, still converges and still hands in tidy
+    #    levels. The "exported flux is the partner's array negated" check that
+    #    the scalar contracts carry does NOT belong here: in FSI the two sides'
+    #    tractions are anti-parallel BY CONVENTION and must sum to zero, so that
+    #    check would fault a correct export.
+    _chk_d = np.asarray(D, float).ravel()
+    _chk_t = np.asarray(t_applied, float).ravel()
+    if not (np.isfinite(_chk_d).all() and np.isfinite(_chk_t).all()):
+        raise SystemExit("EXPORT SELF-CHECK: non-finite interface displacement "
+                         "or traction; the solve did not produce a usable "
+                         "field, so nothing was exported")
+    _chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+                if Path("imports.json").is_file() else {})
+    _chk_tin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                                for _d in _chk_imp.values()])
+                if _chk_imp else np.zeros(0))
+    if _chk_tin.size and np.abs(_chk_tin).max() > 0 \
+            and np.abs(_chk_d).max() < 1e-12 * np.abs(_chk_tin).max():
+        raise SystemExit("EXPORT SELF-CHECK: the structure returns a ~0 "
+                         "displacement against a nonzero imported traction: "
+                         "the fluid load never entered the assembled system "
+                         "(the Neumann condition that applies it is missing or "
+                         "on the wrong surface). Fix the application; do not "
+                         "couple on")
+
     out = {
         "field_name": "interface_displacement",
         "n_points": int(len(ux)),

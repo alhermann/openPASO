@@ -32,10 +32,20 @@ one for that reason alone.
 UNITS: SI throughout (m, K, Pa). PLANE STRAIN, so lambda and mu are the 3-D
 Lame constants and eps_zz = 0.
 """
+import dolfinx
 import json
 from pathlib import Path
 
 import numpy as np
+# MAKE THIS CODE SPEAK, BEFORE THE SOLVE RUNS. It is silent by default, and a
+# per-level run log carrying no line the solver itself emitted cannot
+# establish which code ran on this side, however right its numbers are.
+# It sits HERE, beside the level rule, and not up with the imports:
+# measured over agent-written participants, a line placed in the import
+# block survived in about half of them because that block gets rewritten,
+# while everything beside the level rule survived in all of them.
+dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO)
+
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 import ufl
 from dolfinx import default_scalar_type, fem, mesh as dmesh
@@ -43,6 +53,7 @@ from dolfinx.fem.petsc import LinearProblem
 from mpi4py import MPI
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
+
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
 #    Replace ALL of them with your problem's geometry, material and BCs.
@@ -143,6 +154,21 @@ print(f"[fenics mech] n={len(evol)} "
       f"theta_in=[{theta.x.array.min():.6f},{theta.x.array.max():.6f}] "
       f"ux=[{ux.min():.6e},{ux.max():.6e}] "
       f"e=[{evol.min():.6e},{evol.max():.6e}]")
+
+# ── EXPORT SELF-CHECK ─ keep this block. An export that is not finite is
+#    worthless however well the iteration behaved, and a field that came out
+#    identically zero still couples, still converges and still hands in tidy
+#    levels. A zero volumetric strain is what a mechanical side reports when the thermal load never arrived.
+_chk_vals = np.asarray(evol, float).ravel()
+if not np.isfinite(_chk_vals).all():
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values; the "
+                     "solve did not produce a usable field, so nothing was "
+                     "exported")
+if _chk_vals.size and np.abs(_chk_vals).max() == 0.0:
+    raise SystemExit("EXPORT SELF-CHECK: every exported interface value is "
+                     "exactly zero. That is the no-response answer, not a "
+                     "solve: the partner's data never reached the assembled "
+                     "system. Fix the application; do not couple on")
 
 Path("exports.json").write_text(json.dumps({
     "field_name": "volumetric_strain",

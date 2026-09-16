@@ -108,6 +108,7 @@ grids is accurate, not conservative.  If you need it at round-off, match the
 interface meshes.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -135,6 +136,24 @@ IFACE_POS  = 0.5             # its position; must equal this box's lo or hi on t
 
 K          = 3.2             # conductivity of THIS subdomain (constant)
 NX, NY, NZ = 8, 8, 8         # this subdomain's OWN mesh; need NOT match the partner
+
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..,
+#    "nz": ..} next to this script overrides the mesh knobs and names the level.
+#    The dumps beside exports.json carry that level in their NAME, so a mesh
+#    study leaves one file per level instead of the fine mesh overwriting the
+#    coarse ones.
+LEVEL = 1
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+        NZ = int(_cfg.get("nz", NZ))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
 
 # Which outer faces carry a Dirichlet condition.  Names are "<axis><0|1>" with
 # 0 = the low face and 1 = the high face, e.g. "x1" is the plane x = X1.  Every
@@ -652,6 +671,87 @@ def main():
     print(f"[dune3d {SIDE}] interface n={len(iface_dofs)} area={w.sum():.6g} "
           f"edge_dofs={int(edge.sum())} T=[{T.min():.6g},{T.max():.6g}] "
           f"q=[{Q.min():.6g},{Q.max():.6g}] {bal}")
+
+    # THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its OWN.
+    # The audit and the hand-in read that exact shape, and they read it PER
+    # LEVEL: it is how a grader tells a refined mesh from the same mesh run
+    # three times. A number inside a prose sentence does not count, and a
+    # wrong number is worse than none -- one coupled run that was right in
+    # every other respect reported NDOF = 1 at all three levels, and its
+    # refined mesh could not be told from an unrefined one.
+    try:
+        print(f"\nNDOF = {int(len(np.array(uh.as_numpy)))}")
+    except Exception as _ndof_exc:
+        print(f"[dune3d] could not report NDOF: {_ndof_exc!r}. Your task's"
+              f" execution log needs `NDOF = <integer>` on a line of its own,"
+              f" so print your own degree-of-freedom count here.")
+
+    # PER-LEVEL PERSISTENCE: this level's whole field, and its interface trace
+    # and flux, named by LEVEL. exports.json is overwritten by the next level;
+    # these files are not. Interpolate THESE onto the probe points your task
+    # names -- never a file the next level overwrites.
+    # A DUMP DEFECT MUST NOT COST YOU THE SOLVE. exports.json is the driver's
+    # proof that this participant succeeded, and it is written after these files,
+    # so an exception here would throw away a coupling iteration that worked.
+    try:
+        _uh = np.array(uh.as_numpy)
+        with open(f"field_level{LEVEL}.csv", "w") as _f:
+            _f.write("x,y,z,u\n")
+            for _i in range(len(_uh)):
+                _f.write(f"{float(xd[0][_i]):.11e},{float(xd[1][_i]):.11e},"
+                         f"{float(xd[2][_i]):.11e},{float(_uh[_i]):.11e}\n")
+        with open(f"interface_level{LEVEL}.csv", "w") as _f:
+            _f.write("x,y,z,u,qn\n")
+            for _p, _t, _q in zip(pts3, T, Q):
+                _f.write(f"{float(_p[0]):.11e},{float(_p[1]):.11e},{float(_p[2]):.11e},"
+                         f"{float(_t):.11e},{float(_q):.11e}\n")
+    except Exception as _dump_exc:
+        # AND LEAVE NO HALF-WRITTEN FILE BEHIND. `open(..., "w")` truncates
+        # before it fails, so a dump that died mid-way leaves a header-only
+        # CSV -- a file that looks like a submission and carries no rows.
+        for _partial in (f"field_level{LEVEL}.csv", f"interface_level{LEVEL}.csv"):
+            try:
+                if Path(_partial).is_file() and len(
+                        Path(_partial).read_text().splitlines()) <= 1:
+                    Path(_partial).unlink()
+            except OSError:
+                pass
+        print(f"[dune_ per-level dump] level {LEVEL} dump failed: "
+              f"{_dump_exc!r}. exports.json is still written, so the coupling\n"
+              f"continues, but this level has no field file to hand in. Fix the\n"
+              f"names the dump reads and run this level again.")
+    # ── EXPORT SELF-CHECK ─ keep this block, and note it is NOT the conservation
+    #    check above. That one tests the discrete divergence theorem, and it says
+    #    so itself when there is no source and no applied load: the identity
+    #    reads 0 = 0 and proves nothing. So it passes exactly the case this
+    #    catches -- a Neumann side whose imported load never entered the
+    #    assembled system, which returns the no-load answer and a flux of ~0
+    #    against a nonzero partner. Also a non-finite field, and a flux that is
+    #    the partner's array negated rather than recovered from this side's own
+    #    system.
+    _chk_vals = np.asarray(T, float).ravel()
+    _chk_flux = np.asarray(Q, float).ravel()
+    if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
+        raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or "
+                         "fluxes; the solve did not produce a usable field, so "
+                         "nothing was exported")
+    _chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+                if Path("imports.json").is_file() else {})
+    _chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                                for _d in _chk_imp.values()])
+                if _chk_imp else np.zeros(0))
+    if SIDE == "neumann" and _chk_qin.size and np.abs(_chk_qin).max() > 0 \
+            and np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max():
+        raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 "
+                         "against a nonzero imported flux: the imported load "
+                         "never entered the assembled system (the facet term / "
+                         "boundary condition that integrates it is missing). "
+                         "Fix the application; do not couple on")
+    if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size \
+            and np.array_equal(_chk_flux, -_chk_qin):
+        raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's "
+                         "array negated, bit for bit: a copy, not a recovery "
+                         "from this side's own assembled system")
 
     # exports.json LAST: the driver takes its existence as proof of success.
     Path("exports.json").write_text(json.dumps({

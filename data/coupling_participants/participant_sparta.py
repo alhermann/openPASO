@@ -238,12 +238,41 @@ if r.returncode != 0 or not Path(FLUX_OUT).is_file():
                      f"{(r.stderr or '')[-800:]}\n")
     sys.exit(1)
 
+# PASS THE SOLVER'S OWN CONSOLE THROUGH. capture_output keeps SPARTA's banner,
+# its step table and its particle counts out of this script's stdout, and the
+# per-level run log your task asks for is exactly that console -- a log carrying
+# only this wrapper's prose cannot establish which code ran on this side.
+if r.stdout:
+    print(r.stdout, end="")
+if r.stderr:
+    sys.stderr.write(r.stderr)
+# THE RUN-LOG CONTRACT LINE, in this code's own currency. A DSMC cell refines by
+# PARTICLE COUNT on a fixed grid, not by adding cells, so the `NDOF = <integer>`
+# line the log contract asks for carries the particle count -- SPARTA reports it
+# in the console above, and it is the number that grows between your levels.
+# Print it on a line of its own from whatever your deck actually ran.
+
 a = parse_dump(FLUX_OUT, n_elem)
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
 cx = 0.5 * (a[:, 1] + a[:, 3])
 cy = 0.5 * (a[:, 2] + a[:, 4])
 q_out = a[:, 5]          # etot: net energy flux INTO the wall = OUT of the gas
 t_used = a[:, 6]
+
+# ── EXPORT SELF-CHECK ─ keep this block. An export that is not finite is
+#    worthless however well the iteration behaved, and a field that came out
+#    identically zero still couples, still converges and still hands in tidy
+#    levels. The DSMC tally is the load the solid sees.
+_chk_vals = np.asarray(q_out, float).ravel()
+if not np.isfinite(_chk_vals).all():
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values; the "
+                     "solve did not produce a usable field, so nothing was "
+                     "exported")
+if _chk_vals.size and np.abs(_chk_vals).max() == 0.0:
+    raise SystemExit("EXPORT SELF-CHECK: every exported interface value is "
+                     "exactly zero. That is the no-response answer, not a "
+                     "solve: the partner's data never reached the assembled "
+                     "system. Fix the application; do not couple on")
 
 Path("exports.json").write_text(json.dumps({
     "field_name": "wall_temperature",

@@ -615,6 +615,19 @@ TEN RULES THAT APPLY WHATEVER YOU ASKED FOR
     NODE: nearest-node caps the measured order at 1 whatever the solver did.
     It is post-processing -- re-read the field, do not re-solve.
 
+    AND TEST THE INTERPOLATOR YOU JUST WROTE, AT A FEW MESH NODES. Hand it a
+    node's own coordinates and require its own value back. A hand-written
+    bilinear map with the two off-diagonal corners transposed -- the row/column
+    slip you make when the field is stored as grid[j, i] and the corners as a
+    2x2 -- is the common way this goes wrong, and it is silent: the answer
+    stays smooth and plausible. Measured on a 12x20 grid: the transposed map
+    returned 1.25e-02 of error where the correct one returned 2.07e-04, sixty
+    times worse and enough to destroy the order you are about to claim.
+    Checking at ELEMENT CENTRES does not catch it -- there the two swapped
+    corners carry equal weight and the error cancels to 1e-15 -- and a linear
+    test field does not catch it at the centres either. At the NODES the same
+    bug is off by 3.5e-01. So probe the nodes, not the centres.
+
 BEFORE YOU HAND IN, RUN `audit_results(work_dir=<your results directory>,
 claimed_order=<the order you are about to claim>)` and act on what it names;
 it reads only your own files.

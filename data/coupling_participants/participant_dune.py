@@ -270,6 +270,22 @@ if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size 
                      "array negated, bit for bit: a copy, not a recovery from "
                      "this side's own assembled system")
 
+# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its OWN, printed
+# PER LEVEL. It is how a grader tells a refined mesh from the same mesh run
+# three times, and a number inside a prose sentence does not count. The
+# LEADING NEWLINE is deliberate: a program that writes to the terminal
+# without a trailing newline glues its text onto the front of the next
+# line, and an X11 warning has done exactly that here, turning a correct
+# line into 'Invalid MIT-MAGIC-COOKIE-1 keyNDOF = 54'. Do not add a
+# second one in front of the captured log: the FIRST such line in the file wins,
+# so a hand-written one overrides this real count.
+try:
+    print(f"\nNDOF = {int(len(np.array(uh.as_numpy)))}")
+except Exception as _ndof_exc:
+    print(f"[dune] could not report NDOF: {_ndof_exc!r}. Your task's execution"
+          f" log needs `NDOF = <integer>` on a line of its own, so print your"
+          f" own degree-of-freedom count here.")
+
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",
     "n_points": int(len(iface_dofs)),

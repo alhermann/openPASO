@@ -52,41 +52,25 @@ NUMBERS = ("0.02514662", "0.9886363636", "1.2229e-02",
            "1.115344e+00", "2.36e-16")
 
 
-def _reachable(topic="physics", solver="ngsolve", physics="stokes") -> str:
-    """Everything the agent can actually get, on the documented path.
-
-    The physics reply used to carry the long universal block whole. It was then
-    deliberately cut -- 34,814 characters to 12,624 -- and the long form moved
-    behind an explicit request, with the short reply's closing line telling the
-    agent to ask `knowledge(topic="universal_full")` for the rest. Reading only
-    the first reply therefore reports every trap as unserved, when what changed
-    is where they are served from.
-
-    So this is the pair: the short reply must OFFER the path, and the path must
-    DELIVER. That is the contract the code states in its own words -- "a promise
-    made in the payload and not kept" is the defect it guards against -- and it
-    is a stricter thing to assert than one payload containing everything.
-    """
-    short = _served(topic, solver, physics)
-    assert "universal_full" in short, (
-        "the first physics reply no longer tells the agent how to reach the "
-        "long form, so the traps below are unreachable in practice")
-    return short + "\n" + _served("universal_full", "", "")
+# THE TRAPS MOVED BEHIND A NAMED DOOR, AND THE TEST HAD TO FOLLOW.
+#
+# They used to be pasted into every reply. The long form is 25k characters, and
+# reading it costs the actions an agent needs to solve the problem, so the short
+# core now rides on every reply and its closing line names the call that returns
+# the rest: knowledge(topic='universal_full'). That is a PROMISE, and the defect
+# this file guards against is a promise the payload does not keep -- exactly the
+# shape recorded for 'postmortems' and for 'universal_full' itself, which once
+# returned the usage hint instead of the rules.
+#
+# So the invariant is now two-part, and it is stronger than the old one:
+#   1. the door returns every measurement, and
+#   2. the reply an agent actually receives NAMES that door.
+# Asserted on the coupling reply as well, because that is the payload the
+# coupled campaign serves.
 
 
-def _served(topic="physics", solver="ngsolve", physics="stokes") -> str:
-    # LOAD THE BACKENDS FIRST, OR THIS MEASURES AN EMPTY REGISTRY.
-    #
-    # Without this the reply is "Unknown solver: ngsolve" and every assertion
-    # below fails, saying the traps are not served when they are. It passed
-    # only when some earlier test in the same process had happened to load the
-    # registry, so the result depended on what ran before it -- and in a run
-    # where this file came first, it reported a documentation failure that did
-    # not exist.
-    from core.registry import load_all_backends
+def _served(topic="universal_full", solver="", physics="") -> str:
     from tools.consolidated import register_consolidated_tools
-
-    load_all_backends()
 
     class Cap:
         def __init__(self):
@@ -101,7 +85,8 @@ def _served(topic="physics", solver="ngsolve", physics="stokes") -> str:
     cap = Cap()
     register_consolidated_tools(cap)
     fn = cap.fns["knowledge"]
-    out = fn(topic, solver=solver, physics=physics)
+    kw = {k: v for k, v in (("solver", solver), ("physics", physics)) if v}
+    out = fn(topic, **kw)
     if inspect.isawaitable(out):
         out = asyncio.new_event_loop().run_until_complete(out)
     return out if isinstance(out, str) else str(out)
@@ -110,7 +95,7 @@ def _served(topic="physics", solver="ngsolve", physics="stokes") -> str:
 def test_every_measurement_reaches_the_agent():
     """Asserted on the SERVED payload, because a fact in the source that the
     payload drops is the failure this repo has recorded twelve times."""
-    text = _reachable()
+    text = _served()
     missing = [n for n in NUMBERS if n not in text]
     assert not missing, (
         f"these measurements are absent from the payload an agent receives, "
@@ -119,7 +104,7 @@ def test_every_measurement_reaches_the_agent():
 
 
 def test_the_mechanism_is_named_not_just_the_number():
-    text = _reachable()
+    text = _served()
     for phrase in ("rebinds the symbolic coordinates",
                    "DOES NOT RAISE",
                    "initial guess",
@@ -130,7 +115,7 @@ def test_the_mechanism_is_named_not_just_the_number():
 
 def test_the_agent_is_told_what_to_GATE_on():
     """Knowing the trap is not the same as being told the check."""
-    text = _reachable()
+    text = _served()
     assert "GATE ON THREE THINGS" in text
     for check in ("converged", "peak|u| > 0", "three separated points",
                   "log2("):
@@ -160,3 +145,19 @@ def test_the_coordinate_rebinding_is_real_on_this_install():
     # and the silent acceptance that hides it
     assert type(CoefficientFunction((after, after))).__name__ \
         == "CoefficientFunction"
+
+
+def test_the_reply_an_agent_receives_names_the_door(): 
+    """A measurement served behind a door nobody is told about is not served."""
+    from tools.knowledge import _UNIVERSAL_CORE
+    assert "universal_full" in _UNIVERSAL_CORE, (
+        "the short core no longer names the call that returns the long form, "
+        "so the traps are unreachable from a normal reply")
+    for kw in ({"topic": "physics", "solver": "ngsolve", "physics": "stokes"},
+               {"topic": "coupling", "solver": "ngsolve"},
+               {"topic": "coupling", "solver": "dune"},
+               {"topic": "coupling", "solver": "kratos"}):
+        out = _served(**kw)
+        assert "universal_full" in out, (
+            f"knowledge({kw}) does not name knowledge(topic='universal_full'), "
+            f"so an agent reading it never learns the traps exist")

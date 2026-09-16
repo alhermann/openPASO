@@ -2288,14 +2288,14 @@ _DECIDING_FACTS = {
         # thermo-mechanical coupled walk (4C 2026.2.0-dev, 89519cfe76).
         "\n12. STEADY THERMO-MECHANICS IN ONE 4C RUN: PROBLEMTYPE Thermo_Structure_Interaction with COUPALGO tsi_oneway, Statics in both STRUCTURAL DYNAMIC and THERMAL DYNAMIC, material MAT_Struct_ThermoStVenantK (stress C:(eps - alpha*(T-T0)*I), i.e. sigma_el - beta*T*I with beta=(3*lambda+2*mu)*alpha and T0 from INITTEMP) plus a CLONING MATERIAL MAP entry pairing it with a MAT_Fourier thermal material. A 2D plane-strain problem runs as a ONE-ELEMENT-THICK SOLIDSCATRA HEX8 slab with u_z=0 pinned on BOTH z-layers (per-node POINT DIRICH) -- that is exact plane strain, not an approximation. Thermal body sources go in as DESIGN VOL THERMO NEUMANN conditions. 4C's VTU carries NO mechanical reaction forces, but its DIRICHLET MONITOR does: `TAG: monitor_reaction` on each interface DESIGN POINT DIRICH entry plus an `IO/MONITOR STRUCTURE DBC` section (INTERVAL_STEPS 1, FILE_TYPE yaml, WRITE_CONDITION_INFORMATION true) writes <out>-<id>_monitor_dbc.yaml per condition with the node gid (ZERO-based: gid 17 is the deck's NODE 18) and the reaction f. At an interior interface node of the slab (f_layer0 + f_layer1)/(h*t_z) IS the traction in the flux convention -(sigma.n_out): measured 1.45e-2, 3.6e-3, 9.0e-4 relative at h = 1/10, 1/20, 1/40 against a manufactured thermo-elastic solution (order 2.0). Thermal DIRICH entries write no reaction file, so the consistent heat flux comes from a Scalar_Transport run with CALCFLUX_BOUNDARY on the same 2-D mesh; knowledge(topic='coupling', solver='fourc', physics='thermoelastic') serves the two-run contract's handshake and recovery; the decks are yours."
         '\n13. WHERE 4C EVALUATES A FUNCT LOAD DIFFERS BY PROBLEM TYPE, and the difference is O(h^2) in the solution: scatra SURF NEUMANN with a FUNCT source assembles the INTERPOLATED load M*f(nodes) (matches that discrete system to 1.7e-15); TSI VOL THERMO NEUMANN evaluates f at the 2x2 GAUSS POINTS (matches to ~1e-15). The two discrete solutions differ by 1.4e-2 at h=1/8, shrinking O(h^2). Consequence: a CALCFLUX boundary flux is the exact reaction of ITS OWN discrete system; compare it only against a re-assembly using the SAME load rule, or the mismatch (5.3e-2 at h=1/8 here) reads as a recovery bug that is not there.'
-        "\n14. FIRST-ATTEMPT DECK TRAPS MEASURED ON TWELVE WORKER DECKS (2026-09-11), each one stops 4C in its input reader: (a) ONE topology section per kind -- every DNODE/DLINE/DSURF/DVOL entry of the deck goes into the single `DNODE-NODE TOPOLOGY` (etc.) section; a second section of the same name is 'defined more than once'; (b) the consistent heat flux comes from PROBLEMTYPE Scalar_Transport (SCALAR TRANSPORT DYNAMIC with CALCFLUX_BOUNDARY \"diffusive\" and a SCATRA FLUX CALC LINE CONDITIONS entry), never PROBLEMTYPE Thermo, which knows no CALCFLUX_BOUNDARY; (c) runtime output sections are exactly `IO/RUNTIME VTK OUTPUT`, `IO/RUNTIME VTK OUTPUT/STRUCTURE` and `THERMAL DYNAMIC/RUNTIME VTK OUTPUT` -- there is no .../SCATRA or .../THERMO variant (the scatra VTU comes from the plain section); (d) SOLIDSCATRA, WALL, SOLID are ELEMENT TYPES on the lines of `STRUCTURE ELEMENTS`, TRANSP of `TRANSPORT ELEMENTS`; a section named after the element type does not exist; (e) MAT_Struct_ThermoStVenantK takes YOUNGNUM 1 and YOUNG as a LIST ([E]), NUE, DENS, THEXPANS, INITTEMP and THERMOMAT <id of the MAT_Fourier>; (f) a temperature value belongs in the `... THERMO DIRICH CONDITIONS` family (NUMDOF 1); the plain `DESIGN POINT/LINE/SURF DIRICH CONDITIONS` family carries the 3 displacement dofs (NUMDOF 3); (g) 2-D element nodes run counter-clockwise: for node id = i + 1 + (NX + 1) j the quad of cell (i, j) is (id, id+1, id+NX+2, id+NX+1) -- a twisted quad has zero area and 4C says only 'determinant ... zero or negative'. check_input(solver='fourc', input_path=<deck>) names every one of these before the binary runs."
+        "\n14. FIRST-ATTEMPT DECK TRAPS MEASURED ON TWELVE WORKER DECKS (2026-09-11), each one stops 4C in its input reader: (a) ONE topology section per kind -- every DNODE/DLINE/DSURF/DVOL entry of the deck goes into the single `DNODE-NODE TOPOLOGY` (etc.) section; a second section of the same name is 'defined more than once'; (b) the consistent heat flux comes from PROBLEMTYPE Scalar_Transport (SCALAR TRANSPORT DYNAMIC with CALCFLUX_BOUNDARY \"diffusive\" and a SCATRA FLUX CALC LINE CONDITIONS entry), never PROBLEMTYPE Thermo, which knows no CALCFLUX_BOUNDARY; (c) runtime output sections are exactly `IO/RUNTIME VTK OUTPUT`, `IO/RUNTIME VTK OUTPUT/STRUCTURE` and `THERMAL DYNAMIC/RUNTIME VTK OUTPUT` -- there is no .../SCATRA or .../THERMO variant (the scatra VTU comes from the plain section); (d) SOLIDSCATRA, WALL, SOLID are ELEMENT TYPES on the lines of `STRUCTURE ELEMENTS`, TRANSP of `TRANSPORT ELEMENTS`; a section named after the element type does not exist; (e) MAT_Struct_ThermoStVenantK takes YOUNGNUM 1 and YOUNG as a LIST ([E]), NUE, DENS, THEXPANS, INITTEMP and THERMOMAT <id of the MAT_Fourier>; (f) a temperature value belongs in the `... THERMO DIRICH CONDITIONS` family (NUMDOF 1); the plain `DESIGN POINT/LINE/SURF DIRICH CONDITIONS` family carries the 3 displacement dofs (NUMDOF 3); (g) 2-D element nodes run counter-clockwise: for node id = i + 1 + (NX + 1) j the quad of cell (i, j) is (id, id+1, id+NX+2, id+NX+1) -- a twisted quad has zero area and 4C says only 'determinant ... zero or negative'. Every one of these is named the moment you WRITE the deck: a deck written to a .yaml, .yml or .dat file is read and judged in the same reply, before the binary runs, so you do not have to ask for the check and do not have to remember to. Where a session also exposes it, check_input(solver='fourc', input_path=<deck>) is the same judgement on demand."
         # Fact 14 measured by execution 2026-09-05 (4C 2026.2.0-dev).
         + '\n15. A SAMPLED Neumann profile needs no polynomial fit: `DESIGN POINT NEUMANN CONDITIONS` works for Scalar_Transport with pre-integrated nodal loads -- per interior interface node F_i = h/6*(g_{i-1} + 4*g_i + g_{i+1}), FUNCT [0]. Delivery proven by the zero-vs-real load check (fields differ by 4.1e-3 at N=8) and the field converges at order ~1.95. The LINE NEUMANN + fitted-FUNCT route also works but silently smooths any profile the fit cannot represent.'),
     # Every line measured by execution on this install (dolfinx 0.10.0,
     # ufl 2025.2.1) on 2026-09-03. repr-generated literal: the measured
     # text contains brace/quote sequences that hand-escaping kept
     # breaking.
-    "fenics": "1. `ufl.FiniteElement` NO LONGER EXISTS (dolfinx 0.10 / ufl 2025.2: AttributeError; the lowercase hint `ufl.finiteelement` is NOT what you want either). Build spaces the modern way -- fem.functionspace(mesh, ('Lagrange', 1)) with lowercase f, or basix.ufl.element('Lagrange', 'triangle', 1). Both measured working on this install.\n2. `LinearProblem` REQUIRES the keyword `petsc_options_prefix` on this install (TypeError without it). Measured working:\n       p = dolfinx.fem.petsc.LinearProblem(a, L, bcs=[bc],\n           petsc_options={'ksp_type': 'preonly', 'pc_type': 'lu'},\n           petsc_options_prefix='run')\n       uh = p.solve()\n   Its solver is the PUBLIC `p.solver`; touching `p._solver` raises AttributeError (one run died on exactly that).\n3. `ufl.Constant` TAKES A DOMAIN, NOT A VALUE. ufl.Constant(0.0) raises AttributeError: 'float' object has no attribute 'ufl_domain' (measured; a run wrote it into a Dirichlet condition). A boundary value is a plain scalar -- fem.dirichletbc(default_scalar_type(0.0), dofs, V) -- and a constant INSIDE a form is fem.Constant(mesh, default_scalar_type(0.0)).\n4. THE RECTANGLE CONSTRUCTOR TAKES THE CORNERS AS A LIST OF POINTS AND THE COUNTS AS A SEQUENCE: dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]], [NX, NY], dmesh.CellType.triangle) -- measured signature (comm, points, n, cell_type, ...). Building a unit square and rescaling domain.geometry.x by hand is not the same thing and a worker lost a run to it.\n5. SELECT DOFS WITH fem.locate_dofs_topological(V, fdim, facets) (facets from mesh.locate_entities_boundary(domain, fdim, marker), fdim = domain.topology.dim - 1) or fem.locate_dofs_geometrical(V, marker). IT RETURNS THE ARRAY ITSELF FOR ONE SPACE -- do NOT index it with [0]. Measured: for a single space the result is an ndarray of shape (n,), and [0] is the first dof NUMBER, so everything downstream silently becomes one point; only when you pass a LIST of two spaces does it return a pair of arrays. A worker lost a run to exactly that [0]. There is NO V.subset_dofs -- AttributeError, measured, and one run invented exactly that. The condition is then fem.dirichletbc(value, dofs, V) for a scalar or Constant and fem.dirichletbc(g, dofs) for a Function: passing V as well with a Function raises TypeError: incompatible function arguments (measured, and it is the second death of that worker's repair).\n6. dolfinx is SILENT by default: before creating the mesh, call dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO) -- the DOLFINX_LOGLEVEL environment variable is NOT honoured, and a run whose console output stays empty cannot show which code ran.\n7. Evaluate a Function at arbitrary points with the bb-tree route: bb = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim); cand = dolfinx.geometry.compute_collisions_points(bb, pts); cells = dolfinx.geometry.compute_colliding_cells(mesh, cand, pts); then uh.eval(pts, first_cell_per_point). Nearest-DOF lookup is the export defect that turns a converged solve into a wrong answer.\n8. FIRST USE COMPILES TOO: dolfinx JIT-compiles every new form with ffcx (a minute or more the first time, more under load). A short `timeout` around that first run, or a pipe into `head`, kills it mid-compile and looks like a crash. Run each participant once standalone with a generous timeout before coupling; the cached modules make later runs start in seconds.\n9. `fem.VectorFunctionSpace` DOES NOT EXIST on this install (AttributeError, measured dolfinx 0.10): a vector P1 space is fem.functionspace(mesh, ('Lagrange', 1, (2,))), and in its array component c of node n sits at index 2*n + c (tabulate_dof_coordinates() has one row per node). A vector fem.Function is interpolated from a callable returning shape (2, n) -- np.vstack((fx, fy)) -- and its TRANSPOSE fails with 'Interpolation data has the wrong shape/size' (measured).\n10. UFL arguments have no `.geometric_dimension()` (AttributeError, measured ufl 2025.2): write ufl.Identity(2) for plane strain; ufl.sym(ufl.grad(u)) is the strain. fem.dirichletbc takes (Function, dofs) or (Constant, dofs, V) -- a Constant WITHOUT the space as third argument is a TypeError (measured).\n11. INTERPOLATION IS A METHOD OF THE FUNCTION: f = fem.Function(V); f.interpolate(lambda X: <expression of X[0], X[1]>) with X the (3, n) coordinate array. There is NO module-level fem.interpolate(callable, V) (AttributeError, measured), and a lambda with two arguments (x, y) is a TypeError.\n12. UFL FORMS ARE PYTHON EXPRESSIONS: scalar products are ufl.inner(a, b) (or ufl.dot), products are `*`, integrals are `<integrand> * ufl.dx` and `<integrand> * ds_measure`; the strain is ufl.sym(ufl.grad(u)), the trace ufl.tr(...), the divergence ufl.div(u). There is no `.` operator between UFL objects: a form written as `ufl.grad(u) . ufl.grad(v)` is Python attribute access and dies with \"'Grad' object has no attribute 'ufl'\" (measured on a worker script).",
+    "fenics": "1. `ufl.FiniteElement` NO LONGER EXISTS (dolfinx 0.10 / ufl 2025.2: AttributeError; the lowercase hint `ufl.finiteelement` is NOT what you want either). Build spaces the modern way -- fem.functionspace(mesh, ('Lagrange', 1)) with lowercase f, or basix.ufl.element('Lagrange', 'triangle', 1). Both measured working on this install.\n2. `LinearProblem` REQUIRES the keyword `petsc_options_prefix` on this install (TypeError without it). Measured working:\n       p = dolfinx.fem.petsc.LinearProblem(a, L, bcs=[bc],\n           petsc_options={'ksp_type': 'preonly', 'pc_type': 'lu'},\n           petsc_options_prefix='run')\n       uh = p.solve()\n   Its solver is the PUBLIC `p.solver`; touching `p._solver` raises AttributeError (one run died on exactly that).\n3. `ufl.Constant` TAKES A DOMAIN, NOT A VALUE. ufl.Constant(0.0) raises AttributeError: 'float' object has no attribute 'ufl_domain' (measured; a run wrote it into a Dirichlet condition). A boundary value is a plain scalar -- fem.dirichletbc(default_scalar_type(0.0), dofs, V) -- and a constant INSIDE a form is fem.Constant(mesh, default_scalar_type(0.0)).\n4. THE RECTANGLE CONSTRUCTOR TAKES THE CORNERS AS A LIST OF POINTS AND THE COUNTS AS A SEQUENCE: dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]], [NX, NY], dmesh.CellType.triangle) -- measured signature (comm, points, n, cell_type, ...). Building a unit square and rescaling domain.geometry.x by hand is not the same thing and a worker lost a run to it.\n5. SELECT DOFS WITH fem.locate_dofs_topological(V, fdim, facets) (facets from mesh.locate_entities_boundary(domain, fdim, marker), fdim = domain.topology.dim - 1) or fem.locate_dofs_geometrical(V, marker). IT RETURNS THE ARRAY ITSELF FOR ONE SPACE -- do NOT index it with [0]. Measured: for a single space the result is an ndarray of shape (n,), and [0] is the first dof NUMBER, so everything downstream silently becomes one point; only when you pass a LIST of two spaces does it return a pair of arrays. A worker lost a run to exactly that [0]. There is NO V.subset_dofs -- AttributeError, measured, and one run invented exactly that. The condition is then fem.dirichletbc(value, dofs, V) for a scalar or Constant and fem.dirichletbc(g, dofs) for a Function: passing V as well with a Function raises TypeError: incompatible function arguments (measured, and it is the second death of that worker's repair).\n6. dolfinx is SILENT by default: before creating the mesh, call dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO) -- the DOLFINX_LOGLEVEL environment variable is NOT honoured, and a run whose console output stays empty cannot show which code ran.\n7. Evaluate a Function at arbitrary points with the bb-tree route: bb = dolfinx.geometry.bb_tree(mesh, mesh.topology.dim); cand = dolfinx.geometry.compute_collisions_points(bb, pts); cells = dolfinx.geometry.compute_colliding_cells(mesh, cand, pts); then uh.eval(pts, first_cell_per_point). Nearest-DOF lookup is the export defect that turns a converged solve into a wrong answer.\n8. FIRST USE COMPILES TOO: dolfinx JIT-compiles every new form with ffcx (a minute or more the first time, more under load). A short `timeout` around that first run, or a pipe into `head`, kills it mid-compile and looks like a crash. Run each participant once standalone with a generous timeout before coupling; the cached modules make later runs start in seconds.\n9. `fem.VectorFunctionSpace` DOES NOT EXIST on this install (AttributeError, measured dolfinx 0.10): a vector P1 space is fem.functionspace(mesh, ('Lagrange', 1, (2,))), and in its array component c of node n sits at index 2*n + c (tabulate_dof_coordinates() has one row per node). A vector fem.Function is interpolated from a callable returning shape (2, n) -- np.vstack((fx, fy)) -- and its TRANSPOSE fails with 'Interpolation data has the wrong shape/size' (measured).\n10. UFL arguments have no `.geometric_dimension()` (AttributeError, measured ufl 2025.2): write ufl.Identity(2) for plane strain; ufl.sym(ufl.grad(u)) is the strain. fem.dirichletbc takes (Function, dofs) or (Constant, dofs, V) -- a Constant WITHOUT the space as third argument is a TypeError (measured).\n11. INTERPOLATION IS A METHOD OF THE FUNCTION: f = fem.Function(V); f.interpolate(lambda X: <expression of X[0], X[1]>) with X the (3, n) coordinate array. There is NO module-level fem.interpolate(callable, V) (AttributeError, measured), and a lambda with two arguments (x, y) is a TypeError.\n12. UFL FORMS ARE PYTHON EXPRESSIONS: scalar products are ufl.inner(a, b) (or ufl.dot), products are `*`, integrals are `<integrand> * ufl.dx` and `<integrand> * ds_measure`; the strain is ufl.sym(ufl.grad(u)), the trace ufl.tr(...), the divergence ufl.div(u). There is no `.` operator between UFL objects: a form written as `ufl.grad(u) . ufl.grad(v)` is Python attribute access and dies with \"'Grad' object has no attribute 'ufl'\" (measured on a worker script).\n13. A MIXED (TAYLOR-HOOD) SPACE COMES FROM basix, AND EVERY LEGACY SPELLING IS GONE. Measured on this install (dolfinx 0.10 / basix 0.10 / ufl 2025.2): `ufl.MixedElement` and `ufl.VectorElement` both raise AttributeError: module 'ufl' has no attribute 'MixedElement' / 'VectorElement', and `fem.FunctionSpace` with a capital F is TypeError: FunctionSpace.__init__() missing 1 required positional argument: 'cppV'. What this install accepts:\n       Ve = basix.ufl.element('Lagrange', mesh.basix_cell(), <deg_v>, shape=(gdim,))\n       Qe = basix.ufl.element('Lagrange', mesh.basix_cell(), <deg_q>)\n       W  = fem.functionspace(mesh, basix.ufl.mixed_element([Ve, Qe]))\n   Reaching the components: ufl.split(w) on a fem.Function, ufl.TrialFunctions(W) / ufl.TestFunctions(W) for the arguments, and w.split() on the Function. W.sub(i).collapse() returns a PAIR (space, dof indices), not a space -- unpack it -- and W.split() does not exist (AttributeError, measured). A velocity-pressure pair needs deg_v > deg_q to be stable; picking them is yours.\n14. FACET TAGS ARE A LOWERCASE FUNCTION IN THE MESH MODULE. `fem.MeshTags(...)` and `dolfinx.MeshTags` are both AttributeError (measured dolfinx 0.10): the constructor is dolfinx.mesh.meshtags(mesh, dim, indices, values) with indices and values as int32 arrays, and you tag facets with dim = mesh.topology.dim - 1. Pass it to a measure as ufl.Measure('ds', domain=mesh, subdomain_data=<tags>) and integrate one tag with ds(<value>). MEASURED AND NOT REQUIRED: the indices do NOT have to be sorted -- a shuffled index array gives the same integral to the last bit on this install, so do not spend a step sorting them. A connectivity the topology has not built raises RuntimeError: 'Connectivity between dimension 0 and 2 has not been computed', and that message names its own fix -- call mesh.topology.create_connectivity(<from>, <to>) once before the lookup.",
     # Every line measured by execution on this install (dune-fem on
     # dune-py313) on 2026-09-03. repr-generated literal.
     "dune": "1. `ufl.Eq` NO LONGER EXISTS in this ufl (ImportError; five hits in one round). The lowercase `ufl.eq` does, and it is ONLY a conditional's test: ufl.conditional(ufl.eq(a, b), val_true, val_false). The equation handed to galerkin is written with Python's `==`: `scheme = galerkin([a == L, dbc], solver='cg')` -- passing `eq(a, L)` or a bare form dies with `ValueError: first argument should be a ufl equation (not only a form) or an 'integrands' model` (measured: one of three trial scripts read the `eq` line above as the equation builder).\n2. `DirichletBC` takes (functionSpace, value, subDomain=None) -- there is NO `marker` keyword (TypeError). Measured signature on this install.\n3. A VERTEX'S COORDINATES ARE vertex.geometry.center (or .corner(0)) -- there is no .geometry.point (AttributeError, measured; a run writing the 3-D side died on it). The dof array of a discrete function is u.as_numpy.\n4. A UFL Form HAS NO .copy() (AttributeError, measured). A form is immutable and cheap: build the second one by writing the expression again, e.g. keep the volume load as its own form rather than copying the full one.\n5. `scheme.solve(target=uh)` returns a DICT with keys converged, iterations, linear_iterations, timing -- read info['converged'], never info.converged (AttributeError on dict; one round hit it three times). Measured: a 4x4 Laplace solve returns converged=True with max|u| = 7.768e-02.\n6. Solver verbosity for a captured log: parameters={'linear.verbose': True} on galerkin(...) -- the old 'newton.linear.verbose' spelling is deprecated and warns.\n7. Create functions with a name -- space.interpolate(0.0, name='uh') -- because a plain UFL expression has no .name and downstream I/O that asks for one dies on AttributeError.\n8. FIRST USE COMPILES. 'DUNE-INFO: Compiling Integrands (new)' means dune-fem is JIT-compiling your UFL forms -- minutes on a loaded machine, and again for every new form. Do NOT wrap the run in a short `timeout` and do NOT pipe it into `head`: a PETSc 'Caught signal number 15 Terminate' printed after those lines means the process was killed from OUTSIDE (a timeout or a closed pipe), not that the solver crashed (measured: one run wrapped its participant in `timeout 120`, read the signal-15 message as 'DUNE crashes on every attempt' and gave up with a working install). Run each participant once standalone with a generous timeout so the compiled modules are cached; the coupling iterations then start in seconds.\n9. THE IMPORT LINES, EXACTLY (measured by execution; three of three trial scripts written without them invented `dune.gdt`, `dune.fem.Grid` or `from dune.fem import galerkin`, none of which exist): import json; from pathlib import Path; import numpy as np; from dune.grid import structuredGrid; from dune.fem import assemble; from dune.fem.space import lagrange; from dune.fem.scheme import galerkin; from dune.fem.operator import galerkin as operator_galerkin; from dune.ufl import DirichletBC; from ufl import (TrialFunction, TestFunction, SpatialCoordinate,. `galerkin` lives in dune.fem.scheme, `lagrange` in dune.fem.space, `structuredGrid` in dune.grid, `DirichletBC` and `Constant` in dune.ufl; there is no dune.gdt.\n10. THE GRID CALL, EXACTLY: `gridView = structuredGrid([X0, Y0], [X1, Y1], [NX, NY])` -- lower corner, upper corner, cell counts, in that order (measured: a trial that passed the cell counts first died with `EquidistantOffsetCoordinates(...) Invoked with: array([6., 10.]), ...`).\n11. `abs`, `min`, `max` are NOT importable from ufl in this version (ImportError); the Python built-ins work on UFL expressions, and `ufl.conditional(ufl.lt(a, b), x, y)` is the branch.\n12. A grid entity has no `.index`: use `gridView.indexSet.index(entity)` (or `subIndex(entity, i, codim)` for its vertices); vertex coordinates come from `entity.geometry.center` / `corner(i)`, and the vertex-ordered nodal values of a Lagrange P1 function from `uh.as_numpy` (measured: `e.index` raises AttributeError on the generated Entity type).\n13. IN dune-fem's UFL THE SPACE CARRIES THE DOMAIN: `TrialFunction(space)`, `TestFunction(space)`, `SpatialCoordinate(space)`, and every integrand must contain one of them before `* dx` / `* ds`. Measured in three of three trial scripts: passing the grid gives `LeafGrid has no attribute ufl_domain`, a bare `dx` on a space-free expression gives `This integral is missing an integration domain`, and `space.domain` does not exist (`dimDomain` does).\n14. THE SPACE COUNTS ITS DOFS WITH .size (or len(space)) -- there is no space.dim and no space.dofCoordinates() (both AttributeErrors, measured; two runs writing the 3-D side died on exactly those two). Coordinates come from the grid, not the space: see the mesh access below.\n15. MESH ACCESS, EXACTLY (measured): `for v in gridView.vertices` / `for e in gridView.elements` iterate; `gridView.indexSet.index(v)` numbers a vertex and `gridView.indexSet.subIndex(e, i, 2)` numbers corner i of element e; `e.geometry.corners` is a TUPLE of the corner points (`len()` counts them) and `e.geometry.center` a point. There is no `gridView.entity(i)`, no `gridView.entitySet(...)`, no `gridView.corner(e, j)` and no `geometry.corner(i)` -- each was invented by a trial script and each raises AttributeError/TypeError. A SIMPLEX grid: `from dune.grid import cartesianDomain; from dune.alugrid import aluConformGrid; gridView = aluConformGrid(cartesianDomain([X0, Y0], [X1, Y1], [NX, NY]))` (6 x 10 -> 120 triangles, 77 vertices; `structuredGrid` makes 60 quadrilaterals). On this install a P1 Lagrange dof order equalled the vertex order on both grids, but never rely on it: map through interpolated coordinate fields.\n16. COEFFICIENTS GO IN AS `dune.ufl.Constant(value, name='k')`, never as a bare Python number: `0.0 * u * v * dx` (a zero reaction written as a float) folds to a domainless UFL Zero and dies with `This integral is missing an integration domain` (measured; the same fold hits a zero source).\n17. POWERS ARE `**`: `x[1]^2` is Python's XOR on a UFL expression and dies in as_tensor with `Expecting a tuple of Index objects` (measured).\n18. UFL CONDITIONS DO NOT COMBINE WITH `|` OR `&`: `lt(...) | lt(...)` dies with `unsupported operand type(s) for |: 'LT' and 'LT'` (measured). Build 0/1 indicators with `conditional(lt(abs(x[0] - X0), eps), 1, 0)`, ADD them for a union of edges, and take `1 - ind` for the complement (the outer boundary is `1 - <interface indicator>`); `ufl.Or(a, b)` / `ufl.And(a, b)` also exist. There is NO `SubDomain` in ufl (`from ufl import SubDomain` is an ImportError; two of three trial scripts reached for one) and none is needed: `DirichletBC(space, value, <that 0/1 UFL indicator>)` takes the indicator directly.",
@@ -2335,7 +2335,9 @@ _DECIDING_FACTS = {
              "9. A RECTANGLE IS MeshTri.init_tensor(np.linspace(x0, x1, nx + 1), np.linspace(y0, y1, ny + 1)). There is no MeshTri.init_rect (AttributeError: type object 'MeshTri1' has no attribute 'init_rect', measured).\n"
              "10. Basis(mesh, element) takes NO doforder keyword (TypeError: CellBasis.__init__() got an unexpected keyword argument 'doforder'), and a FacetBasis has NO find_dofs (AttributeError) -- it has get_dofs, like every other basis.\n"
              "11. THE MESH ARRAYS ARE p (2 x n_nodes), t (3 x n_elements) and facets (2 x n_facets), with t2f and f2t joining them; there is no mesh.f (AttributeError: 'MeshTri1' object has no attribute 'f', measured). The node indices of facet k are mesh.facets[:, k] and their coordinates mesh.p[:, mesh.facets[:, k]]; whole-boundary sets are mesh.boundary_facets() and mesh.boundary_nodes().\n"
-             "12. `FacetBasis(mesh, element)` WITHOUT `facets=` IS THE OUTER BOUNDARY ONLY (nelems == number of boundary facets, measured). Integrating over an interface that runs THROUGH the mesh with it gives zero weight at every interface node except where the line meets the boundary (measured: 2 of 9 nodes), so a flux recovered by dividing by those weights is silently zero. Pass the same facets you selected: `FacetBasis(mesh, element, facets=mesh.facets_satisfying(pred, boundaries_only=False))` (measured: 9 of 9).",
+             "12. A VECTOR BASIS SELECTS A COMPONENT BY NAME, NOT BY A component= KEYWORD. `get_dofs(..., component=0)` raises TypeError: AbstractBasis.get_dofs() got an unexpected keyword argument 'component' (measured, and a coupled run lost its budget to it twice). get_dofs returns a DofsView whose components are ONE-BASED STRINGS: d = basis.get_dofs(<facets or predicate>), then d.nodal['u^1'] and d.nodal['u^2'] are the x and y dof arrays, d.all('u^1') is the same thing, and d.all() / d.flatten() give both interleaved. There is no u^0.\n"
+             "13. REFINE WITH mesh.refined(), NOT mesh.extend(). `'MeshTri1' object has no attribute 'extend'` is measured; mesh.refined() halves h once and mesh.refined(n) does it n times, each returning a NEW mesh (the meshes are immutable, so the return value is the refinement -- ignoring it leaves you on the coarse mesh).\n"
+             "14. `FacetBasis(mesh, element)` WITHOUT `facets=` IS THE OUTER BOUNDARY ONLY (nelems == number of boundary facets, measured). Integrating over an interface that runs THROUGH the mesh with it gives zero weight at every interface node except where the line meets the boundary (measured: 2 of 9 nodes), so a flux recovered by dividing by those weights is silently zero. Pass the same facets you selected: `FacetBasis(mesh, element, facets=mesh.facets_satisfying(pred, boundaries_only=False))` (measured: 9 of 9).",
     "kratos": (
         "1. `LaplacianElement2D3N` exists; `LaplacianElement2D4N` does NOT "
         "('is not registered'). 2D is P1 TRIANGLES.\n"
@@ -2569,6 +2571,21 @@ def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
                                     signal, limit=limit - len(recipe))
         return (rest[:_pa] + recipe + rest[_pa:] if _pa <= len(rest)
                 else rest + "\n\n" + recipe)
+    # THE CONTRACT BLOCK RIDES OUTSIDE THE INSTRUCTION BUDGET, like the deck
+    # skeletons and the measured facts. Keeping the end whole is not enough:
+    # the block and the prose shared one window, so every line ADDED to a
+    # contract silently cost a line of prose at the far end of the must-read.
+    # Measured 2026-09-14 on knowledge(topic='coupling', solver='ngsolve'):
+    # adding the per-level dump (1.6k) pushed "THE COUPLING HISTORY IS
+    # MEASURED, NOT MODELLED" -- the anti-fabrication paragraph -- off the end
+    # of the reply. A block the agent COPIES is reference; the prose it reads
+    # is the instruction. They must not compete for the same bytes.
+    _ca, _cb = _contract_block_span(out)
+    if _ca >= 0 and _cb > _ca:
+        blk = out[_ca:_cb]
+        rest = _cap_knowledge_reply(out[:_ca] + out[_cb:], topic, solver, physics,
+                                    signal, limit=limit)
+        return rest[:_ca] + blk + rest[_ca:] if _ca <= len(rest) else rest + "\n\n" + blk
     _fa, _fb = _deciding_block_span(out, solver)
     if _fa >= 0 and (_fb - _fa) < limit // 2:
         facts = out[_fa:_fb]
@@ -4606,8 +4623,7 @@ def register_consolidated_tools(mcp: FastMCP):
     # There is no replacement. An agent that wants the participant reads it in
     # the coupling knowledge, minus the solve, and writes its own.
 
-    @mcp.tool()
-    def verify_pde_consistency(solution_files: str, source_term: str,
+    def _pde_consistency_body(solution_files: str, source_term: str,
                                coefficient: str = "1.0",
                                domain: str = "[[0,1],[0,1]]",
                                equation: str = "") -> str:
@@ -4648,6 +4664,17 @@ def register_consolidated_tools(mcp: FastMCP):
                 diffusion form only, and it refuses anything else rather than
                 answering about an operator it does not model.
         """
+        # RECORDED LIKE ITS SIBLINGS. couple() has recorded itself in the
+        # session journal since the journal existed and these two never did,
+        # so openPASO could not see that a run had coupled level after level and
+        # checked none of them against its own equation. Measured over every
+        # recorded cell: the lead that asks for this check was served 14 times
+        # in 10 cells and the tool was called twice, in one cell.
+        try:
+            _get_journal().record("tool_call", "verify_pde_consistency",
+                                  solver="general", physics="coupling")
+        except Exception:                                # noqa: BLE001
+            pass
         import csv as _csv
         import json as _json
         from .pde_consistency import check_levels
@@ -4814,7 +4841,25 @@ def register_consolidated_tools(mcp: FastMCP):
         out = result.as_dict()
         if problems:
             out["files_skipped"] = problems
-        return _json.dumps(out, indent=2) + _UNIVERSAL_CORE
+        return _json.dumps(out, indent=2)
+
+    @mcp.tool()
+    def verify_pde_consistency(solution_files: str, source_term: str,
+                               coefficient: str = "1.0",
+                               domain: str = "[[0,1],[0,1]]",
+                               equation: str = "") -> str:
+        """Does your field actually satisfy the equation the task stated?
+
+        The body is shared with couple(), which runs this same check on
+        every converged level when it is handed the four arguments. Two
+        wordings of the invitation to call this tool were measured and both
+        failed -- 2 calls against 14 asks, then 0 against 7 -- so the check
+        stopped being something to remember and became something couple()
+        does with what the agent already gave it.
+        """
+        return _pde_consistency_body(solution_files, source_term, coefficient,
+                                     domain, equation) + _UNIVERSAL_CORE
+
 
 
     @mcp.tool()
@@ -5413,7 +5458,8 @@ def register_consolidated_tools(mcp: FastMCP):
                      critic_approved: bool = False, noise_replicates: int = 0,
                      noise_floor: float = 0.0, noise_block: int = 3,
                      history_path: str = "",
-                     iface_level: int = 0, pde_sources: str = "") -> str:
+                     iface_level: int = 0, pde_sources: str = "",
+                     pde_check: str = "") -> str:
         """GENERAL partitioned multi-code coupling — works for ANY physics/coupling.
 
         Have an independent critic review the setup before coupling; pass
@@ -5519,6 +5565,8 @@ def register_consolidated_tools(mcp: FastMCP):
 
         iface_level: optional level number stamped into the suggested_filename of the interface_csv blocks the reply carries on convergence (each participant's own final interface data, ready to save verbatim).
 
+        pde_check: THE ONE CHECK THAT SEPARATES A RIGHT ANSWER FROM A CONVERGED WRONG ONE, run for you on every converged level. JSON keyed by participant name: {"A": {"solution_files": "<this side's per-level field files, comma-separated, in level order>", "equation": "<your task's EQUATION line, verbatim>", "source": "<that side's source, as your task wrote it>", "coefficient": "<that side's coefficient>", "domain": "[[x0,x1],[y0,y1]]"}, "B": {...}}. The files must be on the PROBE GRID your task prescribes, not your mesh nodes: the test is a midpoint quadrature and on a scatter it reports nothing rather than a misleading number. You name them; openPASO guesses no filename and opens no task file. Give it once and openPASO puts each side's own field back into that side's own equation at every level from the second on, and reports CONSISTENT or INCONSISTENT in `pde_consistency`. A refinement study cannot do this: a field that converges cleanly to the WRONG function is indistinguishable in one -- measured on three development cells whose every self-consistency measure reported a converging run while the answer was wrong. Nothing here is read from any task file; these are YOUR strings, and openPASO neither stores nor supplies them. A side whose operator this check does not model is refused by name and the rest still run.
+
         pde_sources: OPTIONAL, public-only. JSON {"A": {"source": "<the forcing/coefficient you actually implemented>", "task_source": "<the task's stated source, verbatim>"}, "B": {...}}. When supplied, openPASO compares the two PUBLIC strings and flags a mismatch — a silent wrong forcing (right shape, wrong function) converges cleanly to a different answer and no self-consistency check can see it. Never required; openPASO reads no reference solution and never supplies the equation for you.
 
         Returns: JSON with converged, iterations, residual, per-block residuals,
@@ -5541,6 +5589,14 @@ def register_consolidated_tools(mcp: FastMCP):
             check_interface_sensitivity,
         )
         _get_journal().record("tool_call", "couple", solver="general", physics="coupling")
+        # AT FUNCTION SCOPE, NOT INSIDE THE CONVERGED BRANCH. These are read
+        # where the reply is assembled, which every path reaches, while only a
+        # converged run fills them. Defining them in the branch raised
+        # "cannot access local variable '_pde_verdicts'" on the first
+        # non-converged call and cost a live cell its coupling -- it gave up
+        # on the tool and hand-rolled its own driver.
+        _pde_verdicts: dict = {}
+        _pde_notes: list = []
         try:
             specs = json.loads(participants)
         except json.JSONDecodeError as e:
@@ -5724,6 +5780,32 @@ def register_consolidated_tools(mcp: FastMCP):
             _m_lvl = re.search(r"level[_-]?(\d+)", Path(history_path).name)
             if _m_lvl:
                 _lvl_for_log = int(_m_lvl.group(1))
+        if not _lvl_for_log:
+            # AND FAILING BOTH, ASK THE PARTICIPANTS. The served per-level rule
+            # has every side read its level from a ./config.json beside its
+            # script, so by the time this runs the level is already on disk in a
+            # place this contract defines -- there is no reason to lose the
+            # console because the CALL did not repeat it.
+            #
+            # MEASURED on a coupled cell that reached three refined levels with
+            # both codes and the coupling PROVEN: it called couple with no level
+            # and no level-bearing history path, so no participant_output_level
+            # file was ever kept, it had exactly ONE console to hand in, and its
+            # three run logs came out byte-identical. Its field files refined
+            # correctly the whole time (64 -> 215 -> 796 and 73 -> 256 -> 958);
+            # the submission was read as one mesh solved three times.
+            _lvls = set()
+            for _p in parts:
+                try:
+                    _cfg = Path(_p.work_dir) / "config.json"
+                    if _cfg.is_file():
+                        _v = json.loads(_cfg.read_text() or "{}").get("level")
+                        if _v is not None:
+                            _lvls.add(int(_v))
+                except (OSError, ValueError, TypeError, json.JSONDecodeError):
+                    pass
+            if len(_lvls) == 1:            # both sides agree; ambiguity is not a level
+                _lvl_for_log = _lvls.pop()
         if _lvl_for_log:
             for _p in parts:
                 try:
@@ -6406,21 +6488,150 @@ def register_consolidated_tools(mcp: FastMCP):
                               f"identical solution files and no interface file. Before the next level, copy this level's field and interface "
                               f"output to level-tagged names (or add the served contract's dump block, which writes field_level<k>.csv and "
                               f"interface_level<k>.csv after exports.json). If your script already keeps them under another name, ignore this. ")
+            # HOW MANY LEVELS HAVE BEEN COUPLED WITHOUT ONE BEING CHECKED.
+            #
+            # Asking politely has been measured and does not work. This lead
+            # was moved to the FRONT of the converged reply precisely because
+            # 513 graded cells had produced zero calls to the check; over every
+            # recorded cell since, the lead was served 14 times in 10 cells and
+            # the tool was called twice, in one cell. So after the first
+            # unchecked level the sentence stops being an invitation and starts
+            # being a count, which is what the rest of this reply already does
+            # for every other defect.
+            #
+            # It reads openPASO's own session journal -- which tool names this run
+            # has used -- and nothing about the task.
+            # RUN IT, DO NOT ASK FOR IT. Two wordings of the invitation were
+            # measured and both failed: 2 calls against 14 asks, then 0 against
+            # 7 after the ask was moved to the front and given the evidence. So
+            # when the agent hands over its own four strings once, openPASO puts
+            # each side's field back into that side's equation at every level
+            # itself. Nothing is read from a task file and nothing is stored.
+            if pde_check:
+                try:
+                    _spec = json.loads(pde_check)
+                except Exception as _e:                  # noqa: BLE001
+                    _spec = {}
+                    _pde_notes.append(f"pde_check was not readable JSON ({_e}), so no level was checked")
+                for _p in parts:
+                    _one = _spec.get(_p.name) if isinstance(_spec, dict) else None
+                    if _one is None and isinstance(_spec, dict) and "equation" in _spec:
+                        _one = _spec                     # one operator for both sides
+                    if not isinstance(_one, dict):
+                        continue
+                    try:
+                        # THE AGENT NAMES ITS OWN FILES. openPASO does not guess a
+                        # deliverable name and reads no task file; it checks what
+                        # it is handed. They must be the PRESCRIBED PROBE GRID and
+                        # not the participant's mesh nodes: the test is a midpoint
+                        # quadrature, so on a scatter it reports nothing rather
+                        # than a misleading number. Measured on a verified-correct
+                        # cell -- its probe files give CONSISTENT with residuals
+                        # 0.054, 0.010, 0.0005, while its own mesh dumps at the
+                        # same three levels give NOT_APPLICABLE.
+                        _names = [x.strip() for x in
+                                  str(_one.get("solution_files", "")).split(",") if x.strip()]
+                        if not _names:
+                            _pde_notes.append(
+                                f"{_p.name}: give solution_files -- a comma-separated list of THIS "
+                                f"side's per-level field files, in level order, on the probe grid "
+                                f"your task prescribes. openPASO will not guess their names.")
+                            continue
+                        _root_p = Path(_root) if _root else Path(_p.work_dir)
+                        _fl = []
+                        for _n in _names:
+                            _q = Path(_n)
+                            if not _q.is_absolute():
+                                _q = (_root_p / _n) if (_root_p / _n).is_file() else (Path(_p.work_dir) / _n)
+                            _fl.append((len(_fl), _q))
+                        if len(_fl) < 2:
+                            # the verdict IS the decay across levels
+                            _pde_notes.append(
+                                f"{_p.name}: only {len(_fl)} file named -- this check reads the DECAY "
+                                f"across levels, so it starts answering at level 2")
+                            continue
+                        _out = _pde_consistency_body(
+                            ",".join(str(_q) for _, _q in _fl),
+                            str(_one.get("source", "")),
+                            str(_one.get("coefficient", "1.0")),
+                            str(_one.get("domain", "[[0,1],[0,1]]")),
+                            str(_one.get("equation", "")))
+                        try:
+                            _pde_verdicts[_p.name] = json.loads(_out)
+                        except Exception:                # noqa: BLE001
+                            _pde_verdicts[_p.name] = {"note": str(_out)[:400]}
+                    except Exception as _e:              # noqa: BLE001
+                        _pde_notes.append(f"{_p.name}: {type(_e).__name__}: {_e}")
+            # WHAT THE CHECK SAID, IN PLACE OF THE PARAGRAPH THAT USED TO ASK
+            # FOR IT. The old wording told the agent to call the tool itself
+            # and was measured twice: 2 calls against 14 asks, then 0 against 7.
+            _pde_said = ""
+            if _pde_verdicts:
+                _bits = []
+                for _n, _v in _pde_verdicts.items():
+                    _vd = str((_v or {}).get("verdict", "?")) if isinstance(_v, dict) else "?"
+                    _rt = (_v or {}).get("observed_rate") if isinstance(_v, dict) else None
+                    _bits.append(f"{_n}: {_vd}" + (f" (residual falling {_rt:.2f}x per level)"
+                                                   if isinstance(_rt, (int, float)) else ""))
+                _pde_said = ("YOUR FIELD AGAINST YOUR OWN EQUATION, this level and every one before it -- "
+                             + "; ".join(_bits)
+                             + ". CONSISTENT means the weak residual falls as the mesh refines, which a "
+                               "field solving the stated problem does and a field solving a different one "
+                               "does not, and it now answers BOTH sides of a coupled pair rather than "
+                               "only the one whose boundary carries no partner data. REFUSED means the "
+                               "check did NOT look and you have learned nothing about that side: it models "
+                               "second-order scalar diffusion only, so an elasticity or reaction-diffusion "
+                               "operator is refused by name. A CONSISTENT side is weaker evidence than an "
+                               "INCONSISTENT one -- measured, the INCONSISTENT verdict never lands on a "
+                               "right side, while plenty of wrong ones still read CONSISTENT. "
+                               "This is the one statement here that is about being RIGHT rather than "
+                               "being tidy. ")
+            elif _pde_notes and pde_check:
+                _pde_said = ("YOUR EQUATION CHECK DID NOT RUN: " + "; ".join(_pde_notes[:3]) + ". ")
+            _unchecked = ""
+            if not pde_check:
+                _unchecked = (
+                    "NO LEVEL HAS BEEN CHECKED AGAINST ITS OWN EQUATION, and this reply cannot do it "
+                    "for you until you hand over the four strings you already have. Pass "
+                    "pde_check={\"<side>\": {\"solution_files\": \"<this side's per-level "
+                    "field files, comma-separated, in level order, on the probe grid your task "
+                    "prescribes>\", \"equation\": \"<your task's EQUATION line>\", "
+                    "\"source\": \"<that side's source>\", \"coefficient\": \"<that side's "
+                    "coefficient>\", \"domain\": \"[[x0,x1],[y0,y1]]\"}, ...} on your next couple "
+                    "call and every level from the second on is checked automatically. This is the "
+                    "only check that separates a right answer from one that converged cleanly to the "
+                    "WRONG function -- measured on three development cells whose every "
+                    "self-consistency measure reported a converging run while the answer was wrong, "
+                    "one of them with a true error ninety times its own field magnitude. It needs no "
+                    "reference answer, and openPASO neither stores your strings nor reads any task "
+                    "file. ")
             _one_call = (_not_yet if _trivial else
                          (f"LEVEL {_lvl_for_log} CONVERGED. " if _lvl_for_log else "LEVEL CONVERGED. ")
-                         + "FIRST, if the task prescribes further mesh levels, run them ALL in ONE call: "
-                           f"couple_levels({_plist}, levels=[<next level>, ...every "
-                           "further level], history_pattern='<the task's per-level history file name with {k} in place "
-                           "of the level number>') -- each level warm-starts from the last, every cell count is doubled "
-                           "per level, and every level keeps its own dumps and console (field_level<k>.csv, "
-                           "interface_level<k>.csv, participant_output_level<k>.log next to each exports.json). "
-                           "THEN write ALL levels' deliverables in ONE pass -- one script that loops over the levels: "
-                           "each level's field and interface files per side from that level's dumps, and its run log "
-                           "per side as a VERBATIM COPY of that level's captured console"
+                         + _unchecked
+                         + _pde_said
+                         + "FIRST, WRITE THIS LEVEL'S RUN LOGS -- BEFORE THE NEXT LEVEL, NOT AT THE END. "
+                           "They are a copy, "
+                           "one per side, of the console this level just produced"
                          + (f" (this level: {_logs})" if _logs else " (participant_output_level<k>.log)")
-                         + " -- a run log copied from another level's console reads as an unchanged mesh and sinks "
-                           "the whole sequence; the write check names it the moment it is written. A level set with "
-                           "one level missing is read as no result at all, so the levels come before any file."
+                         + " -- into the per-level run log name your task gives for that side. It costs one action "
+                           "now and is the step that is measured to vanish when it is left to the end: across four "
+                           "recent rounds, every level that ran left its captured console on disk and only 2 to 4 "
+                           "cells in 9 ever turned them into the logs the task asked for, so those runs handed in "
+                           "coupling that was PROVEN and were read as not run. Then write the remaining "
+                           "deliverables -- the field and interface files per side from each level's dumps -- in "
+                           "ONE pass at the end. A run log copied from another level's console reads as "
+                           "an unchanged mesh and sinks the whole sequence, and the write check names it the "
+                           "moment it is written; a level set with one level missing is read as no result at "
+                           "all, so the levels come before any file. "
+                         + "THEN, if the task prescribes further mesh levels, RUN THE NEXT LEVEL: raise "
+                           "the level and DOUBLE the cell counts in BOTH sides' config.json, then call couple again. "
+                           "Every level keeps its own dumps and console beside each exports.json "
+                           "(field_level<k>.csv, interface_level<k>.csv, participant_output_level<k>.log), so the "
+                           "coarse levels survive the fine ones. Where a session exposes it, "
+                           f"couple_levels({_plist}, levels=[<next level>, ...every further level], "
+                           "history_pattern='<the task's per-level history file name with {k} in place of the level "
+                           "number>') does the whole remaining sequence in one call, warm-starting each level from "
+                           "the last. "
                          + (f" MEASURED COST: this level's iteration took {_level_secs:.0f} s of solver wall time; the next two "
                             f"levels have 4x and 16x the cells, so their iterations cost roughly {4 * _level_secs:.0f} s and "
                             f"{16 * _level_secs:.0f} s inside that one call (measured: parents stopped at 26-27 min left calling "
@@ -6454,6 +6665,38 @@ def register_consolidated_tools(mcp: FastMCP):
                         _deliv += list(_fn(Path(_root)) or [])
                     except Exception:                    # noqa: BLE001
                         pass
+                # AND THE PROOF THAT THIS LEVEL RAN, WHILE THERE IS STILL BUDGET
+                # TO PRODUCE IT. The same checks run at hand-in, and by then the
+                # median cell has two tool calls left and one in five has none --
+                # they name work costing five to fifteen actions. Asked here they
+                # cost nothing: the level just finished, its console is still on
+                # disk, and a missing log is one redirect away.
+                #
+                # Scoped to the levels that were actually COUPLED, which is what
+                # the residual histories on disk record. Nothing is asked about a
+                # level the agent has not reached: measured against the graded
+                # set, of the cells this stays silent on, every one was missing
+                # logs only for levels it never coupled, and it speaks on 0 of
+                # the 32 correct cells.
+                try:
+                    _done = sorted({_k for _q, _kind, _k, _sd
+                                    in _ra._level_files(Path(_root), "csv")
+                                    if str(_kind).startswith("residual")})
+                    if _done:
+                        _deliv += list(_ra.deliverable_proof_due(Path(_root), _done) or [])
+                        # AND WHAT THE FILES ALREADY SAY ABOUT THE ANSWER.
+                        # The proof above asks whether the run can be shown to
+                        # have happened; this asks whether what it produced is
+                        # worth building on, and it is the family that decides
+                        # CORRECT against COMPLETED_UNPHYSICAL. Measured on a
+                        # live cell that coupled three levels, wrote every
+                        # deliverable and graded unphysical: NEAR-ZERO FIELD
+                        # and FLOOR appear ZERO times in its trajectory because
+                        # they live only in the hand-in audit, which ran with
+                        # two tool calls left.
+                        _deliv += list(_ra.field_quality_due(Path(_root), _done) or [])
+                except Exception:                        # noqa: BLE001
+                    pass
         except Exception:                                # noqa: BLE001
             _deliv = []
         if _deliv:
@@ -6463,6 +6706,38 @@ def register_consolidated_tools(mcp: FastMCP):
         if _next:
             _lead = (_lead + "\n" + _next) if _lead else _next
             result = {"next_step": _next, **result}
+        # AN INCONSISTENT FIELD LEADS EVERYTHING. It is the only verdict here
+        # that says the answer is wrong rather than untidy, and it is invisible
+        # to every other check in this reply.
+        if _pde_verdicts or _pde_notes:
+            result = {"pde_consistency": {**_pde_verdicts,
+                                          **({"notes": _pde_notes} if _pde_notes else {})},
+                      **result}
+            _bad = [n for n, v in _pde_verdicts.items()
+                    if isinstance(v, dict) and str(v.get("verdict", "")).upper() == "INCONSISTENT"]
+            if _bad:
+                # REPORTED WITH ITS ERROR RATE, NOT AS A VERDICT ON THE RUN.
+                # Calibrated against the graded record on the problems this
+                # check accepts: 15 of the wrong cells land here, and so does
+                # 1 of the 14 correct ones. That one cannot be tuned away --
+                # its residual sequence (0.0132, 0.0058, 0.0106) has the same
+                # shape as genuinely wrong cells, and a non-monotonicity guard
+                # that silences it also silences 8 of the 15 true catches. So
+                # the finding leads, because it is the only thing here about
+                # being right, but it says what it is: strong evidence, not a
+                # proof, on one side of a two-sided problem.
+                _lead = ("YOUR FIELD DOES NOT SATISFY THE EQUATION YOU GAVE, on side(s) "
+                         + ", ".join(_bad)
+                         + ": the weak residual does not fall as the mesh refines, which is what a "
+                         "field solving the stated problem does and what a field solving a different "
+                         "one does not. Fix that side -- its source first, then its coefficient, "
+                         "then which boundary carries which condition -- BEFORE spending budget on "
+                         "further levels, because everything built on this one inherits it. "
+                         "Measured against a graded record: this verdict lands on 28 sides that are "
+                         "wrong and on NONE that are right. The reverse is not true -- a CONSISTENT "
+                         "side is not a clean bill of health, because 62 wrong sides also read "
+                         "CONSISTENT; this identity cannot see a wrong condition on a face.\n"
+                         + (_lead or ""))
         if _lead:
             result = {"what_to_fix_next": _lead,
                       "presubmission_findings": _compact[:12], **result}
@@ -8646,12 +8921,22 @@ sees nothing but this task= string (measured: a worker whose brief kept
     values; the level-1 mesh; the file names the task prescribes for this
     side>. Write ./side_A/config.json for
     level 1 and a synthetic ./side_A/imports.json; if the code takes an input deck, run
-    check_input(solver='<side A's code>', input_path=<the deck>) until it
-    names no defect before the binary runs; run the script with that code's
+    the deck is READ AND JUDGED THE MOMENT YOU WRITE IT -- write it to a
+    .yaml, .yml or .dat file and the defects come back in that reply, before
+    the binary runs, so do not spend an action asking for the check; run the
+    script with that code's
     own interpreter (generous timeout, first runs compile) until
     ./side_A/exports.json appears with finite values. CHECK: exports.json
     exists and the script exited 0. Report DONE or the exact error.")
-Then the same for side B. The critic reviews what a worker produced, not a
+Then the same for side B.
+
+THAT CODE'S OWN INTERPRETER IS PRINTED BY discover(query='list'), next to the
+backend, and it is the argv `couple` needs as well. The default `python3` is
+NOT it. Measured on this install: the default python carries exactly ONE of the
+Python solvers here and none of the other five, so `python3 participant.py`
+succeeds for that one code and raises ModuleNotFoundError for the rest -- which
+is why the habit survives, and why it is the single most common way a
+participant fails to start on this host. The critic reviews what a worker produced, not a
 plan. Then audit_results(work_dir) names every further step.
 
 The tool runs the whole iteration -- relaxation, convergence, validation --
@@ -8714,6 +8999,44 @@ two levels.
 
 THE FIELDS ARE THE RESULT; THE HISTORY IS THE EVIDENCE. Export interface rows AT THE EXACT PROBE POINTS THE TASK PRINTS -- generate them from the task's own formula, verbatim. A uniform sampling of the whole interface is NOT equivalent: prescribed probe sets deliberately exclude regions (interface ends are Dirichlet-Neumann corners whose recovered flux does not converge), and rows at unprescribed points are refused wholesale -- measured: a coupling with converged evidence at every level counted for nothing because all 44 of its interface rows sat at self-chosen coordinates. What counts is the field and interface files at the prescribed probe points, for every level and both sides -- a run that converges its coupling and writes no field files counts for NOTHING (measured: one run drove level 1 to 6.37e-07 and delivered only its level-1 residual history; read as failed, no field files). Alongside them, a task that names a per-level residual-history file wants one row per partitioned-iteration step, per mesh level. That file IS the evidence that two
 codes iterated against each other; nothing else you deliver can show it.
+
+THE INTERFACE FILE IS WRITTEN AT THE POINTS THE TASK LISTS, NOT AT YOUR NODES.
+
+Its rows are the coordinates the task names, in that order, IDENTICAL at every
+mesh level. Runs with both solvers and the iteration independently proven to
+have run, and the residual down to 1e-7, were still counted as unusable for
+writing their own interface MESH NODES instead:
+
+    what was written   level 1: 7 rows   level 2: 15 rows   level 3: 23 rows
+    what was asked     the same fixed list of points at EVERY level
+
+An order compares the SAME quantity across levels, and node sets move under
+refinement, so there is nothing to compare. Interpolate onto each listed
+coordinate with the shape-function evaluation you already use for the solution
+probes — not the nearest node — all of them, in order, nothing else.
+
+THE ENDS OF THE INTERFACE ARE EXCLUDED ON PURPOSE: a Dirichlet-Neumann split
+has a corner there whose recovered flux does not converge. Do not "complete"
+the list with them.
+
+CHECK EACH SUBDOMAIN AGAINST ITS OWN EQUATION FIRST. A converged interface
+residual says the two sides AGREE, not that either is right, and the two
+failures are independent: one run converged to 8e-07 in 16 steps with a field
+TEN TIMES too small, at order -0.02 against an independent reference. Run
+verify_pde_consistency(...) on each side, with that side's own source and
+coefficient, before spending budget on the iteration.
+
+IT ANSWERS BOTH SIDES NOW, and refuses for one reason only: an operator it
+does not model. It implements second-order scalar diffusion, so an elasticity
+form or an added reaction term is refused BY NAME on the equation string. Read
+a refusal as having learned NOTHING about that side, not as a pass.
+
+READ THE TWO VERDICTS ASYMMETRICALLY. Measured: INCONSISTENT lands on 28 sides
+that are wrong and NONE that are right, so fix it before spending budget on
+further levels. CONSISTENT is weaker -- 62 wrong sides also read CONSISTENT,
+because an identity whose test function vanishes on the boundary cannot see a
+wrong condition ON that boundary. A clean verdict is not a clean bill of
+health.
 
 THE NEUMANN SIDE'S IMPORTED FLUX IS SILENTLY IGNORED WITHOUT A CONDITION.
 
@@ -8875,46 +9198,6 @@ interface refinement.
     choose.
 
 
-THE INTERFACE FILE IS WRITTEN AT THE POINTS THE TASK LISTS, NOT AT YOUR NODES.
-
-Its rows are the coordinates the task names, in that order, IDENTICAL at every
-mesh level. Runs with both solvers and the iteration independently proven to
-have run, and the residual down to 1e-7, were still counted as unusable for
-writing their own interface MESH NODES instead:
-
-    what was written   level 1: 7 rows   level 2: 15 rows   level 3: 23 rows
-    what was asked     the same fixed list of points at EVERY level
-
-An order compares the SAME quantity across levels, and node sets move under
-refinement, so there is nothing to compare. Interpolate onto each listed
-coordinate with the shape-function evaluation you already use for the solution
-probes — not the nearest node — all of them, in order, nothing else.
-
-THE ENDS OF THE INTERFACE ARE EXCLUDED ON PURPOSE: a Dirichlet-Neumann split
-has a corner there whose recovered flux does not converge. Do not "complete"
-the list with them.
-
-CHECK EACH SUBDOMAIN AGAINST ITS OWN EQUATION FIRST. A converged interface
-residual says the two sides AGREE, not that either is right, and the two
-failures are independent: one run converged to 8e-07 in 16 steps with a field
-TEN TIMES too small, at order -0.02 against an independent reference. Run
-verify_pde_consistency(...) on each side, with that side's own source and
-coefficient, before spending budget on the iteration.
-
-EXPECT REFUSALS, AND DO NOT READ A REFUSAL AS A FAILURE -- often it answers
-for one side and refuses the other, and on a multi-field or thermo-mechanical
-arrangement it can refuse BOTH sides (measured: boundary-layer ratios 93% and
-100%, both sides refused, while the coupling itself was correct at order ~2).
-A refusal is a statement of scope, never evidence against the run. Its identity needs the field to vanish on the whole
-boundary of the side it is given. The interface carries your partner's data, so
-on the side where that data is comparable to the side's own field the identity
-does not hold and the tool replies NOT_APPLICABLE. Measured on a two-material
-conduction problem with a 200:1 contrast: the low-conductivity side answers
-normally, because its interface values are a few percent of its own scale,
-while on the high-conductivity side the interface trace IS the scale and the
-tool refuses. A refusal there tells you nothing about that side; an
-INCONSISTENT on the side it does answer tells you a great deal.
-
 WHAT YOUR SOLVE MUST LEAVE BEHIND.
 
 openPASO serves the participant with the mesh/form/solve region CUT OUT, and the
@@ -8952,10 +9235,19 @@ which code ran on which side. If you invoke the solver through subprocess you
 already hold those bytes; the whole fix is not to drop them:
 
     r = subprocess.run(cmd, capture_output=True, text=True)
-    Path(log).write_text(dof_line + "\\n" + r.stdout + r.stderr)
+    Path(log).write_text(r.stdout + r.stderr)
 
-(dof_line being the DOF-count line your task asks for) or skip the capture and
-redirect, `cmd > <the per-level run log for that code> 2>&1`.
+or skip the capture and redirect, `cmd > <the per-level run log for that
+code> 2>&1`.
+
+DO NOT PREPEND A DOF LINE OF YOUR OWN. The served participant already prints
+`NDOF = <integer>` on a line of its own, from the space it actually built, and
+the contract line is read as the FIRST such line in the file. A hand-written
+line above the capture therefore WINS over the real one, and a hand-written
+number is where the wrong one comes from: measured on a coupled run whose mesh
+really did refine, side A's log opened with `NDOF = 1` at every level and the
+submission was rejected for an unrefined mesh. If your own participant does not
+print the line, add the print INSIDE it rather than in front of the log.
 Measured, on the same problem and the same two codes: a real capture is 2947 and
 1476 bytes and carries the solver's banner; a hand-written summary is 56 and 68
 bytes. One run invoked the binary correctly under `stdbuf -oL -eL`, captured
@@ -8970,13 +9262,36 @@ log_result, NGSolve `ngsglobals.msg_level = 3`, DUNE-fem
 level=logging.INFO)` whose output goes to STDERR. Kratos, 4C, FEBio and SPARTA
 print by default.
 
-CHECK THE INTERFACE SIGN BEFORE YOU HAND IN: verify_interface_flux(...).
+AND THE DRIVER ALREADY KEPT EACH LEVEL'S CONSOLE FOR YOU. `couple` saves every
+participant's captured output beside that side's exports.json as
+participant_output_level<k>.log, one file per level, the moment the level
+finishes. The per-level execution log your task asks for is a COPY OF THAT
+FILE for that level and that side -- you do not have to re-run anything to
+produce it, and you should write it WHEN THE LEVEL FINISHES rather than at
+hand-in.
+
+Leaving it to the end is what goes wrong. Measured on a coupled run that did
+everything else right -- both codes proven, the coupling converged at three
+refined levels, the interface condition satisfied, all six field files written
+-- the agent copied ONE console into all three level logs at the very end. The
+check named the defect and the exact file to copy over it, three times, and the
+first of those arrived with FOUR MINUTES of its budget left. Three identical
+logs read as one mesh solved three times, which is how a real three-level study
+is rejected.
+
+CHECK THE INTERFACE SIGN BEFORE YOU HAND IN.
+
+audit_results(work_dir=<your results directory>) runs this check over the files
+you have already written, and it is the route to prefer: it needs no arguments
+beyond the directory, and it reports the sign finding alongside everything else
+it names. A session that also exposes the dedicated tool can call it directly
+for the same check on chosen files:
 
     verify_interface_flux(interface_files="<all per-level interface files, both sides>",
                           solution_files="<all per-level field files, both sides>",
                           interface_axis=0)
 
-It needs no reference solution. For a flux you really computed from your own
+Either way it needs no reference solution. For a flux you really computed from your own
 solution, q_n(x) / (-du/dn)(x) equals k at every interface point -- so the
 ratio is CONSTANT along the interface whatever k is, and POSITIVE. A constant
 NEGATIVE ratio means your normal points inward.
@@ -9036,6 +9351,25 @@ _COUPLING_LEAD_B = _COUPLING_MUST_READ[_COUPLING_MUST_READ.index(_COUPLING_LEAD_
 _COUPLING_CONTRACT_HEAD = 11000     # floor for the payload head between the two parts when no contract block is found
 _COUPLING_MUST_READ += "\n" + _PER_SIDE_NAMING
 
+
+
+def _contract_block_span(payload: str) -> tuple[int, int]:
+    """(start, end) of the payload's first participant contract block, or
+    (-1, -1). `_contract_block_end` gives the end alone; the cap needs the
+    start as well, to lift the block out of the instruction budget."""
+    if not isinstance(payload, str):
+        return -1, -1
+    pos = 0
+    while True:
+        i = payload.find("```python", pos)
+        if i < 0:
+            return -1, -1
+        j = payload.find("```", i + 9)
+        if j < 0:
+            return -1, -1
+        if "imports.json" in payload[i:j + 3] and "exports.json" in payload[i:j + 3]:
+            return i, _contract_block_end(payload, j + 3)
+        pos = j + 3
 
 
 def _contract_block_end(payload: str, floor: int) -> int:

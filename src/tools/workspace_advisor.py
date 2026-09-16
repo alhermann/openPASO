@@ -868,8 +868,8 @@ def _extra_script_checks(written: Path, content: str) -> str:
         return ""
     return ("\n\n[early check of " + written.name + ", read from the script "
             "you just wrote:]\n" + "\n".join(out)
-            + "\nYou have budget left now; after the solve this looks like a "
-              "converged run.")
+            + "\nThis costs less to fix now than after the solve, when it "
+              "will look like a converged run.")
 
 def _FLUX_NOOP_MSG(written: Path) -> str:
     return ("\n\n[early check of " + written.name + ", read from the script "
@@ -960,6 +960,31 @@ def _level_index_check(workdir: Path, written: Path) -> str:
             "file by its refinement index (level1, level2, level3), the same "
             "index for the field, interface, residual and log files.")
 
+def _level_proof_gap(workdir: Path, level: str) -> str:
+    """'' unless a COUPLED level has no run log proving it ran.
+
+    Reads the agent's own files only. The level must already carry a residual
+    history, so nothing is asked about a level that has not been coupled yet.
+    """
+    try:
+        from tools.result_audit import (                     # noqa: PLC0415
+            _level_files, deliverable_proof_due)
+        k = int(level)
+    except Exception:                                        # noqa: BLE001
+        return ""
+    try:
+        coupled = {kk for _q, kind, kk, _s in _level_files(workdir, "csv")
+                   if str(kind).startswith("residual")}
+        if k not in coupled:
+            return ""
+        for f in deliverable_proof_due(workdir, [k]):
+            if f.get("sequence") == "run-log contract":
+                return str(f.get("finding", ""))
+    except Exception:                                        # noqa: BLE001
+        return ""
+    return ""
+
+
 def _early_artefact_check(workdir: Path, written: Path) -> str:
     """Check a per-level artefact THE MOMENT IT IS WRITTEN, not at hand-in.
 
@@ -1044,8 +1069,8 @@ def _early_artefact_check(workdir: Path, written: Path) -> str:
             if found:
                 return ("\n\n[early check of " + name + ", from your own file:]\n"
                         + "\n".join(f"  * {f['finding']}" for f in found[:2])
-                        + "\nYou have budget left now. Fixing this after "
-                          "your summary file is written is usually too late.")
+                        + "\nFixing this after your summary file is written "
+                          "is usually too late.")
         elif _lm and _ext == "csv" and _csv_role(written) == "field":
             # THE EXPORT CAN RUIN A PERFECT SOLVE, and the agent can fix it
             # without re-running anything. Proven against an independent
@@ -1061,6 +1086,19 @@ def _early_artefact_check(workdir: Path, written: Path) -> str:
                         + "\n".join(f"  * {f['finding']}" for f in found[:1])
                         + "\nThis is a POST-PROCESSING fix: you do not need to "
                           "re-run the solver, only to re-read it.")
+            # WRITING A LEVEL'S FIELD IS THE MOMENT ITS RUN LOG IS CHEAPEST.
+            # The proof that the level ran is checked at hand-in, where the
+            # median cell has two actions left; here the level has just been
+            # coupled, its console is still on disk, and the fix is one
+            # redirect. Asked ONLY for a level that actually coupled -- the
+            # residual history is what says so -- so a level not yet reached
+            # is never mentioned.
+            _gap = _level_proof_gap(workdir, _lm.group("k"))
+            if _gap:
+                return ("\n\n[early check of " + name + ", from your own files:]\n"
+                        "  * " + _gap
+                        + "\nAt hand-in this same finding costs a re-run of "
+                          "the level.")
         elif (_lm and _ext == "csv" and _lm.group("side")
               and _csv_role(written) == "interface"):
             from tools.result_audit import interface_sign_findings
@@ -1084,8 +1122,8 @@ def _early_artefact_check(workdir: Path, written: Path) -> str:
                 return ("\n\n[early check of the interface at level " + lvl
                         + ", from your own files:]\n"
                         + "\n".join(f"  * {f['finding']}" for f in hard[:2])
-                        + "\nYou have budget left now. This is the failure "
-                          "that a clean convergence order cannot reveal.")
+                        + "\nThis is the failure that a clean convergence "
+                          "order cannot reveal.")
     except Exception:                      # noqa: BLE001
         return ""
     return ""
@@ -1130,13 +1168,74 @@ def _participant_write_check(written: Path, content: str) -> str:
         findings = participant_findings(content)
     except Exception:                                    # noqa: BLE001
         return ""
+    # A DROPPED SELF-CHECK IS A DIFFERENT CATEGORY AND GETS ITS OWN LINE. The
+    # findings above are calls that STOP the run; this one lets the run finish
+    # and hand in a wrong answer, so folding it into that count would
+    # misdescribe both.
+    #
+    # MEASURED over 35 agent-written participants: 23 kept the per-level dump
+    # and dropped the export self-check beside it, none did the reverse, and 21
+    # of the 23 dropped it in a script where it had never once fired. They did
+    # not remove an obstacle; they never copied it.
+    #
+    # It was written before the served contracts could support it and held back
+    # until they could: 19 of the 32 carried no self-check of any kind, so the
+    # advice "copy the block back from the served contract" would have been
+    # impossible to follow. All 32 carry one now, and 27 of them were re-run
+    # afterwards to prove it, so the gate is in.
+    try:
+        from tools.participant_lint import missing_export_selfcheck   # noqa: PLC0415
+        gap = missing_export_selfcheck(content)
+    except Exception:                                    # noqa: BLE001
+        gap = ""
+    gap_txt = (f"\n[write check] {written.name}: {gap}" if gap else "")
+    # THE IMPORT THAT NEVER REACHED THE ANSWER IS ITS OWN CATEGORY TOO, and the
+    # quietest of the three: the run finishes, the interface residual collapses,
+    # and the submission is complete and wrong. Measured on 63 recorded NGSolve
+    # participants (32 fire) and on the 516 graded cells (32 fire, none CORRECT).
+    try:
+        from tools.participant_lint import imported_values_not_held   # noqa: PLC0415
+        lost = imported_values_not_held(content)
+    except Exception:                                    # noqa: BLE001
+        lost = ""
+    if lost:
+        gap_txt += f"\n[write check] {written.name}: {lost}"
+    # A MESH THAT ASSEMBLES A SINGULAR SYSTEM IS THE THIRD CATEGORY: the run
+    # starts, the solver reports its own failure, and the mesh is never
+    # suspected. 29 of the 48 recorded hand-built tetrahedral scripts skip the
+    # sign check; every graded cell among them is incomplete.
+    try:
+        from tools.participant_lint import unoriented_tetrahedra   # noqa: PLC0415
+        tets = unoriented_tetrahedra(content)
+    except Exception:                                    # noqa: BLE001
+        tets = ""
+    if tets:
+        gap_txt += f"\n[write check] {written.name}: {tets}"
+    # AND THE SIDE THAT NEVER LISTENS. Cheapest of all to see and the hardest
+    # to read from the outcome: it converges at once and blames the partner.
+    try:
+        from tools.participant_lint import export_without_import   # noqa: PLC0415
+        deaf = export_without_import(content)
+    except Exception:                                    # noqa: BLE001
+        deaf = ""
+    if deaf:
+        gap_txt += f"\n[write check] {written.name}: {deaf}"
+    # AND THE CONTRACT THAT WAS NEVER ASKED FOR. The second code is where
+    # coupled runs die and 17 of 22 such cells never fetched its contract.
+    try:
+        from tools.participant_lint import contract_never_fetched   # noqa: PLC0415
+        unasked = contract_never_fetched(content)
+    except Exception:                                    # noqa: BLE001
+        unasked = ""
+    if unasked:
+        gap_txt += f"\n[write check] {written.name}: {unasked}"
     if not findings:
-        return ""
+        return gap_txt
     shown = findings[:8]
     more = f"\n  ... and {len(findings) - 8} more" if len(findings) > 8 else ""
     return (f"\n[write check] {written.name}: {len(findings)} call(s) in this script are known to stop "
             f"the run, each measured on this install -- fix them before you spend a run learning them:\n"
-            + "\n".join(f"  - {f}" for f in shown) + more)
+            + "\n".join(f"  - {f}" for f in shown) + more + gap_txt)
 
 
 def _deck_findings_text(tag: str, name: str, findings: list, when: str) -> str:
@@ -1167,6 +1266,33 @@ def _participant_run_check(output: str) -> str:
     if not findings:
         return ""
     return ("\n[run check] this failure is a known one, measured on this install:\n"
+            + "\n".join(f"  - {f}" for f in findings))
+
+
+def _participant_command_check(command: str, workdir, output: str = "") -> str:
+    """The wrong interpreter, named from the COMMAND when the output cannot say it.
+
+    The run-side table answers `No module named '<solver>'` from the traceback.
+    It is blind when the traceback never reaches the reply -- `python3
+    participant.py > log.txt 2>&1` is the common shape, and then the reply is
+    empty and the agent has to spend another call to find out why. This reads
+    the command instead: a bare `python`/`python3` on a script that imports a
+    solver, and it ASKS that interpreter whether it can import it.
+
+    It says nothing when the output already carries the error, because the
+    run-side finding names the same thing and two findings for one defect cost
+    an action to read.
+    """
+    if output and "No module named" in output:
+        return ""
+    try:
+        from tools.participant_lint import wrong_interpreter_in_command   # noqa: PLC0415
+        findings = wrong_interpreter_in_command(command, workdir)
+    except Exception:                                    # noqa: BLE001
+        return ""
+    if not findings:
+        return ""
+    return ("\n[command check] this command will not reach your solve:\n"
             + "\n".join(f"  - {f}" for f in findings))
 
 
@@ -1275,3 +1401,62 @@ def _fourc_after_shell_check(workdir: Path, started_at: float, command: str = ""
         return "".join(out)
     except Exception:                                    # noqa: BLE001
         return ""
+
+
+def deliverable_findings_after_worker(workdir: Path) -> str:
+    """Defects in the deliverable set on disk, for a parent whose worker just returned.
+
+    THE LADDER IS DELEGATED, SO THE WRITE-TIME HOOKS MISS IT. The served
+    ladder asks for one sub-agent per step, and a worker that writes the
+    deliverables takes every write-time finding with it when it exits: the
+    parent gets a success report. Measured on a cell that built a real
+    three-level ladder and had its worker copy the finest level's console
+    into all six run logs -- four findings existed, each naming the file and
+    the fix, and none of them reached anyone who could act.
+
+    Reads the agent's own files only, and returns '' when they are sound.
+    """
+    try:
+        from tools.result_audit import (                   # noqa: PLC0415
+            _level_files, deliverable_proof_due, wrong_level_run_log_findings)
+    except Exception:                                      # noqa: BLE001
+        return ""
+    found: list = []
+    try:
+        # ONLY WHERE THE LOG IS DEMONSTRABLY ANOTHER LEVEL'S. The body reports
+        # any mismatch between a deliverable log's dof count and that side's
+        # captured console, and a near-miss is not a copied log: measured on
+        # the graded record it speaks on 3 of the 32 correct cells, two of them
+        # differing by 1% and 6% with no other level to match. It says which
+        # case it found -- "it is level N's console" -- so keep that one.
+        found += [f for f in (wrong_level_run_log_findings(workdir) or [])
+                  if "'s console." in str(f.get("finding", ""))
+                  and "it is level" in str(f.get("finding", ""))]
+    except Exception:                                      # noqa: BLE001
+        pass
+    try:
+        done = sorted({k for _q, kind, k, _s in _level_files(workdir, "csv")
+                       if str(kind).startswith("residual")})
+        if done:
+            found += list(deliverable_proof_due(workdir, done) or [])
+    except Exception:                                      # noqa: BLE001
+        pass
+    # ndof_ladder_findings IS DELIBERATELY NOT HERE. It speaks on 8 of the 32
+    # correct cells -- a quarter of the work that goes on to be right -- so it
+    # is not precise enough to interrupt a run with. It stays in the hand-in
+    # audit, where the same statement costs nothing.
+    if not found:
+        return ""
+    seen, uniq = set(), []
+    for f in found:
+        key = str(f.get("finding", ""))[:80]
+        if key in seen:
+            continue
+        seen.add(key)
+        uniq.append(f)
+    return ("\n\n[the worker changed your deliverables; checked against your own "
+            "files:]\n"
+            + "\n".join(f"  * {f.get('finding', '')}" for f in uniq[:4])
+            + ("\n  ... and %d more" % (len(uniq) - 4) if len(uniq) > 4 else "")
+            + "\nEvery one of these is read straight off your own files by "
+              "whoever judges the result.")

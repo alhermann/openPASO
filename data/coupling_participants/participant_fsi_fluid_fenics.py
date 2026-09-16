@@ -41,11 +41,21 @@ REFERENCE (undeformed) positions of the interface nodes, on both sides.  The
 interface is a material surface, so this is the stable parametrisation; using
 deformed coordinates makes the exchange chase its own tail.
 """
+import dolfinx
 import json
 import sys
 from pathlib import Path
 
 import numpy as np
+# MAKE THIS CODE SPEAK, BEFORE THE SOLVE RUNS. It is silent by default, and a
+# per-level run log carrying no line the solver itself emitted cannot
+# establish which code ran on this side, however right its numbers are.
+# It sits HERE, beside the level rule, and not up with the imports:
+# measured over agent-written participants, a line placed in the import
+# block survived in about half of them because that block gets rewritten,
+# while everything beside the level rule survived in all of them.
+dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO)
+
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 import ufl
 import basix.ufl
@@ -54,6 +64,7 @@ from dolfinx.fem.petsc import LinearProblem, NonlinearProblem
 from mpi4py import MPI
 from petsc4py import PETSc
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
+
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
 #    Replace ALL of them with your problem's geometry, material and BCs.
@@ -347,6 +358,38 @@ def main():
     # net interface force, for the equilibrium check on the other side
     fx = fem.assemble_scalar(fem.form(-ufl.dot(sigma, n)[0] * ds(4)))
     fy = fem.assemble_scalar(fem.form(-ufl.dot(sigma, n)[1] * ds(4)))
+
+    # THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its OWN, printed
+    # PER LEVEL. It is how a grader tells a refined mesh from the same mesh run
+    # three times. The LEADING NEWLINE is deliberate: a program that writes without
+    # a trailing newline glues its text onto the front of the next line.
+    try:
+        print(f"\nNDOF = {int(W.dofmap.index_map.size_global * W.dofmap.index_map_bs)}")
+    except Exception as _ndof_exc:
+        print(f"[fsi-fluid] could not report NDOF: {_ndof_exc!r}. Your task's execution"
+              f" log needs `NDOF = <integer>` on a line of its own, so print your"
+              f" own degree-of-freedom count here.")
+
+    # ── EXPORT SELF-CHECK ─ keep this block. TWO of the three checks, and the
+    #    third DELIBERATELY LEFT OUT. A non-finite export is worthless, and so
+    #    is a fluid that reports ~0 traction on a nonzero interface: the load
+    #    path is not there, and it still couples and still converges. The
+    #    "exported flux is the partner's array negated" check that the scalar
+    #    contracts carry does NOT belong here: in FSI the two sides' tractions
+    #    are anti-parallel BY CONVENTION and must sum to zero, so that check
+    #    would fault a correct export.
+    _chk_t = np.asarray(traction, float).ravel()
+    _chk_d = np.asarray(d_iface, float).ravel()
+    if not (np.isfinite(_chk_t).all() and np.isfinite(_chk_d).all()):
+        raise SystemExit("EXPORT SELF-CHECK: non-finite interface traction or "
+                         "imposed displacement; the solve did not produce a "
+                         "usable field, so nothing was exported")
+    if _chk_t.size and np.abs(_chk_t).max() == 0.0:
+        raise SystemExit("EXPORT SELF-CHECK: the exported traction is "
+                         "identically zero on every interface point. A viscous "
+                         "channel flow exerts a load on its wall; a zero here "
+                         "means the stress was never evaluated on the interface "
+                         "facets. Fix the recovery; do not couple on")
 
     out = {
         "field_name": "traction_on_structure",

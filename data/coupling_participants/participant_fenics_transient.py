@@ -241,6 +241,7 @@ at the same level, which is the price of interpolating the trace twice per
 iteration.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -253,6 +254,7 @@ from dolfinx import default_scalar_type, fem, mesh as dmesh
 from dolfinx.fem import petsc as _fp
 from mpi4py import MPI
 from petsc4py import PETSc
+
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
 #    Replace ALL of them with your problem's geometry, material, BCs and time
@@ -357,6 +359,30 @@ def sample_trace(imp, key, fallback, y):
 
 
 imp = read_imports()
+
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides the mesh knobs and names the level. The dumps
+#    at the foot of this file carry that level in their NAME, so a mesh study
+#    leaves one file per level instead of the fine mesh overwriting the coarse.
+LEVEL = 1
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
+# MAKE THIS CODE SPEAK, BEFORE THE SOLVE RUNS. It is silent by default, and a
+# per-level run log carrying no line the solver itself emitted cannot
+# establish which code ran on this side, however right its numbers are.
+# It sits HERE, beside the level rule, and not up with the imports:
+# measured over agent-written participants, a line placed in the import
+# block survived in about half of them because that block gets rewritten,
+# while everything beside the level rule survived in all of them.
+dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO)
 
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
@@ -639,7 +665,89 @@ print(f"[fenics-transient {SIDE}] iface n={len(iface_dofs)} steps={N_STEPS} "
       f"T(t_end)=[{T_out[:, -1].min():.6g},{T_out[:, -1].max():.6g}] "
       f"q(last step)=[{Q_out[:, -1].min():.6g},{Q_out[:, -1].max():.6g}]")
 
+# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its OWN.
+# The audit and the hand-in read that exact shape, and they read it PER
+# LEVEL: it is how a grader tells a refined mesh from the same mesh run
+# three times. The LEADING NEWLINE is deliberate -- a program that writes
+# without a trailing newline glues its text onto the front of the next
+# line, and an X11 warning has done exactly that here, turning a correct
+# line into 'Invalid MIT-MAGIC-COOKIE-1 keyNDOF = 54'.
+# A number inside a prose sentence does not count either, and a
+# wrong number is worse than none -- one coupled run that was right in
+# every other respect reported NDOF = 1 at all three levels, and its
+# refined mesh could not be told from an unrefined one.
+try:
+    print(f"\nNDOF = {int(len(uh.x.array))}")
+except Exception as _ndof_exc:
+    print(f"[fenics-transient] could not report NDOF: {_ndof_exc!r}. Your task's"
+          f" execution log needs `NDOF = <integer>` on a line of its own,"
+          f" so print your own degree-of-freedom count here.")
+
+# PER-LEVEL PERSISTENCE: the END-OF-WINDOW field, and the interface trace and
+# flux at the last step, named by LEVEL. field_final.npz and exports.json are
+# both overwritten by the next level; these files are not, which is what a mesh
+# study needs. Interpolate THESE onto the probe points your task names.
+# A DUMP DEFECT MUST NOT COST YOU THE SOLVE. exports.json is the driver's
+# proof that this participant succeeded, and it is written after these files,
+# so an exception here would throw away a coupling iteration that worked.
+try:
+    with open(f"field_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u\n")
+        for (_px, _py), _u in zip(xy[:, :2], uh.x.array):
+            _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(_u):.11e}\n")
+    with open(f"interface_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u,qn\n")
+        for _yy, _t, _q in zip(y_if, T_out[:, -1], Q_out[:, -1]):
+            _f.write(f"{float(IFACE_X):.11e},{float(_yy):.11e},"
+                     f"{float(_t):.11e},{float(_q):.11e}\n")
+except Exception as _dump_exc:
+    # AND LEAVE NO HALF-WRITTEN FILE BEHIND. `open(..., "w")` truncates
+    # before it fails, so a dump that died mid-way leaves a header-only
+    # CSV -- a file that looks like a submission and carries no rows.
+    for _partial in (f"field_level{LEVEL}.csv", f"interface_level{LEVEL}.csv"):
+        try:
+            if Path(_partial).is_file() and len(
+                    Path(_partial).read_text().splitlines()) <= 1:
+                Path(_partial).unlink()
+        except OSError:
+            pass
+    print(f"[fenics_transient per-level dump] level {LEVEL} dump failed: "
+          f"{_dump_exc!r}. exports.json is still written, so the coupling\n"
+          f"continues, but this level has no field file to hand in. Fix the\n"
+          f"names the dump reads and run this level again.")
+
 # exports.json LAST: the driver takes its existence as proof of success.
+# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+#    fine and are worthless: a non-finite field; a Neumann side whose imported
+#    load never entered the assembled system (it returns the no-load answer and
+#    a flux of ~0 against a nonzero partner); and a flux that is the
+#    partner's array negated instead of a recovery from THIS side's own system.
+_chk_vals = np.asarray(T_out, float).ravel()
+_chk_flux = np.asarray(Q_out, float).ravel()
+if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or "
+                     "fluxs; the solve did not produce a usable field, so "
+                     "nothing was exported")
+_chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+            if Path("imports.json").is_file() else {})
+_chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                            for _d in _chk_imp.values()])
+            if _chk_imp else np.zeros(0))
+if SIDE == "neumann" and _chk_qin.size and np.abs(_chk_qin).max() > 0 \
+        and np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max():
+    raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 "
+                     "against a nonzero imported flux: the imported load "
+                     "never entered the assembled system (the facet term / "
+                     "boundary condition that integrates it is missing). Fix "
+                     "the application; do not couple on")
+# (Dirichlet role only: a Neumann side's consistent recovery of a CONSTANT
+#  applied load can legitimately reproduce it to the last bit.)
+if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size \
+        and np.array_equal(_chk_flux, -_chk_qin):
+    raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's "
+                     "array negated, bit for bit: a copy, not a recovery from "
+                     "this side's own assembled system")
+
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",
     "n_points": int(len(iface_dofs)),

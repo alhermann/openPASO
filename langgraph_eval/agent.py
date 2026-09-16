@@ -52,22 +52,17 @@ REPO = Path(__file__).resolve().parents[1]
 
 PORTS = {"7b": 8000, "14b": 8001, "32b": 8002}
 
-# WHAT openPASO RECOMMENDS MUST BE ON THIS LIST, and
-# tests/test_what_openpaso_recommends_is_reachable.py holds it there. That test
-# found three tools named by the served coupling text and missing from here --
-# check_input, couple_levels and verify_interface_flux -- which means agents
-# were told to call capabilities this surface does not carry.
+# WHAT OPENPASO RECOMMENDS AND WHAT THE AGENT CAN CALL MUST BE THE SAME SET.
+# This list was frozen on 2026-09-01. `couple_levels` was written on 2026-09-11
+# for the failure it is named after -- "six proven couplings never reached level
+# 3 when every level cost ten calls" -- and, because nothing re-checked the list,
+# stayed unreachable: 3 invocations in 2095 trajectories against 1076 of
+# `couple`, while openPASO's text recommending it appears in 260 of them.
+# `check_input` is what the coupled ladder's own step-1 brief tells the worker to
+# run. tests/test_a_tool_openpaso_tells_you_to_call_can_be_called.py is what keeps
+# the two sides together from here on.
 #
-# The failure has a shape worth naming, because it has now happened three times
-# in two days across two trees: a capability exists, the text recommends it, and
-# it is unreachable for the population it was written for. The evaluation
-# harness this fork came from measured the cost of one instance -- couple_levels
-# was invoked 3 times in 2095 trajectories while its own recommendation appeared
-# in 260 of them, and it is the tool written to fix the per-level budget problem
-# that kept proven couplings from reaching level 3. Adding a tool is still a
-# reviewed contract change; what is NOT a decision is whether the surface should
-# match the advice.
-#
+# tests/test_what_openpaso_recommends_is_reachable.py holds the same line from the served-text side.
 # coupled_solve stays off deliberately: the text names it in order to say
 # DEPRECATED, and the test reads that sentence rather than the token.
 CAMPAIGN_MCP_TOOL_ALLOWLIST = frozenset({
@@ -590,7 +585,12 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False,
     # 18 of 18 runs on the coupled cell set FACE_HEAT_FLUX with no condition;
     # catching that only on write_file would miss every agent that uses a
     # heredoc, which this file already measured at 57% for RESULT.txt.
-    _SCRIPTS = ("*.py",)
+    # A 4C DECK IS A SCRIPT FOR THIS PURPOSE. _fourc_deck_write_check judges
+    # .yaml/.yml/.dat and returns "" for anything else, so a route watching only
+    # *.py could never hand it a deck. Measured over the live trajectories:
+    # 229 of 486 decks (47%) reach disk by shell heredoc, against 452 of 7339
+    # participant scripts (6%).
+    _SCRIPTS = ("*.py", "*.yaml", "*.yml", "*.dat")
 
     def _artefact_mtimes() -> dict:
         out = {}
@@ -635,11 +635,19 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False,
                        if before.get(f) is None or t > before[f]]
             for f in sorted(touched, key=lambda x: now[x], reverse=True):
                 try:
+                    # A solver writes .yaml output too (4C leaves a monitor file
+                    # per Dirichlet condition). Both content checks read what
+                    # they are given, so cap the read rather than the glob: a
+                    # deck is kilobytes, and looks_like_deck() refuses the rest.
+                    if f.stat().st_size > 2_000_000:
+                        continue
                     _txt = f.read_text(errors="replace")
                     got = (_constant_deliverable_check(f, _txt)
                            + _script_noop_check(f, _txt)
                            + _registry_attribute_check(f, _txt)
-                           + _extra_script_checks(f, _txt))
+                           + _extra_script_checks(f, _txt)
+                           + _fourc_deck_write_check(f, _txt)
+                           + _participant_write_check(f, _txt))
                 except OSError:
                     continue
                 if got:
@@ -744,6 +752,7 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False,
                        + _env_after_wrapper_check(command)
                        + _fourc_run_check(command, out, workdir)
                        + _participant_run_check(out)
+                       + _participant_command_check(command, workdir, out)
                        + _fourc_after_shell_check(workdir, _started_at, command)
                        if audit_on_submit else "")
                     + _script_check_after_shell(_before_scr)
@@ -1008,6 +1017,14 @@ def _make_spawn_subagent_tool(
                 config={"recursion_limit": 40},
             )
             report = out["messages"][-1].content
+            # A WORKER THAT WROTE DELIVERABLES TOOK EVERY WRITE-TIME FINDING
+            # WITH IT. The body lives in openPASO; this only calls it.
+            try:
+                _dw = _deliverable_findings_after_worker(workdir)
+                if _dw:
+                    report = str(report) + str(_dw)
+            except Exception:                              # noqa: BLE001
+                pass
             try:
                 _rt2 = next(iter(sorted(workdir.rglob("RESULT.txt"))), None)
                 if _rt2 is not None and _rt2.exists() and (_rt_before is None or _rt2.stat().st_mtime > _rt_before):
@@ -1211,8 +1228,10 @@ from tools.workspace_advisor import (          # noqa: E402
     _identical_levels_check, _level_index_check, _registry_attribute_check,
     _looks_like_captured_output, _registry_error_check, _script_noop_check,
     _work_on_disk_contradicting_a_give_up,
+    deliverable_findings_after_worker as _deliverable_findings_after_worker,
     _wrong_level_run_log_check, _fourc_deck_write_check, _fourc_run_check,
-    _fourc_after_shell_check, _participant_write_check, _participant_run_check)
+    _fourc_after_shell_check, _participant_write_check, _participant_run_check,
+    _participant_command_check)
 
 
 

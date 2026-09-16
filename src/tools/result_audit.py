@@ -219,6 +219,18 @@ def _sequences_from_workdir(work: Path) -> dict[str, list[float]]:
     return seqs
 
 
+def _is_participant_dir(d: Path) -> bool:
+    """True when this directory is one participant's own work dir.
+
+    That is what makes two same-named per-level files two SIDES rather than a
+    collision: each participant runs in its own directory and dumps there.
+    """
+    try:
+        return (d / "config.json").is_file() or any(d.glob("participant*.py"))
+    except OSError:
+        return False
+
+
 def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
     """Self-convergence from per-level CSVs on a common probe grid.
 
@@ -303,7 +315,9 @@ def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
     # it without having to enumerate every scratch directory a backend might
     # invent; genuine ambiguity (two files at the SAME depth for one slot) is
     # still refused.
-    dup = []
+    dup: list = []
+    split: dict[tuple, dict[int, list]] = {}   # side recovered from the directory
+    drop: list = []
     for k, byl in groups.items():
         for lv, qs in list(byl.items()):
             if len(qs) == 1:
@@ -312,9 +326,37 @@ def _sequences_from_level_csvs(work: Path) -> dict[str, list[float]]:
             shallowest = min(depth.values())
             keep = [q for q in qs if depth[q] == shallowest]
             if len(keep) > 1:
+                # THE SIDE IS IN THE DIRECTORY WHEN IT IS NOT IN THE NAME.
+                #
+                # The served per-level dump writes interface_level<k>.csv into
+                # each participant's OWN work dir, so a two-sided run has two
+                # files with one name at one depth and they tie here. That is
+                # not a collision, it is the normal layout -- `field` was
+                # already skipped for this exact reason, and `interface` was
+                # not, so a correct coupled set was refused.
+                #
+                # MEASURED, and it cost a whole cell: one run was told to
+                # "remove the stale ones", deleted a side's files, and the next
+                # audit found ZERO sequences -- so the divergence in its own
+                # ladder (self-differences growing five-fold per level) was
+                # never reported and the run submitted a diverging answer as
+                # final. Split by the directory instead of refusing, which
+                # recovers both sides rather than discarding both.
+                by_dir = {q.parent: q for q in keep}
+                if len(by_dir) == len(keep) and all(
+                        _is_participant_dir(d) for d in by_dir):
+                    for d, q in by_dir.items():
+                        split.setdefault((k[0], d.name.upper()), {})[lv] = [q]
+                    drop.append((k, lv))
+                    continue
                 dup.append(f"{k[0]}{'_' + k[1] if k[1] else ''} level {lv}: "
-                           f"{sorted(x.name for x in keep)}")
+                           f"{sorted(str(x.relative_to(work)) for x in keep)}")
             byl[lv] = keep
+    for k, lv in drop:                       # the tied slot became one slot per side
+        groups[k].pop(lv, None)
+    for k, byl in split.items():
+        groups.setdefault(k, {}).update(byl)
+    groups = {k: v for k, v in groups.items() if v}
     if dup:
         return {"__ambiguous__": dup}
 
@@ -547,6 +589,47 @@ def residual_findings(work: Path) -> list[dict]:
                             "never actually computed from the two sides.")})
             continue
         if vals[0] / max(vals[-1], 1e-300) < 10.0:
+            # A STALLED ITERATION AND A WANDERING ONE HAVE DIFFERENT CAUSES,
+            # AND ONLY ONE OF THEM IS THE RELAXATION.
+            #
+            # Slow monotone decay is under-relaxation: the sequence goes down
+            # every step and simply needs more steps or a better theta. A
+            # sequence that goes UP about as often as it goes DOWN is not
+            # converging slowly, it is not converging at all, and more
+            # iterations and a smaller theta cannot fix it -- each side is
+            # undoing the other.
+            #
+            # MEASURED on one coupled run whose own critic had computed the
+            # conductance ratio correctly and concluded, rightly, that the
+            # default relaxation should converge in a few steps: 499
+            # iterations, 244 steps up and 254 down, wandering between 0.24 and
+            # 1.26 about a mean of 0.65, 68% of consecutive steps reversing
+            # direction. It spent its whole budget raising max_iter to 200 and
+            # then switching accelerator, which is what this finding used to
+            # leave a reader to guess.
+            ups = sum(1 for a, b in zip(vals, vals[1:]) if b > a)
+            downs = len(vals) - 1 - ups
+            wandering = len(vals) >= 8 and ups >= 0.35 * (len(vals) - 1)
+            why = ""
+            if wandering:
+                flips = sum(1 for a, b, c in zip(vals, vals[1:], vals[2:])
+                            if (b - a) * (c - b) < 0)
+                why = (
+                    f" IT IS NOT SLOW, IT IS WANDERING: {ups} step(s) up against "
+                    f"{downs} down over {len(vals)} iterations"
+                    + (f", {flips / max(len(vals) - 2, 1):.0%} of them reversing "
+                       f"direction" if len(vals) > 2 else "")
+                    + ". Under-relaxation makes a sequence go DOWN every step and "
+                    "only slowly, so this is not the relaxation and neither more "
+                    "iterations nor a smaller theta will fix it: the two sides "
+                    "are undoing each other. Check the two things that do that. "
+                    "(1) THE SIGN: each side must export its OWN outward normal "
+                    "flux, so at the same physical point the two sides report "
+                    "opposite signs; a side that re-exports the partner's sign "
+                    "gives exactly this. (2) THE POINTS: both sides must exchange "
+                    "the SAME interface points in the SAME order -- compare the "
+                    "coordinate lists in the two exports.json, not just their "
+                    "lengths.")
             out.append({"sequence": name, "values": [vals[0], vals[-1]],
                         "finding": (
                             f"RESIDUAL BARELY MOVED: {vals[0]:.3g} -> "
@@ -554,7 +637,7 @@ def residual_findings(work: Path) -> list[dict]:
                             f"{vals[0] / max(vals[-1], 1e-300):.2g}. That is "
                             f"not a converged coupling; it is the iteration "
                             f"standing still, and it is read as not "
-                            f"coupled.")})
+                            f"coupled." + why)})
             continue
         if len(set(f"{v:.12g}" for v in vals)) == 1:
             out.append({"sequence": name, "values": vals[:4],
@@ -650,9 +733,15 @@ def residual_findings(work: Path) -> list[dict]:
     return out
 
 
-def contract_findings(work: Path) -> list[dict]:
+def contract_findings(work: Path, only_levels: set | None = None) -> list[dict]:
     """Result-set defects an independent check fails on that this audit never
     checked.
+
+    `only_levels` restricts every per-level judgement to the levels named,
+    which is what lets these findings be delivered DURING the ladder instead
+    of at hand-in: at level 1 the agent is owed the level-1 proof and nothing
+    about levels it has not reached. Left None (the default, and what the
+    hand-in audit passes) nothing changes.
 
     The audit existed to catch what sinks a result set, and 27 of 36
     single-code runs called it — but it looked only at the convergence
@@ -678,6 +767,8 @@ def contract_findings(work: Path) -> list[dict]:
     for f in sols:
         if _level_of(f) is not None:
             levels.add(_level_of(f))
+    if only_levels is not None:
+        levels &= set(only_levels)
     if levels:
         # PER SIDE, NOT PER LEVEL. This asked whether ANY log at a level carried a dof count, and a
         # coupled run is graded per side: "the file for side A must carry the output of the code that
@@ -783,8 +874,8 @@ def contract_findings(work: Path) -> list[dict]:
                     f"the coarsest one; or (b) the solution file has far fewer "
                     f"rows than the task's probe grid, so the deliverable is "
                     f"short whatever the solve did. Check which one you have "
-                    f"NOW: at level 1 there is still time, at level 3 there "
-                    f"is not.")})
+                    f"NOW: fixing it at level 1 costs one solve, at level 3 "
+                    f"it costs the whole ladder.")})
 
     # 1c. A SOURCE TERM BUILT FROM ELEMENT-LOCAL COORDINATES.
     #
@@ -2002,8 +2093,12 @@ def ndof_ladder_findings(work: Path) -> list[dict]:
         "were unusable for exactly this.")}]
 
 
-def completeness_findings(work: Path) -> list[dict]:
+def completeness_findings(work: Path, only_levels: set | None = None) -> list[dict]:
     """Members of the per-level x per-side deliverable set that are absent.
+
+    `only_levels` narrows the expected set to the levels named, so the same
+    body can be asked "what is missing for the level just finished?" while the
+    ladder is still running. Left None nothing changes.
 
     Inferred from the agent's OWN files, no task parsing: the levels are
     every k seen in any *_level<k>* deliverable, the sides are every _A/_B
@@ -2030,6 +2125,8 @@ def completeness_findings(work: Path) -> list[dict]:
             if s:
                 sides.add(s)
             seen.setdefault(fam, set()).add((k, s or None))
+    if only_levels is not None:
+        levels &= set(only_levels)
     if not levels or not seen:
         return []
     missing = []
@@ -3181,6 +3278,58 @@ def run_log_identity_findings(work: Path) -> list[dict]:
     return out
 
 
+
+_AXIS_SUFFIX = re.compile(r"^(?P<base>.+?)[ _\-]?(?P<ax>[xyz])$", re.I)
+
+
+def _vector_order_view(seqs: dict) -> dict:
+    """Replace the components of one vector field by the vector itself.
+
+    AN ORDER IS A PROPERTY OF A FIELD IN A NORM, NOT OF ONE CARTESIAN
+    COMPONENT. The interface exclusion directly below already learned half of
+    this lesson; the other half is the minor component of a vector. On C9 seed
+    8791 -- the first VECTOR cell ever graded CORRECT, at order 1.927 -- side
+    A's ux self-difference improves at 1.92 and its uy, seven times smaller and
+    sitting near the coupling iteration's own floor, improves at 0.96. The
+    check fired on that component and told a correct agent its exchanged datum
+    was O(h) and its coupling first-order. The vector formed from both
+    components improves at 1.88, which is what the grader measures and what is
+    true. Every scalar problem has one component per side, so its view is
+    unchanged -- which is why this never showed on the 26 scalar CORRECT cells.
+
+    Components join only when their own column names say so: identical after a
+    trailing x/y/z is removed, with at least two distinct axes present. A field
+    with no axis suffix always stands alone, so a temperature shipped beside a
+    displacement (`T, ux, uy`, 43 files here) is never folded into it and can
+    never be masked by it.
+    """
+    fam: dict = {}
+    for label, seq in seqs.items():
+        if not label.startswith("selfdiff_"):
+            continue
+        tag, _, field = label[len("selfdiff_"):].rpartition("_")
+        if not tag:
+            continue
+        m = _AXIS_SUFFIX.match(field)
+        if not m or not m.group("base"):
+            continue
+        fam.setdefault((tag, m.group("base")), {})[m.group("ax").lower()] = (
+            label, seq)
+    view = dict(seqs)
+    for (tag, base), axes in fam.items():
+        if len(axes) < 2:
+            continue                      # one axis is not a vector
+        members = [axes[a] for a in sorted(axes)]
+        n = min(len(s) for _, s in members)
+        if n < 2:
+            continue
+        for lab, _ in members:
+            view.pop(lab, None)
+        view[f"selfdiff_{tag}_{base}|vector"] = [
+            math.sqrt(sum(s[i] ** 2 for _, s in members)) for i in range(n)]
+    return view
+
+
 def audit(work_dir: str, claimed_order: float | None = None,
           summary_path: str | None = None) -> dict:
     """The three questions, answered from the agent's own files.
@@ -3389,3 +3538,381 @@ def audit(work_dir: str, claimed_order: float | None = None,
         "note": ("This audit uses ONLY your own files — no reference "
                  "solution. 'clean' means self-consistent, not correct."),
     }
+
+
+# ── the proof that is owed NOW, not at hand-in ─────────────────────────────
+#
+# MEASURED, and it is the largest recoverable loss in the record. Of 516
+# graded coupled cells, 112 were malformed and 92 of those carry PROVEN
+# execution evidence: the runs happened. 34 of them reached three coupled
+# levels with both codes proven, the coupling proven and the interface
+# satisfied, and scored nothing. The single commonest reason is one line --
+# no captured run log carrying `NDOF = <n>` for some (level, side).
+#
+# The check for that already exists and already runs. It runs when the
+# submission is written, and by then the median cell has TWO tool calls left;
+# one in five has none. It names work costing five to fifteen actions. The
+# same observation was made once before from file mtimes -- five of six runs
+# wrote their summary at 93-99% of their file-activity span -- and two checks
+# were moved early in response. These two were not, and they are the two that
+# decide the malformed bucket.
+#
+# So this selects the subset that is ALREADY OWED for the levels the agent has
+# actually coupled, to be delivered as each level finishes. What it must not
+# do is ask for work that is not due yet: `contract_findings` at level 1
+# reports ONLY 1 LEVEL(S) DELIVERED, which is true at hand-in and pure noise
+# to an agent who is on level 1 of three (measured on seeds 5622 and 7262).
+# A gate that names an absent defect costs an action for nothing.
+
+_DUE_PER_LEVEL = ("run-log contract", "coupling evidence", "discretisation size")
+
+
+def deliverable_proof_due(work: Path, levels_done) -> list[dict]:
+    """Findings already owed for the levels that have actually been coupled.
+
+    Self-consistency only: every one of these reads the agent's own files and
+    compares them against each other. Nothing here knows what any task asked
+    for.
+    """
+    try:
+        lv = {int(k) for k in (levels_done or [])}
+    except (TypeError, ValueError):
+        return []
+    if not lv:
+        return []
+    out: list[dict] = []
+    try:
+        out += [f for f in contract_findings(work, only_levels=lv)
+                if f.get("sequence") in _DUE_PER_LEVEL]
+    except Exception:                                    # noqa: BLE001
+        pass
+    try:
+        out += completeness_findings(work, only_levels=lv)
+    except Exception:                                    # noqa: BLE001
+        pass
+    # run_log_identity_findings IS DELIBERATELY NOT HERE, and it was in the
+    # first draft. Measured against the graded record it speaks on 9 of the 32
+    # CORRECT cells -- C3 runs whose logs are 76 to 242 bytes of the agent's
+    # own words and which an independent check accepted anyway. A mid-run
+    # surface that interrupts 28% of the work that goes on to be right is not
+    # precise enough to be worth an action. It stays in the hand-in audit,
+    # where it costs less and where it belongs.
+    return out
+
+
+# ── what your own files already say about the ANSWER, per level ────────────
+#
+# The deliverable proof above asks whether the run can be shown to have
+# happened. This asks whether what it produced is worth handing in, and it is
+# the family that decides CORRECT against COMPLETED_UNPHYSICAL.
+#
+# MEASURED on a live cell. C9 seed 8632 coupled three levels with both codes
+# proven, wrote every deliverable, and graded COMPLETED_UNPHYSICAL at order
+# 0.16. Its own files said so three times over -- the field peaks below 1e-8,
+# the levels sit within 5% of each other so refinement changes nothing, and
+# the reported interface residual of 3.50e-15 is contradicted by its own two
+# interface files, which differ by 127% of their own scale. Every one of those
+# findings existed. NEAR-ZERO FIELD and FLOOR appear ZERO times in its
+# trajectory, because they live only inside audit(), and audit() ran when the
+# submission was written -- with two tool calls left.
+#
+# Same bodies, asked per level while the ladder is still running, and scoped
+# to levels that have actually been coupled.
+
+_MAG = "magnitude_"
+
+
+def field_quality_due(work: Path, levels_done) -> list[dict]:
+    """Answer-quality findings already visible in the agent's own files.
+
+    Self-consistency only: a field measured against itself across levels, and
+    the two sides' interface files measured against each other.
+    """
+    try:
+        lv = {int(k) for k in (levels_done or [])}
+    except (TypeError, ValueError):
+        return []
+    if not lv:
+        return []
+    out: list[dict] = []
+    try:
+        seqs = dict(_sequences_from_workdir(work))
+        csvs = _sequences_from_level_csvs(work)
+        if "__ambiguous__" not in csvs:
+            seqs.update(csvs)
+    except Exception:                                    # noqa: BLE001
+        seqs = {}
+    for label, seq in seqs.items():
+        # SOLUTION FIELDS ONLY. An interface TRACE may legitimately be zero --
+        # a Dirichlet seam held at zero, a flux that genuinely vanishes -- and
+        # two cells that went on to grade CORRECT carry exactly that (an
+        # interface u of 0 and an interface q of 1.9e-16). A solution field
+        # that peaks below 1e-8 is a solve that produced nothing, and that is
+        # never right.
+        if not label.startswith(_MAG + "solution") or not seq:
+            continue
+        if seq[0] < 1e-8:
+            out.append({"sequence": label, "values": seq, "finding": (
+                "NEAR-ZERO FIELD: this field peaks below 1e-8. For a driven "
+                "problem that almost always means the load never entered the "
+                "assembled system -- not that the answer is a very small "
+                "number. Check it now: a level that solves nothing costs the "
+                "whole ladder built on top of it.")})
+    # FLOOR needs two levels to mean anything, and only the self-difference
+    # sequences carry it -- a magnitude that barely moves is often correct.
+    for label, seq in _vector_order_view(seqs).items():
+        if not label.startswith("selfdiff_") or len(seq) < 2:
+            continue
+        rel = [abs(a - b) / max(abs(a), 1e-300) for a, b in zip(seq, seq[1:])]
+        if rel and all(r < 0.05 for r in rel):
+            out.append({"sequence": label, "values": seq, "finding": (
+                "FLOOR: successive levels are within 5% of each other, so "
+                "refinement is changing nothing. Whatever limits this number "
+                "it is not the mesh -- an iterative solver left at its default "
+                "stops around 1e-6 to 1e-7 and that floor becomes your "
+                "'error'. Refining further buys nothing until it moves.")})
+            break                                        # one is the message
+    # AND THE LADDER THAT IS GOING BACKWARDS. A refinement that makes the
+    # answer worse is never noise at this size, and it is the opposite failure
+    # to FLOOR: measured on a recorded cell whose self-differences grew about
+    # fivefold per level while its interface residual read 1e-15 and every
+    # other check reported clean.
+    for label, seq in _vector_order_view(seqs).items():
+        if not label.startswith("selfdiff_solution") or len(seq) < 2:
+            continue
+        if all(b > a * 1.5 for a, b in zip(seq, seq[1:])):
+            out.append({"sequence": label, "values": seq, "finding": (
+                "YOUR LADDER IS GOING BACKWARDS: each refinement made this "
+                "quantity WORSE, not better. A converging study never does "
+                "that outside noise, and a growing self-difference means the "
+                "finer mesh is solving a different problem -- a boundary "
+                "condition that moves with the mesh, an exchanged quantity "
+                "that scales with the node count, or probe points outside the "
+                "domain. Nothing built on top of this level will fix it.")})
+            break
+    # THE REPORTED-RESIDUAL-VS-FILES CHECK IS DELIBERATELY NOT HERE. It fires
+    # on a cell that went on to grade CORRECT (C3 seed 5942: the two interface
+    # files disagree at level 3 and the result was right anyway), so it is not
+    # precise enough to interrupt a run with. It stays in the hand-in audit.
+    try:
+        out += [f for f in (interface_continuity_findings(work) or [])
+                if any(f" level {k}" in str(f.get("sequence", "")) for k in lv)]
+    except Exception:                                    # noqa: BLE001
+        pass
+    out += _interface_transmitted_nothing(work, lv)
+    out += _imported_trace_not_held(work)
+    out += _side_exported_nothing(work)
+    return out
+
+
+def _side_exported_nothing(work: Path) -> list[dict]:
+    """One side's exports carry no field and no flux: all values exactly zero.
+
+    THE UPSTREAM SUPPLY OF THE DEAD EXCHANGE. `_interface_transmitted_nothing`
+    catches the pair once BOTH sides are silent and the per-level interface
+    files exist; by then the iteration has already converged on nothing and the
+    ladder is built on it. This reads one side's own exports.json, which exists
+    the moment a participant runs once -- before any coupling, before any
+    deliverable -- and says so while the run is still one side long.
+
+    THE SERVED SELF-CHECK CANNOT SEE THIS. Its zero guard
+    (coupling_knowledge.py, EXPORT SELF-CHECK) fires only for a Neumann side
+    whose recovered flux is ~0 against a NONZERO imported flux. A side handed
+    zeros -- the first coupling iteration, or a partner that is itself silent --
+    skips that branch entirely and exports nothing without a word. Measured in
+    single-side trials with the contract in hand and nothing to orchestrate:
+    2 of 7 successful-looking exports were identically zero.
+
+    Measured over 588 graded cells: 41 flagged -- 33 honest-incomplete, 5
+    failed, 3 malformed -- and **0 of 35 CORRECT**, 0 of 20 unphysical, 0 of 11
+    confidently wrong. It fires on nothing that ever produced a gradeable
+    number.
+
+    Judged only where the side exported something at all: an absent or empty
+    exports.json is a different defect with its own finding, and a side that
+    exports values but no fluxes (or the reverse) is judged on what it wrote.
+    """
+    out: list[dict] = []
+    try:
+        import numpy as _np
+    except Exception:                                    # noqa: BLE001
+        return out
+    for ep in sorted(work.rglob("exports.json")):
+        try:
+            e = json.loads(ep.read_text() or "{}")
+        except (OSError, ValueError):
+            continue
+        if not isinstance(e, dict):
+            continue
+        v = _np.asarray(e.get("values") or [], float).ravel()
+        q = _np.asarray(e.get("normal_fluxes") or [], float).ravel()
+        if v.size == 0 and q.size == 0:
+            continue                      # exported nothing at all: not this
+        vmax = float(abs(v).max()) if v.size else 0.0
+        qmax = float(abs(q).max()) if q.size else 0.0
+        if vmax != 0.0 or qmax != 0.0:
+            continue
+        side = ep.parent.name or str(ep.parent)
+        out.append({"sequence": f"side exported nothing {side}",
+                    "values": [vmax, qmax], "finding": (
+            f"{side} EXPORTED A FIELD AND A FLUX THAT ARE IDENTICALLY ZERO "
+            f"({ep}). Every value and every flux is exactly 0.0, so this side "
+            f"handed its partner nothing. On a driven problem that is the "
+            f"answer a solve returns when the load never entered the assembled "
+            f"system -- not a small number, the no-load answer. The export "
+            f"self-check in the served contract cannot see it: its zero guard "
+            f"only fires against a NONZERO imported flux, and a side handed "
+            f"zeros skips that branch. Two sides in this state agree perfectly, "
+            f"so the iteration converges at once and every self-consistency "
+            f"number the run reports about itself reads as success. Check that "
+            f"your source term and your boundary data actually reach the "
+            f"assembled system before coupling on this.")})
+        break                              # one side is the message
+    return out
+
+
+def _imported_trace_not_held(work: Path) -> list[dict]:
+    """A side's exported interface values differ from the ones it imported.
+
+    THE SAME DEFECT AS THE NGSOLVE-SPECIFIC WRITE GATE, SEEN FROM THE DATA AND
+    THEREFORE TRUE OF EVERY BACKEND. On a Dirichlet-Neumann pair the side that
+    imports a trace imposes it, so its own exported trace must come back
+    unchanged. Where it does not, the solve overwrote what was handed to it and
+    the two subdomains are answering different problems -- while the iteration
+    still converges, because each side is self-consistent.
+
+    FOUND BY ASKING WHAT SEPARATES C9 8631 (CORRECT) FROM 8632 (UNPHYSICAL).
+    Same problem, same two codes, same recovery method, the same 44 interface
+    points in the same order, three coupled levels each. 8631's side B exports
+    exactly what it imported (0.00%); 8632's differs by 127%. Five other
+    hypotheses were ruled out first -- point correspondence, corner handling,
+    the constrained dof set, the values array indexing, and whether
+    skfem's solve(*condense(...)) restores constrained values (it does).
+
+    Measured over every graded cell: **0 of the 8 judgeable CORRECT sides are
+    flagged**, against 67 sides in failing ones (33 honest-incomplete, 18
+    malformed, 12 failed, 2 unphysical, 2 confidently wrong).
+
+    Judgeable only where a side imports and exports the same shape of values,
+    which is what makes it the trace-holding side; anything else returns
+    nothing rather than a guess.
+    """
+    import json as _json
+    out: list[dict] = []
+    try:
+        import numpy as _np
+    except Exception:                                    # noqa: BLE001
+        return out
+    for sd in sorted(work.glob("side_*")):
+        try:
+            ip, ep = sd / "imports.json", sd / "exports.json"
+            if not (ip.is_file() and ep.is_file()):
+                continue
+            imp = _json.loads(ip.read_text() or "{}")
+            exp = _json.loads(ep.read_text() or "{}")
+            src = next(iter(imp.values()), {}) if imp else {}
+            iv = _np.array(src.get("values") or [], float)
+            ev = _np.array(exp.get("values") or [], float)
+            ic = _np.array(src.get("coordinates") or [], float)
+            ec = _np.array(exp.get("coordinates") or [], float)
+            if iv.size == 0 or ev.size == 0 or iv.shape != ev.shape:
+                continue                                 # not the trace-holding side
+            if ic.shape[0] != iv.shape[0] or ec.shape[0] != ev.shape[0]:
+                continue
+            scale = float(abs(iv).max())
+            if scale == 0.0:
+                continue
+            oi = _np.argsort(ic[:, 0]); oe = _np.argsort(ec[:, 0])
+            rel = float(abs(iv[oi] - ev[oe]).max() / scale)
+            if rel < 0.01:
+                continue
+            out.append({"sequence": f"imported trace {sd.name}", "values": [rel],
+                        "finding": (
+                f"{sd.name} EXPORTS A DIFFERENT TRACE FROM THE ONE IT IMPORTED: "
+                f"the two differ by {rel:.0%} of the imported scale at the same "
+                f"interface points. This side is given the partner's trace and "
+                f"imposes it, so what it exports back must be that trace "
+                f"unchanged; a difference means the solve moved values it was "
+                f"told to hold. The iteration converges anyway -- each side is "
+                f"self-consistent -- and the two subdomains end up answering "
+                f"different problems. Check that the interface degrees of "
+                f"freedom are in the constrained set the solve honours, and "
+                f"that nothing overwrites them afterwards. Measured across the "
+                f"graded record, no correct run has ever exported a trace that "
+                f"differs from the one it was given.")})
+        except Exception:                                # noqa: BLE001
+            continue
+    return out
+
+
+def _interface_transmitted_nothing(work: Path, lv) -> list[dict]:
+    """The same exchanged column identically zero on BOTH sides.
+
+    NEITHER SIDE'S OWN SELF-CHECK CAN SEE THIS. Each participant guards
+    "my recovered flux is ~0 against a NONZERO imported one" -- so when the
+    exchange is zero in both directions, both guards are satisfied and both
+    stay silent. The iteration then converges immediately, because a pair that
+    exchanges nothing cannot disagree, and each side returns the answer it
+    would have returned uncoupled.
+
+    MEASURED on a live cell: C9 seed 8741 coupled three levels with both codes
+    proven and its two sides agreeing on displacement to the digit, while the
+    traction columns read 9.5e-18 and 0.0. It graded COMPLETED_UNPHYSICAL.
+    Across the graded record the rule hits 14 cells -- 8 honest-incomplete, 4
+    malformed, 1 failed, 1 unphysical -- and NONE that are correct. A seam
+    legitimately at zero does not trip it: the test needs the SAME column dead
+    on BOTH sides while the interface carries a nonzero scale elsewhere.
+    """
+    out: list[dict] = []
+    try:
+        import csv as _csv
+        for fa in sorted(work.rglob("interface_level*_A.csv")):
+            k = _level_of(fa)
+            if k is None or k not in lv:
+                continue
+            fb = Path(str(fa).replace("_A.csv", "_B.csv"))
+            if not fb.is_file():
+                continue
+            def _read(q):
+                with q.open() as fh:
+                    rd = _csv.reader(fh)
+                    hdr = next(rd, None)
+                    rows = []
+                    for r in rd:
+                        try:
+                            rows.append([float(x) for x in r])
+                        except ValueError:
+                            pass
+                return hdr, rows
+            ha, A = _read(fa)
+            hb, B = _read(fb)
+            if not A or not B or len(A[0]) != len(B[0]):
+                continue
+            ncol = len(A[0])
+            scale = max([abs(v) for r in A for v in r[1:]]
+                        + [abs(v) for r in B for v in r[1:]] + [0.0])
+            if scale <= 1e-12:
+                continue
+            for c in range(1, ncol):
+                za = max(abs(r[c]) for r in A)
+                zb = max(abs(r[c]) for r in B)
+                if za < 1e-12 * scale and zb < 1e-12 * scale:
+                    name = (ha[c] if ha and c < len(ha) else f"column {c}")
+                    out.append({"sequence": f"interface transmitted nothing level {k}",
+                                "values": [za, zb], "finding": (
+                        f"YOUR TWO SIDES EXCHANGED NOTHING at level {k}: the "
+                        f"`{name}` column is identically zero in BOTH "
+                        f"{fa.name} and {fb.name} ({za:.2e} and {zb:.2e}) while "
+                        f"the interface carries values of order {scale:.2e} "
+                        f"elsewhere. Neither participant's export self-check can "
+                        f"see this -- each only fires when its OWN recovery is ~0 "
+                        f"against a NONZERO partner, and here both are zero, so "
+                        f"both stay quiet. The iteration then converges at once, "
+                        f"because two sides exchanging nothing cannot disagree, "
+                        f"and each returns the answer it would have returned with "
+                        f"no partner at all. Find where that quantity is recovered "
+                        f"and why it comes out zero before running another level.")})
+                    break
+    except Exception:                                    # noqa: BLE001
+        return out
+    return out

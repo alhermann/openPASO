@@ -24,6 +24,7 @@ EVENT_TYPES = frozenset({
     "source_read",        # developer(action='files') called
     "parameter_override", # agent used non-default parameters
     "convergence_issue",  # coupling took many iterations
+    "critic_review",      # submit_critic_review called
 })
 
 

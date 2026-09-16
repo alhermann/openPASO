@@ -38,31 +38,6 @@ def _tool_functions(tree: ast.AST):
                 break
 
 
-def _writes_captured_output(call: ast.Call) -> bool:
-    """couple() keeps each side's OWN console per level, and that is evidence.
-
-    The driver retains a participant's captured console in
-    participant_output.log, which the next level overwrites; measured on four
-    cells, every per-level run log then carried the finest level's DOF count.
-    So the console is also copied to participant_output_level<k>.log. What is
-    written is what the solver printed -- the anti-fabrication route, exactly
-    like the residual CSV below, and the opposite of handing over a solve.
-
-    Exempt exactly that shape: the destination is a `.log` AND the content is
-    read back from a file. A participant SCRIPT is never written to a .log, and
-    a log the tool composed itself is not captured output, so neither can slip
-    through. test_the_gate_still_fires_on_a_real_hand_over proves both.
-    """
-    target = call.func.value if isinstance(call.func, ast.Attribute) else None
-    literals = ([n.value for n in ast.walk(target)
-                 if isinstance(n, ast.Constant) and isinstance(n.value, str)]
-                if target is not None else [])
-    if not any(".log" in s for s in literals):
-        return False
-    return any(isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
-               and n.func.attr == "read_text" for n in ast.walk(call))
-
-
 def _writes_measured_csv(call: ast.Call) -> bool:
     """couple() writes the driver's MEASURED residual history to the path the
     agent asked for (`iteration,interface_residual` rows): numbers the run
@@ -76,6 +51,27 @@ def _writes_measured_csv(call: ast.Call) -> bool:
         node = node.left
     return (isinstance(node, ast.Constant) and isinstance(node.value, str)
             and node.value.startswith("iteration,"))
+
+
+def _copies_a_captured_log(call: ast.Call) -> bool:
+    """couple() re-files a participant's OWN captured console output under the
+    level that produced it (`participant_output.log` ->
+    `participant_output_level<k>.log`), so the coarse level's log survives the
+    fine one. That is run EVIDENCE moving inside the agent's own work_dir --
+    output the agent's solver printed -- and preserving it is the opposite of
+    handing over a solver: it is what lets a grader prove which code ran.
+
+    A participant SCRIPT is never a .log, so exempt exactly this shape: the
+    write target mentions a log and the content is a read of another file. The
+    gate keeps its teeth on anything that writes a .py, a deck, or a literal
+    program."""
+    target = getattr(call.func, "value", None)
+    if target is None or "log" not in ast.dump(target).lower():
+        return False
+    if not call.args:
+        return False
+    arg = ast.dump(call.args[0])
+    return "read_text" in arg or "read_bytes" in arg
 
 
 def test_no_mcp_tool_copies_a_participant_file():
@@ -99,7 +95,7 @@ def test_no_mcp_tool_copies_a_participant_file():
                         offenders.append(f"{path.name}::{fn.name} calls {name}()")
                     if (name == "write_text"
                             and not _writes_measured_csv(node)
-                            and not _writes_captured_output(node)):
+                            and not _copies_a_captured_log(node)):
                         offenders.append(
                             f"{path.name}::{fn.name} calls write_text() while "
                             f"handling participants")
@@ -152,32 +148,30 @@ if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))
 
 
-def test_the_gate_still_fires_on_a_real_hand_over():
-    """Calibration. Both exemptions are narrow on purpose, so prove they are.
+def test_the_exemptions_do_not_blunt_the_gate():
+    """An exemption is a hole unless it is measured.
 
-    A gate nobody has watched fire is not a gate. Neither a participant script
-    written as .py, nor a .log whose content the tool composed rather than read
-    back from the solver, may slip past the exemptions.
+    Two writes inside `couple` are innocent -- the measured residual history
+    and the re-filing of a participant's own captured log -- and each needed an
+    exemption to stop the gate naming a defect that was not there. A gate that
+    names an absent defect costs an action for nothing; a gate widened past its
+    defect costs the whole constraint. So assert both directions here, on the
+    exact shapes, rather than trusting the prose above.
     """
-    import textwrap
-
-    def flagged(src: str) -> bool:
-        tree = ast.parse(textwrap.dedent(src).strip())
-        for node in ast.walk(tree):
-            if (isinstance(node, ast.Call)
-                    and isinstance(node.func, ast.Attribute)
-                    and node.func.attr == "write_text"):
-                if (not _writes_measured_csv(node)
-                        and not _writes_captured_output(node)):
-                    return True
-        return False
-
-    assert flagged('(Path(w) / "participant_A.py").write_text(src.read_text())'), \
-        "a participant script copied out must still be caught"
-    assert flagged('(Path(w) / "run_level1.log").write_text("NDOF = 693")'), \
-        "a log the tool wrote itself is not captured output"
-    assert not flagged(
-        '(Path(w) / "participant_output_level1.log").write_text(src.read_text())'), \
-        "the solver's own console, kept per level, is evidence of a real run"
-    assert not flagged('tmp.write_text("iteration,interface_residual" + rows)'), \
-        "the measured residual history is evidence"
+    cases = [
+        # (source, exempt?)
+        ('(Path(work_dir) / "participant_A.py").write_text(src.read_text())', False),
+        ('(Path(work_dir) / "deck.4C.yaml").write_text(deck)', False),
+        ('(Path(w) / "solver.py").write_text("import dolfinx\\n")', False),
+        ('(Path(w) / "run_level1.log").write_text("NDOF = 693")', False),
+        ('(Path(w) / f"participant_output_level{k}.log").write_text('
+         '_src.read_text(errors="replace"))', True),
+        ('tmp.write_text("iteration,interface_residual\\n" + rows)', True),
+    ]
+    for code, want in cases:
+        call = ast.parse(code).body[0].value
+        got = _writes_measured_csv(call) or _copies_a_captured_log(call)
+        assert got == want, (
+            f"the exemptions read {code!r} as "
+            f"{'innocent' if got else 'a violation'}; expected "
+            f"{'innocent' if want else 'a violation'}")

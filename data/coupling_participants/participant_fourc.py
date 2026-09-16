@@ -390,7 +390,7 @@ Q = q_consistent
 print(f"[4C {SIDE}] interface n={len(uy)} "
     f"T=[{T.min():.6g},{T.max():.6g}] q=[{Q.min():.6g},{Q.max():.6g}] "
     f"projected_q=[{Q_projected.min():.6g},{Q_projected.max():.6g}]")
-print(f"NDOF = {len(field_coords)}")
+print(f"\nNDOF = {len(field_coords)}")
 
 # ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
 #    fine and are worthless: a non-finite field; a Neumann side whose imported

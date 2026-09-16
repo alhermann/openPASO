@@ -1,4 +1,4 @@
-"""At level 1 there is still time; at level 3 there is not.
+"""Fixing this at level 1 costs one solve; at level 3 it costs the whole ladder.
 
 THE FAILURE. `SK1_27b_MCP` builds a Stokes solve with 592,387 degrees of
 freedom against a 1936-point probe grid — two orders of magnitude larger than

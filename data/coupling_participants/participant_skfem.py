@@ -6,6 +6,7 @@ imports.json (written every iteration; it is `{}` on iteration 1), writes
 exports.json LAST.
 """
 import json
+import os
 from pathlib import Path
 
 import logging                # scikit-fem logs through it (logging.basicConfig(level=logging.INFO)),
@@ -14,6 +15,7 @@ import numpy as np
 from skfem import (Basis, BilinearForm, ElementTriP1, FacetBasis, LinearForm,
                    MeshTri, condense, solve)
 from skfem.helpers import dot, grad
+
 
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
 #    Replace ALL of them with your problem's geometry, material and BCs.
@@ -132,6 +134,30 @@ def sample(imp, key, fallback, where):
 
 
 imp = read_imports()
+
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides the mesh knobs and names the level. The dumps
+#    at the foot of this file carry that level in their NAME, so a mesh study
+#    leaves one file per level instead of the fine mesh overwriting the coarse.
+LEVEL = 1
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get('nx', NX))
+        NY = int(_cfg.get('ny', NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
+# MAKE THIS CODE SPEAK, BEFORE THE SOLVE RUNS. It is silent by default, and a
+# per-level run log carrying no line the solver itself emitted cannot
+# establish which code ran on this side, however right its numbers are.
+# It sits HERE, beside the level rule, and not up with the imports:
+# measured over agent-written participants, a line placed in the import
+# block survived in about half of them because that block gets rewritten,
+# while everything beside the level rule survived in all of them.
+logging.basicConfig(level=logging.INFO)
 
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 mesh = MeshTri.init_tensor(np.linspace(X0, X1, NX + 1),
@@ -312,6 +338,63 @@ if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size 
     raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's "
                      "array negated, bit for bit: a copy, not a recovery from "
                      "this side's own assembled system")
+
+# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its OWN.
+# The audit and the hand-in read that exact shape, and they read it PER
+# LEVEL: it is how a grader tells a refined mesh from the same mesh run
+# three times. The LEADING NEWLINE is deliberate -- a program that writes
+# without a trailing newline glues its text onto the front of the next
+# line, and an X11 warning has done exactly that here, turning a correct
+# line into 'Invalid MIT-MAGIC-COOKIE-1 keyNDOF = 54'.
+# A number inside a prose sentence does not count either, and a
+# wrong number is worse than none -- one coupled run that was right in
+# every other respect reported NDOF = 1 at all three levels, and its
+# refined mesh could not be told from an unrefined one.
+try:
+    print(f"\nNDOF = {int(len(sol))}")
+except Exception as _ndof_exc:
+    print(f"[skfem] could not report NDOF: {_ndof_exc!r}. Your task's"
+          f" execution log needs `NDOF = <integer>` on a line of its own,"
+          f" so print your own degree-of-freedom count here.")
+
+# PER-LEVEL PERSISTENCE: this level's whole field, and its interface trace and
+# flux, named by LEVEL. exports.json is overwritten by the next level; these
+# files are not.
+# Interpolate THESE onto the probe points your task names. A file the next
+# level overwrites cannot carry a mesh study.
+# A DUMP DEFECT MUST NOT COST YOU THE SOLVE. exports.json is the driver's
+# proof that this participant succeeded, and it is written after these files,
+# so an exception here would throw away a coupling iteration that worked.
+try:
+    with open(f"field_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u\n")
+        for _px, _py, _u in zip(mesh.p[0], mesh.p[1], sol):
+            _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(_u):.11e}\n")
+    with open(f"interface_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u,qn\n")
+        _pts = (np.atleast_2d(np.asarray(y_if, float))
+                if np.asarray(y_if).ndim == 2 else
+                np.column_stack([np.full(len(y_if), float(IFACE_X)), np.asarray(y_if, float)])
+                if AX == 0 else
+                np.column_stack([np.asarray(y_if, float), np.full(len(y_if), float(IFACE_X))]))
+        for (_px, _py), _d, _q in zip(_pts, iface_dofs, Q):
+            _f.write(f"{float(_px):.11e},{float(_py):.11e},"
+                     f"{float(sol[_d]):.11e},{float(_q):.11e}\n")
+except Exception as _dump_exc:
+    # AND LEAVE NO HALF-WRITTEN FILE BEHIND. `open(..., "w")` truncates
+    # before it fails, so a dump that died mid-way leaves a header-only
+    # CSV -- a file that looks like a submission and carries no rows.
+    for _partial in (f"field_level{LEVEL}.csv", f"interface_level{LEVEL}.csv"):
+        try:
+            if Path(_partial).is_file() and len(
+                    Path(_partial).read_text().splitlines()) <= 1:
+                Path(_partial).unlink()
+        except OSError:
+            pass
+    print(f"[skfem per-level dump] level {LEVEL} dump failed: "
+          f"{_dump_exc!r}. exports.json is still written, so the coupling\n"
+          f"continues, but this level has no field file to hand in. Fix the\n"
+          f"names the dump reads and run this level again.")
 
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",

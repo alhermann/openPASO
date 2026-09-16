@@ -265,7 +265,8 @@ displacement dofs; temperature goes to ... THERMO DIRICH, NUMDOF 1), the
 CLONING MATERIAL MAP or COUPVARIABLE "Temperature" missing, the entry word
 DSURFACE inside the section named DSURF-NODE TOPOLOGY, `**` in a FUNCT (write
 `^`), and MAT_Fourier written with CONDUCTIVITY (its parameters are CAPA and
-CONDUCT). check_input(solver='fourc', input_path=<deck>) names all of these
+CONDUCT). Writing the deck to a .yaml, .yml or .dat file names all of these in the
+same reply, before the binary runs
 in one call.
 
   TITLE:

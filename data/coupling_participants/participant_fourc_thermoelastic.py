@@ -453,20 +453,37 @@ json.dump({"field_name": "thermoelastic", "coordinates": co, "values": [],
            "normal_fluxes": Q, "n_points": len(co)}, open("exports.json", "w"))
 # PER-LEVEL PERSISTENCE: this level's field, named by the config level, never
 # overwritten by the next level. Build the task's per-level files from these.
+# Interpolate THESE onto the probe points your task names. A file the next
+# level overwrites cannot carry a mesh study.
+# A DUMP DEFECT MUST NOT COST YOU THE RUN. exports.json is already written
+# above, so the coupling is safe either way, but a raise here would still
+# end this participant non-zero and leave a truncated file behind.
 _LVL = CFG.get("level", "X")
-with open(f"field_level{_LVL}.csv", "w") as _f:
-    _f.write("x,y,T,ux,uy\n")
-    for (_px, _py), _t, (_ux, _uy) in zip(nodes, T2d, U2d):
-        _f.write(f"{_px:.11e},{_py:.11e},{float(_t):.11e},{float(_ux):.11e},{float(_uy):.11e}\n")
-with open(f"interface_level{_LVL}.csv", "w") as _f:
-    # the task's OUTWARD traction sigma_tot.n_out is MINUS the exported (qx, qy)
-    _f.write("x,y,T,ux,uy,qn,tx,ty\n")
-    for (_px, _py), n, (_qn, _qx, _qy) in zip(co, interior, Q):
-        _f.write(f"{_px:.11e},{_py:.11e},{float(T2d[n-1]):.11e},{float(U2d[n-1,0]):.11e},"
-                 f"{float(U2d[n-1,1]):.11e},{_qn:.11e},{-_qx:.11e},{-_qy:.11e}\n")
+try:
+    with open(f"field_level{_LVL}.csv", "w") as _f:
+        _f.write("x,y,T,ux,uy\n")
+        for (_px, _py), _t, (_ux, _uy) in zip(nodes, T2d, U2d):
+            _f.write(f"{_px:.11e},{_py:.11e},{float(_t):.11e},{float(_ux):.11e},{float(_uy):.11e}\n")
+    with open(f"interface_level{_LVL}.csv", "w") as _f:
+        # the task's OUTWARD traction sigma_tot.n_out is MINUS the exported (qx, qy)
+        _f.write("x,y,T,ux,uy,qn,tx,ty\n")
+        for (_px, _py), n, (_qn, _qx, _qy) in zip(co, interior, Q):
+            _f.write(f"{_px:.11e},{_py:.11e},{float(T2d[n-1]):.11e},{float(U2d[n-1,0]):.11e},"
+                     f"{float(U2d[n-1,1]):.11e},{_qn:.11e},{-_qx:.11e},{-_qy:.11e}\n")
+except Exception as _dump_exc:
+    print(f"[4C thermo-elastic per-level dump] level {_LVL} dump failed: "\
+          f"{_dump_exc!r}. exports.json was already written, so the coupling\n"\
+          f"continues, but this level has no field file to hand in.")
+    for _partial in (f"field_level{_LVL}.csv", f"interface_level{_LVL}.csv"):
+        try:
+            if Path(_partial).is_file() and len(
+                    Path(_partial).read_text().splitlines()) <= 1:
+                Path(_partial).unlink()
+        except OSError:
+            pass
 # THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its own (T, ux, uy
 # per node of the 2-D discretisation), then the descriptive line.
-print(f"NDOF = {3 * len(nodes)}")
+print(f"\nNDOF = {3 * len(nodes)}")
 print(f"4C thermo-elastic Dirichlet participant: NDOF = {3 * len(nodes)}  "
       f"T=[{T2d.min():.6g},{T2d.max():.6g}] u=[{U2d.min():.6g},{U2d.max():.6g}]  "
       f"scatra-vs-tsi T mismatch {_dT:.2e}")

@@ -55,6 +55,7 @@ muparser syntax is close to C, NOT to Python — `^` is the power operator,
 `exp/sin/cos/log/sqrt/abs/if` exist, and there is no `**`.
 """
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -158,6 +159,24 @@ if SIDE == "dirichlet":
 else:
     side_flag, pairs = 1, sample_trace(imp, "normal_fluxes", Q_GUESS)
 
+# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
+#    next to this script overrides the mesh knobs and names the level. The dumps
+#    at the foot of this file carry that level in their NAME, so a mesh study
+#    leaves one file per level instead of the fine mesh overwriting the coarse.
+LEVEL = 1
+if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
+    try:
+        _cfg = json.loads(Path("config.json").read_text() or "{}") if Path("config.json").is_file() else {}
+        _cfg.update(json.loads(os.environ.get("OPENPASO_CONFIG_JSON") or "{}"))
+        LEVEL = int(_cfg.get("level", LEVEL))
+        NX = int(_cfg.get("nx", NX))
+        NY = int(_cfg.get("ny", NY))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        pass
+
+FIELD_OUT = "field_out.txt"   # your .cc writes "x y u" per support point here,
+                              # at the END of the time window
+
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 header = (f"{side_flag} {K!r} {RHO_C!r} {X0!r} {X1!r} {Y0!r} {Y1!r} {IFACE_X!r} "
           f"{NX} {NY} {DEGREE} {THETA!r} {T_START!r} {T_END!r} {N_STEPS} "
@@ -176,6 +195,18 @@ if r.returncode != 0 or not out_txt.is_file():
     sys.stderr.write("deal.II solver failed (rc=%s)\n%s\n%s\n"
                      % (r.returncode, r.stdout[-2000:], r.stderr[-2000:]))
     sys.exit(1)
+
+# PASS THE SOLVER'S OWN CONSOLE THROUGH. capture_output keeps it out of this
+# script's stdout, and the per-level run log your task asks for is exactly that
+# console -- a log carrying only this wrapper's prose cannot establish which
+# code ran on this side. Re-emitting it costs nothing and is the difference
+# between a log that counts and one that does not. The `NDOF = <integer>` line
+# the log contract needs comes from YOUR program: print it there, on a line of
+# its own, and it arrives here.
+if r.stdout:
+    print(r.stdout, end="")
+if r.stderr:
+    sys.stderr.write(r.stderr)
 
 raw = out_txt.read_text().split()
 if len(raw) < 2:
@@ -205,7 +236,93 @@ print(f"[dealii-transient {SIDE}] iface n={n_nodes} steps={N_STEPS} "
       f"q(last step)=[{min(r[-1] for r in fluxes):.6g},"
       f"{max(r[-1] for r in fluxes):.6g}]")
 
+# PER-LEVEL PERSISTENCE: the interface trace and flux at the LAST step, and --
+# when the program wrote one -- the end-of-window field, named by LEVEL.
+# exports.json is overwritten by the next level; these files are not.
+# Interpolate THESE onto the probe points your task names. A file the next
+# level overwrites cannot carry a mesh study.
+# A DUMP DEFECT MUST NOT COST YOU THE SOLVE. exports.json is the driver's
+# proof that this participant succeeded, and it is written after these files,
+# so an exception here would throw away a coupling iteration that worked.
+try:
+    with open(f"interface_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,u,qn\n")
+        for (_px, _py), _t, _q in zip(coords, temps, fluxes):
+            _f.write(f"{float(_px):.11e},{float(_py):.11e},"
+                     f"{float(_t[-1]):.11e},{float(_q[-1]):.11e}\n")
+    # THE FIELD COMES FROM YOUR OWN PROGRAM. deal.II is C++: this wrapper only runs
+    # your binary and reads what it printed, so the whole-domain field exists only
+    # if your .cc writes it. Have the program write FIELD_OUT -- one "x y u" line
+    # per support point at the end of the window -- and this block turns it into the
+    # per-level file. Without it there is no field to hand in at any level.
+    if Path(FIELD_OUT).is_file():
+        _rows = []
+        for _ln in Path(FIELD_OUT).read_text().splitlines():
+            _tok = _ln.split()
+            if len(_tok) != 3:
+                continue
+            try:
+                _rows.append([float(_t) for _t in _tok])
+            except ValueError:
+                continue
+        if _rows:
+            with open(f"field_level{LEVEL}.csv", "w") as _f:
+                _f.write("x,y,u\n")
+                for _px, _py, _u in _rows:
+                    _f.write(f"{_px:.11e},{_py:.11e},{_u:.11e}\n")
+            print(f"[dealii-transient {SIDE}] field_level{LEVEL}.csv: {len(_rows)} points")
+    else:
+        print(f"[dealii-transient {SIDE}] NO {FIELD_OUT}: your program printed the "
+              f"interface only, so this level has no field to hand in. Write one "
+              f"'x y u' line per support point to {FIELD_OUT} and run it again.")
+except Exception as _dump_exc:
+    # AND LEAVE NO HALF-WRITTEN FILE BEHIND. `open(..., "w")` truncates
+    # before it fails, so a dump that died mid-way leaves a header-only
+    # CSV -- a file that looks like a submission and carries no rows.
+    for _partial in (f"field_level{LEVEL}.csv", f"interface_level{LEVEL}.csv"):
+        try:
+            if Path(_partial).is_file() and len(
+                    Path(_partial).read_text().splitlines()) <= 1:
+                Path(_partial).unlink()
+        except OSError:
+            pass
+    print(f"[dealii_transient per-level dump] level {LEVEL} dump failed: "
+          f"{_dump_exc!r}. exports.json is still written, so the coupling\n"
+          f"continues, but this level has no field file to hand in. Fix the\n"
+          f"names the dump reads and run this level again.")
+
 # exports.json LAST: the driver takes its existence as proof of success.
+# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+#    fine and are worthless: a non-finite field; a Neumann side whose imported
+#    load never entered the assembled system (it returns the no-load answer and
+#    a flux of ~0 against a nonzero partner); and a flux that is the
+#    partner's array negated instead of a recovery from THIS side's own system.
+_chk_vals = np.asarray(temps, float).ravel()
+_chk_flux = np.asarray(fluxes, float).ravel()
+if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or "
+                     "fluxs; the solve did not produce a usable field, so "
+                     "nothing was exported")
+_chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+            if Path("imports.json").is_file() else {})
+_chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                            for _d in _chk_imp.values()])
+            if _chk_imp else np.zeros(0))
+if SIDE == "neumann" and _chk_qin.size and np.abs(_chk_qin).max() > 0 \
+        and np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max():
+    raise SystemExit("EXPORT SELF-CHECK: the recovered interface flux is ~0 "
+                     "against a nonzero imported flux: the imported load "
+                     "never entered the assembled system (the facet term / "
+                     "boundary condition that integrates it is missing). Fix "
+                     "the application; do not couple on")
+# (Dirichlet role only: a Neumann side's consistent recovery of a CONSTANT
+#  applied load can legitimately reproduce it to the last bit.)
+if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size \
+        and np.array_equal(_chk_flux, -_chk_qin):
+    raise SystemExit("EXPORT SELF-CHECK: the exported flux is the partner's "
+                     "array negated, bit for bit: a copy, not a recovery from "
+                     "this side's own assembled system")
+
 Path("exports.json").write_text(json.dumps({
     "field_name": "temperature",
     "n_points": n_nodes,

@@ -40,6 +40,7 @@ ran. So a host without FEniCSx reports a FAILURE, never a pass.
 from __future__ import annotations
 
 import asyncio
+import atexit
 import json
 import logging
 import os
@@ -790,9 +791,8 @@ def pair(specs: list[dict], **kw) -> dict:
 # ONE WARNING ABOUT TMPDIR ON THIS PROJECT'S HARDWARE: pointing it at the
 # exFAT PortableSSD has broken fixtures before -- no symlinks, no permission
 # bits, and nine 4C fixtures failed for that reason alone. If you set either
-# variable, set it to a real filesystem. Nothing here seals or deletes: that is the campaign's
-# business and its preflight still decides. This only stops the fixtures from
-# writing into the one place two sessions share.
+# variable, set it to a real filesystem. Nothing here deletes; sealing at exit is below. This part only stops the
+# fixtures from writing into the one place two sessions share.
 _WORKROOT_ENV = ("T2_COUPLING_WORKROOT", "TMPDIR")
 
 
@@ -811,8 +811,46 @@ def _workroot_base() -> Path:
     return base
 
 
+# AND WHEREVER IT LANDS, IT IS SEALED AT EXIT.
+#
+# A FIXTURE RUN LEAVES WORKED COUPLED ANSWERS ON THE HOST, AND THE BLIND
+# CAMPAIGN'S CUSTODY PREFLIGHT REFUSES TO START WHILE THEY ARE READABLE.
+#
+# Every fixture here produces exactly what an agent is being asked to produce:
+# two participants, exports.json on both sides, per-level fields and a converged
+# interface. `readable_worked_answers` (campaign3_blind/host_hygiene.py) walks
+# /tmp, /var/tmp and $HOME looking for precisely that shape, and refuses the
+# round rather than moving someone's files. Measured 2026-09-16: 125 of these
+# had accumulated since August, 68 of them in one afternoon, and a blind round's
+# first launch attempt was correctly refused by nine cells at once.
+#
+# The suite therefore seals what it made when the process ends. Sealed, not
+# deleted -- the artefacts stay for inspection and `chmod 700` brings them back,
+# which is how the August ones were handled -- and at exit rather than eagerly,
+# because the fixture reads its own workroot while it runs.
+#
+# This does not cover SIGKILL. It covers every ordinary exit, including a failed
+# assertion, which is what was leaving them behind.
+_WORKROOTS: list[Path] = []
+
+
+def seal_workroots() -> None:
+    """Make every workroot this process created unreadable. Idempotent."""
+    for root in _WORKROOTS:
+        try:
+            if root.is_dir():
+                os.chmod(root, 0o000)
+        except OSError:                                  # noqa: PERF203
+            pass
+
+
+atexit.register(seal_workroots)
+
+
 def workroot(tag: str) -> Path:
-    return Path(tempfile.mkdtemp(prefix=f"t2cpl_{tag}_", dir=_workroot_base()))
+    root = Path(tempfile.mkdtemp(prefix=f"t2cpl_{tag}_", dir=_workroot_base()))
+    _WORKROOTS.append(root)
+    return root
 
 
 # ── one arrangement of one pair, checked against the closed form ───────────

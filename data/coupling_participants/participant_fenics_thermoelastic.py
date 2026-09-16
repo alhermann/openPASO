@@ -47,6 +47,7 @@ from dolfinx.fem import petsc as _fp
 from dolfinx.fem.petsc import LinearProblem
 from mpi4py import MPI
 
+
 # ── EDIT THIS BLOCK ─ every number below is an ARBITRARY PLACEHOLDER.
 #    Replace ALL of them with your problem's geometry, material and BCs.
 SIDE      = "neumann"     # "dirichlet" (import T,u; export flux+traction) | "neumann"
@@ -129,6 +130,15 @@ imp = read_imports()
 #    element tuple ("Lagrange", 1, (2,)) -- there is NO fem.VectorFunctionSpace
 #    on this install (AttributeError, measured).
 #    LEAVE BEHIND: domain, ST, SU.
+# MAKE THIS CODE SPEAK, BEFORE THE SOLVE RUNS. It is silent by default, and a
+# per-level run log carrying no line the solver itself emitted cannot
+# establish which code ran on this side, however right its numbers are.
+# It sits HERE, beside the level rule, and not up with the imports:
+# measured over agent-written participants, a line placed in the import
+# block survived in about half of them because that block gets rewritten,
+# while everything beside the level rule survived in all of them.
+dolfinx.log.set_log_level(dolfinx.log.LogLevel.INFO)
+
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ begin
 domain = dmesh.create_rectangle(MPI.COMM_WORLD, [[X0, Y0], [X1, Y1]],
                                 [NX, NY], dmesh.CellType.triangle)
@@ -309,7 +319,7 @@ V = np.column_stack([Th.x.array[iface_T], Uh.x.array[2 * iface_U], Uh.x.array[2 
 print(f"[fenics {SIDE} thermoelastic] interface n={len(V)} "
       f"T=[{V[:,0].min():.6g},{V[:,0].max():.6g}] ux=[{V[:,1].min():.6g},{V[:,1].max():.6g}] "
       f"uy=[{V[:,2].min():.6g},{V[:,2].max():.6g}] qn=[{Q[:,0].min():.6g},{Q[:,0].max():.6g}]")
-print(f"NDOF = {ST.dofmap.index_map.size_global + 2 * SU.dofmap.index_map.size_global}")
+print(f"\nNDOF = {ST.dofmap.index_map.size_global + 2 * SU.dofmap.index_map.size_global}")
 
 # ── EXPORT SELF-CHECK ─ keep this block ───────────────────────────────────
 if not (np.isfinite(V).all() and np.isfinite(Q).all()):
@@ -336,17 +346,38 @@ if SIDE == "dirichlet" and _qin.shape == Q.shape and Q.size and np.array_equal(Q
 # and its interface trace, flux and OUTWARD traction (tx = -qx, ty = -qy), named
 # by LEVEL, never overwritten by the next level (exports.json is). Build the
 # task's per-level files from these.
-xyT_all = ST.tabulate_dof_coordinates()
-with open(f"field_level{LEVEL}.csv", "w") as _f:
-    _f.write("x,y,T,ux,uy\n")
-    for _i, (_px, _py) in enumerate(xyT_all[:, :2]):
-        _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(Th.x.array[_i]):.11e},"
-                 f"{float(Uh.x.array[2 * _i]):.11e},{float(Uh.x.array[2 * _i + 1]):.11e}\n")
-with open(f"interface_level{LEVEL}.csv", "w") as _f:
-    _f.write("x,y,T,ux,uy,qn,tx,ty\n")
-    for _y, (_t, _ux, _uy), (_qn, _qx, _qy) in zip(y_if, V, Q):
-        _f.write(f"{float(IFACE_X):.11e},{float(_y):.11e},{float(_t):.11e},{float(_ux):.11e},"
-                 f"{float(_uy):.11e},{float(_qn):.11e},{float(-_qx):.11e},{float(-_qy):.11e}\n")
+# Interpolate THESE onto the probe points your task names. A file the next
+# level overwrites cannot carry a mesh study.
+# A DUMP DEFECT MUST NOT COST YOU THE SOLVE. exports.json is the driver's
+# proof that this participant succeeded, and it is written after these files,
+# so an exception here would throw away a coupling iteration that worked.
+try:
+    xyT_all = ST.tabulate_dof_coordinates()
+    with open(f"field_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,T,ux,uy\n")
+        for _i, (_px, _py) in enumerate(xyT_all[:, :2]):
+            _f.write(f"{float(_px):.11e},{float(_py):.11e},{float(Th.x.array[_i]):.11e},"
+                     f"{float(Uh.x.array[2 * _i]):.11e},{float(Uh.x.array[2 * _i + 1]):.11e}\n")
+    with open(f"interface_level{LEVEL}.csv", "w") as _f:
+        _f.write("x,y,T,ux,uy,qn,tx,ty\n")
+        for _y, (_t, _ux, _uy), (_qn, _qx, _qy) in zip(y_if, V, Q):
+            _f.write(f"{float(IFACE_X):.11e},{float(_y):.11e},{float(_t):.11e},{float(_ux):.11e},"
+                     f"{float(_uy):.11e},{float(_qn):.11e},{float(-_qx):.11e},{float(-_qy):.11e}\n")
+except Exception as _dump_exc:
+    # AND LEAVE NO HALF-WRITTEN FILE BEHIND. `open(..., "w")` truncates
+    # before it fails, so a dump that died mid-way leaves a header-only
+    # CSV -- a file that looks like a submission and carries no rows.
+    for _partial in (f"field_level{LEVEL}.csv", f"interface_level{LEVEL}.csv"):
+        try:
+            if Path(_partial).is_file() and len(
+                    Path(_partial).read_text().splitlines()) <= 1:
+                Path(_partial).unlink()
+        except OSError:
+            pass
+    print(f"[fenics_thermoelastic per-level dump] level {LEVEL} dump failed: "
+          f"{_dump_exc!r}. exports.json is still written, so the coupling\n"
+          f"continues, but this level has no field file to hand in. Fix the\n"
+          f"names the dump reads and run this level again.")
 # exports.json LAST: the driver takes its existence as proof of success.
 Path("exports.json").write_text(json.dumps({
     "field_name": "thermoelastic",

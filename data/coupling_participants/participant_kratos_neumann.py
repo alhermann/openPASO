@@ -395,19 +395,40 @@ def main():
     print(f"[kratos neumann] interface n={len(T)} "
           f"q_applied=[{q_in.min():.6g},{q_in.max():.6g}] "
           f"T=[{T.min():.6g},{T.max():.6g}] {bal}")
-    print(f"NDOF = {len(mp.Nodes)}")
+    print(f"\nNDOF = {len(mp.Nodes)}")
 
     # PER-LEVEL PERSISTENCE: this level's whole field and its interface trace
     # and flux, named by LEVEL, never overwritten by the next level (exports.json
     # is). Build the task's per-level files from these.
-    with open(f"field_level{LEVEL}.csv", "w") as _f:
-        _f.write("x,y,u\n")
-        for n in mp.Nodes:
-            _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(n.GetSolutionStepValue(KM.TEMPERATURE)):.11e}\n")
-    with open(f"interface_level{LEVEL}.csv", "w") as _f:
-        _f.write("x,y,u,qn\n")
-        for n, t, q in zip(_if_nodes, T, Q):
-            _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(t):.11e},{float(q):.11e}\n")
+    # Interpolate THESE onto the probe points your task names. A file the next
+    # level overwrites cannot carry a mesh study.
+    # A DUMP DEFECT MUST NOT COST YOU THE SOLVE. exports.json is the driver's
+    # proof that this participant succeeded, and it is written after these files,
+    # so an exception here would throw away a coupling iteration that worked.
+    try:
+        with open(f"field_level{LEVEL}.csv", "w") as _f:
+            _f.write("x,y,u\n")
+            for n in mp.Nodes:
+                _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(n.GetSolutionStepValue(KM.TEMPERATURE)):.11e}\n")
+        with open(f"interface_level{LEVEL}.csv", "w") as _f:
+            _f.write("x,y,u,qn\n")
+            for n, t, q in zip(_if_nodes, T, Q):
+                _f.write(f"{float(n.X):.11e},{float(n.Y):.11e},{float(t):.11e},{float(q):.11e}\n")
+    except Exception as _dump_exc:
+        # AND LEAVE NO HALF-WRITTEN FILE BEHIND. `open(..., "w")` truncates
+        # before it fails, so a dump that died mid-way leaves a header-only
+        # CSV -- a file that looks like a submission and carries no rows.
+        for _partial in (f"field_level{LEVEL}.csv", f"interface_level{LEVEL}.csv"):
+            try:
+                if Path(_partial).is_file() and len(
+                        Path(_partial).read_text().splitlines()) <= 1:
+                    Path(_partial).unlink()
+            except OSError:
+                pass
+        print(f"[kratos_neumann per-level dump] level {LEVEL} dump failed: "
+              f"{_dump_exc!r}. exports.json is still written, so the coupling\n"
+              f"continues, but this level has no field file to hand in. Fix the\n"
+              f"names the dump reads and run this level again.")
 
     # exports.json LAST: the driver takes its existence as proof of success.
     Path("exports.json").write_text(json.dumps({

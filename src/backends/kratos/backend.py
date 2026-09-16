@@ -172,7 +172,15 @@ class KratosBackend(SolverBackend):
             )
             if result.returncode == 0:
                 ver = result.stdout.strip().split('\n')[0]
-                return BackendStatus.AVAILABLE, f"Kratos {ver}"
+                # SAY WHERE IT LIVES, NOT ONLY THAT IT LIVES. `discover` is the
+                # one surface that resolves host paths -- the coupling knowledge
+                # deliberately ships none and sends the agent here for the argv
+                # `couple` needs -- and this backend was the only available one
+                # whose line carried a version and no interpreter. Measured on a
+                # C10 cell: the agent ran the Kratos participant with the wrong
+                # python, got `ModuleNotFoundError: No module named
+                # 'KratosMultiphysics'`, and had nowhere to read the right one.
+                return BackendStatus.AVAILABLE, f"Kratos {ver} at {python}"
             return BackendStatus.NOT_INSTALLED, f"Kratos import failed: {result.stderr.strip()[:200]}"
         except Exception as e:
             return BackendStatus.NOT_INSTALLED, f"Check failed: {e}"

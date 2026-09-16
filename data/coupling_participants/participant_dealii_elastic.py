@@ -160,6 +160,18 @@ if r.returncode != 0 or not out_txt.is_file():
                      % (r.returncode, r.stdout[-2000:], r.stderr[-2000:]))
     sys.exit(1)
 
+# PASS THE SOLVER'S OWN CONSOLE THROUGH. capture_output keeps it out of this
+# script's stdout, and the per-level run log your task asks for is exactly that
+# console -- a log carrying only this wrapper's prose cannot establish which
+# code ran on this side. Re-emitting it costs nothing and is the difference
+# between a log that counts and one that does not. The `NDOF = <integer>` line
+# the log contract needs comes from YOUR program: print it there, on a line of
+# its own, and it arrives here.
+if r.stdout:
+    print(r.stdout, end="")
+if r.stderr:
+    sys.stderr.write(r.stderr)
+
 # Unlike the pure-Python participants, this one talks to a COMPILED binary, so
 # the script and the solver can disagree about what the input file contains. A
 # binary built before the body-force block existed stops reading at the samples
@@ -189,6 +201,40 @@ if not coords:
     sys.stderr.write("deal.II solver produced no interface points\n")
     sys.exit(1)
 # ── SOLVE ─ openPASO DOES NOT SERVE THIS ─ end
+
+# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
+#    fine and are worthless: a non-finite field; a Neumann side whose imported
+#    load never entered the assembled system (it returns the no-load answer and
+#    a traction of ~0 against a nonzero partner); and a traction that is the
+#    partner's array negated instead of a recovery from THIS side's own system.
+#    A VECTOR side needs it more, not less: a displacement field that came out
+#    ~0 because the load never arrived still couples, still converges and still
+#    hands in three tidy levels.
+_chk_vals = np.asarray(disp, float).ravel()
+_chk_flux = np.asarray(trac, float).ravel()
+if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):
+    raise SystemExit("EXPORT SELF-CHECK: non-finite interface values or "
+                     "tractions; the solve did not produce a usable field, so "
+                     "nothing was exported")
+_chk_imp = (json.loads(Path("imports.json").read_text() or "{}")
+            if Path("imports.json").is_file() else {})
+_chk_qin = (np.concatenate([np.asarray(_d.get("normal_fluxes") or [], float).ravel()
+                            for _d in _chk_imp.values()])
+            if _chk_imp else np.zeros(0))
+if SIDE == "neumann" and _chk_qin.size and np.abs(_chk_qin).max() > 0 \
+        and np.abs(_chk_flux).max() < 1e-9 * np.abs(_chk_qin).max():
+    raise SystemExit("EXPORT SELF-CHECK: the recovered interface traction is ~0 "
+                     "against a nonzero imported traction: the imported load "
+                     "never entered the assembled system (the facet term / "
+                     "boundary condition that integrates it is missing). Fix "
+                     "the application; do not couple on")
+# (Dirichlet role only: a Neumann side's consistent recovery of a CONSTANT
+#  applied traction can legitimately reproduce it to the last bit.)
+if SIDE == "dirichlet" and _chk_qin.shape == _chk_flux.shape and _chk_flux.size \
+        and np.array_equal(_chk_flux, -_chk_qin):
+    raise SystemExit("EXPORT SELF-CHECK: the exported traction is the partner's "
+                     "array negated, bit for bit: a copy, not a recovery from "
+                     "this side's own assembled system")
 
 Path("exports.json").write_text(json.dumps({
     "field_name": "displacement",

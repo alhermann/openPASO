@@ -1215,7 +1215,7 @@ re-pinning a luckier seed would have restored the tick and kept the defect.
 
 ## Environment facts that silently corrupt measurements
 
-- **`/media/alexander/PortableSSD` is exFAT.** No symlinks, no permission bits.
+- **The external scratch drive is exFAT.** No symlinks, no permission bits.
   27 of the 4C `cmd.sh` fixtures call `ln -s` inside `mktemp -d`, so with
   `TMPDIR` there they abort with rc 134 — a sweep recorded **9 false FAILs**
   this way. Git worktrees also refuse to merge there. Bulk output belongs on

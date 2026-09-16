@@ -28,8 +28,8 @@
 # Both arms are instrumented identically (ascii VTK so the gap array is
 # readable, per-step rather than per-iteration output, absolute path to the
 # deck's NOX xml); the only difference between them is the radius.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream beam3r_herm2line3_static_beam_to_solid_surface_contact_ironing_penalty_gap_variation_segmentation.4C.yaml) || exit 3

@@ -4,8 +4,8 @@
 #
 # T2_MUTATE=1 removes both edits; COUPLING stays, no conflicting particle step
 # is added, the iteration loop is present and the fixture must go red.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 MUTATE="${T2_MUTATE:-0}"

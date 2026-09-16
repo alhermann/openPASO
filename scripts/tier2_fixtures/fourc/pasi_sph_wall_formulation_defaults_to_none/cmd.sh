@@ -14,8 +14,8 @@
 # crosses the wall into empty space computes — and its z-velocity flips sign
 # from -2.47255596595578497e-01 to 1.36328793070252097e+00, i.e. it is no longer
 # being held off the piston face.  Six of the deck's eighteen result tests fail.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream pasi_twoway_norelax_particle_sph_3d_piston_virtualwall_densitysummation.4C.yaml) || exit 3

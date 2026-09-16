@@ -19,8 +19,8 @@
 #
 # The support-radius convention itself is confirmed against the upstream decks:
 # CubicSpline decks use INITRADIUS = 2*dx, QuinticSpline decks use 3*dx.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream particle_sph_1d_pressurewave_boundary_densitysummation_cubicspline_adami.4C.yaml) || exit 3

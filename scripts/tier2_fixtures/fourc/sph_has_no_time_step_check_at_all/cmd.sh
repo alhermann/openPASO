@@ -10,8 +10,8 @@
 # T2_MUTATE=1 removes the pathology: every deck keeps the upstream time step, so
 # the escalation never happens, the bin-travel abort never fires and
 # BIN_ABORT_AT_X200 flips to no.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 MUTATE="${T2_MUTATE:-0}"

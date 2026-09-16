@@ -10,8 +10,8 @@
 # T2_MUTATE=1 removes every edit; the wall material keeps its friction, the
 # answer does not move, WALLMAT_SILENTLY_CHANGES_THE_ANSWER goes to no and the
 # fixture must go red.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 MUTATE="${T2_MUTATE:-0}"

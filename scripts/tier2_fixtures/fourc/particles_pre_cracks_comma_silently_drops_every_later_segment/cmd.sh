@@ -29,8 +29,8 @@
 # exit 0, every result test passing — because the deck's reference values were
 # built for one crack.  A silently halved crack set that still says PASS is a
 # far worse failure mode than the claimed over-breaking, which cannot happen.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream particle_sph_2d_pdbody_precrack_fixedflag.4C.yaml) || exit 3

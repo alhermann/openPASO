@@ -32,7 +32,8 @@ REPO = Path(__file__).resolve().parents[1]
 # inside real build-system messages that are quoted verbatim from a solver.
 PLACEHOLDER_NAMES = {"user", "you", "youruser", "someuser", "username",
                      "...", "conda", "runner", "me", "USER"}
-HOME_PATH = re.compile(r"(?:/home/|/Users/)([A-Za-z0-9._-]+)/")
+# /media/<user>/ is where Linux mounts a person's removable drives, named after them.
+HOME_PATH = re.compile(r"(?:/home/|/Users/|(?<![\w.-])/media/)([A-Za-z0-9._-]+)/")
 
 
 def identifies_a_person(line: str) -> str | None:

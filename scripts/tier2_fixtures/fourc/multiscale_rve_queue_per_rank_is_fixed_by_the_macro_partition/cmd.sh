@@ -23,8 +23,8 @@
 #
 # Nothing in this fixture reads a clock.  Wall time is not an admissible
 # observable and is not used.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 command -v mpirun >/dev/null || { echo "FIXTURE_ABORT=no_mpirun"; exit 3; }

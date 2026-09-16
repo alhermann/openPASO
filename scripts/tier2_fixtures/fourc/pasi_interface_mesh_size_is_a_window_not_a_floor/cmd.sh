@@ -28,8 +28,8 @@
 # from pasi/4C_pasi_partitioned_twowaycoup.cpp, the same message the too-coarse
 # arm produces.  One diagnostic, two opposite causes, and nothing in it mentions
 # the mesh, the particle diameter or the interface.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream pasi_twoway_disprelaxaitken_particle_dem_1d_normalcontact_linspring_walldiscretcond.4C.yaml) || exit 3

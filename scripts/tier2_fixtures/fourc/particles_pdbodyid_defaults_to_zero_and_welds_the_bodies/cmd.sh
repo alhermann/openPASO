@@ -22,8 +22,8 @@
 #              the control: what matters is that the ids DIFFER, not their values.
 # The three welding bonds are enough to wreck the collision, and 4C prints no
 # warning about bodies, ids or defaults anywhere.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream particle_sph_3d_pdbody_colliding_slow.4C.yaml) || exit 3

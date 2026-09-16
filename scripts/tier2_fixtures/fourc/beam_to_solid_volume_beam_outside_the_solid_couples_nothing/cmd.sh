@@ -29,8 +29,8 @@
 # NOTE ON THE BUILD: this checkout is FOUR_C_WITH_ARBORX=OFF.  That only rules
 # out SEARCH_STRATEGY: bounding_volume_hierarchy; the default
 # bruteforce_with_binning path used here needs no ArborX and runs in seconds.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream beam3r_herm2line3_static_beam_to_solid_volume_meshtying_beam_in_solid_column_segmentation.4C.yaml) || exit 3

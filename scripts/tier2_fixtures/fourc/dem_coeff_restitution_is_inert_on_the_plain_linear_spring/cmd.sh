@@ -13,8 +13,8 @@
 # T2_MUTATE=1 removes the pathology: COEFF_RESTITUTION is not added at all, so
 # the two decks compared are literally the same file, the identity holds for a
 # trivial reason and IDENTITY_IS_INFORMATIVE flips to no.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 MUTATE="${T2_MUTATE:-0}"

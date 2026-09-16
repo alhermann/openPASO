@@ -19,8 +19,8 @@
 #
 # PUSH: pairs appear and the plate is accelerated.  Same deck, same wall, same
 # speed, opposite sign.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 deck() {  # $1 = signed wall velocity

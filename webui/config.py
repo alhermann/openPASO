@@ -14,17 +14,23 @@ SESSION_DIR = REPO / "data" / "webui_sessions"
 SANDBOX_ROOT.mkdir(parents=True, exist_ok=True)
 SESSION_DIR.mkdir(parents=True, exist_ok=True)
 
+def _weights(name: str) -> str | None:
+    """Local checkpoint folder, under OPENPASO_MODEL_DIR when the person set one."""
+    root = os.environ.get("OPENPASO_MODEL_DIR")
+    return str(Path(root).expanduser() / name) if root else None
+
+
 # Each entry: id used in the API → human label, serving endpoint port,
-# on-disk weights. Pointing at the *-Instruct checkpoints — the base
+# on-disk weights (under OPENPASO_MODEL_DIR). Pointing at the *-Instruct checkpoints — the base
 # Qwen2.5 weights that were on disk before are next-token completion
 # models and CAN'T do tool calling, so the agent loop never closes.
 MODELS = {
     "qwen2.5-7b":  {"label": "Qwen 2.5 7B Instruct",  "port": 8000,
-                    "weights": "/media/alexander/PortableSSD/AstroNet/models/qwen2.5-7b-instruct"},
+                    "weights": _weights("qwen2.5-7b-instruct")},
     "qwen2.5-14b": {"label": "Qwen 2.5 14B Instruct", "port": 8001,
-                    "weights": "/media/alexander/PortableSSD/AstroNet/models/qwen2.5-14b-instruct"},
+                    "weights": _weights("qwen2.5-14b-instruct")},
     "qwen2.5-32b": {"label": "Qwen 2.5 32B Instruct", "port": 8002,
-                    "weights": "/media/alexander/PortableSSD/AstroNet/models/qwen2.5-32b-instruct"},
+                    "weights": _weights("qwen2.5-32b-instruct")},
     "mock":        {"label": "Mock LLM (no GPU)", "port": None,
                     "weights": None},
 }

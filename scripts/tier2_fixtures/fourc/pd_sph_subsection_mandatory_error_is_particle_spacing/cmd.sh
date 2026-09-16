@@ -19,8 +19,8 @@
 # passes all ten of its own result tests, prints it as 0 thousands of times.
 # Treating "pd_neighbor_pairs = 0" as an error signal is therefore a false alarm
 # generator, which is why the baseline count is asserted below.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream particle_sph_2d_pdbody_gravity.4C.yaml) || exit 3

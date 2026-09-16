@@ -22,8 +22,8 @@
 #     the probed particle no longer carries peridynamic states.  It names a
 #     state, never a phase, a TYPE or PHASE_TO_MATERIAL_ID, so an agent reading
 #     it looks for a broken output request rather than a swapped label.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream particle_sph_2d_pdbody_gravity.4C.yaml) || exit 3

@@ -19,8 +19,8 @@
 # silently overriding one.  An agent told to "check whether the contraction
 # matches 0.25 despite your nu" will be looking for an observation that cannot
 # be made.  Three spellings are tried so the fixture does not rest on one guess.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream particle_sph_2d_pdbody_gravity.4C.yaml) || exit 3

@@ -21,11 +21,11 @@ echo "=== build type of each library on this host"
 grep -h "^CMAKE_BUILD_TYPE" ${DEALII_ROOT:-$HOME/dealii}/build/CMakeCache.txt \
   | sed 's/^/release_tree_/'
 grep -h "^CMAKE_BUILD_TYPE" \
-  "${DEAL_II_DEBUG_DIR:-/media/alexander/PortableSSD/dealii-verify-r2/dbgbuild}/CMakeCache.txt" \
+  "${DEAL_II_DEBUG_DIR:-$HOME/dealii/dbgbuild}/CMakeCache.txt" \
   | sed 's/^/debug_tree_/'
 ls ${DEALII_ROOT:-$HOME/dealii}/build/lib/libdeal_II.so >/dev/null 2>&1 \
   && echo "release_library_present=true" || echo "release_library_present=false"
-ls "${DEAL_II_DEBUG_DIR:-/media/alexander/PortableSSD/dealii-verify-r2/dbgbuild}/lib/libdeal_II.g.so" \
+ls "${DEAL_II_DEBUG_DIR:-$HOME/dealii/dbgbuild}/lib/libdeal_II.g.so" \
   >/dev/null 2>&1 \
   && echo "debug_library_present=true" || echo "debug_library_present=false"
 

@@ -27,8 +27,8 @@
 # Refining dt does not converge the trajectory, it draws a different realisation.
 # dt has to be judged against the physical relaxation time, never against a
 # step-refinement study.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream beam3r_line2_backweuler_browndyn_periodic_rve_dirich_element.4C.yaml) || exit 3

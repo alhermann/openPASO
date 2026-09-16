@@ -20,8 +20,8 @@
 # emitted — and the bond count comes back 1056, so 2 bonds are broken instead of
 # 84 and the damage field is flat zero.  The only way to notice is to compare
 # the bond count against the no-crack run, which is what this fixture does.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream particle_sph_2d_pdbody_precrack_fixedflag.4C.yaml) || exit 3

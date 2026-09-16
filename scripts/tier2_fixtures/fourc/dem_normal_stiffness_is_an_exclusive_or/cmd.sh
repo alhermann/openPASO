@@ -16,8 +16,8 @@
 # their edit, i.e. they are three copies of the working stiffauto deck. The
 # abort then never happens, XOR_ABORTS drops to 0 and every EXIT_* becomes 0,
 # so the fixture must go red.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 MUTATE="${T2_MUTATE:-0}"

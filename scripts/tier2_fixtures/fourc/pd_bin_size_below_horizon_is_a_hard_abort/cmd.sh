@@ -16,8 +16,8 @@
 #
 # Worth knowing: the guard is horizon <= bin size, so equality is accepted even
 # though the message says "smaller than".  The fixture pins that too.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream particle_sph_2d_pdbody_gravity.4C.yaml) || exit 3

@@ -193,7 +193,6 @@ def _first_existing(cands, marker) -> Optional[Path]:
 _DEBUG_CANDIDATES = [
     os.environ.get("DEAL_II_DEBUG_DIR", ""),
     Path.home() / "Schreibtisch" / "dealii-debug",
-    Path("/media/alexander/PortableSSD/dealii-verify-r2/dbgbuild"),
     Path.home() / "dealii" / "dbgbuild",
 ]
 _RELEASE_CANDIDATES = [

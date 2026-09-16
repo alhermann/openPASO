@@ -27,7 +27,7 @@ VARIANT="${2:-release}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_TREE=${DEALII_ROOT:-$HOME/dealii}
 REL=${DEALII_ROOT:-$HOME/dealii}/build
-DBG=${DEAL_II_DEBUG_DIR:-/media/alexander/PortableSSD/dealii-verify-r2/dbgbuild}
+DBG=${DEAL_II_DEBUG_DIR:-$HOME/dealii/dbgbuild}
 OUTDIR="$HERE/_build"
 mkdir -p "$OUTDIR"
 EXE="$OUTDIR/${NAME}_${VARIANT}"

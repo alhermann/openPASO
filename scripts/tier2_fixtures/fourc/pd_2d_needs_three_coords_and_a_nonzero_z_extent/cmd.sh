@@ -17,8 +17,8 @@
 #           in ParticleEngine::init_binning_strategy.  There is no PROC 0 ERROR
 #           block, no message and no MPI_Abort banner: the process dies with a
 #           core dump, and the exit status is a signal, not 1.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 BASE=$(upstream particle_sph_2d_pdbody_gravity.4C.yaml) || exit 3

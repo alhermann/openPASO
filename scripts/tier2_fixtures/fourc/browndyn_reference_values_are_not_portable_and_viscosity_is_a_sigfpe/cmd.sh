@@ -10,8 +10,8 @@
 #
 # T2_MUTATE=1 removes the pathology from the two dropped-key decks -- they are
 # rebuilt untouched -- so no SIGFPE occurs and the fixture must go red.
-[ -d /media/alexander/PortableSSD/audit4c/tier2_scratch ] && \
-  export TMPDIR=/media/alexander/PortableSSD/audit4c/tier2_scratch
+[ -n "${TIER2_SCRATCH:-}" ] && [ -d "$TIER2_SCRATCH" ] && \
+  export TMPDIR="$TIER2_SCRATCH"
 . "$(dirname "$0")/../_lib/preamble.sh"
 
 MUTATE="${T2_MUTATE:-0}"

@@ -33,8 +33,30 @@ def client():
 def test_models(client):
     r = client.get("/api/models").json()
     assert any(m["id"].startswith("qwen2.5-") for m in r["models"])
-    assert "mock" in [m["id"] for m in r["models"]]
     assert r["default"] in [m["id"] for m in r["models"]]
+
+
+def test_the_fake_model_is_never_offered_to_a_person(client):
+    """The mock answers one canned turn and runs no solver.
+
+    It was the default, and a fabricated run was indistinguishable from real
+    work: same layout, same "Answer" heading, same "finished". It stays for
+    these tests and must never appear in the interface again."""
+    ids = [m["id"] for m in client.get("/api/models").json()["models"]]
+    assert "mock" not in ids, (
+        "the fake model is selectable again; a person can produce a result "
+        "that looks real and computed nothing")
+
+
+def test_the_solver_count_is_measured_not_asserted(client):
+    """The first screen used to state nine solvers from a hardcoded array.
+
+    It must come from the registry, and when the check cannot run it must say
+    so rather than guess."""
+    r = client.get("/api/solvers").json()
+    assert "ok" in r and "solvers" in r
+    if r["ok"]:
+        assert all("status" in s and "name" in s for s in r["solvers"])
 
 
 def test_mcp_servers(client):

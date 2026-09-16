@@ -2140,6 +2140,75 @@ def _match_exports(a: dict, b: dict):
     return mua, mub, mqa, mqb
 
 
+def exchange_carried_nothing_finding(export_a: dict, export_b: dict,
+                                     name_a: str = "A", name_b: str = "B"):
+    """Did this converged coupling exchange any information at all?
+
+    THE HOLE THIS FILLS, and why it lives here rather than in a participant.
+    Both live content checks at this hook abstain on exactly this input:
+    `flux_cancellation_finding` returns None when its denominator is zero, and
+    `field_continuity_finding` does the same, deferring in a comment to "the
+    near-zero check" -- which reads per-level CSVs that DO NOT EXIST YET when
+    couple() runs. So a pair that exchanged nothing passed both.
+
+    Measured on a live coupled run: three levels, both codes proven, the
+    partitioned iteration converged in 7 steps to an interface residual of
+    6.8e-11, and the traction columns read -3.04e-18 and 2.17e-19. Each side
+    returned the answer it would have returned with no partner at all. A
+    coupling that transmits nothing converges IMMEDIATELY and convincingly,
+    because two sides exchanging nothing cannot disagree -- so every
+    self-consistency measure the run reports about itself reads as success.
+
+    WHY IT IS A FINDING AND NOT A REFUSAL. openPASO cannot know whether a
+    subdomain is genuinely undriven; a free interface really can carry no
+    traction. So this reports and never stops the run. The same restraint is
+    why it belongs to the driver rather than to a participant's export
+    self-check: that check ends the coupling when it fires, and on iteration 1
+    imports.json is `{}` by contract, so a side legitimately recovers ~0 there.
+    A fatal check must not fire on an input openPASO cannot interpret; a
+    reporting one must.
+    """
+    m = _match_exports(export_a, export_b)
+    if not m:
+        return None
+    ua, ub, qa, qb = m
+
+    def _scale(rows_a, rows_b) -> float:
+        vals = [abs(x) for r in (rows_a or []) for x in (r or [])]
+        vals += [abs(x) for r in (rows_b or []) for x in (r or [])]
+        vals = [v for v in vals if v == v]
+        if not vals:
+            return -1.0                       # absent, not zero: different defect
+        return max(vals)
+
+    _ROUNDOFF = 1e-14
+    dead = [label for label, scale in (("interface value", _scale(ua, ub)),
+                                       ("interface flux", _scale(qa, qb)))
+            if 0.0 <= scale <= _ROUNDOFF]
+    if not dead:
+        return None
+    both = len(dead) == 2
+    return {"sequence": "interface exchange carried nothing",
+            "priority": 28,
+            "values": [0.0],
+            "finding": (
+        f"THIS COUPLING TRANSMITTED NOTHING: the {' and the '.join(dead)} "
+        f"channel{'s are' if both else ' is'} identically zero on BOTH sides "
+        f"({name_a} and {name_b}) at the matched interface points. Two sides "
+        f"that exchange nothing cannot disagree, so the iteration converges at "
+        f"once and the residual looks excellent while each side returns the "
+        f"answer it would have returned with no partner at all — that is what "
+        f"an interface residual of 1e-11 means here, not a satisfied "
+        f"transmission condition. Check that the imported field is actually "
+        f"read from imports.json and enters the assembled system (the "
+        f"condition that integrates it is the usual omission), and that the "
+        f"exported quantity is recovered from your own solution rather than "
+        f"initialised and never written. If this subdomain is genuinely "
+        f"undriven, say so in your report — openPASO cannot tell that from the "
+        f"numbers and is not asserting otherwise."
+    )}
+
+
 def flux_cancellation_finding(export_a: dict, export_b: dict,
                               name_a: str = "A", name_b: str = "B"):
     """CLASS 1, live from the two exports: max|q_A + q_B| / max(|q_A|,|q_B|) at

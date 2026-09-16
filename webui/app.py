@@ -26,6 +26,7 @@ import asyncio
 import contextlib
 import json
 import logging
+import time
 import traceback
 from pathlib import Path
 
@@ -62,6 +63,11 @@ async def index():
 async def get_models():
     out = []
     for k, m in config.MODELS.items():
+        # The mock is a fake server that answers one canned turn and runs no
+        # solver. It stays for the test suite and is not offered to a person:
+        # a fabricated run used to be indistinguishable from real work.
+        if k == "mock":
+            continue
         out.append({"id": k, "label": m["label"], "port": m["port"]})
     from . import claude_code
     if claude_code.available():
@@ -71,8 +77,117 @@ async def get_models():
     for k, label in config.OPENROUTER_MODELS.items():
         out.append({"id": k, "label": label, "port": None,
                     "needs_key": not have_key})
-    return {"models": out, "default": config.DEFAULT_MODEL,
+    return {"models": out, "default": config.default_model(),
             "openrouter_key": have_key}
+
+
+@app.get("/api/sessions/{sid}/manifest")
+async def get_manifest(sid: str):
+    """Everything needed to check or reproduce one run, in one file.
+
+    A result that cannot be traced back to what produced it is not a result. The
+    interface shows a summary; this is the record behind it, with the full
+    untruncated event log and a hash for every artefact the run wrote."""
+    import hashlib
+    try:
+        state = sessions.load(sid)
+    except Exception:
+        return JSONResponse({"error": f"no such run: {sid}"}, status_code=404)
+
+    events = state.get("events") or []
+    # A run that raised is a failed run, whatever came after it. The server
+    # emits "done" immediately following "error", so taking the last terminal
+    # event reported a crash as completed. Older sessions carry no outcome
+    # field at all, which is why the presence of an error decides it.
+    outcome = "unknown"
+    for e in events:
+        if e.get("type") == "error":
+            outcome = e.get("outcome") or "failed"
+        elif e.get("type") == "done":
+            stated = e.get("outcome")
+            if stated:
+                outcome = stated
+            elif outcome == "unknown":
+                outcome = "completed"
+
+    work = config.SANDBOX_ROOT / f"webui_{sid}"
+    artefacts = []
+    if work.is_dir():
+        for f in sorted(work.rglob("*")):
+            if not f.is_file():
+                continue
+            data = f.read_bytes()
+            artefacts.append({
+                "path": str(f.relative_to(work)),
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "modified": time.strftime("%Y-%m-%dT%H:%M:%S",
+                                          time.localtime(f.stat().st_mtime)),
+            })
+
+    try:
+        import sys
+        src = str(config.REPO / "src")
+        if src not in sys.path:
+            sys.path.insert(0, src)
+        from core import registry
+        registry.load_all_backends()
+        solvers = {r["display_name"]: r["version"] for r in registry.list_backends()
+                   if r["status"] == "available"}
+    except Exception:
+        solvers = {}
+
+    prompt = next((e.get("text") for e in events if e.get("type") == "user_msg"), None)
+    return {
+        "run": sid,
+        "outcome": outcome,
+        "prompt": prompt,
+        "model": state.get("model"),
+        "mode": state.get("mode"),
+        "mcp_servers": state.get("mcp_servers"),
+        "tokens": {"in": state.get("tokens_in"), "out": state.get("tokens_out")},
+        "solver_versions": solvers,
+        "working_directory": str(work),
+        "artefacts": artefacts,
+        "events": events,
+        "openpaso_commit": _commit(),
+        "generated": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+    }
+
+
+def _commit() -> str | None:
+    import subprocess
+    try:
+        out = subprocess.run(["git", "-C", str(config.REPO), "rev-parse", "HEAD"],
+                             capture_output=True, text=True, timeout=5)
+        return out.stdout.strip() or None
+    except Exception:
+        return None
+
+
+@app.get("/api/solvers")
+async def get_solvers():
+    """What is actually installed, from the same registry `discover` reads.
+
+    The first screen used to assert nine solvers from a hardcoded array. On a
+    machine with none installed it still said nine. If this check cannot run,
+    it says so rather than guessing."""
+    try:
+        import sys
+        src = str(config.REPO / "src")
+        if src not in sys.path:
+            sys.path.insert(0, src)
+        from core import registry
+        registry.load_all_backends()
+        rows = registry.list_backends()
+    except Exception as exc:
+        log.warning("solver check failed: %s", exc)
+        return {"ok": False, "error": f"{type(exc).__name__}: {exc}", "solvers": []}
+    return {"ok": True, "solvers": [
+        {"name": r["display_name"], "status": r["status"],
+         "version": r["version"], "physics": r["physics_count"]}
+        for r in rows
+    ]}
 
 
 @app.get("/api/mcp_servers")
@@ -216,6 +331,15 @@ class WSSession:
         if event.get("type") != "status":
             persist = {k: v for k, v in event.items() if k != "session"}
             self.state["events"].append(persist)
+            # The record used to be written only when the turn ended, so a
+            # crashed process lost every event and the manifest for that run
+            # was empty. Checkpointing costs a small write and means the log
+            # survives whatever happens to the run.
+            if len(self.state["events"]) % 10 == 0:
+                try:
+                    sessions.save(self.state)
+                except Exception:
+                    log.warning("could not checkpoint session %s", self.state["id"])
         if event.get("type") == "token_count":
             self.state["tokens_in"] = (self.state.get("tokens_in", 0)
                                        + (event.get("input") or 0))
@@ -372,8 +496,9 @@ async def _handle_inbound(ses: WSSession, msg: dict):
     elif t == "set_mode":
         ses.state["mode"] = msg.get("mode", ses.state["mode"])
         sessions.save(ses.state)
-        await ses.emit({"type": "status",
-                        "message": f"mode → {ses.state['mode']}"})
+        await ses.emit({"type": "status", "message": "",
+                        "session": {k: v for k, v in ses.state.items()
+                                    if k != "events"}})
     elif t == "set_model":
         ses.state["model"] = msg["model"]
         await ses.close_agent()

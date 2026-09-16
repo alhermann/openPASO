@@ -42,4 +42,19 @@ export type FieldSeries = {
   vmin: number
   vmax: number
   n_frames: number
+  x0?: number
+  y0?: number
+  dx?: number
+  dy?: number
+  provenance?: {
+    true_min?: number
+    true_max?: number
+    clip_percentile?: number | null
+    saturated_fraction?: number
+    quantisation_step?: number
+    interpolation?: string
+    solver?: string | null
+    source?: string | null
+    sha256?: string
+  }
 }

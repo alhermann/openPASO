@@ -6,7 +6,8 @@ import type { Ev, FieldSeries, FileRow, Session } from './types'
 import Nav from './components/Nav'
 import Idle from './components/Idle'
 import Stage from './components/Stage'
-import Ledger, { toSteps, finalAnswer } from './components/Ledger'
+import { toSteps, finalAnswer } from './components/Ledger'
+import Phases from './components/Phases'
 import Answer from './components/Answer'
 import SlideOver from './components/SlideOver'
 import RunState, { type Outcome } from './components/RunState'
@@ -40,6 +41,19 @@ export default function App() {
     load.then((s) => {
       if (s.events?.length) {
         setEvents(s.events)
+        let seen: Outcome = 'running'
+        for (const e of s.events) {
+          if (e.type === 'error') seen = (e as { outcome?: Outcome }).outcome || 'failed'
+          else if (e.type === 'done') {
+            const stated = (e as { outcome?: Outcome }).outcome
+            if (stated) seen = stated
+            else if (seen === 'running') seen = 'completed'
+          }
+        }
+        setOutcome(seen)
+        const err = [...s.events].reverse().find((e) => e.type === 'error')
+        if (err) setFailure({ message: err.message || 'the run failed',
+                              traceback: (err as { traceback?: string }).traceback })
         const first = s.events.find((e) => e.type === 'user_msg')
         if (first?.text) { setPrompt(first.text); setStarted(true) }
         void findField()
@@ -126,6 +140,13 @@ export default function App() {
     setStartedAt(Date.now()); setElapsed(0)
   }
   const stopRun = () => ws.current?.send(JSON.stringify({ type: 'stop' }))
+
+  /* Leaving mid-run abandons work that is still going. Saying so first is the
+     rule, and it costs one sentence. */
+  const leave = (to: string) => {
+    if (busy && !confirm('This run is still going. Leave it and start again?')) return
+    location.href = to
+  }
   const decide = (call_id: string, ok: boolean) =>
     ws.current?.send(JSON.stringify(
       ok ? { type: 'approve', call_id } : { type: 'reject', call_id, reason: 'not now' }))
@@ -170,7 +191,12 @@ export default function App() {
 
   return (
     <>
-      <Nav onMenu={() => setMenu(true)} />
+      <Nav
+        inRun={started}
+        onMenu={() => setMenu(true)}
+        onHome={() => leave('/')}
+        onOpenRun={(id) => leave(`/?session=${id}`)}
+      />
 
       {!started ? (
         <Idle value={prompt} onChange={setPrompt} onSend={send} busy={busy} />
@@ -188,8 +214,10 @@ export default function App() {
                 <span>{status}</span>
               </>}
             </div>
-            <h1 className="mt-5 text-[40px] font-medium tracking-[-0.024em] leading-[1.12]
-                           text-ink line-clamp-2 max-w-[1100px]">
+            <h1 title={prompt}
+                className="mt-4 text-[28px] font-medium tracking-[-0.02em] leading-[1.25]
+                           text-ink max-w-[1100px] overflow-hidden text-ellipsis
+                           whitespace-nowrap">
               {prompt}
             </h1>
           </section>
@@ -211,7 +239,7 @@ export default function App() {
           </AnimatePresence>
 
           <div className="w-[1224px] mx-auto mt-12 grid grid-cols-[1fr_476px] gap-16 items-start">
-            <Ledger steps={steps}
+            <Phases steps={steps} running={busy}
                     onApprove={(id) => decide(id, true)}
                     onReject={(id) => decide(id, false)} />
             <div className="space-y-12">

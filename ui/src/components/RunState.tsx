@@ -44,9 +44,9 @@ export default function RunState({
   if (outcome === 'running') {
     return (
       <div className="flex items-center gap-4" data-testid="runstate">
-        <span className="w-2 h-2 rounded-full bg-coral animate-pulse" />
+        <span className="w-2 h-2 rounded-full bg-coral" />
         <span className="text-[15px] text-ink2">Working</span>
-        <span className="num text-[14px] text-muted">{clock}</span>
+        {elapsed > 0 && <span className="num text-[14px] text-muted">{clock}</span>}
         {onStop && (
           <button onClick={onStop}
                   className="ml-2 h-8 px-3.5 rounded-[6px] border line text-muted text-[13px]
@@ -63,7 +63,7 @@ export default function RunState({
       <div className="flex items-center gap-4" data-testid="runstate">
         <span className="w-2 h-2 rounded-full border border-muted" />
         <span className="text-[15px] text-ink2">Finished</span>
-        <span className="num text-[14px] text-muted">{clock}</span>
+        {elapsed > 0 && <span className="num text-[14px] text-muted">{clock}</span>}
       </div>
     )
   }
@@ -80,7 +80,7 @@ export default function RunState({
         <span className="text-[17px] text-ink2">
           {stopped ? 'You stopped this run.' : 'This run did not finish.'}
         </span>
-        <span className="num text-[14px] text-muted ml-auto">{clock}</span>
+        {elapsed > 0 && <span className="num text-[14px] text-muted ml-auto">{clock}</span>}
       </div>
 
       {!stopped && (
@@ -99,7 +99,7 @@ export default function RunState({
                 {open ? 'Hide the detail' : 'Show the detail'}
               </button>
               {open && (
-                <pre className="num text-[12px] text-muted mt-3 p-4 bg-well rounded-[6px]
+                <pre className="num text-[13px] text-muted mt-3 p-4 bg-well rounded-[6px]
                                 overflow-x-auto whitespace-pre-wrap">{traceback}</pre>
               )}
             </>

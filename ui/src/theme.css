@@ -37,6 +37,7 @@
 }
 
 @layer base {
+  :root { color-scheme: dark; }
   html, body, #root { background: var(--color-canvas); min-height: 100dvh; }
   body {
     font-family: var(--font-sans);
@@ -48,6 +49,8 @@
 
   /* Every number a solver produced is monospaced and tabular, or it reflows its
      own width each time it changes. */
+  h1, h2, h3 { text-wrap: balance; }
+
   .num {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums slashed-zero;
@@ -90,3 +93,5 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+@utility border-strong { border-color: rgb(100 116 139 / 0.32); }

@@ -6186,9 +6186,29 @@ def register_consolidated_tools(mcp: FastMCP):
             from . import result_audit as _ra
             presub: list = []
             _names = list(r.exports or {})
+            if len(_names) > 2:
+                # SAY SO RATHER THAN BE SILENT. Every live content check here
+                # is written for a PAIR, so a coupling with three or more
+                # participants gets none of them -- and silence from a checker
+                # is indistinguishable from a pass.
+                presub.append({
+                    "sequence": "interface content not checked",
+                    "priority": 5, "values": [float(len(_names))], "finding": (
+                        f"COVERAGE, NOT A VERDICT: this coupling has "
+                        f"{len(_names)} participants and openPASO's live "
+                        f"interface checks (exchange carried nothing, flux "
+                        f"cancellation, field continuity) are written for a "
+                        f"PAIR, so none of them ran. Nothing here says your "
+                        f"interfaces are sound; it says they were not "
+                        f"examined.")})
             if len(_names) == 2:
                 _ea, _eb = r.exports[_names[0]], r.exports[_names[1]]
-                for _fn in (_ra.flux_cancellation_finding,
+                # exchange_carried_nothing_finding goes FIRST because the
+                # other two abstain on exactly its input -- both return None on
+                # a zero denominator, so a pair that transmitted nothing used to
+                # pass every live content check at this hook.
+                for _fn in (_ra.exchange_carried_nothing_finding,
+                            _ra.flux_cancellation_finding,
                             _ra.field_continuity_finding):
                     _f = _fn(_ea, _eb, _names[0], _names[1])
                     if _f:

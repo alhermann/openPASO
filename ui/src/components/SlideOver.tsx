@@ -63,7 +63,7 @@ export default function SlideOver({
           <button onClick={onUp} className="ml-auto normal-case tracking-normal
                     font-sans text-[13px] text-muted hover:text-ink2">Up</button>
         </div>
-        <div className="num text-[12px] text-graphit mt-2">/{cwd}</div>
+        <div className="num text-[13px] text-muted mt-2">/{cwd}</div>
         <div className="mt-3">
           {files.length === 0 && <div className="text-sm text-graphit italic">empty</div>}
           {files.map((f) => (
@@ -72,7 +72,7 @@ export default function SlideOver({
                                border-t line-soft first:border-t-0
                                transition-colors duration-150 hover:text-ink2">
               <span className="text-[13px] text-body">{f.is_dir ? f.name + '/' : f.name}</span>
-              <span className="num text-[12px] text-graphit ml-auto">
+              <span className="num text-[13px] text-muted ml-auto">
                 {f.is_dir ? '' : `${(f.size / 1024).toFixed(1)} KB`}
               </span>
             </button>

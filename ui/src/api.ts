@@ -13,6 +13,12 @@ export const api = {
   newSession: (): Promise<Session> =>
     fetch('/api/sessions', { method: 'POST' }).then(j),
   session: (id: string): Promise<Session> => fetch(`/api/sessions/${id}`).then(j),
+  /* Past runs. The endpoint existed from the start and nothing called it, so
+     reopening yesterday's work meant copying a hex id out of a panel by hand. */
+  sessions: (): Promise<{ id: string; model?: string; events?: number;
+                          modified?: number }[]> =>
+    fetch('/api/sessions').then(j).then((d) => d.sessions ?? d ?? []),
+  manifest: (id: string) => fetch(`/api/sessions/${id}/manifest`).then(j),
   files:   (rel = ''): Promise<{ entries: FileRow[]; rel: string }> =>
     fetch(`/api/files?rel=${encodeURIComponent(rel)}`).then(j),
   viz:     (rel: string) => fetch(`/api/viz?rel=${encodeURIComponent(rel)}`).then(j),

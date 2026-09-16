@@ -127,9 +127,22 @@ export default function Stage({ series }: { series: FieldSeries }) {
     return () => cancelAnimationFrame(raf.current)
   }, [playing, n])
 
+  const prov = series.provenance
+  const pct = prov?.saturated_fraction != null
+    ? `${(prov.saturated_fraction * 100).toFixed(1)}%` : 'some'
+  const span = series.dx && series.dy
+    ? `${(series.dx * series.nx).toFixed(2)} x ${(series.dy * series.ny).toFixed(2)} m`
+    : ''
+
   return (
     <section className="bg-well pt-12 pb-5 mt-12" data-testid="stage">
-      <canvas ref={canvas} className="block w-full h-[340px]" aria-label={series.field} />
+      {/* Aspect comes from the data. Forcing width and height independently
+          stretched the field by an amount that changed with the window, so two
+          people measuring vortex spacing off it got different numbers. */}
+      <canvas ref={canvas} aria-label={series.field}
+              className="block mx-auto w-auto max-w-full"
+              style={{ height: 'min(420px, 42vw)',
+                       aspectRatio: `${series.nx} / ${series.ny}` }} />
       <div className="w-[1224px] mx-auto mt-5 flex items-center gap-4">
         <button
           onClick={() => setPlaying((p) => !p)}
@@ -149,14 +162,29 @@ export default function Stage({ series }: { series: FieldSeries }) {
           }}
           className="w-64 accent-coral"
         />
-        <span className="ml-auto flex items-center gap-2.5 font-mono text-[11px] text-graphit">
+        <span className="ml-auto flex items-center gap-2.5 font-mono text-[13px] text-muted">
           <span>{series.vmin}</span>
-          <span className="w-[132px] h-1 rounded-sm"
+          <span className="w-[132px] h-1.5 rounded-sm"
                 style={{ background: 'linear-gradient(90deg,#AFBCCB,#64748B,#080B11,#C94A30,#FF9D82)' }} />
           <span>+{series.vmax}</span>
           <span>{series.unit}</span>
         </span>
       </div>
+
+      {prov && (
+        <p className="w-[1224px] mx-auto mt-4 font-mono text-[13px] text-muted leading-relaxed">
+          {span && `${span} · `}
+          {series.nx} x {series.ny} grid, values at cell centres.
+          {typeof prov.true_min === 'number' && typeof prov.true_max === 'number' && (
+            <> Field reaches {prov.true_min.toFixed(1)} to {prov.true_max.toFixed(1)} {series.unit};
+              colours span {series.vmin} to {series.vmax}
+              {prov.clip_percentile ? ` (${prov.clip_percentile}th percentile)` : ''},
+              so {pct} of the domain is saturated and reads as a bound, not a value.</>
+          )}
+          {prov.quantisation_step && <> {prov.quantisation_step.toFixed(3)} {series.unit} per colour level.</>}
+          {prov.solver && <> {prov.solver}.</>}
+        </p>
+      )}
     </section>
   )
 }

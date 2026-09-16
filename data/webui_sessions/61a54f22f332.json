@@ -1,0 +1,13 @@
+{
+  "id": "61a54f22f332",
+  "created_at": 1789574788.4231544,
+  "model": "claude-code",
+  "mode": "accept",
+  "mcp_servers": [
+    "openpaso"
+  ],
+  "events": [],
+  "workdir": "",
+  "tokens_in": 0,
+  "tokens_out": 0
+}

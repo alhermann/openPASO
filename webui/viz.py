@@ -131,6 +131,11 @@ def _json(p: Path) -> dict:
             "nx": obj.get("nx"), "ny": obj.get("ny"),
             "vmin": obj.get("vmin"), "vmax": obj.get("vmax"),
             "n_frames": len(obj.get("times") or []),
+            "x0": obj.get("x0"), "y0": obj.get("y0"),
+            "dx": obj.get("dx"), "dy": obj.get("dy"),
+            # What the picture does not show on its own: the true range behind
+            # the clip, how much is saturated, and where it came from.
+            "provenance": obj.get("provenance") or {},
         }
 
     return {"kind": "json", "obj": obj, "path": str(p)}

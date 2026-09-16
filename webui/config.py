@@ -84,4 +84,17 @@ MCP_SERVERS = {
 
 MODES = ("plan", "accept", "autonomous")
 DEFAULT_MODE = "accept"
-DEFAULT_MODEL = "mock"
+def default_model() -> str:
+    """The first backend that can actually run, never the fake one.
+
+    The default used to be the mock, so the first thing a newcomer did was
+    produce a fabricated result that looked exactly like real work."""
+    from . import claude_code
+    if claude_code.available():
+        return CLAUDE_CODE_ID
+    if openrouter_key():
+        return next(iter(OPENROUTER_MODELS))
+    return next(k for k in MODELS if k != "mock")
+
+
+DEFAULT_MODEL = "mock"   # kept for the test suite; the interface never offers it

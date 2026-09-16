@@ -343,7 +343,13 @@ async def stream_turn(*, agent, user_text: str, emitter, emit_done: bool = True)
     inputs = {"messages": [("user", user_text)]}
     await emitter({"type": "status", "message": "thinking…"})
     try:
-        async for event in agent.astream_events(inputs, version="v2"):
+        # LangGraph's default ceiling is 25 steps, which a simulation task
+        # passes while it is still reading documentation: a real run died at it
+        # having written its solver but never run it. openPASO's own rule is
+        # that there is one budget and it is the clock, so the step ceiling sits
+        # well above anything the wall time can reach.
+        async for event in agent.astream_events(
+                inputs, version="v2", config={"recursion_limit": 400}):
             kind = event.get("event")
             name = event.get("name")
             if kind == "on_chat_model_stream":

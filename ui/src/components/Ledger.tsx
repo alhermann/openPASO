@@ -10,6 +10,7 @@ import { rowIn } from '../motion'
 
 export type Step = {
   id: string
+  tool: string
   what: string
   detail: string
   state: 'running' | 'done' | 'waiting' | 'failed' | 'rejected'
@@ -80,7 +81,8 @@ export function toSteps(events: Ev[]): Step[] {
     switch (e.type) {
       case 'tool_call_pending':
         at.set(id, out.length)
-        out.push({ id, what: say(e.tool), detail: 'waiting for you', state: 'waiting' })
+        out.push({ id, tool: e.tool || '', what: say(e.tool),
+                   detail: 'waiting for you', state: 'waiting' })
         break
       case 'tool_call_executing': {
         const i = at.get(id)
@@ -153,7 +155,7 @@ export default function Ledger({
             <span className={`w-2 h-2 rounded-full ${MARK[s.state]}
                               ${s.state === 'running' ? 'animate-pulse' : ''}`} />
             <span className="text-[16px] text-ink2 leading-snug">{s.what}</span>
-            <span className={`num text-[14px] leading-snug overflow-hidden
+            <span className={`num text-[14px] leading-snug overflow-hidden min-w-0
                              text-ellipsis whitespace-nowrap
                              ${s.state === 'failed' || s.state === 'rejected'
                                ? 'text-[#D85A6F]' : 'text-muted'}`}>{s.detail}</span>

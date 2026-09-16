@@ -109,11 +109,18 @@ function openpasoApp() {
         this.session.tokens_in += e.input || 0;
         this.session.tokens_out += e.output || 0;
       }
-      if (e.type === 'status' && e.session) {
-        this.session = Object.assign(this.session, e.session);
-        this.events = this.session.events.slice();
-      } else if (e.type === 'status') {
-        this.status = e.message;
+      // A status is chrome, not a log entry. It used to be pushed like any
+      // other event, which meant the connect handshake occupied the first
+      // bubble (dumping the whole session object with it) and 'thinking...'
+      // stayed in the scrollback forever. Both belong in the header line.
+      if (e.type === 'status') {
+        if (e.session) {
+          this.session = Object.assign(this.session, e.session);
+          this.events = this.session.events.slice();
+        }
+        this.status = (e.message === 'connected') ? '' : (e.message || '');
+        this.scrollToBottom();
+        return;
       }
       this.events.push(e);
       this.scrollToBottom();
@@ -252,42 +259,46 @@ function openpasoApp() {
       root.innerHTML = '';
       const fsContainer = vtk.Rendering.Misc.vtkFullScreenRenderWindow
         ? vtk.Rendering.Misc.vtkFullScreenRenderWindow.newInstance({
-            rootContainer: root, background: [0.06, 0.09, 0.16],
+            rootContainer: root, background: [0.051, 0.067, 0.090],  // #0D1117
           }) : null;
       if (!fsContainer) return;
       const renderer = fsContainer.getRenderer();
       const renderWindow = fsContainer.getRenderWindow();
-      const reader = vtk.IO.XML.vtkXMLPolyDataReader
-        ? vtk.IO.XML.vtkXMLPolyDataReader.newInstance() : null;
+      const reader = vtk.IO.XML.vtkXMLUnstructuredGridReader
+        ? vtk.IO.XML.vtkXMLUnstructuredGridReader.newInstance() : null;
       if (!reader) {
         root.innerHTML = '<div class="text-slate-500 p-2">' +
-          'vtk.js modules missing — load full vtk.js bundle.</div>';
+          'vtk.js modules missing. Load the full vtk.js bundle.</div>';
         return;
       }
+      // The guard has to cover the render too, not just the fetch: an
+      // unreadable grid throws at getOutputData, well past the old catch.
       try {
         const resp = await fetch(url);
         const buf = await resp.arrayBuffer();
         reader.parseAsArrayBuffer(buf);
+
+        const grid = reader.getOutputData(0);
+        if (!grid || !grid.getNumberOfPoints || grid.getNumberOfPoints() === 0) {
+          throw new Error('the file parsed but carries no points');
+        }
+        const mapper = vtk.Rendering.Core.vtkMapper.newInstance();
+        mapper.setInputData(grid);
+        const actor = vtk.Rendering.Core.vtkActor.newInstance();
+        actor.setMapper(mapper);
+        renderer.addActor(actor);
+        renderer.resetCamera();
+        renderWindow.render();
+        this.vtkState = { fsContainer, renderer, renderWindow, mapper, actor };
+
+        const arr = grid.getPointData().getScalars();
+        if (arr) {
+          const r = arr.getRange();
+          this.vtkRange = [r[0], r[1]];
+        }
       } catch (e) {
-        root.innerHTML = '<div class="text-rose-300 p-2">' +
-          'VTK read error: ' + e.message + '</div>';
-        return;
-      }
-      const polyData = reader.getOutputData(0);
-      const mapper = vtk.Rendering.Core.vtkMapper.newInstance();
-      mapper.setInputData(polyData);
-      const actor = vtk.Rendering.Core.vtkActor.newInstance();
-      actor.setMapper(mapper);
-      renderer.addActor(actor);
-      renderer.resetCamera();
-      renderWindow.render();
-      // remember state for the toolbar
-      this.vtkState = { fsContainer, renderer, renderWindow, mapper, actor };
-      // populate range
-      const arr = polyData.getPointData().getScalars();
-      if (arr) {
-        const r = arr.getRange();
-        this.vtkRange = [r[0], r[1]];
+        root.innerHTML = '<div class="text-slate-300 p-2">' +
+          'This file could not be displayed: ' + this.scrub(e.message) + '</div>';
       }
     },
 
@@ -330,13 +341,13 @@ function openpasoApp() {
         user_msg:           'border-accent-500/30 bg-accent-500/8 text-slate-100 ml-auto',
         agent_msg:          'border-ink-700 bg-ink-800/70 text-slate-100',
         agent_chunk:        'border-ink-700 bg-ink-800/70 text-slate-100',
-        tool_call_pending:  'border-amber-500/40 bg-amber-500/8 text-slate-100',
-        tool_call_executing:'border-amber-500/40 bg-amber-500/12 text-slate-100',
+        tool_call_pending:  'border-state-call/40 bg-state-call/8 text-slate-100',
+        tool_call_executing:'border-state-call/40 bg-state-call/12 text-slate-100',
         tool_result:        'border-ink-700 bg-ink-900/80 text-slate-300',
-        subagent_spawned:   'border-violet-500/40 bg-violet-500/10 text-slate-100',
-        subagent_returned:  'border-violet-500/40 bg-violet-500/8 text-slate-200',
+        subagent_spawned:   'border-state-sub/40 bg-state-sub/10 text-slate-100',
+        subagent_returned:  'border-state-sub/40 bg-state-sub/8 text-slate-200',
         token_count:        'border-ink-700/50 bg-ink-900/40 text-slate-500 text-[10px] py-1.5',
-        error:              'border-rose-500/40 bg-rose-500/12 text-rose-100',
+        error:              'border-state-err/40 bg-state-err/12 text-slate-100',
         done:               'border-accent-500/30 bg-accent-500/8 text-accent-300',
         status:             'border-ink-700/50 bg-ink-900/40 text-slate-500 text-[10px] py-1.5',
       };
@@ -349,6 +360,7 @@ function openpasoApp() {
         tool_result: '✓',
         subagent_spawned: '👁', subagent_returned: '✓',
         token_count: '∑', error: '⚠', done: '●', status: '·',
+        tool_call_rejected: '⊘', tool_error: '⚠',
       })[e.type] || '·';
     },
     eventLabel(e) {
@@ -361,10 +373,16 @@ function openpasoApp() {
         subagent_returned: 'Sub-agent return',
         token_count: 'Tokens',
         error: 'Error', done: 'Done', status: 'Status',
+        tool_call_rejected: 'Tool call rejected',
+        tool_error: 'Tool failed',
       };
       return m[e.type] || e.type;
     },
     eventClass(e) { return this.bubbleClass(e); },
+    // Never print a machine's home directory on someone else's screen.
+    scrub(s) {
+      return String(s == null ? '' : s).replace(/\/home\/[^/\s:'"]+\//g, '~/');
+    },
     formatEvent(e) {
       if (e.type === 'agent_msg' || e.type === 'user_msg') return e.text || '';
       if (e.type === 'tool_call_pending' || e.type === 'tool_call_executing') {
@@ -376,8 +394,20 @@ function openpasoApp() {
       }
       if (e.type === 'subagent_returned') return (e.result || '').slice(0, 800);
       if (e.type === 'token_count') return `in=${e.input}  out=${e.output}`;
+      // These three used to fall through to JSON.stringify and render as
+      // {"message":"thinking…"} on screen, handshake payload and all.
+      if (e.type === 'status') {
+        return e.message === 'connected' ? 'Connected.' : this.scrub(e.message || '');
+      }
+      if (e.type === 'done') return '';
+      if (e.type === 'error' || e.type === 'tool_error') {
+        return this.scrub(e.message || e.error || '').slice(0, 800);
+      }
+      if (e.type === 'tool_call_rejected') {
+        return this.scrub(`${e.tool || 'tool'}${e.reason ? ': ' + e.reason : ''}`);
+      }
       const { type, ...rest } = e;
-      return JSON.stringify(rest).slice(0, 400);
+      return this.scrub(JSON.stringify(rest)).slice(0, 400);
     },
     kindIcon(k) {
       return { dir: '📁', vtk: '🌐', hdf: '📦', image: '🖼',

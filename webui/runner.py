@@ -287,13 +287,18 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
                         agent_label="main") for t in mcp_tools + host]
 
     from langgraph.prebuilt import create_react_agent
-    # Use the EXACT same system prompts as the langgraph_eval driver
-    # (la.BARE_SYSTEM / la.MCP_SYSTEM) — including the MANDATORY CRITIC
-    # paragraph. Softening them in the WebUI would change the agent's
-    # behaviour relative to the paper claim, and any failure mode the
-    # strict prompt causes on small models is a real finding, not a
-    # bug to paper over.
-    prompt = (la.MCP_SYSTEM if mcp_on else la.BARE_SYSTEM)
+    # Use the EXACT same system prompts as the langgraph_eval driver, including
+    # the MANDATORY CRITIC paragraph. Softening them in the WebUI would change
+    # the agent's behaviour relative to the paper claim, and any failure mode
+    # the strict prompt causes on small models is a real finding, not a bug to
+    # paper over.
+    #
+    # The openPASO arm's text became a function when the server's own
+    # instructions became its source, so it is built per call rather than read
+    # from a constant. Calling the private name is deliberate: the guarantee
+    # above is that these are the same bytes the driver uses, and a local copy
+    # would quietly stop being that.
+    prompt = (la._mcp_system_prompt() if mcp_on else la.BARE_SYSTEM)
     return create_react_agent(llm, tools=gated, prompt=prompt)
 
 

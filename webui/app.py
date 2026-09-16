@@ -200,8 +200,12 @@ class WSSession:
         # build a self-referencing tree (state.events ⊃ event ⊃ session
         # ⊃ state). The wire payload still includes the snapshot.
         wire = event
-        persist = {k: v for k, v in event.items() if k != "session"}
-        self.state["events"].append(persist)
+        # A status is transient chrome: it drives the header line and is gone.
+        # Persisting it meant every reload replayed 'connected' and each
+        # 'thinking...' as a permanent bubble in the scrollback.
+        if event.get("type") != "status":
+            persist = {k: v for k, v in event.items() if k != "session"}
+            self.state["events"].append(persist)
         if event.get("type") == "token_count":
             self.state["tokens_in"] = (self.state.get("tokens_in", 0)
                                        + (event.get("input") or 0))

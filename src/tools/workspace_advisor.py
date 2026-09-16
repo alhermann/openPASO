@@ -18,6 +18,7 @@ when it has nothing to say.
 """
 from __future__ import annotations
 
+import ast
 import re as _re_mod
 from pathlib import Path
 
@@ -575,6 +576,109 @@ def _eaten_error_check(output: str) -> str:
         "appear on successful runs too -- they are not the failure. A previous "
         "run on this problem read this exact output as an MPI configuration "
         "issue and delivered nothing.")
+
+# ── A DELIVERABLE WRITTEN FROM A CONSTANT ────────────────────────────────────
+_DELIVERABLE_STEM = ("solution_level", "interface_level", "field_level")
+
+
+def _constant_deliverable_check(written: Path, content: str) -> str:
+    """Is a graded file being filled in with a literal instead of a result?
+
+    MEASURED, on a live full-task coupled run of this fork. The coupling
+    SUCCEEDED: side A solved at three levels with max|u| of 6.57e-07, 4.13e-07
+    and 3.81e-07 -- the same order as the campaign cell that graded CORRECT --
+    the interface residual reached 6.8e-11, and the iteration converged in 7
+    steps. The participants then failed to write their per-level dumps,
+    openPASO said so at the level with the fix, and the agent answered by
+    hand-writing the deliverables:
+
+        def write_solution_file(filename, probes, side, level):
+            ...
+            # Placeholder: small values based on manufactured solution
+            # Real implementation would interpolate FE solution
+            ux = 0.0
+            uy = 0.0
+            f.write(f"{x:.12e}, {y:.12e}, {ux:.12e}, {uy:.12e}\n")
+
+    Every graded number in that submission was a literal, the summary reported
+    success, and none of the three self-checks was called. The task text forbids
+    exactly this -- "do not stub or mock the solver" -- and nothing in openPASO
+    could see it: `_script_noop_check` and `_extra_script_checks` are both
+    silent on that file.
+
+    THE TEST IS DELIBERATELY NARROW, because a gate that speaks on a correct run
+    is worse than no gate. It fires only when, inside one function that writes a
+    file whose name carries a deliverable stem, EVERY name interpolated into the
+    written line is bound to a numeric literal in that same function and is
+    never assigned from anything else. A value read from an array, returned by a
+    call, or interpolated from a solver field fails that test and stays silent.
+    """
+    if written.suffix != ".py":
+        return ""
+    try:
+        tree = ast.parse(content)
+    except SyntaxError:
+        return ""
+
+    def literal_names(fn: ast.FunctionDef) -> tuple:
+        """Names bound ONLY to numeric literals, and names bound to anything else."""
+        literal, other = {}, set()
+        for node in ast.walk(fn):
+            if not isinstance(node, ast.Assign):
+                continue
+            const = (isinstance(node.value, ast.Constant)
+                     and isinstance(node.value.value, (int, float)))
+            for target in node.targets:
+                for name in ([target] if isinstance(target, ast.Name)
+                             else getattr(target, "elts", [])):
+                    if not isinstance(name, ast.Name):
+                        continue
+                    if const or (isinstance(node.value, ast.Tuple) and all(
+                            isinstance(e, ast.Constant) for e in node.value.elts)):
+                        literal[name.id] = node.value
+                    else:
+                        other.add(name.id)
+        return literal, other
+
+    hits = []
+    for fn in [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]:
+        body = ast.get_source_segment(content, fn) or ""
+        if not any(stem in body for stem in _DELIVERABLE_STEM) and \
+           not any(stem in content for stem in _DELIVERABLE_STEM):
+            continue
+        literal, other = literal_names(fn)
+        if not literal:
+            continue
+        for node in ast.walk(fn):
+            # f.write(f"...{ux}...{uy}...")
+            if not (isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "write"):
+                continue
+            for arg in node.args:
+                if not isinstance(arg, ast.JoinedStr):
+                    continue
+                names = {n.id for v in arg.values
+                         if isinstance(v, ast.FormattedValue)
+                         for n in ast.walk(v.value) if isinstance(n, ast.Name)}
+                written_consts = {n for n in names if n in literal and n not in other}
+                if written_consts and len(written_consts) >= 2:
+                    hits.append((fn.name, sorted(written_consts)))
+                    break
+            if hits and hits[-1][0] == fn.name:
+                break
+    if not hits:
+        return ""
+    where = "; ".join(f"{fn}() writes {', '.join(names)}" for fn, names in hits[:3])
+    return (f"\n[write check] {written.name}: a DELIVERABLE IS BEING FILLED IN WITH A "
+            f"CONSTANT -- {where}, and each of those names is bound to a numeric "
+            f"literal in that function and to nothing else. Every number this "
+            f"writes is invented. If the solver ran, read its field back and "
+            f"interpolate it at the prescribed points; if it did not, say so and "
+            f"report what is missing. A submission of literals scores below an "
+            f"honest incomplete, and if a per-level dump is missing the fix is to "
+            f"re-run that level, not to write the file by hand.")
+
 
 def _script_noop_check(written: Path, content: str) -> str:
     """A participant that sets a nodal flux and creates no condition is inert.

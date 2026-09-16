@@ -1,0 +1,13 @@
+{
+  "id": "684a56b9f145",
+  "created_at": 1789564155.8963008,
+  "model": "mock",
+  "mode": "accept",
+  "mcp_servers": [
+    "openpaso"
+  ],
+  "events": [],
+  "workdir": "",
+  "tokens_in": 0,
+  "tokens_out": 0
+}

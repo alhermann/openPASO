@@ -600,7 +600,8 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False,
             for f in sorted(touched, key=lambda x: now[x], reverse=True):
                 try:
                     _txt = f.read_text(errors="replace")
-                    got = (_script_noop_check(f, _txt)
+                    got = (_constant_deliverable_check(f, _txt)
+                           + _script_noop_check(f, _txt)
                            + _registry_attribute_check(f, _txt)
                            + _extra_script_checks(f, _txt))
                 except OSError:
@@ -791,6 +792,7 @@ def _read_write_tools_for(workdir: Path, *, audit_on_submit: bool = False):
                 reply += _identical_levels_check(workdir, p)
                 reply += _wrong_level_run_log_check(workdir, p)
                 reply += _discarded_proof_check(p, content)
+                reply += _constant_deliverable_check(p, content)
                 reply += _script_noop_check(p, content)
                 reply += _registry_attribute_check(p, content)
                 reply += _extra_script_checks(p, content)
@@ -1161,7 +1163,8 @@ _sys_for_path.path.insert(
 # verifying anything were deleted outright, not moved.
 from tools.workspace_advisor import (          # noqa: E402
     _discarded_proof_check, _early_artefact_check, _eaten_error_check,
-    _env_after_wrapper_check, _extra_script_checks, _flat,
+    _constant_deliverable_check, _env_after_wrapper_check,
+    _extra_script_checks, _flat,
     _identical_levels_check, _level_index_check, _registry_attribute_check,
     _looks_like_captured_output, _registry_error_check, _script_noop_check,
     _work_on_disk_contradicting_a_give_up,

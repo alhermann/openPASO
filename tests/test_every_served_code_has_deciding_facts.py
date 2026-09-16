@@ -48,6 +48,9 @@ def test_the_skfem_facts_name_the_two_measured_deaths():
     assert "'Dofs' object is not callable" in f and "get_dofs(" in f
     assert "boundaries_only=False" in f          # an interface inside one mesh
     assert "probes(" in f and "interpolator(" in f   # off-node evaluation, which every task demands
+    # a step trial exported an all-zero flux through both of these (2026-09-16)
+    assert "x[I] = solve(A_I, b_I)" in f          # an unpacked condense leaves x at x0
+    assert "WITHOUT `facets=` IS THE OUTER BOUNDARY ONLY" in f
 
 
 def test_a_coupled_skfem_reply_carries_them():

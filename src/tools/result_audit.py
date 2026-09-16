@@ -887,9 +887,14 @@ def contract_findings(work: Path) -> list[dict]:
         if not A0 or not B0:
             continue
         (uA, qA), (uB, qB) = A0, B0
-        if (len(uA) < 2 or len(uA) != len(uB) or len(qA) != len(qB)
-                or not qA or not any(any(abs(x) > 0 for x in row)
-                                     for row in (qA + qB))):
+        # NO EARLY EXIT ON AN ALL-ZERO FLUX. This used to skip the level when
+        # every flux entry on both sides was exactly zero -- so a field that
+        # disagreed between the two sides went unreported beside a small
+        # reported residual, because a DIFFERENT column happened to be dead.
+        # The per-component loops below already skip a component that is ~0 on
+        # both sides, so a dead flux contributes nothing to dq and the field is
+        # still judged.
+        if len(uA) < 2 or len(uA) != len(uB) or len(qA) != len(qB) or not qA:
             continue
         ncomp_u = min(len(uA[0]), len(uB[0])) if uA and uA[0] else 0
         ncomp_q = min(len(qA[0]), len(qB[0])) if qA and qA[0] else 0
@@ -930,8 +935,12 @@ def contract_findings(work: Path) -> list[dict]:
                         "finding": (
                 f"YOU REPORT {label} = {reported:.2e}, BUT YOUR OWN "
                 f"TWO INTERFACE FILES AT LEVEL {lvl} DISAGREE: the field "
-                f"differs by {du:.0%} of its own scale and the two outward "
-                f"fluxes fail to cancel by {dq:.0%}. A partitioned scheme is "
+                f"differs by {du:.0%} of its own scale and "
+                + (f"the two outward fluxes fail to cancel by {dq:.0%}. "
+                   if q_ref > 0 else
+                   "BOTH flux columns are identically zero, so no flux was "
+                   "exchanged at all. ")
+                + f"A partitioned scheme is "
                 f"converged when the SIDES agree, so the number you report has "
                 f"to be computed from the two exported profiles — "
                 f"max|u_A - u_B| and max|q_A + q_B| over the shared interface "

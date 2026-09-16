@@ -10,6 +10,8 @@ works with no key, and it does not leak a key it happens to find.
 import os
 import subprocess
 import sys
+
+import pytest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -50,6 +52,11 @@ def test_it_names_a_command_for_every_solver_it_reports_missing():
     done = _run({})
     missing = [line for line in done.stdout.splitlines()
                if "not installed" in line]
-    assert missing, "expected at least one uninstalled solver on a test machine"
+    if not missing:
+        # NOT A FAILURE. This asserted that a test machine always has at least
+        # one solver missing, which stopped being true the moment openPASO
+        # learned to find Kratos and SPARTA where they actually were: 9 of 9.
+        # A test that needs the product to be broken is the wrong test.
+        pytest.skip("every solver is installed here, so there is no line to check")
     for line in missing:
         assert "to get it:" in line, f"no way out offered: {line.strip()}"

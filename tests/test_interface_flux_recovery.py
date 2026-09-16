@@ -138,6 +138,9 @@ def _interpreter(backend: str):
         from backends.ngsolve.backend import _find_ngsolve_python
         found = _find_ngsolve_python()
         return str(found) if found else None
+    if backend == "kratos":
+        from backends.kratos.backend import _find_kratos_python
+        return _find_kratos_python()
     if backend == "skfem":
         return sys.executable
     if backend == "dune":
@@ -316,7 +319,12 @@ def test_kratos_3d_measures_what_its_conditions_assembled(tmp_path):
             "coordinates": [[0.5, float(a), float(b)] for a, b in zip(ys, zs)],
             "values": [300.0] * len(ys),
             "normal_fluxes": [float(v) for v in q_ex(ys, zs)]}}))
-        r = subprocess.run([sys.executable, "p.py"], cwd=str(wd),
+        # NOT sys.executable: Kratos lives in its own environment and the
+        # backend now finds it there, so a participant launched with the test
+        # runner's Python fails on ModuleNotFoundError for a reason that has
+        # nothing to do with the flux recovery under test.
+        kratos_py = _interpreter("kratos") or sys.executable
+        r = subprocess.run([str(kratos_py), "p.py"], cwd=str(wd),
                            capture_output=True, text=True, timeout=2400)
         ep = wd / "exports.json"
         assert ep.is_file(), (f"kratos_3d n={n} wrote no exports.json, "

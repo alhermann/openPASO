@@ -140,7 +140,16 @@ mp.CreateNewNode(2, 1.0, 0.0, 0.0)
 ver = str(KM.Kernel.Version()).replace('"', '')
 print(json.dumps({"ok": True, "nodes": mp.NumberOfNodes(), "version": ver}))
 '''
-    ok, stdout, stderr = _run_script(sys.executable, script)
+    # NOT `sys.executable`. Kratos is a heavy compiled package normally
+    # installed in an environment of its own, and the backend now finds it
+    # there. Measured the moment it learned to: check_availability() said
+    # Kratos 10.3.0 and this smoke test said "No module named
+    # 'KratosMultiphysics'" in the same second. Third instance of this
+    # defect after DUNE and NGSolve -- the check and the work must ask the
+    # same question of the same interpreter.
+    from backends.kratos.backend import _find_kratos_python
+    interpreter = _find_kratos_python() or sys.executable
+    ok, stdout, stderr = _run_script(interpreter, script)
     dt = (time.time() - t0) * 1000
     if ok:
         try:

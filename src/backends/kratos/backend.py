@@ -38,6 +38,73 @@ _IMPORT_LINE = re.compile(r"\s*(?:from\s+[\w.]+\s+)?import\s")
 logger = logging.getLogger("openpaso.kratos")
 
 
+_KRATOS_PYTHON_CACHE: dict = {}
+
+
+def _find_kratos_python():
+    """Locate and VERIFY the Python that can import KratosMultiphysics.
+
+    THIS USED TO BE `get_python_executable()`, the server's own interpreter and
+    nothing else. Kratos is a heavy compiled package that is normally installed
+    somewhere of its own, so openPASO reported NOT_INSTALLED on a machine that
+    had Kratos 10.3.0 sitting in a sibling virtual environment. Same shape as
+    the NGSolve defect, and fixed the same way.
+
+    Order: KRATOS_PYTHON, then what autodiscovery recorded (an ABSOLUTE path
+    that survives the sandbox's tmpfs over $HOME, where a conda scan cannot
+    look), then the active interpreter, then conda envs. Every candidate is
+    verified by importing, because a recorded path can go stale.
+    """
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    if "python" in _KRATOS_PYTHON_CACHE:
+        return _KRATOS_PYTHON_CACHE["python"]
+
+    candidates = []
+    env_python = os.environ.get("KRATOS_PYTHON", "")
+    if env_python and Path(env_python).is_file():
+        candidates.append((-3, env_python))
+    try:
+        from core.autodiscovery import load_discovered_config
+        entry = ((load_discovered_config() or {}).get("backends") or {}).get("kratos")
+        recorded = (entry or {}).get("location")
+        if recorded and Path(recorded).is_file():
+            candidates.append((-2, str(recorded)))
+    except Exception:                                        # noqa: BLE001
+        pass
+    candidates.append((0, sys.executable))
+    for base in (Path.home() / "miniconda3" / "envs",
+                 Path.home() / "anaconda3" / "envs",
+                 Path.home() / "miniforge3" / "envs"):
+        if base.is_dir():
+            for env_dir in sorted(base.iterdir()):
+                py = env_dir / "bin" / "python"
+                if py.is_file():
+                    candidates.append((1 if "kratos" in env_dir.name.lower() else 2,
+                                       str(py)))
+
+    seen, ordered = set(), []
+    for _prio, py in sorted(candidates, key=lambda x: x[0]):
+        if py not in seen:
+            seen.add(py)
+            ordered.append(py)
+    for python in ordered:
+        try:
+            done = subprocess.run(
+                [python, "-c", "import KratosMultiphysics"],
+                stdin=subprocess.DEVNULL, capture_output=True, timeout=60)
+            if done.returncode == 0:
+                _KRATOS_PYTHON_CACHE["python"] = python
+                return python
+        except Exception:                                    # noqa: BLE001
+            continue
+    _KRATOS_PYTHON_CACHE["python"] = None
+    return None
+
+
 class KratosBackend(SolverBackend):
 
     def name(self) -> str:
@@ -47,9 +114,9 @@ class KratosBackend(SolverBackend):
         return "Kratos Multiphysics"
 
     def check_availability(self) -> tuple[BackendStatus, str]:
-        python = get_python_executable()
+        python = _find_kratos_python()
         if not python:
-            return BackendStatus.NOT_INSTALLED, "No Python found"
+            return BackendStatus.NOT_INSTALLED, "No Python with KratosMultiphysics found"
         import subprocess
         try:
             result = subprocess.run(
@@ -401,7 +468,7 @@ class KratosBackend(SolverBackend):
 
     async def run(self, input_content: str, work_dir: Path,
                   np: int = 1, timeout=None) -> JobHandle:
-        python = get_python_executable()
+        python = _find_kratos_python() or get_python_executable()
         if not python:
             return JobHandle(
                 job_id=str(uuid.uuid4())[:8],

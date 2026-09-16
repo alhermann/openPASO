@@ -73,6 +73,28 @@ def _find_sparta_binary() -> Optional[str]:
     ):
         if Path(cand).exists():
             return cand
+    # PEOPLE DO NOT ALL CLONE INTO $HOME. SPARTA has no wheel and no package,
+    # so it is built from a checkout wherever that person keeps checkouts --
+    # and the fixed list above assumed one place. Measured: a machine with
+    # ~/Schreibtisch/sparta/src/spa_serial built and working was reported
+    # NOT_INSTALLED, and an agent was told to go build what it already had.
+    # One shallow sweep of the usual parents costs a few stats and finds it.
+    for parent in (Path.home(), Path.home() / "Schreibtisch", Path.home() / "Desktop",
+                   Path.home() / "src", Path.home() / "code", Path.home() / "projects",
+                   Path.home() / "work", Path.home() / "repos"):
+        if not parent.is_dir():
+            continue
+        try:
+            entries = sorted(parent.iterdir())
+        except OSError:
+            continue
+        for child in entries:
+            if not child.is_dir() or "sparta" not in child.name.lower():
+                continue
+            for leaf in ("src/spa_serial", "src/spa_mpi", "spa_serial", "spa_mpi"):
+                cand = child / leaf
+                if cand.is_file():
+                    return str(cand)
     return None
 
 

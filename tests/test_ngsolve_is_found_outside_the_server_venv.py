@@ -103,3 +103,46 @@ def test_it_resolves_inside_the_isolated_shell(finder, tmp_path):
     assert "available" in done.stdout, (
         "inside the sandbox openPASO cannot see an NGSolve that is installed on "
         f"this machine, so an agent will try to install it.\n{done.stderr[-1200:]}")
+
+
+# ── The same defect, twice more ───────────────────────────────────────────────
+#
+# Kratos looked only in the server's own interpreter, and SPARTA only in a fixed
+# list of checkout paths under $HOME. Measured on a machine carrying both:
+# Kratos 10.3.0 in a sibling virtual environment and a built
+# ~/Schreibtisch/sparta/src/spa_serial were BOTH reported NOT_INSTALLED, and an
+# agent handed either backend was told to go build what it already had.
+
+def test_kratos_is_found_wherever_it_lives():
+    import subprocess
+
+    from backends.kratos.backend import _find_kratos_python
+    python = _find_kratos_python()
+    if python is None:
+        pytest.skip("no interpreter on this machine can import KratosMultiphysics")
+    done = subprocess.run([str(python), "-c", "import KratosMultiphysics"],
+                          stdin=subprocess.DEVNULL, capture_output=True, timeout=120)
+    assert done.returncode == 0, (
+        f"{python} was offered as the Kratos interpreter and cannot import it")
+
+
+def test_the_kratos_check_and_run_agree():
+    """The DUNE issue-#40 shape: the check finds it, run() uses the venv anyway."""
+    import inspect
+
+    from backends.kratos.backend import KratosBackend
+    src = inspect.getsource(KratosBackend)
+    assert "get_python_executable()" not in src.replace(
+        "_find_kratos_python() or get_python_executable()", ""), (
+        "some path still falls back to the server's interpreter on its own")
+
+
+def test_sparta_is_found_outside_a_home_checkout():
+    """SPARTA has no wheel, so it is built wherever that person keeps checkouts."""
+    from pathlib import Path
+
+    from backends.sparta.backend import _find_sparta_binary
+    found = _find_sparta_binary()
+    if found is None:
+        pytest.skip("no SPARTA build on this machine")
+    assert Path(found).is_file(), f"{found} was offered and is not a file"

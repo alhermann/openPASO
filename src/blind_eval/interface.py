@@ -153,15 +153,50 @@ def two_sided_jumps(side_a, side_b, coord_tol: float = 1e-6):
     # The scale now includes BOTH sides, too. It was built from side A alone,
     # so the same physical defect scored thirty orders of magnitude apart
     # depending on which file happened to be named first.
-    if _rms(scale_u) <= 0.0 and _rms(scale_q) <= 0.0:
-        return None, ("both sides exported an interface that is identically "
-                      "zero in value and in flux, so there is no jump to "
-                      "measure and nothing here says the transmission "
-                      "condition holds: two sides exchanging nothing cannot "
-                      "disagree")
+    # PER CHANNEL, because a dead channel hides under a live one.
+    #
+    # The first version of this refusal required BOTH scales to be zero, and
+    # re-testing it against the shape actually measured showed that is not
+    # enough: a run whose displacements were real (max|u| = 4.87e-07) and whose
+    # TRACTIONS were ~1e-18 and cancelling gave jump_q_rel = 0.0 and read as a
+    # satisfied interface. That is the signature of a pair that exchanged
+    # nothing while still solving -- each side returning the answer it would
+    # have returned alone.
+    #
+    # A channel whose own scale is at round-off has no jump to measure: the
+    # ratio is round-off over round-off, and reporting 0.0 for it is the most
+    # flattering thing this function could do. So each channel is judged on its
+    # own scale and refused on its own.
+    #
+    # MEASURED over all 841 graded interface files, with the column roles read
+    # from each file's own header: 0 of the 198 belonging to CORRECT cells have
+    # either channel at round-off, so this never speaks on a correct run. It
+    # speaks on 68 files elsewhere -- 6 unphysical, 18 malformed, 36
+    # honest-incomplete, 8 failed.
+    #
+    # NOT THE SAME QUESTION AS "did this side export anything". A Dirichlet side
+    # legitimately holds the seam at zero and exports a real recovered flux, and
+    # correct cells do exactly that -- so a check reading ONE side's exports.json
+    # must leave values-zero-and-flux-real alone. This reads BOTH sides' interface
+    # files for a level and asks whether a whole channel is dead across the pair,
+    # which is a different condition and occurs in no correct cell here.
+    _ROUNDOFF = 1e-14
+    su, sq = _rms(scale_u), _rms(scale_q)
+    dead = [name for name, scale in (("value", su), ("flux", sq))
+            if scale <= _ROUNDOFF]
+    if dead:
+        both = len(dead) == 2
+        return None, (
+            f"the interface {' and '.join(dead)} channel"
+            f"{'s are' if both else ' is'} identically zero on both sides "
+            f"(scale at round-off), so there is no jump to measure there and "
+            f"nothing here says the transmission condition holds"
+            + ("" if both else
+               f"; the other channel carries data, which is what a pair that "
+               f"solved but exchanged nothing looks like"))
     return {"jump_u": _rms(du), "jump_q": _rms(dq),
-            "jump_u_rel": _rms(du) / max(_rms(scale_u), 1e-30),
-            "jump_q_rel": _rms(dq) / max(_rms(scale_q), 1e-30)}, "ok"
+            "jump_u_rel": _rms(du) / su,
+            "jump_q_rel": _rms(dq) / sq}, "ok"
 
 
 def recover_flux_from_field(field_pts, field_vals, iface_pts, k_normal,

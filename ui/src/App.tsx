@@ -8,15 +8,19 @@ import Idle from './components/Idle'
 import Stage from './components/Stage'
 import Ledger, { toSteps, finalAnswer } from './components/Ledger'
 import Answer from './components/Answer'
-import Verdict, { type Figure } from './components/Verdict'
 import SlideOver from './components/SlideOver'
+import RunState, { type Outcome } from './components/RunState'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [events, setEvents] = useState<Ev[]>([])
   const [prompt, setPrompt] = useState('')
   const [started, setStarted] = useState(false)
-  const [busy, setBusy] = useState(false)
+  const [outcome, setOutcome] = useState<Outcome>('running')
+  const [failure, setFailure] = useState<{ message: string; traceback?: string } | null>(null)
+  const [startedAt, setStartedAt] = useState(0)
+  const [elapsed, setElapsed] = useState(0)
+  const busy = started && outcome === 'running'
   const [status, setStatus] = useState('')
   const [menu, setMenu] = useState(false)
   const [field, setField] = useState<FieldSeries | null>(null)
@@ -51,7 +55,20 @@ export default function App() {
         if (e.type === 'tool_result' || e.type === 'done') {
           void findField()   // only ever this run's own output
         }
-        if (e.type === 'done') { setBusy(false); setStatus('') }
+        if (e.type === 'error') {
+          setFailure({ message: e.message || 'the run failed',
+                       traceback: (e as { traceback?: string }).traceback })
+          setOutcome((e as { outcome?: Outcome }).outcome || 'failed')
+        }
+        if (e.type === 'done') {
+          // The server decides the terminal state. The interface used to say
+          // "finished" for every run that stopped, including a crash.
+          setOutcome((prev) => {
+            const o = (e as { outcome?: Outcome }).outcome
+            return o && o !== 'running' ? o : (prev === 'running' ? 'completed' : prev)
+          })
+          setStatus('')
+        }
         if (e.type === 'token_count') {
           setSession((p) => p && {
             ...p,
@@ -64,6 +81,12 @@ export default function App() {
     })
     return () => ws.current?.close()
   }, [])
+
+  useEffect(() => {
+    if (!busy || !startedAt) return
+    const id = setInterval(() => setElapsed((Date.now() - startedAt) / 1000), 1000)
+    return () => clearInterval(id)
+  }, [busy, startedAt])
 
   const refreshFiles = (rel = cwd) =>
     api.files(rel).then((r) => { setFiles(r.entries); setCwd(r.rel || '') })
@@ -98,8 +121,11 @@ export default function App() {
   function send() {
     if (!prompt.trim() || !ws.current) return
     ws.current.send(JSON.stringify({ type: 'prompt', text: prompt }))
-    setStarted(true); setBusy(true)
+    setStarted(true)
+    setOutcome('running'); setFailure(null)
+    setStartedAt(Date.now()); setElapsed(0)
   }
+  const stopRun = () => ws.current?.send(JSON.stringify({ type: 'stop' }))
   const decide = (call_id: string, ok: boolean) =>
     ws.current?.send(JSON.stringify(
       ok ? { type: 'approve', call_id } : { type: 'reject', call_id, reason: 'not now' }))
@@ -107,7 +133,16 @@ export default function App() {
   async function openFile(f: FileRow) {
     if (f.is_dir) { refreshFiles(f.rel_path); return }
     const v = await api.viz(f.rel_path)
-    if (v.kind === 'field_series') { setField(v as FieldSeries); setMenu(false) }
+    if (v.kind !== 'field_series') return
+    // Same rule as findField: this run may only display what this run wrote.
+    // Without this check two clicks put any field in the sandbox onto the
+    // stage, rendered identically to one the run produced.
+    if (!session?.id || !f.rel_path.startsWith(`webui_${session.id}/`)) {
+      setFailure({ message:
+        `That file was not produced by this run (${f.rel_path}). It is not shown as a result.` })
+      return
+    }
+    setField(v as FieldSeries); setMenu(false)
   }
 
   const [cut, setCut] = useState<number | null>(null)
@@ -124,20 +159,14 @@ export default function App() {
 
   const allSteps = toSteps(events)
   const steps = cut === null ? allSteps : allSteps.slice(0, cut)
-  const answer = cut === null || cut >= allSteps.length ? finalAnswer(events) : ''
+  const answer = (outcome === 'completed' && (cut === null || cut >= allSteps.length))
+    ? finalAnswer(events) : ''
 
-  /* The verdict is read out of the run, never asserted by the interface. */
-  const meshCalls = new Set(
-    events.filter((e) => e.type === 'tool_call_pending'
-                      && e.tool === 'verify_mesh_independence')
-          .map((e) => e.call_id))
-  const meshLine = events
-    .filter((e) => e.type === 'tool_result' && meshCalls.has(e.call_id || ''))
-    .map((e) => (e.result || '').replace(/\\n/g, '\n'))
-    .map((r) => r.split('\n').find((l) => /\bNOT CONVERGED|\bCONVERGED/.test(l)) || '')
-    .filter(Boolean).pop()
-  const converged = meshLine ? !meshLine.includes('NOT CONVERGED') : null
-  const figures: Figure[] = []
+  /* There is no verdict panel. It was a headline sentence with a hardcoded
+     empty figures array, so it could never show the numbers that would justify
+     it, and the tool that decides it has never been called in any recorded
+     session. It comes back when it can be fed the quantity, the refinement
+     sequence, the value per level and the tolerance. */
 
   return (
     <>
@@ -149,13 +178,14 @@ export default function App() {
         <>
           <section className="w-[1224px] mx-auto pt-12">
             <div className="eyebrow flex items-center gap-3">
-              {busy && <span className="w-2 h-2 rounded-full bg-coral animate-pulse" />}
-              <span>{busy ? (status || 'working') : 'finished'}</span>
-              <span className="text-graphit">&middot;</span>
               <span>{session?.model ?? ''}</span>
               {steps.length > 0 && <>
                 <span className="text-graphit">&middot;</span>
-                <span>{steps.length} {steps.length === 1 ? "step" : "steps"}</span>
+                <span>{steps.length} {steps.length === 1 ? 'step' : 'steps'}</span>
+              </>}
+              {status && busy && <>
+                <span className="text-graphit">&middot;</span>
+                <span>{status}</span>
               </>}
             </div>
             <h1 className="mt-5 text-[40px] font-medium tracking-[-0.024em] leading-[1.12]
@@ -163,6 +193,12 @@ export default function App() {
               {prompt}
             </h1>
           </section>
+
+          <div className="w-[1224px] mx-auto mt-8">
+            <RunState outcome={outcome} message={failure?.message}
+                      traceback={failure?.traceback} elapsed={elapsed}
+                      onStop={busy ? stopRun : undefined} />
+          </div>
 
           <AnimatePresence>
             {field && (
@@ -180,16 +216,6 @@ export default function App() {
                     onReject={(id) => decide(id, false)} />
             <div className="space-y-12">
             <Answer text={answer} />
-            {converged !== null && (
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: DUR.panel, ease: EASE }}>
-              <Verdict
-                headline={converged ? 'The answer stopped changing.' : 'Not converged yet.'}
-                sub={meshLine ? meshLine.slice(0, 180) : ''}
-                figures={figures}
-              />
-              </motion.div>
-            )}
             </div>
           </div>
           <div className="h-16" />

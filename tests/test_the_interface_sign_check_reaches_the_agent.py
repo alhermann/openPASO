@@ -486,3 +486,45 @@ def test_the_real_c1_run_fires_the_mirror_not_the_zero():
     fs = _all_findings(w)
     assert [f for f in fs if f["sequence"] == "interface flux constructed"]
     assert not [f for f in fs if f["sequence"] == "interface flux all zero"]
+
+
+# ── A dead channel hiding under a live one ──────────────────────────────────
+
+def test_a_dead_flux_channel_under_a_live_displacement_is_not_satisfied():
+    """The shape measured on a live coupled run, which read as a good interface.
+
+    Side A's displacements were real -- max|u| = 4.87e-07 -- and the traction
+    columns read -3.04e-18 and cancelled. `jump_q_rel` came out 0.0 and assess()
+    stamped INTERFACE_SATISFIED at its 5e-3 threshold. Two sides that solved but
+    exchanged nothing, certifying each other.
+
+    The first version of the zero refusal required BOTH channels to be dead and
+    so missed exactly this.
+    """
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    from blind_eval import interface as IF
+
+    pts = [[0.625, i * 0.1] for i in range(6)]
+    live = [[4.87e-7] for _ in pts]
+    jumps, why = IF.two_sided_jumps((pts, live, [[-3.0e-18]] * 6),
+                                    (pts, live, [[3.0e-18]] * 6))
+    assert jumps is None, (
+        "a traction channel at round-off must not be reported as a jump of 0.0")
+    assert "flux" in why and "round-off" in why
+
+
+def test_a_healthy_pair_is_still_assessed():
+    """The refusal must not cost the case it exists beside."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    from blind_eval import interface as IF
+
+    pts = [[0.625, i * 0.1] for i in range(6)]
+    live = [[4.87e-7] for _ in pts]
+    jumps, why = IF.two_sided_jumps((pts, live, [[-0.5]] * 6),
+                                    (pts, live, [[0.5]] * 6))
+    assert jumps is not None and why == "ok"
+    assert jumps["jump_q_rel"] == 0.0, "equal and opposite tractions do cancel"

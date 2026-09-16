@@ -26,6 +26,7 @@ import asyncio
 import contextlib
 import json
 import logging
+import traceback
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -315,6 +316,15 @@ async def _handle_inbound(ses: WSSession, msg: dict):
             await ses.ensure_agent()
 
         async def _run():
+            """One turn. It ends in exactly one terminal state, and the user is
+            told which.
+
+            This used to be `except Exception: pass` around the whole body, with
+            the `done` emit inside the try. Any failure was therefore swallowed
+            without a log, no `done` was sent, and the browser pulsed "working"
+            forever on a dead process. A silent failure that looks like a slow
+            success is the worst of the three possible outcomes."""
+            outcome = "completed"
             try:
                 if use_claude_code:
                     from . import claude_code
@@ -325,16 +335,36 @@ async def _handle_inbound(ses: WSSession, msg: dict):
                         workdir=_session_workdir(ses.state["id"]),
                         servers=list(ses.state.get("mcp_servers") or []),
                         model=None, mode=ses.mode, emit=ses.emit)
-                    await ses.emit({"type": "done", "final_text": ""})
                 else:
                     await stream_turn(agent=ses.agent, user_text=text,
-                                      emitter=ses.emit)
-            except Exception:
-                pass
+                                      emitter=ses.emit, emit_done=False)
+            except asyncio.CancelledError:
+                outcome = "interrupted"
+                await ses.emit({"type": "error", "outcome": outcome,
+                                "message": "Run stopped."})
+                raise
+            except Exception as exc:
+                outcome = "failed"
+                log.exception("turn failed for session %s", ses.state["id"])
+                await ses.emit({"type": "error", "outcome": outcome,
+                                "message": f"{type(exc).__name__}: {exc}",
+                                "traceback": traceback.format_exc()[-4000:]})
             finally:
+                if outcome != "interrupted":
+                    await ses.emit({"type": "done", "outcome": outcome})
                 sessions.save(ses.state)
 
         ses.turn_task = asyncio.create_task(_run())
+    elif t == "stop":
+        # A run can take a quarter of an hour. Someone who started the wrong
+        # thing must be able to change their mind.
+        task = ses.turn_task
+        if task is not None and not task.done():
+            task.cancel()
+        else:
+            await ses.emit({"type": "error", "outcome": "failed",
+                            "message": "There is no run to stop."})
+
     elif t == "approve":
         ses.gate.resolve(msg["call_id"], True)
     elif t == "reject":
@@ -348,8 +378,9 @@ async def _handle_inbound(ses: WSSession, msg: dict):
         ses.state["model"] = msg["model"]
         await ses.close_agent()
         sessions.save(ses.state)
-        await ses.emit({"type": "status",
-                        "message": f"model → {ses.state['model']}"})
+        await ses.emit({"type": "status", "message": "",
+                        "session": {k: v for k, v in ses.state.items()
+                                    if k != "events"}})
     elif t == "set_mcp":
         ses.state["mcp_servers"] = msg.get("servers", [])
         await ses.close_agent()

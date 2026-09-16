@@ -12,7 +12,7 @@ export type Step = {
   id: string
   what: string
   detail: string
-  state: 'running' | 'done' | 'waiting' | 'failed'
+  state: 'running' | 'done' | 'waiting' | 'failed' | 'rejected'
 }
 
 const SHORT: Record<string, string> = {
@@ -48,6 +48,11 @@ function detailOf(raw: string): string {
   const m = t.match(/'text':\s*(['"])([\s\S]*?)\1\s*[,}]/)
   if (m) t = m[2]
   t = t.replace(/\\n/g, '\n')
+  // A bracketed line is usually a repr fragment, but the harness reports a
+  // timeout as "[timeout after 900s; ...]". Filtering that as noise made a
+  // quarter hour of nothing render as a completed step.
+  const timeout = t.match(/\[timeout after [^\]]+\]/)
+  if (timeout) return timeout[0].replace(/^\[|\]$/g, '')
   const noise = (l: string) =>
     !l ||
     /^[[{]/.test(l) ||                    // a JSON or repr fragment
@@ -85,14 +90,28 @@ export function toSteps(events: Ev[]): Step[] {
       case 'tool_result': {
         const i = at.get(id)
         if (i !== undefined) {
-          out[i].state = 'done'
-          out[i].detail = detailOf(e.result || '')
+          const raw = e.result || ''
+          const timedOut = /\[timeout after /.test(raw)
+          out[i].state = timedOut ? 'failed' : 'done'
+          out[i].detail = detailOf(raw)
         }
         break
       }
       case 'tool_error': {
         const i = at.get(id)
-        if (i !== undefined) { out[i].state = 'failed'; out[i].detail = 'failed' }
+        if (i !== undefined) {
+          out[i].state = 'failed'
+          // The reason is emitted by the server and used to be thrown away.
+          out[i].detail = detailOf(e.error || e.message || '') || 'failed'
+        }
+        break
+      }
+      case 'tool_call_rejected': {
+        const i = at.get(id)
+        if (i !== undefined) {
+          out[i].state = 'rejected'
+          out[i].detail = e.reason ? `you rejected this: ${e.reason}` : 'you rejected this'
+        }
         break
       }
     }
@@ -107,8 +126,13 @@ export function finalAnswer(events: Ev[]): string {
   return msgs.length ? (msgs[msgs.length - 1].text as string).trim() : ''
 }
 
-const dot = (s: Step['state']) =>
-  s === 'waiting' ? 'bg-coral' : s === 'failed' ? 'bg-[#D85A6F]' : 'bg-muted'
+const MARK: Record<Step['state'], string> = {
+  running:  'bg-coral',
+  waiting:  'bg-coral',
+  done:     'bg-transparent border border-muted',
+  failed:   'bg-[#D85A6F]',
+  rejected: 'bg-transparent border border-[#D85A6F]',
+}
 
 export default function Ledger({
   steps, onApprove, onReject,
@@ -126,11 +150,13 @@ export default function Ledger({
           <motion.div key={s.id} {...rowIn(i)} layout
                className={`grid grid-cols-[14px_300px_1fr] items-center gap-x-4
                            min-h-[52px] py-2 ${i ? 'border-t line-soft' : ''}`}>
-            <span className={`w-2 h-2 rounded-full ${dot(s.state)}
+            <span className={`w-2 h-2 rounded-full ${MARK[s.state]}
                               ${s.state === 'running' ? 'animate-pulse' : ''}`} />
             <span className="text-[16px] text-ink2 leading-snug">{s.what}</span>
-            <span className="num text-[14px] text-muted leading-snug
-                             overflow-hidden text-ellipsis whitespace-nowrap">{s.detail}</span>
+            <span className={`num text-[14px] leading-snug overflow-hidden
+                             text-ellipsis whitespace-nowrap
+                             ${s.state === 'failed' || s.state === 'rejected'
+                               ? 'text-[#D85A6F]' : 'text-muted'}`}>{s.detail}</span>
             {s.state === 'waiting' && (
               <span className="col-start-3 flex gap-2">
                 <button onClick={() => onApprove(s.id)}

@@ -333,7 +333,7 @@ async def open_agent_for_session(**kwargs):
 # ───────────────────────────────────────────────────────────────────
 # Streamed turn
 # ───────────────────────────────────────────────────────────────────
-async def stream_turn(*, agent, user_text: str, emitter):
+async def stream_turn(*, agent, user_text: str, emitter, emit_done: bool = True):
     """Run one user turn. Streams chunks/events via ``emitter`` and
     returns the final message text. Emits a 'thinking' status as soon
     as we start so the user sees activity even before the first model
@@ -371,11 +371,11 @@ async def stream_turn(*, agent, user_text: str, emitter):
                     last = msgs[-1]
                     final_text = (getattr(last, "content", "")
                                   or final_text)
-    except Exception as e:
-        await emitter({"type": "error",
-                       "message": f"{type(e).__name__}: {e}",
-                       "traceback": traceback.format_exc()[-4000:]})
-        await emitter({"type": "done", "final_text": ""})
-        return ""
-    await emitter({"type": "done", "final_text": final_text})
+    except Exception:
+        # The caller decides the terminal state and reports it. Emitting a
+        # "done" here as well is what let a crashed run read as "finished".
+        raise
+    if emit_done:
+        await emitter({"type": "done", "final_text": final_text,
+                       "outcome": "completed"})
     return final_text

@@ -106,3 +106,41 @@ def test_the_cli_still_starts():
                           capture_output=True, text=True, timeout=120)
     assert done.returncode == 0, done.stderr[-800:]
     assert "--workdir" in done.stdout
+
+
+# ── Telling a run that never started from one that stopped partway ───────────
+
+def test_a_mid_run_failure_is_not_reported_as_a_startup_failure():
+    """Both of these were measured saying "openPASO cannot start".
+
+    A coupled task hit the model's own context limit after 104 steps, having
+    written every deliverable; a step trial reached its step budget after 4C had
+    already produced solver output. Both told the reader the server had not
+    started, which sends them to debug the wrong end of the system.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("ra", REPO / "run_agent.py")
+    ra = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ra)
+
+    budget, _ = ra._diagnose(RecursionError(
+        "Recursion limit of 45 reached without hitting a stop condition"))
+    assert "step budget" in budget, budget
+
+    context, fix = ra._diagnose(ValueError(
+        "This model's maximum context length is 262144 tokens"))
+    assert "context" in context, context
+    assert "http" in fix, "a context failure should name where to get a bigger model"
+
+    # and the startup failures must still read as startup failures
+    key, _ = ra._diagnose(RuntimeError("401 no auth"))
+    assert "key" in key.lower(), key
+
+
+def test_the_headline_distinguishes_the_two():
+    text = (REPO / "run_agent.py").read_text()
+    assert "openPASO stopped partway." in text
+    assert "started: bool = False" in text, (
+        "the caller must be able to say the run had got somewhere")
+    assert "started=True" in text, "the catch-all knows the session was entered"

@@ -46,8 +46,19 @@ def load_env_file(path: Path) -> None:
             os.environ[key] = value
 
 
-def explain_and_exit(problem: str, fix: str) -> None:
-    print(f"\n  openPASO cannot start.\n\n  Problem: {problem}\n  Fix:     {fix}\n",
+def explain_and_exit(problem: str, fix: str, *, started: bool = False) -> None:
+    """Print one sentence and one instruction, then stop.
+
+    `started` SEPARATES TWO VERY DIFFERENT FAILURES. Everything used to print
+    "openPASO cannot start", including a run that had started fine and worked
+    for a hundred steps: a coupled task that hit the model's own context limit
+    after 104 steps, and a trial that reached its step budget having already
+    produced solver output, both told the reader the server had not started.
+    That sends them to debug the wrong end of the system entirely.
+    """
+    headline = ("openPASO stopped partway." if started
+                else "openPASO cannot start.")
+    print(f"\n  {headline}\n\n  Problem: {problem}\n  Fix:     {fix}\n",
           file=sys.stderr)
     raise SystemExit(1)
 
@@ -275,7 +286,8 @@ def main() -> int:
             "install the agent packages with\n"
             "           pip install -r langgraph_eval/requirements-langgraph.txt")
     except BaseException as error:               # noqa: BLE001 - reported below
-        explain_and_exit(*_diagnose(error))
+        # By here the session has been entered, so any failure is mid-run.
+        explain_and_exit(*_diagnose(error), started=True)
     return 1
 
 
@@ -300,6 +312,16 @@ def _diagnose(error: BaseException) -> tuple[str, str]:
     messages = unwrap(error)
     text = " | ".join(dict.fromkeys(messages))
     low = text.lower()
+    # THE RUN GOT SOMEWHERE. Both of these arrive only after the server is up
+    # and the model has been working, so they are reported as what they are.
+    if "recursion limit" in low or "graphrecursionerror" in low:
+        return ("the model reached its step budget before finishing",
+                "raise it with  --step-limit N  (the default is 200), and see\n"
+                "           --keep-going N if it also stops without asking")
+    if "maximum context length" in low or "context_length" in low:
+        return ("the conversation outgrew the model's context window",
+                "start a fresh run on a smaller piece of the task, or pick a\n"
+                "           model with a larger context at https://openrouter.ai/models")
     if "401" in low or "no auth" in low or "invalid api key" in low:
         return ("OpenRouter rejected the key",
                 "check OPENROUTER_API_KEY in your .env file against\n"

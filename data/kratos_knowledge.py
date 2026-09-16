@@ -1,5 +1,5 @@
 """
-Comprehensive Kratos Multiphysics domain knowledge for the Open FEM Agent.
+Comprehensive Kratos Multiphysics domain knowledge for openPASO.
 
 This module encodes deep domain knowledge about ALL major Kratos applications,
 their Python API patterns, element types, constitutive laws, solver configuration,

@@ -6,9 +6,9 @@ Three layers, last-wins:
   1. Built-in defaults (hardcoded scan roots)
   2. Global config:       ~/.config/openpaso/sources.json
   3. Repo config:         <repo>/.openpaso.json
-  4. Session config:      $OFA_SOURCE_CONFIG=/path/to/file.json  (env var)
-  5. Direct env-var pins: $OFA_<BACKEND>_SOURCE / _BUILD / _PYTHON_ENV
-                          $OFA_EXTRA_SOURCE_PATHS  (colon-separated)
+  4. Session config:      $OPENPASO_SOURCE_CONFIG=/path/to/file.json  (env var; the older OFA_ name still works)
+  5. Direct env-var pins: $OPENPASO_<BACKEND>_SOURCE / _BUILD / _PYTHON_ENV
+                          $OPENPASO_EXTRA_SOURCE_PATHS  (colon-separated)
 
 Config schema (JSON):
 {
@@ -17,14 +17,14 @@ Config schema (JSON):
     "kratos": {
       "source":     "/home/user/Kratos",
       "build":      "/home/user/Kratos/bin/Release",
-      "python_env": "/home/user/miniconda3/envs/ofa-kratos"
+      "python_env": "/home/user/miniconda3/envs/openpaso-kratos"
     },
     "fourc": {
       "source":     "/home/user/4C",
       "build":      "/home/user/4C/build"
     },
     "fenics": {
-      "python_env": "/home/user/miniconda3/envs/ofa-fenicsx"
+      "python_env": "/home/user/miniconda3/envs/openpaso-fenicsx"
     }
   }
 }
@@ -156,7 +156,7 @@ def load() -> SourceConfig:
 def example_config() -> str:
     """Return an example config JSON the user can copy and edit."""
     example = {
-        "_comment": "Open-FEM-agent source config — edit paths to match "
+        "_comment": "openPASO source config — edit paths to match "
                     "your machine. All entries are optional.",
         "scan_paths": [
             "~/Desktop",
@@ -167,7 +167,7 @@ def example_config() -> str:
             "kratos": {
                 "source":     "~/Kratos",
                 "build":      "~/Kratos/bin/Release",
-                "python_env": "~/miniconda3/envs/ofa-kratos"
+                "python_env": "~/miniconda3/envs/openpaso-kratos"
             },
             "fourc": {
                 "source": "~/4C",
@@ -178,7 +178,7 @@ def example_config() -> str:
                 "build":  "~/dealii-src/build"
             },
             "fenics": {
-                "python_env": "~/miniconda3/envs/ofa-fenicsx"
+                "python_env": "~/miniconda3/envs/openpaso-fenicsx"
             }
         }
     }
@@ -212,7 +212,7 @@ def init_from_discovery(path: Optional[Path] = None,
     result = _sd.discover(use_cache=False, scan_time_budget_s=90.0)
 
     cfg: dict = {
-        "_comment": "Open-FEM-agent source config — generated from "
+        "_comment": "openPASO source config — generated from "
                     "live discovery. Edit freely. Per-backend keys "
                     "{source, build, python_env} are all optional.",
         "scan_paths": [*(str(d) for d in desktop_dirs()), "~/projects"],
@@ -270,8 +270,8 @@ if __name__ == "__main__":
         sess = os.environ.get(_ENV_CONFIG_VAR)
         print(f"  3. session: ${_ENV_CONFIG_VAR}"
               f" {'= ' + sess if sess else '(unset)'}")
-        print(f"  4. env vars: OFA_<BACKEND>_<SOURCE|BUILD|PYTHON_ENV>, "
-              f"OFA_EXTRA_SOURCE_PATHS")
+        print(f"  4. env vars: OPENPASO_<BACKEND>_<SOURCE|BUILD|PYTHON_ENV>, "
+              f"OPENPASO_EXTRA_SOURCE_PATHS")
 
     if args.example:
         print(example_config())

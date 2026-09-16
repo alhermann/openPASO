@@ -4,7 +4,7 @@ Comprehensive 4C Multiphysics knowledge catalogue.
 Based on systematic reading of ALL 4C source code.
 73 modules, 40 problem types, 120+ materials, 130+ conditions, 20+ cell types.
 
-This is the single source of truth for 4C domain knowledge in the Open FEM Agent.
+This is the single source of truth for 4C domain knowledge in openPASO.
 """
 
 FOURC_KNOWLEDGE = {

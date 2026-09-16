@@ -48,9 +48,9 @@ def discover_test_dirs() -> dict:
         Path.home() / "miniconda3" / "envs" / "fenics"
         / "share" / "dolfinx" / "demo",
         # Current conda-forge ofa-fenicsx layout (probed 2026-06-01)
-        Path.home() / "miniconda3" / "envs" / "ofa-fenicsx"
-        / "etc" / "conda" / "test-files" / "fenics-dolfinx"
-        / "0" / "python" / "demo",
+        *(Path.home() / "miniconda3" / "envs" / env
+          / "etc" / "conda" / "test-files" / "fenics-dolfinx"
+          / "0" / "python" / "demo" for env in ("openpaso-fenicsx", "ofa-fenicsx")),
     ]
     # Also probe any *fenics* conda env present locally
     conda_envs = Path.home() / "miniconda3" / "envs"
@@ -76,7 +76,7 @@ def discover_test_dirs() -> dict:
         Path(__file__).resolve().parents[2] / ".venv" / "lib"
         / "python3.12" / "site-packages" / "ngsolve" / "demos",
     ]
-    for envname in ("ofa-fenicsx",):  # other envs may ship ngsolve too
+    for envname in ("openpaso-fenicsx", "ofa-fenicsx"):  # other envs may ship ngsolve too
         ngsolve_candidates.append(
             Path.home() / "miniconda3" / "envs" / envname / "lib"
             / "python3.12" / "site-packages" / "ngsolve" / "demos")

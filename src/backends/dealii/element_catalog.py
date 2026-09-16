@@ -15,7 +15,7 @@ canonical descriptions, three places to maintain. For an LLM agent
 retrieving multiple physics in one call (the post-mortem
 breadcrumbs path already does this) the contradictions confuse
 canonical semantics with use-case applicability. Splitting them
-restores Open-FEM-Agent Principle 1 (generality over specificity):
+restores openPASO design Principle 1 (generality over specificity):
 the canonical layer is general, the applicability layer is
 specific, the diff tool checks canonical existence against the
 source scan ignoring applicability noise.

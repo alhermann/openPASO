@@ -47,8 +47,24 @@ def test_calling_it_twice_changes_nothing_the_second_time():
     env = {"OASIS_LEVEL": "3"}
     first = install_aliases(env)
     second = install_aliases(env)
-    assert first == ["OPENPASO_LEVEL"]
+    assert first == ["OPENPASO_LEVEL", "OFA_LEVEL"]
     assert second == []
+
+
+def test_the_oldest_ofa_spelling_answers_too():
+    """The project's first name was Open-FEM-agent, and some variables still carry OFA_.
+
+    OFA_SOURCE_CONFIG, OFA_EXTRA_SOURCE_PATHS and OFA_<BACKEND>_SOURCE are read by the code under
+    that name. The documentation now says OPENPASO_*, so a user who follows it must be heard, and a
+    user who set the old name must not be broken.
+    """
+    env = {"OPENPASO_SOURCE_CONFIG": "/cfg.json"}
+    install_aliases(env)
+    assert env["OFA_SOURCE_CONFIG"] == "/cfg.json"
+    env = {"OFA_EXTRA_SOURCE_PATHS": "/a:/b"}
+    install_aliases(env)
+    assert env["OPENPASO_EXTRA_SOURCE_PATHS"] == "/a:/b"
+    assert get_env("OPENPASO_EXTRA_SOURCE_PATHS", environ={"OFA_EXTRA_SOURCE_PATHS": "/x"}) == "/x"
 
 
 def test_set_env_writes_both_spellings_and_get_env_reads_either():

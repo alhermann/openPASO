@@ -269,7 +269,7 @@ SETUP_ROUTES: dict[str, list[dict[str, Any]]] = {
         {
             "kind": "conda",
             "description": "conda-forge fenics-dolfinx in a dedicated env",
-            "commands": [["conda", "create", "-n", "ofa-fenicsx", "-y",
+            "commands": [["conda", "create", "-n", "openpaso-fenicsx", "-y",
                           "-c", "conda-forge", "fenics-dolfinx",
                           "pyvista", "python=3.12"]],
             "typical_minutes": 10,
@@ -322,7 +322,7 @@ SETUP_ROUTES: dict[str, list[dict[str, Any]]] = {
         {
             "kind": "conda",
             "description": "conda-forge deal.II in a dedicated env",
-            "commands": [["conda", "create", "-n", "ofa-dealii", "-y",
+            "commands": [["conda", "create", "-n", "openpaso-dealii", "-y",
                           "-c", "conda-forge", "dealii", "cmake",
                           "ninja", "cxx-compiler"]],
             "typical_minutes": 15,

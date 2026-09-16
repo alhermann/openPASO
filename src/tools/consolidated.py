@@ -2047,7 +2047,7 @@ def _load_matching_postmortems(solver: str = "", physics: str = "",
     DB. Each record explains WHY a pitfall was added — the surface
     symptom that was observed, the root cause, the Table-1 category,
     the exact pitfall entries shipped, and the detection path the
-    agent now has. The Open-FEM-Agent paper's §3.2 / §5
+    agent now has. The openPASO design paper's §3.2 / §5
     self-correction loop depends on the agent being able to retrieve
     these at planning time.
 
@@ -2071,7 +2071,7 @@ def _load_matching_postmortems(solver: str = "", physics: str = "",
 
     Files under ``data/postmortems/candidates/`` are NOT included
     here. Candidates are the pre-review staging area
-    (Open-FEM-Agent §3.2 autonomous-growth path) — promotion to a
+    (the openPASO design paper §3.2 autonomous-growth path) — promotion to a
     formal post-mortem is a deliberate review step (#46).
     """
     pm_dir = Path(__file__).resolve().parents[2] / "data" / "postmortems"
@@ -2876,7 +2876,7 @@ def register_consolidated_tools(mcp: FastMCP):
         store. Wiring post-mortems through this same tool closes the
         self-improvement loop: every prepare_simulation call also
         surfaces the relevant post-mortems so the critic-gate can
-        retrieve them at planning time (Open-FEM-Agent §3.2 / §5
+        retrieve them at planning time (the openPASO design paper §3.2 / §5
         self-correction loop).
 
         Args:

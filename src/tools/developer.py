@@ -381,7 +381,7 @@ def register_developer_tools(mcp: FastMCP):
             bn = info.get("binary_info") or "—"
             lines.append(f"| {be} | {info['status']} | `{src}` | `{bn}` |")
         lines.append("\nEdit `~/.config/openpaso/sources.json` to pin paths "
-                     "globally, or set `$OFA_SOURCE_CONFIG=<file>` for "
+                     "globally, or set `$OPENPASO_SOURCE_CONFIG=<file>` for "
                      "session-local overrides.")
         return "\n".join(lines)
 

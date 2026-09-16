@@ -2590,6 +2590,58 @@ def _cap_knowledge_reply(out: str, topic: str = "", solver: str = "",
             f"need to solve the problem.\n")
 
 
+def _level_field_peak(specs: list, k: int) -> dict:
+    """How big is the field each side just wrote for this level?
+
+    WHY THIS IS REPORTED RATHER THAN OFFERED. `couple_levels` already ended by
+    telling the agent to call audit_results. Measured over the campaign's graded
+    coupled record, a self-check tool was called in 40 of 217 cells with files,
+    and a live full-task run here wrote a field of LITERAL ZERO at all three
+    levels, reported an interface residual of 6.8e-11 as evidence of success,
+    and called none of the three checks it had. audit_results fires six
+    NEAR-ZERO findings on that workspace in one call. The agent never made it.
+
+    So the peak magnitude of the agent's OWN exported file is put in the reply
+    it is already reading. It reads a file the agent wrote and reports a number
+    from it: no source term, no reference solution, no answer. A field that
+    peaks below 1e-8 on a driven problem almost always means the load never
+    arrived, and that is worth saying at the level it happened rather than
+    three levels later.
+    """
+    import csv as _csv
+
+    out: dict = {}
+    for spec in specs or []:
+        name = str(spec.get("name") or "?")
+        wd = spec.get("work_dir")
+        if not wd:
+            continue
+        found = sorted(Path(wd).glob(f"field_level{k}*.csv"))
+        if not found:
+            continue
+        peak = 0.0
+        rows = 0
+        try:
+            with found[-1].open() as fh:
+                for row in _csv.reader(fh):
+                    vals = []
+                    for cell in row:
+                        try:
+                            vals.append(float(cell))
+                        except ValueError:
+                            vals = []
+                            break                      # a header line
+                    if len(vals) > 2:
+                        rows += 1
+                        peak = max(peak, max(abs(v) for v in vals[2:]))
+        except OSError:
+            continue
+        if rows:
+            out[name] = {"peak_abs_value": peak, "points": rows,
+                         "file": found[-1].name}
+    return out
+
+
 def _verify_elastic(solution_files: str, source_term: str, coefficient: str,
                     domain: str, equation: str) -> str:
     """The elasticity branch of verify_pde_consistency.
@@ -6421,6 +6473,21 @@ def register_consolidated_tools(mcp: FastMCP):
                 # 4000, not 2000: a failed 4C side's lead now carries the deck's defects and
                 # 4C's own stop line, which the old cap cut off mid-list
                 compact["what_to_fix_next"] = str(rep["what_to_fix_next"])[:4000]
+            peaks = _level_field_peak(level_specs, k)
+            if peaks:
+                compact["field_peak"] = peaks
+                flat = [nm for nm, v in peaks.items()
+                        if v["peak_abs_value"] < 1e-8]
+                if flat:
+                    compact["field_finding"] = (
+                        "NEAR-ZERO FIELD on side(s) " + ", ".join(sorted(flat))
+                        + f": the level-{k} field this side just exported peaks "
+                        "below 1e-8. On a driven problem that almost always "
+                        "means the load never arrived -- check that the source "
+                        "term is actually in the deck and active -- not that "
+                        "the answer is a very small number. A coupling whose "
+                        "fields are zero converges immediately and tells you "
+                        "nothing: two sides exchanging nothing cannot disagree.")
             out_levels.append(compact)
             if not rep.get("converged"):
                 break

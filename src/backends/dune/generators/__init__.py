@@ -155,7 +155,7 @@ gridView.writeVTK("result", pointdata={"u": uh})
             "'triangle' / 'tetrahedron' — it is a UFL bookkeeping cell, "
             "not the mesh. For simplices use dune.alugrid.",
             "6. FIRST RUN IS SLOW: the first run of any new grid, "
-            "space, form or scheme compiles C++ ('Compiling "
+            "space, form or scheme compiles C++ ('DUNE-INFO: Compiling "
             "<X> (new)' on stderr) and can sit silent for minutes. "
             "Budget >= 600 s of timeout for a first run.",
         ],

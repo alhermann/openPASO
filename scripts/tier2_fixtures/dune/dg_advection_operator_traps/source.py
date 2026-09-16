@@ -9,7 +9,7 @@
                    crashes, the answer is simply wrong.
   dg_advection#2   rebuilding the scheme inside the time loop costs a
                    full C++ compile per iteration — one
-                   'Compiling ... (new)' per step — while a
+                   'DUNE-INFO: Compiling ... (new)' per step — while a
                    scheme that reads a coefficient costs none.
   dg_advection#3   dS is the interior-facet measure and ds the boundary
                    one; writing the jump over ds assembles cleanly and

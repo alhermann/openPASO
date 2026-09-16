@@ -1,65 +1,120 @@
-"""The JIT compile line openPASO tells agents to watch for must be DUNE's own.
+"""What DUNE actually prints when it compiles, checked by making it compile.
 
-Thirteen files -- served knowledge, generator guidance, the examples corpus and
-a tier-2 fixture's own docstring -- told a reader to look for
+THIS TEST REPLACES ONE THAT WAS WRONG, AND THE WAY IT WAS WRONG IS THE POINT.
+The earlier version asserted that the prefix `DUNE-INFO:` appears nowhere,
+because `grep -rl DUNE-INFO` over an installed dune-fem finds nothing and the
+message is built at dune/generator/cmakebuilder.py as
+`f"Compiling {pythonName} (new)"`. On that evidence the prefix was stripped from
+thirteen files.
 
-    DUNE-INFO: Compiling <module> (new)
+The evidence was a proxy. The literal is never written down because it is
+ASSEMBLED AT RUNTIME: dune/common/__init__.py does
 
-That prefix exists nowhere in DUNE. `grep -rl DUNE-INFO` over an installed
-dune-fem finds nothing, and the message is built at
-dune/generator/cmakebuilder.py as
+    logformat = os.environ.get('DUNE_LOG_FORMAT', 'DUNE-%(levelname)s: %(message)s')
+    logging.basicConfig(format=logformat, level=loglevel)
 
-    compilationInfoMessage = f"Compiling {pythonName} (new)"
+so at INFO level a reader sees exactly
 
-with sibling forms "(updated)", "(rebuilding)" and "(rebuilding after
-concurrent build)". A symptom search for the invented prefix returns nothing,
-so the guidance was unreachable exactly when it was needed: a first DUNE run
-compiles for minutes, and the whole point of naming the line is to stop someone
-killing it.
+    DUNE-INFO: Compiling Scheme (new)
 
-This is the same defect class as an NGSolve trap that said "Signal, and it is
-one line:" -- guidance keyed to a string the reader will never see.
+which is what openPASO had documented all along. Grepping the source answered a
+different question from the one that mattered, and only running a build showed
+it. So this test compiles a form and reads the output.
+
+What it pins, and deliberately not more: the BODY (`Compiling ... (new)`) is
+DUNE's own and is what a matcher should key on, because DUNE_LOG_FORMAT can
+replace the prefix; and the DEFAULT format does carry `DUNE-INFO`, so text
+quoting the whole line is not inventing it.
 """
+import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "src"))
 
-SEARCHED = ("--include=*.py", "--include=*.json", "--include=*.md")
+_FORM = '''
+from dune.alugrid import aluConformGrid
+from dune.fem.scheme import galerkin
+from dune.fem.space import dglagrange
+from dune.grid import cartesianDomain
+from dune.ufl import DuneCellDiameter as CellDiameter
+from ufl import TestFunction, TrialFunction, dx, grad, inner
+grid = aluConformGrid(cartesianDomain([0, 0], [1, 1], [3, 3]), dimgrid=2)
+space = dglagrange(grid, order=1)
+u, v = TrialFunction(space), TestFunction(space)
+h = CellDiameter(space)
+galerkin([inner(grad(u), grad(v)) * dx + (__MARK__ / h) * u * v * dx == v * dx],
+         solver="gmres")
+print("BUILT")
+'''
 
 
-def test_the_invented_prefix_is_gone():
-    done = subprocess.run(["grep", "-rn", "DUNE-INFO", *SEARCHED, "."],
-                          cwd=REPO, capture_output=True, text=True)
-    hits = [ln for ln in done.stdout.splitlines() if "/.venv/" not in ln
-            and Path(__file__).name not in ln]
-    assert not hits, (
-        "`DUNE-INFO` is back. DUNE never prints it; the line is "
-        '`Compiling <module> (new)`. Offenders:\n  ' + "\n  ".join(hits[:15]))
+@pytest.fixture(scope="module")
+def compile_output():
+    """Force ONE cold JIT build and return everything it printed."""
+    import random
+
+    from backends.dune.backend import _find_dune_python
+    python = _find_dune_python()
+    if not python:
+        pytest.skip("no interpreter on this machine can run dune")
+    body = _FORM.replace("__MARK__", f"{random.random():.12f}")
+    with tempfile.TemporaryDirectory() as tmp:
+        script = Path(tmp) / "child.py"
+        script.write_text(body)
+        done = subprocess.run([str(python), str(script)], cwd=tmp,
+                              capture_output=True, text=True, timeout=1800)
+    blob = done.stdout + done.stderr
+    if "BUILT" not in blob:
+        pytest.skip(f"the probe form did not build here:\n{blob[-800:]}")
+    return blob
 
 
-def test_the_message_we_do_quote_is_dunes_own():
-    """Checked against the installed DUNE, not against a memory of it."""
-    sys.path.insert(0, str(REPO / "src"))
+def test_the_body_is_dunes_own(compile_output):
+    """`Compiling <module> (new)` -- the half that survives any log format."""
+    assert re.search(r"Compiling .+ \(new\)", compile_output), (
+        "DUNE no longer announces a cold build as `Compiling <module> (new)`; "
+        "whatever it prints now is what openPASO should quote.\n"
+        + compile_output[-1200:])
+
+
+def test_the_default_format_really_does_prefix_dune_info(compile_output):
+    """The claim the earlier test denied, now taken from the output itself."""
+    if os.environ.get("DUNE_LOG_FORMAT"):
+        pytest.skip("DUNE_LOG_FORMAT is set here, so the default is not in play")
+    assert re.search(r"DUNE-INFO: Compiling .+ \(new\)", compile_output), (
+        "the default DUNE_LOG_FORMAT no longer renders `DUNE-INFO: `; openPASO's "
+        "served text quotes the whole line, so it would now be quoting something "
+        "a reader never sees.\n" + compile_output[-1200:])
+
+
+def test_the_prefix_is_a_default_not_a_guarantee():
+    """Which is why guidance should tell a reader to match the body.
+
+    Read from the installed package rather than remembered: the prefix comes
+    from an environment variable with a default, so a user who sets
+    DUNE_LOG_FORMAT sees a different line and a matcher keyed to the prefix
+    alone would stop working for them.
+    """
     from backends.dune.backend import _find_dune_python
 
     python = _find_dune_python()
     if not python:
         pytest.skip("no interpreter on this machine can run dune")
-    probe = ("import os, dune.generator as g;"
-             "print(os.path.dirname(g.__file__))")
-    where = subprocess.run([str(python), "-c", probe], stdin=subprocess.DEVNULL,
-                           capture_output=True, text=True, timeout=120)
-    if where.returncode != 0:
-        pytest.skip("dune.generator is not importable here")
-    builder = Path(where.stdout.strip()) / "cmakebuilder.py"
-    if not builder.is_file():
-        pytest.skip("dune's cmakebuilder.py is not where it used to be")
-    text = builder.read_text(errors="replace")
-    assert re.search(r'f"Compiling \{pythonName\} \(new\)"', text), (
-        "DUNE no longer builds its compile line as `Compiling <name> (new)`. "
-        "Whatever it prints now is what openPASO should quote.")
+    probe = ("import dune.common, inspect, pathlib;"
+             "print(pathlib.Path(inspect.getfile(dune.common)).read_text())")
+    done = subprocess.run([str(python), "-c", probe], stdin=subprocess.DEVNULL,
+                          capture_output=True, text=True, timeout=120)
+    if done.returncode != 0:
+        pytest.skip("dune.common is not readable here")
+    assert "DUNE_LOG_FORMAT" in done.stdout, (
+        "the log format is no longer taken from DUNE_LOG_FORMAT")
+    assert "DUNE-%(levelname)s: %(message)s" in done.stdout, (
+        "the DEFAULT log format changed; the served text quoting "
+        "`DUNE-INFO: Compiling ... (new)` needs re-deriving")

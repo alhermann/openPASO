@@ -246,7 +246,7 @@ PER_CODE_SIGNATURES = {
     ],
     # DUNE: `Fem::` is the Dune::Fem namespace shorthand from
     # krylovinverseoperators.hh; spacing is exactly `it: N : residual X`.
-    # The JIT compile lines are cold-cache only and deliberately excluded.
+    # The DUNE-INFO JIT lines are cold-cache only and deliberately excluded.
     "dune": [
         # Real dune-fem output on this install is `Fem::BiCGstab it: 1 : 0.0121327`
         # (no 'residual' token); the token is optional so the line is recognised.

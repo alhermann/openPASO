@@ -1,7 +1,7 @@
 """Tier-2: where the JIT cache is, what re-triggers a C++ build, and
 what does not.
 
-  poisson#1                 a first run prints 'Compiling
+  poisson#1                 a first run prints 'DUNE-INFO: Compiling
                             <X> (new)' and then goes quiet for tens of
                             seconds; the cache is
                             <sys.prefix>/.cache/dune-py, NOT ~/.dune.

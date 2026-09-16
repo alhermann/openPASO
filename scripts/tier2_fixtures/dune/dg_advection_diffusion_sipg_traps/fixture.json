@@ -1,0 +1,29 @@
+{
+  "_comment": "Tier-2 for dune::dg_advection_diffusion#0, #2 and #3 on one SIPG family, the form openPASO's own generator emits (src/backends/dune/generators/dg_advection_diffusion.py): SIPG diffusion with the interior penalty, upwind advection, weak Dirichlet data. MEASURED 2026-09-16 on dune-fem via ~/miniconda3/envs/dune-py313/bin/python (the interpreter _find_dune_python resolves), first run, ~2 min wall. #0: building the form with ufl's CellDiameter instead of dune.ufl.DuneCellDiameter raises TypeError at MODEL GENERATION -- before any C++ build, so this claim costs nothing -- and the message spells out the replacement: 'from dune.ufl import DuneCellDiameter as CellDiameter'. #2: the same compiled form solved with solver='cg' reports converged=False at linear_iterations=-2000 (the maxiterations cap, negated), while solver='gmres' converges in 103 iterations. Advection makes the operator nonsymmetric and CG has no business with it. #3: a form carrying a freshly randomised FLOAT LITERAL (not a dune.ufl.Constant -- a Constant of a different value reuses the same compiled module) is unseen, and its first run compiles exactly 1 module while a second run of the identical script compiles 0. The line reads 'Compiling <module> (new)'. NOTE ON ITS WORDING, because this fixture is what caught the mistake: DUNE's default log format is 'DUNE-%(levelname)s: %(message)s' (dune/common/__init__.py, overridable by DUNE_LOG_FORMAT), so what a reader actually sees is 'DUNE-INFO: Compiling Scheme (new)'. The literal 'DUNE-INFO' appears nowhere in the dune sources because it is assembled at runtime -- grepping for it finds nothing and concluding it is invented is wrong. Match on 'Compiling' and '(new)', which survive any log format. MUTATION CONTROL: T2_MUTATE=1 solves the CG slot with GMRES, so the nonsymmetric question is never asked. Verified BOTH directions: unmutated the fixture PASSES; mutated it FAILS because 'cg_does_not_solve_the_nonsymmetric_system=True' and 'dune_sipg_traps_verified=True' are no longer printed and the forbidden token 'FAIL:' appears. Re-verify with `cd <fixture dir> && T2_MUTATE=1 <dune python> source.py`. THE TWO SIBLING CLAIMS NOT COVERED HERE: dg_advection_diffusion:1 (the SIPG boundary block) needs two compiled forms across three refinements and is left for a fixture that can afford it.",
+  "backend": "dune",
+  "physics": "dg_advection_diffusion",
+  "pitfall_index": 0,
+  "covers": [
+    "dg_advection_diffusion:0",
+    "dg_advection_diffusion:2",
+    "dg_advection_diffusion:3"
+  ],
+  "mode": "python",
+  "timeout_seconds": 1800,
+  "expect_in_output": [
+    "ufl_celldiameter_is_refused=True",
+    "and_it_is_a_TypeError=True",
+    "and_it_names_the_replacement=True",
+    "cg_does_not_solve_the_nonsymmetric_system=True",
+    "gmres_does=True",
+    "the_probe_ran=True",
+    "an_unseen_form_compiles_before_its_first_solve=True",
+    "the_same_form_reused_does_not_compile_again=True",
+    "and_the_line_reads_Compiling_X_new=True",
+    "dune_sipg_traps_verified=True"
+  ],
+  "forbid_in_output": [
+    "Traceback",
+    "FAIL:"
+  ]
+}

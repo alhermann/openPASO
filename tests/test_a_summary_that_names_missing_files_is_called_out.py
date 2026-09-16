@@ -48,7 +48,7 @@ def test_a_coupling_that_ran_and_wrote_no_field_is_told_so(tmp_path):
     for k in (1, 2, 3):
         _write(w / "results", f"residual_level{k}.csv",
                "iteration,interface_residual\n1,0.5\n2,0.1\n3,0.01\n4,0.001\n")
-        _write(w / "side_A", f"run_level{k}_A.log", "solving\nNDOF = 100\n")
+        _write(w / "side_A", f"run_level{k}_A.log", "DUNE-INFO: solving\nNDOF = 100\n")
         _write(w / "side_B", f"run_level{k}_B.log", "4C output\nNDOF = 120\n")
     fs = missing_fields_findings(w)
     assert len(fs) == 1 and "NO PER-LEVEL FIELD FILE" in fs[0]["finding"]

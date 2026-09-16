@@ -1072,7 +1072,7 @@ vals = u_h.as_numpy  # returns a numpy view (read/write)
 1. First run is slow due to JIT C++ compilation (measured: 439 s for a
    cold-cache script that ended up building four ALUGrid
    hierarchical grids on a loaded box; a fully warm 8x8 Poisson run
-   is 0.89 s). Watch for "Compiling <X> (new)" on stderr.
+   is 0.89 s). Watch for "DUNE-INFO: Compiling <X> (new)" on stderr.
 2. For coupled systems: dimRange=2 with Newton is possible but less documented.
    Safer approach: two scalar spaces with Gauss-Seidel coupling.
 3. `galerkin([F == 0])` triggers Newton automatically, but F must be

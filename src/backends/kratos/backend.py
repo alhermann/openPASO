@@ -38,6 +38,19 @@ _IMPORT_LINE = re.compile(r"\s*(?:from\s+[\w.]+\s+)?import\s")
 logger = logging.getLogger("openpaso.kratos")
 
 
+# The applications openPASO's own catalogue names, which is what makes an
+# interpreter useful rather than merely importable.
+_CATALOGUE_APPS = (
+    "FluidDynamics", "FSI", "GeoMechanics", "RANS", "CompressiblePotentialFlow",
+    "Rom", "Iga", "StructuralMechanics", "Mapping", "MeshMoving", "Optimization",
+    "CableNet", "DemStructuresCoupling", "TopologyOptimization",
+    "PfemFluidDynamics", "ThermalDEM", "SwimmingDEM", "FemToDem", "Chimera",
+    "DropletDynamics", "FluidDynamicsBiomedical", "ConstitutiveLaws",
+    "ShallowWaterApplication".replace("Application", ""), "DEM", "MPM",
+    "Contact"
+)
+
+
 _KRATOS_PYTHON_CACHE: dict = {}
 
 
@@ -91,18 +104,50 @@ def _find_kratos_python():
         if py not in seen:
             seen.add(py)
             ordered.append(py)
-    for python in ordered:
+    # PICK THE BUILD THAT CAN DO THE WORK, not the first that imports.
+    #
+    # Kratos is 48 applications and a build carries whichever were compiled.
+    # "import KratosMultiphysics succeeds" says almost nothing about whether the
+    # physics openPASO offers will run. Measured on this machine: the first
+    # interpreter that imports Kratos carries 6 of the 21 applications the
+    # catalogue names, while a second build on the same host carries 14 --
+    # including OptimizationApplication, CableNetApplication and
+    # DemStructuresCouplingApplication, which are three physics openPASO ALREADY
+    # REGISTERS and could not actually run, and five more it does not yet offer.
+    #
+    # So candidates are scored by how many of those applications import, and the
+    # best wins. An explicit KRATOS_PYTHON still wins outright: someone who names
+    # an interpreter means it.
+    probe = (
+        "import importlib.util as u\n"
+        "apps = %r\n"
+        "print(sum(1 for a in apps "
+        "if u.find_spec('KratosMultiphysics.' + a + 'Application')))\n"
+    ) % (_CATALOGUE_APPS,)
+
+    best, best_score = None, -1
+    for priority, python in [(pr, py) for pr, py in
+                             sorted(candidates, key=lambda x: x[0])
+                             if py in set(ordered)]:
         try:
-            done = subprocess.run(
-                [python, "-c", "import KratosMultiphysics"],
-                stdin=subprocess.DEVNULL, capture_output=True, timeout=60)
-            if done.returncode == 0:
-                _KRATOS_PYTHON_CACHE["python"] = python
-                return python
+            done = subprocess.run([python, "-c", probe], stdin=subprocess.DEVNULL,
+                                  capture_output=True, text=True, timeout=180)
         except Exception:                                    # noqa: BLE001
             continue
-    _KRATOS_PYTHON_CACHE["python"] = None
-    return None
+        if done.returncode != 0:
+            continue
+        try:
+            score = int(done.stdout.strip().splitlines()[-1])
+        except (ValueError, IndexError):
+            score = 0
+        if priority <= -2:            # named outright: take it and stop
+            _KRATOS_PYTHON_CACHE["python"] = python
+            return python
+        if score > best_score:
+            best, best_score = python, score
+
+    _KRATOS_PYTHON_CACHE["python"] = best
+    return best
 
 
 class KratosBackend(SolverBackend):

@@ -116,6 +116,23 @@ def _json(p: Path) -> dict:
         obj = json.loads(p.read_text())
     except Exception as e:
         return {"kind": "error", "error": f"json: {e}"}
+
+    # A field series is a solver's own output sampled onto a grid, one frame
+    # per stored timestep. Hand back a descriptor and let the browser fetch the
+    # file once; re-serialising several megabytes through this endpoint would
+    # buy nothing.
+    if isinstance(obj, dict) and obj.get("kind") == "field_series":
+        return {
+            "kind": "field_series",
+            "url": f"/sandbox-file/{p.relative_to(config.SANDBOX_ROOT)}",
+            "name": p.name,
+            "field": obj.get("field", "field"),
+            "unit": obj.get("unit", ""),
+            "nx": obj.get("nx"), "ny": obj.get("ny"),
+            "vmin": obj.get("vmin"), "vmax": obj.get("vmax"),
+            "n_frames": len(obj.get("times") or []),
+        }
+
     return {"kind": "json", "obj": obj, "path": str(p)}
 
 

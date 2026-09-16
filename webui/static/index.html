@@ -43,12 +43,12 @@
 </head>
 <body class="h-screen overflow-hidden font-sans" x-data="openpasoApp()" x-init="init()">
 
-<div class="flex h-screen bg-ink-950" x-cloak>
+<div class="flex h-screen bg-ink-950" x-cloak data-testid="app-root">
 
   <!-- ═══════════════ Left: navigator ═══════════════ -->
-  <aside class="w-72 shrink-0 border-r border-ink-700/60 p-5 overflow-y-auto custom-scroll">
+  <aside class="w-72 shrink-0 border-r border-ink-700/60 p-5 overflow-y-auto custom-scroll" data-testid="sidebar">
     <div class="flex items-center gap-2 mb-6">
-      <img src="/static/openpaso-mark.svg" alt="" aria-hidden="true" width="40" height="40" class="w-10 h-10 shrink-0">
+      <img data-testid="brand-mark" src="/static/openpaso-mark.svg" alt="" aria-hidden="true" width="40" height="40" class="w-10 h-10 shrink-0">
       <div>
         <div class="font-semibold text-slate-100">openPASO</div>
         <div class="text-[10px] uppercase tracking-widest text-slate-500">simulation workbench</div>
@@ -154,7 +154,7 @@
     </div>
 
     <!-- Conversation -->
-    <div class="flex-1 overflow-y-auto custom-scroll px-6 py-5 space-y-3" x-ref="log"
+    <div data-testid="log" class="flex-1 overflow-y-auto custom-scroll px-6 py-5 space-y-3" x-ref="log"
          role="log" aria-live="polite" aria-label="Run log">
       <template x-for="(e, i) in events" :key="i">
         <div :class="bubbleClass(e)" class="rounded border px-4 py-3 max-w-3xl text-sm shadow-sm">
@@ -186,11 +186,11 @@
     <div class="border-t border-ink-700/60 px-6 py-4">
       <div class="flex gap-2 bg-ink-800/80 rounded border border-ink-700 px-3 py-2 focus-within:border-accent-500 transition-all">
         <label for="prompt" class="sr-only">Describe a simulation problem</label>
-        <textarea id="prompt" x-model="prompt" rows="2"
+        <textarea data-testid="prompt" id="prompt" x-model="prompt" rows="2"
                   placeholder="Describe a physics problem in ordinary words…"
                   class="flex-1 bg-transparent border-none focus:outline-none text-sm placeholder-slate-600 resize-none"
                   @keydown.enter="if (!$event.shiftKey) { $event.preventDefault(); send() }"></textarea>
-        <button @click="send()"
+        <button data-testid="send" @click="send()"
                 :disabled="!prompt.trim() || !connected"
                 class="self-end px-4 py-2 rounded bg-accent-500 text-ink-950 font-semibold text-sm shadow-glow hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none transition-all">
           Send
@@ -200,7 +200,7 @@
   </main>
 
   <!-- ═══════════════ Right: files + viz ═══════════════ -->
-  <aside class="w-[28rem] shrink-0 border-l border-ink-700/60 flex flex-col">
+  <aside class="w-[28rem] shrink-0 border-l border-ink-700/60 flex flex-col" data-testid="sandbox">
 
     <div class="px-4 py-3 border-b border-ink-700/60 flex items-center gap-2">
       <span class="text-base">📂</span>
@@ -299,6 +299,39 @@
         <template x-if="viz && viz.kind === 'image'">
           <img :src="'/sandbox-file/' + viz.rel"
                class="max-w-full rounded border border-ink-800">
+        </template>
+
+        <template x-if="viz && viz.kind === 'field_series'">
+          <div>
+            <div class="flex items-center gap-2 mb-2 text-xs">
+              <span class="text-accent-400" x-text="viz.field"></span>
+              <span class="font-mono text-slate-500" x-text="viz.nx + ' x ' + viz.ny"></span>
+              <span class="ml-auto font-mono text-slate-500"
+                    x-text="'t = ' + fsTime.toFixed(3) + ' s'"></span>
+            </div>
+            <canvas data-testid="field-canvas" id="fieldCanvas"
+                    class="w-full rounded border border-ink-800 bg-ink-900"
+                    style="image-rendering: auto; aspect-ratio: 440 / 82;"></canvas>
+            <div class="mt-2 flex items-center gap-3 text-xs">
+              <button @click="fsPlaying = !fsPlaying"
+                      :aria-label="fsPlaying ? 'Pause the animation' : 'Play the animation'"
+                      class="px-2 py-0.5 rounded bg-ink-800 hover:bg-ink-700 w-14"
+                      x-text="fsPlaying ? 'Pause' : 'Play'"></button>
+              <label for="fsScrub" class="sr-only">Frame</label>
+              <input id="fsScrub" type="range" min="0" :max="Math.max(0, fsNFrames - 1)"
+                     :value="fsFrame" @input="fsSeek($event.target.value)"
+                     class="flex-1">
+              <span class="font-mono text-slate-500"
+                    x-text="(fsFrame + 1) + '/' + fsNFrames"></span>
+            </div>
+            <div class="mt-2 flex items-center gap-2 text-[10px] text-slate-500">
+              <span class="font-mono" x-text="viz.vmin"></span>
+              <span class="flex-1 h-1.5 rounded"
+                    style="background: linear-gradient(to right, #B6C2D2, #0D1117, #FF6B4A)"></span>
+              <span class="font-mono" x-text="viz.vmax"></span>
+              <span class="ml-1" x-text="viz.unit"></span>
+            </div>
+          </div>
         </template>
 
         <template x-if="viz && viz.kind === 'vtk'">

@@ -9,6 +9,11 @@
  *
  * Keep this dependency-light — only Alpine + fetch + native WebSocket.
  */
+// Decoded field-series data lives outside the Alpine component on purpose:
+// it is megabytes of typed array and nothing about it needs to be reactive.
+let _fs = null;
+let _fsRaf = null;
+
 function openpasoApp() {
   return {
     // ─── Config from backend
@@ -205,6 +210,9 @@ function openpasoApp() {
       if (r.kind === 'vtk') {
         this.$nextTick(() => this.renderVtk(r.url));
       }
+      if (r.kind === 'field_series') {
+        this.$nextTick(() => this.loadFieldSeries(r.url));
+      }
       if (e.kind === 'text' && e.name.endsWith('.py')) {
         const pr = await fetch('/api/extract_params?rel='
                                + encodeURIComponent(e.rel_path))
@@ -249,6 +257,115 @@ function openpasoApp() {
     },
 
     // ─── VTK rendering (real, vtk.js HTTPDataAccessHelper) ───
+    // ── Field series ────────────────────────────────────────────
+    // A solver's own field, sampled onto a grid once per stored timestep and
+    // played back. Signed quantities get a diverging ramp with the canvas at
+    // zero, so the sign is the thing you see first.
+    fsPlaying: true,
+    fsFrame: 0,
+    fsNFrames: 0,
+    fsTime: 0,
+
+    fsColormap() {
+      // coral for one sign, light graphit for the other, canvas at zero.
+      const lut = new Uint8Array(256 * 3);
+      const neg = [0xB6, 0xC2, 0xD2], zero = [0x0D, 0x11, 0x17], pos = [0xFF, 0x6B, 0x4A];
+      for (let i = 0; i < 256; i++) {
+        const t = (i / 255) * 2 - 1;            // -1 .. +1
+        const a = Math.abs(t);
+        const end = t < 0 ? neg : pos;
+        // ease so the quiet field stays dark and structure reads early
+        const w = Math.pow(a, 0.65);
+        for (let c = 0; c < 3; c++) {
+          lut[i * 3 + c] = Math.round(zero[c] + (end[c] - zero[c]) * w);
+        }
+      }
+      return lut;
+    },
+
+    async loadFieldSeries(url) {
+      const canvas = document.getElementById('fieldCanvas');
+      if (!canvas) return;
+      if (_fsRaf) { cancelAnimationFrame(_fsRaf); _fsRaf = null; }
+      try {
+        const meta = await fetch(url).then(r => r.json());
+        const b2a = (b64) => {
+          const bin = atob(b64);
+          const out = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+          return out;
+        };
+        _fs = {
+          nx: meta.nx, ny: meta.ny,
+          times: meta.times || [],
+          fps: meta.fps || 25,
+          mask: b2a(meta.mask),
+          frames: b2a(meta.frames),
+          lut: this.fsColormap(),
+        };
+        _fs.n = _fs.times.length;
+        canvas.width = _fs.nx; canvas.height = _fs.ny;
+        this.fsNFrames = _fs.n;
+        this.fsFrame = 0;
+        this.fsPlaying = true;
+        this.fsLoop(canvas);
+      } catch (e) {
+        this.viz = { kind: 'error', error: 'field series: ' + this.scrub(e.message) };
+      }
+    },
+
+    fsDraw(canvas) {
+      if (!_fs) return;
+      const ctx = canvas.getContext('2d');
+      const { nx, ny, mask, frames, lut } = _fs;
+      const img = ctx.createImageData(nx, ny);
+      const base = this.fsFrame * nx * ny;
+      for (let row = 0; row < ny; row++) {
+        // the grid's first row is the bottom of the domain; canvas y runs down
+        const src = (ny - 1 - row) * nx;
+        for (let col = 0; col < nx; col++) {
+          const s = src + col, d = (row * nx + col) * 4;
+          if (!mask[s]) {                       // inside the obstacle
+            img.data[d] = 0x21; img.data[d+1] = 0x26; img.data[d+2] = 0x2D;
+            img.data[d+3] = 255;
+            continue;
+          }
+          const v = frames[base + s] * 3;
+          img.data[d] = lut[v]; img.data[d+1] = lut[v+1]; img.data[d+2] = lut[v+2];
+          img.data[d+3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+      this.fsTime = _fs.times[this.fsFrame] || 0;
+    },
+
+    fsLoop(canvas) {
+      let last = 0;
+      const tick = (now) => {
+        if (!_fs) return;
+        const interval = 1000 / _fs.fps;
+        if (this.fsPlaying && now - last >= interval) {
+          this.fsFrame = (this.fsFrame + 1) % _fs.n;
+          this.fsDraw(canvas);
+          last = now;
+        }
+        _fsRaf = requestAnimationFrame(tick);
+      };
+      this.fsDraw(canvas);
+      // A viewer who asked for less motion gets the first frame and a scrubber.
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        this.fsPlaying = false;
+      }
+      _fsRaf = requestAnimationFrame(tick);
+    },
+
+    fsSeek(i) {
+      if (!_fs) return;
+      this.fsFrame = Math.max(0, Math.min(_fs.n - 1, parseInt(i, 10) || 0));
+      const c = document.getElementById('fieldCanvas');
+      if (c) this.fsDraw(c);
+    },
+
     async renderVtk(url) {
       const root = document.getElementById('vtkRoot');
       if (!root || typeof vtk === 'undefined') {

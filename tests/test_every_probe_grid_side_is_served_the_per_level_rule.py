@@ -36,6 +36,10 @@ pytestmark = pytest.mark.skipif(
 
 
 def _sides():
+    # Built at IMPORT time by parametrize, before pytestmark's skip can apply, so it must not
+    # need the campaign itself: without this a fresh checkout could not even collect the suite.
+    if not (CAMPAIGN / "readiness_matrix.py").is_file():
+        return []
     sys.path.insert(0, str(CAMPAIGN))
     from readiness_matrix import physics_for
     out = []

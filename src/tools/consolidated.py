@@ -6733,7 +6733,7 @@ def register_consolidated_tools(mcp: FastMCP):
                          "one does not. Fix that side -- its source first, then its coefficient, "
                          "then which boundary carries which condition -- BEFORE spending budget on "
                          "further levels, because everything built on this one inherits it. "
-                         "Measured against a graded record: this verdict lands on 28 sides that are "
+                         "Measured on recorded runs: this verdict lands on 28 sides that are "
                          "wrong and on NONE that are right. The reverse is not true -- a CONSISTENT "
                          "side is not a clean bill of health, because 62 wrong sides also read "
                          "CONSISTENT; this identity cannot see a wrong condition on a face.\n"

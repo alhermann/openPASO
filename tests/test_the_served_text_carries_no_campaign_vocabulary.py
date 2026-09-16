@@ -67,3 +67,30 @@ def test_the_physics_sense_of_graded_is_untouched():
     hits = [p.name for p in (ROOT / "data" / "coupling_participants").glob("participant_*.py")
             if "graded / manufactured" in p.read_text()]
     assert hits, "the physics sense of the word was removed along with the grading sense"
+
+
+def test_no_string_in_the_source_speaks_of_a_graded_record():
+    """The knowledge replies above are one door; couple() and audit_results() are others.
+
+    Their findings are built from string literals in src/tools, and two of them said "graded record"
+    (found 2026-09-17, cutting the product tree). Comments and docstrings are for developers and are
+    not served; string literals are.
+    """
+    import ast
+    phrases = ("graded record", "honest round", "evaluation campaign", "campaign cell")
+    hits = []
+    for path in sorted((ROOT / "src").rglob("*.py")):
+        if "blind_eval" in path.parts:
+            continue
+        tree = ast.parse(path.read_text(errors="ignore"))
+        docstrings = {id(n.body[0].value) for n in ast.walk(tree)
+                      if isinstance(n, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+                      and n.body and isinstance(n.body[0], ast.Expr)
+                      and isinstance(n.body[0].value, ast.Constant)}
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.Constant) and isinstance(node.value, str)
+                    and id(node) not in docstrings):
+                low = node.value.lower()
+                hits += [f"{path.relative_to(ROOT)}:{node.lineno}: {p!r}" for p in phrases if p in low]
+    assert not hits, "served strings name the evaluation:\n" + "\n".join(hits)
+

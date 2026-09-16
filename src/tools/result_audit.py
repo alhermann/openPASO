@@ -3837,8 +3837,8 @@ def _imported_trace_not_held(work: Path) -> list[dict]:
                 f"self-consistent -- and the two subdomains end up answering "
                 f"different problems. Check that the interface degrees of "
                 f"freedom are in the constrained set the solve honours, and "
-                f"that nothing overwrites them afterwards. Measured across the "
-                f"graded record, no correct run has ever exported a trace that "
+                f"that nothing overwrites them afterwards. Measured across "
+                f"recorded runs, no correct run has ever exported a trace that "
                 f"differs from the one it was given.")})
         except Exception:                                # noqa: BLE001
             continue

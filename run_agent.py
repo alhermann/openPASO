@@ -13,7 +13,7 @@ runs the solver, and checks the answer. Everything it does is printed
 as it happens, so you can watch and stop it at any time with Ctrl-C.
 
 If you would rather use openPASO from Claude Code, Claude Desktop or
-Cursor, you do not need this file at all. See "Start here" in README.md.
+Cursor, you do not need this file at all. See "Quick start" in README.md.
 """
 from __future__ import annotations
 

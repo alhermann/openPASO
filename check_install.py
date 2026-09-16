@@ -207,7 +207,7 @@ def main() -> int:
         return 1
     print(f"{OK} Install is working: {usable} solver(s) ready. openPASO will use these "
           f"and tell a model the others are missing.")
-    print("   Next: see \"Start here\" in README.md to pick how you talk to it.")
+    print("   Next: pick how you talk to it — README.md \"Quick start\", or https://alhermann.github.io/openPASO/use/")
     return 0
 
 

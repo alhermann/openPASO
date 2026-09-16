@@ -14,7 +14,7 @@ build/
 papers/
 
 # Solver source checkouts
-solvers/
+/solvers/
 
 # Generated outputs (created by tools at runtime)
 simulation_outputs/
@@ -119,3 +119,6 @@ data/webui_sessions/
 
 # npm install output; `npm ci` in ui/ recreates it from package-lock.json.
 node_modules/
+
+# Built documentation website (mkdocs build)
+/site/

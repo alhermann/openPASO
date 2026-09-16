@@ -5,7 +5,7 @@ people add verified knowledge — but a single wrong parameter key in the
 catalog produces silently-broken input files for every downstream agent
 session.  The rules below are designed to keep that from happening.
 
-For the *why* behind these rules, see the [design paper](README.md#citation)
+For the *why* behind these rules, see the [design paper](README.md#licence-and-citation)
 (Section 3.1 — generality, pitfall awareness, mandatory quality control,
 vendor agnosticism).  This file is the *how*.
 

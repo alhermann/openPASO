@@ -112,3 +112,7 @@ eval_interactive/
 # Worked couplings from the tier-2 coupling fixtures. Never shared, never
 # committed: each one is a solved coupled problem.
 .tier2_coupling_work/
+
+# Recorded web-interface runs: prompts, model output and the local work
+# directory of whoever ran them. Never product, and they carry home paths.
+data/webui_sessions/

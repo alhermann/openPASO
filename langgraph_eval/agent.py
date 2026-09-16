@@ -52,9 +52,29 @@ REPO = Path(__file__).resolve().parents[1]
 
 PORTS = {"7b": 8000, "14b": 8001, "32b": 8002}
 
+# WHAT openPASO RECOMMENDS MUST BE ON THIS LIST, and
+# tests/test_what_openpaso_recommends_is_reachable.py holds it there. That test
+# found three tools named by the served coupling text and missing from here --
+# check_input, couple_levels and verify_interface_flux -- which means agents
+# were told to call capabilities this surface does not carry.
+#
+# The failure has a shape worth naming, because it has now happened three times
+# in two days across two trees: a capability exists, the text recommends it, and
+# it is unreachable for the population it was written for. The evaluation
+# harness this fork came from measured the cost of one instance -- couple_levels
+# was invoked 3 times in 2095 trajectories while its own recommendation appeared
+# in 260 of them, and it is the tool written to fix the per-level budget problem
+# that kept proven couplings from reaching level 3. Adding a tool is still a
+# reviewed contract change; what is NOT a decision is whether the surface should
+# match the advice.
+#
+# coupled_solve stays off deliberately: the text names it in order to say
+# DEPRECATED, and the test reads that sentence rather than the token.
 CAMPAIGN_MCP_TOOL_ALLOWLIST = frozenset({
     "audit_results",
+    "check_input",
     "couple",
+    "couple_levels",
     "couple_precice",
     "developer",
     "discover",
@@ -66,6 +86,7 @@ CAMPAIGN_MCP_TOOL_ALLOWLIST = frozenset({
     "run_with_generator",
     "session_insights",
     "submit_critic_review",
+    "verify_interface_flux",
     "verify_mesh_independence",
     "verify_pde_consistency",
     "visualize",

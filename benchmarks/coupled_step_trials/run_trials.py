@@ -39,22 +39,45 @@ from make_task import build, code_of, spec                      # noqa: E402
 FAMILIES = [f"C{i}" for i in range(1, 15)]
 
 
-def exported(workdir: Path) -> tuple[bool, int]:
-    """Did a real exports.json appear, and how many points does it carry?
+def exported(workdir: Path) -> tuple[bool, int, float]:
+    """Did a real exports.json appear, how many points, and is there a FIELD?
 
-    THE CONDITION, NOT A PROXY. The model's own closing sentence is not
-    evidence; a file on disk with points in it is.
+    THE CONDITION, NOT A PROXY -- AND "A FILE EXISTS" IS ITSELF A PROXY.
+    This first returned (found, points), and on the first nine trials that read
+    7 of 9 succeeded. Two of those seven carry a field that is identically zero
+    in both values and fluxes: C1 side A wrote 132 points of 0.0 and C5 side A
+    wrote 88. On a driven problem with a source term that is not an answer, and
+    counting it as one made the per-family table wrong in the direction that
+    flatters the tool.
+
+    It is the same failure as the full C9 run that reached three levels and an
+    interface residual of 6.8e-11 with nothing in it -- and it says how a
+    coupled pair gets there: if one side can write zeros this easily ALONE,
+    with no partner and nothing to orchestrate, then two sides doing it agree
+    perfectly and every self-consistency measure reads as success.
+
+    So the peak magnitude travels with the count, and the caller decides.
     """
+    best = (False, 0, 0.0)
     for path in sorted(workdir.rglob("exports.json")):
         try:
             data = json.loads(path.read_text())
         except Exception:                                        # noqa: BLE001
             continue
+        if not isinstance(data, dict):
+            continue
         for key in ("values", "value", "field"):
-            v = data.get(key) if isinstance(data, dict) else None
-            if isinstance(v, list) and v:
-                return True, len(v)
-    return False, 0
+            v = data.get(key)
+            if not (isinstance(v, list) and v):
+                continue
+            flat: list = []
+            for entry in v:
+                flat.extend(entry if isinstance(entry, (list, tuple)) else [entry])
+            nums = [abs(float(x)) for x in flat if isinstance(x, (int, float))]
+            peak = max(nums) if nums else 0.0
+            if peak > best[2] or not best[0]:
+                best = (True, len(v), peak)
+    return best
 
 
 def run_one(problem: str, side: str, model: str, step_limit: int,
@@ -76,10 +99,11 @@ def run_one(problem: str, side: str, model: str, step_limit: int,
             fh.write("\n[trial timed out]\n")
     text = log.read_text(errors="replace")
     calls = re.findall(r"^  → (\w+)", text, re.M)
-    ok, npts = exported(work)
+    ok, npts, peak = exported(work)
     return {"problem": problem, "side": side, "code": code_of(spec(problem), side),
             "role": (spec(problem).get("roles") or {}).get(side, ""),
-            "exported": ok, "points": npts, "calls": len(calls),
+            "exported": ok, "points": npts, "peak": peak,
+            "carries_field": bool(ok and peak >= 1e-8), "calls": len(calls),
             "knowledge_calls": calls.count("knowledge"),
             "wall_s": round(time.time() - started, 1),
             "tools": dict(sorted({t: calls.count(t) for t in set(calls)}.items(),
@@ -111,15 +135,19 @@ def main() -> int:
             row = run_one(problem, side, args.model, args.step_limit,
                           args.keep_going, args.timeout, args.out)
             rows.append(row)
-            mark = "OK " if row["exported"] else "no "
+            mark = ("OK  " if row["carries_field"]
+                    else "ZERO" if row["exported"] else "no  ")
             print(f"{mark} {problem:4s} {side}  {row['code']:8s} {row['role']:10s} "
                   f"calls={row['calls']:3d} knowledge={row['knowledge_calls']} "
-                  f"points={row['points']:4d} {row['wall_s']:7.1f}s", flush=True)
+                  f"points={row['points']:4d} peak={row['peak']:.2e} "
+                  f"{row['wall_s']:7.1f}s", flush=True)
             if args.json:
                 args.json.write_text(json.dumps(rows, indent=2) + "\n")
 
-    done = [r for r in rows if r["exported"]]
-    print(f"\n{len(done)} of {len(rows)} sides exported")
+    wrote = [r for r in rows if r["exported"]]
+    done = [r for r in rows if r.get("carries_field")]
+    print(f"\n{len(wrote)} of {len(rows)} sides wrote exports.json; "
+          f"{len(done)} of those carry a field (the rest are identically zero)")
     print(f"median calls when it worked: "
           f"{sorted(r['calls'] for r in done)[len(done)//2] if done else '-'}")
     return 0

@@ -82,55 +82,92 @@ async def run(task: str, *, model_id: str, api_key: str, workdir: Path | None,
     print(f"  task     {task}", flush=True)
     print("  starting the openPASO server ...\n", flush=True)
 
-    async with openpaso_mcp_tools_session(workdir, surface="all") as tools:
-        print(f"  {len(tools)} solver tools ready\n" + "─" * 72, flush=True)
-        agent = create_agent(build_model(model_id, api_key, temperature),
-                             tools=tools, **{prompt_kwarg: INSTRUCTIONS})
-        history = [("user", task)]
-        final = None
-        for attempt in range(keep_going + 1):
+    # THE MODEL NEEDS A FILESYSTEM, NOT ONLY SOLVERS.
+    #
+    # This used to pass the MCP solver tools and nothing else -- no way to
+    # write a file, no way to run a command. Measured on a coupled task: with
+    # no filesystem the model used `run_simulation` as a substitute shell, and
+    # since every call creates a fresh timestamped output directory it rebuilt
+    # its participant tree EIGHTEEN times in eighteen places, calling couple()
+    # fifteen times because it never had a stable tree to couple. The
+    # evaluation harness gives its agent write_file and run_bash twenty times
+    # each; the product path gave neither, and any task needing more than one
+    # file was quietly impossible.
+    #
+    # The three factories are called directly rather than through
+    # `_host_tools`, which additionally builds `spawn_subagent` against a
+    # hard-coded localhost vLLM (useless here, and a fan-out cost on a paid
+    # API) and `web_search`, whose dependency is not declared in pyproject.
+    # webui/runner.py does the same for the same reason.
+    from langgraph_eval.agent import (_bash_tool_for, _read_write_tools_for,
+                                      cleanup_sandbox_scratch)
+
+    print(f"  working in {workdir}", flush=True)
+    print("  shell commands run with your own permissions, in that folder\n",
+          flush=True)
+    try:
+        async with openpaso_mcp_tools_session(workdir, surface="all",
+                                              isolate=False) as tools:
+            # audit_on_submit stays at its default False: that flag switches on
+            # the campaign's grading hooks (RESULT.txt, COULD_NOT_COMPLETE, the
+            # *_level*.csv deliverable family), which mean nothing here.
+            tools = list(tools) + [
+                _bash_tool_for(workdir, isolate=False, budget_note=False),
+                *_read_write_tools_for(workdir),
+            ]
+            print(f"  {len(tools)} tools ready\n" + "─" * 72, flush=True)
+            agent = create_agent(build_model(model_id, api_key, temperature),
+                                 tools=tools, **{prompt_kwarg: INSTRUCTIONS})
+            history = [("user", task)]
             final = None
-            async for step in agent.astream(
-                    {"messages": history},
-                    {"recursion_limit": step_limit},
-                    stream_mode="values"):
-                message = step["messages"][-1]
-                final = message
-                history = list(step["messages"])
-                kind = getattr(message, "type", "")
-                for call in getattr(message, "tool_calls", None) or []:
-                    print(f"  → {call['name']}({_short(call.get('args'))})", flush=True)
-                if kind == "tool":
-                    # The solver's own answer goes to the model, not to the
-                    # screen; a raw tool payload is long and is not written
-                    # for a reader.
-                    lines = str(getattr(message, "content", "")).count("\n") + 1
-                    print(f"    ← {message.name}: {lines} line(s)", flush=True)
-                    continue
-                text = getattr(message, "content", "")
-                if text and kind == "ai" and not getattr(message, "tool_calls", None):
-                    print(f"\n{text}\n", flush=True)
-            if attempt >= keep_going:
-                break
-            print(f"  ── the model stopped without a tool call; continuing "
-                  f"({attempt + 1} of {keep_going}) ──", flush=True)
-            history.append(("user", _KEEP_GOING_NUDGE))
-        print("─" * 72)
-        if final is None:
-            print("  the model returned nothing")
-        elif keep_going == 0 and not _looks_finished(final):
-            # A ONE-SHOT RUN ENDS WHEN THE MODEL STOPS CALLING TOOLS, AND A
-            # MODEL OFTEN STOPS BY ASKING A QUESTION. Measured on a coupled
-            # task here: it wrote both participant scripts, hit an API error,
-            # printed "Would you like me to continue debugging ...?" and the
-            # run ended at 20 of 200 allowed steps with none of the requested
-            # files written. Nothing said the job was unfinished.
-            print("  done — but the model ended by asking rather than "
-                  "finishing.")
-            print("  If you want it to carry on by itself, re-run with "
-                  "--keep-going 8.")
-        else:
-            print("  done")
+            for attempt in range(keep_going + 1):
+                final = None
+                async for step in agent.astream(
+                        {"messages": history},
+                        {"recursion_limit": step_limit},
+                        stream_mode="values"):
+                    message = step["messages"][-1]
+                    final = message
+                    history = list(step["messages"])
+                    kind = getattr(message, "type", "")
+                    for call in getattr(message, "tool_calls", None) or []:
+                        print(f"  → {call['name']}({_short(call.get('args'))})", flush=True)
+                    if kind == "tool":
+                        # The solver's own answer goes to the model, not to the
+                        # screen; a raw tool payload is long and is not written
+                        # for a reader.
+                        lines = str(getattr(message, "content", "")).count("\n") + 1
+                        print(f"    ← {message.name}: {lines} line(s)", flush=True)
+                        continue
+                    text = getattr(message, "content", "")
+                    if text and kind == "ai" and not getattr(message, "tool_calls", None):
+                        print(f"\n{text}\n", flush=True)
+                if attempt >= keep_going:
+                    break
+                print(f"  ── the model stopped without a tool call; continuing "
+                      f"({attempt + 1} of {keep_going}) ──", flush=True)
+                history.append(("user", _KEEP_GOING_NUDGE))
+            print("─" * 72)
+            if final is None:
+                print("  the model returned nothing")
+            elif keep_going == 0 and not _looks_finished(final):
+                # A ONE-SHOT RUN ENDS WHEN THE MODEL STOPS CALLING TOOLS, AND A
+                # MODEL OFTEN STOPS BY ASKING A QUESTION. Measured on a coupled
+                # task here: it wrote both participant scripts, hit an API error,
+                # printed "Would you like me to continue debugging ...?" and the
+                # run ended at 20 of 200 allowed steps with none of the requested
+                # files written. Nothing said the job was unfinished.
+                print("  done — but the model ended by asking rather than "
+                      "finishing.")
+                print("  If you want it to carry on by itself, re-run with "
+                      "--keep-going 8.")
+            else:
+                print("  done")
+    finally:
+        # webui/runner.py and validation/run_validation.py both do this;
+        # the scratch path is a deterministic digest of the workdir, so
+        # without it /tmp state survives between runs in the same folder.
+        cleanup_sandbox_scratch(workdir)
     return 0
 
 
@@ -158,6 +195,20 @@ def _looks_finished(message) -> bool:
 def _short(args, width: int = 90) -> str:
     text = ", ".join(f"{k}={v!r}" for k, v in (args or {}).items())
     return text if len(text) <= width else text[:width - 3] + "..."
+
+
+
+def _resolve_workdir(given) -> Path:
+    """Where the model may write, and where `run_bash` starts.
+
+    It used to default to None, which meant the MCP server was never told where
+    the work belonged and the shell had no cwd at all. The help text already
+    promised "the current folder"; this makes that true, and creates the folder
+    because `run_bash` passes it as `cwd` and will not create it itself.
+    """
+    path = Path(given) if given else Path.cwd()
+    path.mkdir(parents=True, exist_ok=True)
+    return path.resolve()
 
 
 def main() -> int:
@@ -211,7 +262,7 @@ def main() -> int:
 
     try:
         return asyncio.run(run(task, model_id=model_id, api_key=api_key,
-                               workdir=args.workdir,
+                               workdir=_resolve_workdir(args.workdir),
                                temperature=args.temperature,
                                step_limit=args.step_limit,
                                keep_going=max(0, args.keep_going)))

@@ -156,3 +156,48 @@ alone — but the rates could move.
 wants a number or a JSON matrix. Whatever else is decided, an agent handed
 "thermal conductivity k = 1 in subdomain A; ... k = 1000 in subdomain B" has to convert
 that itself before the call succeeds. That is friction on the path to a check nobody calls.
+
+---
+
+## What the check provably cannot see: a coupling that exchanged nothing
+
+Measured 2026-09-16, after the elasticity operator was added.
+
+The campaign found a C9 cell, seed 8741, where **both sides exchanged literally nothing**
+— the interface traction columns read `9.5e-18` and `0.0`. Each side returned the answer
+it would have returned with no partner at all. Every per-participant guard stayed silent,
+because each fires only when ITS OWN recovery is zero against a NONZERO partner; when the
+exchange is dead in both directions both guards are satisfied. The iteration then
+"converges" immediately, because two sides exchanging nothing cannot disagree.
+
+**Prediction, stated before measuring:** the equation check misses it. A dead exchange
+leaves each side solving its own equation in the interior with a homogeneous natural
+condition on the interface, and an identity whose test function vanishes on the boundary
+cannot see a wrong condition on a face.
+
+**It held, and the margin is not close:**
+
+| cell | graded | side A | side B | verdict |
+|---|---|---|---|---|
+| 8631 | CORRECT | 1.88e-01 → 1.13e-02 (16.6×) | 9.58e-02 → 6.21e-03 (15.4×) | CONSISTENT |
+| 8791 | CORRECT | 1.86e-01 → 1.13e-02 (16.4×) | 1.16e-01 → 6.84e-03 (16.9×) | CONSISTENT |
+| 8632 | COMPLETED_UNPHYSICAL | 1.08e+00 → 5.73e-01 (1.9×) | 8.55e+00 → 8.82e+00 (1.0×) | **INCONSISTENT** |
+| 8741 | COMPLETED_UNPHYSICAL | 2.10e-01 → 1.15e-02 (18.3×) | 1.28e-01 → 6.09e-03 (21.1×) | CONSISTENT |
+
+8741 does not merely slip past the threshold. Its residuals **fall faster than either
+correct cell's** and its sequence is indistinguishable from theirs. No tuning of the
+decay rule separates them, because there is nothing in the interior to separate: each
+field really does satisfy its own equation.
+
+**So the two instruments are strictly complementary, and neither substitutes for the
+other.** The campaign's `_interface_transmitted_nothing` reads the interface files and
+catches exactly this; the equation check reads the interior and catches 8632, whose side B
+exports a trace 127 % different from the one it imported. Running only one of them leaves
+a whole failure mode unwatched.
+
+This is the general form of the three C2 cells the scalar check misses, all
+COMPLETED_UNPHYSICAL and all reading CONSISTENT on both sides: **a field that is right in
+the interior and wrong on a face is invisible to this identity, whatever the operator.**
+That is a property of the method, not a threshold, and it is the reason this check should
+be described as one instrument among several rather than as the one that separates right
+from wrong.

@@ -468,7 +468,12 @@ class KratosBackend(SolverBackend):
 
     async def run(self, input_content: str, work_dir: Path,
                   np: int = 1, timeout=None) -> JobHandle:
-        python = _find_kratos_python() or get_python_executable()
+        # NO FALLBACK TO THE SERVER'S OWN INTERPRETER. That would let run()
+        # try an interpreter check_availability() has already rejected, which
+        # is the issue-#40 bug class: discovery and execution answering
+        # different questions. tests/test_python_env_consistency.py pins it,
+        # and caught exactly this when the fallback was written here.
+        python = _find_kratos_python()
         if not python:
             return JobHandle(
                 job_id=str(uuid.uuid4())[:8],

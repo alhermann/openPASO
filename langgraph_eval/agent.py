@@ -346,8 +346,33 @@ def cleanup_sandbox_scratch(workdir: Path) -> None:
 
 
 def _sandboxed_process_argv(workdir: Path, process: list[str], *,
-                            source_repo: Path | None = None) -> list[str]:
-    """Run a process with only this cell and private scratch writable."""
+                            source_repo: Path | None = None,
+                            isolate: bool = True) -> list[str]:
+    """Run a process with only this cell and private scratch writable.
+
+    `isolate=False` returns the bare argv with no bubblewrap at all, for the
+    PRODUCT path (`run_agent.py`). The evaluation harness never passes it and
+    keeps the hard requirement below, which is what
+    tests/test_campaign_host_isolation.py pins.
+
+    WHY THE PRODUCT PATH DOES NOT ISOLATE. bubblewrap is Linux-only and this
+    jail additionally rebinds a fixed list of runtime roots -- ~/miniconda3,
+    ~/4C, ~/FEBio, ~/dealii, a sibling checkout's venv -- which is this
+    machine's layout, not a stranger's. Someone whose FEniCS lives in
+    ~/mambaforge would get "solver not found" inside the sandbox while it works
+    on the host. A blind evaluation needs that jail and pays for it with a
+    fixed machine; a person running their own simulation does not, and a
+    product that only works on one directory layout is worse than one that
+    trusts the user's own permissions.
+
+    The trade is stated rather than hidden: read_file and write_file confine
+    themselves to `workdir`, but a SHELL cannot be confined by a path check,
+    so `run_bash` on this path runs with the user's own permissions.
+    `run_agent.py` says so on startup.
+    """
+    if not isolate:
+        return list(process)
+
     bwrap = shutil.which("bwrap")
     if bwrap is None:
         raise RuntimeError(
@@ -450,13 +475,27 @@ def _sandboxed_process_argv(workdir: Path, process: list[str], *,
     return argv
 
 
-def _sandboxed_bash_argv(workdir: Path, command: str) -> list[str]:
-    """Build the isolated argv for one host shell call."""
+def _sandboxed_bash_argv(workdir: Path, command: str, *,
+                         isolate: bool = True) -> list[str]:
+    """Build the argv for one host shell call, isolated unless told otherwise."""
     return _sandboxed_process_argv(
-        workdir, ["/bin/bash", "-lc", command])
+        workdir, ["/bin/bash", "-lc", command], isolate=isolate)
 
 
-def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
+def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False,
+                   isolate: bool = True, budget_note: bool = True):
+    """A `run_bash` tool bound to `workdir`.
+
+    `isolate=False` and `budget_note=False` are the PRODUCT path's settings
+    (`run_agent.py`): no bubblewrap, and no `[actions spent: N]` suffix. That
+    suffix is the harness's wall-clock stamp and a person running one
+    simulation has no campaign clock to be reminded of. Both default to the
+    harness's behaviour so nothing there changes.
+    """
+
+    def _note() -> str:
+        return _time_left_note() if budget_note else ""
+
     # THE AUTO-AUDIT WAS ATTACHED TO write_file ONLY, AND AGENTS SUBMIT WITH A
     # HEREDOC.
     #
@@ -650,7 +689,8 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
         proc = None
         try:
             proc = subprocess.Popen(
-                _sandboxed_bash_argv(workdir, command), cwd=workdir,
+                _sandboxed_bash_argv(workdir, command, isolate=isolate),
+                cwd=workdir,
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
                 env=_clean_subprocess_env(),
                 start_new_session=True,
@@ -671,11 +711,11 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False):
                        if audit_on_submit else "")
                     + _script_check_after_shell(_before_scr)
                     + _artefact_check_after_shell(_before_art)
-                    + _audit_after_shell(_before) + _time_left_note())
+                    + _audit_after_shell(_before) + _note())
         except subprocess.TimeoutExpired:
             _kill_group(proc)
             return ("[timeout after 900s; the command and everything it "
-                    "spawned were terminated]" + _time_left_note())
+                    "spawned were terminated]" + _note())
         except (OSError, UnicodeError, ValueError) as e:
             _kill_group(proc)
             return f"[command failed to launch: {type(e).__name__}: {e}]"
@@ -945,7 +985,8 @@ def _make_spawn_subagent_tool(
 # ────────────────────────────────────────────────────────────────────
 # openPASO MCP tool loader (langchain-mcp-adapters)
 # ────────────────────────────────────────────────────────────────────
-def _openpaso_mcp_client(workdir: Path | None = None):
+def _openpaso_mcp_client(workdir: Path | None = None, *,
+                         isolate: bool = True):
     from langchain_mcp_adapters.client import MultiServerMCPClient
 
     env = _clean_subprocess_env()
@@ -1022,12 +1063,18 @@ def _openpaso_mcp_client(workdir: Path | None = None):
     command = _server_py
     args = ["-m", "server"]
     cwd = source_repo / "src"
-    if workdir is not None:
+    if workdir is not None and isolate:
         wrapped = _sandboxed_process_argv(
             Path(workdir), [command, *args], source_repo=source_repo)
         command, args = wrapped[0], wrapped[1:]
         cwd = Path(workdir)
         env["PYTHONPATH"] = "/tmp/openpaso-source/src"
+    elif workdir is not None:
+        # PRODUCT PATH: the server runs unwrapped, so it reads the repo where
+        # it actually is rather than through the sandbox's /tmp bind, and the
+        # user's own solver installs stay visible wherever they live.
+        cwd = Path(workdir)
+        env["PYTHONPATH"] = str(source_repo / "src")
     client = MultiServerMCPClient({
         "openpaso": {
             "command": command,
@@ -1053,7 +1100,8 @@ def _load_openpaso_mcp_tools(workdir: Path | None = None) -> list[BaseTool]:
 
 @asynccontextmanager
 async def openpaso_mcp_tools_session(workdir: Path | None = None, *,
-                                     surface: str = "campaign"):
+                                     surface: str = "campaign",
+                                     isolate: bool = True):
     """Yield tools bound to one openPASO process for an entire agent run.
 
     ``surface="campaign"`` yields exactly CAMPAIGN_MCP_TOOL_ALLOWLIST and
@@ -1070,7 +1118,7 @@ async def openpaso_mcp_tools_session(workdir: Path | None = None, *,
     if surface not in ("campaign", "all"):
         raise ValueError(f"surface must be 'campaign' or 'all', not {surface!r}")
 
-    client = _openpaso_mcp_client(workdir)
+    client = _openpaso_mcp_client(workdir, isolate=isolate)
     async with client.session("openpaso") as session:
         available = await load_mcp_tools(session, server_name="openpaso")
         if surface == "all":

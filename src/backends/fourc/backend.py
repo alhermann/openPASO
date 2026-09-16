@@ -16,6 +16,8 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
+from core.user_dirs import desktop_dirs as _desktop_dirs
+
 from core.backend import (
     sorted_by_step,
     SolverBackend, BackendStatus, InputFormat,
@@ -232,8 +234,9 @@ def _find_fourc_binary() -> Optional[Path]:
         "~/4c/build/4C",
         "/opt/4c/build/4C",
         "/opt/4C/build/4C",
-        "~/Schreibtisch/4C-src/4C/build/4C",
         "~/4C-src/4C/build/4C",
+        *(str(d / sub) for d in _desktop_dirs()
+          for sub in ("4C/build/4C", "4C-src/4C/build/4C")),
     ):
         p = Path(cand).expanduser()
         if p.is_file():

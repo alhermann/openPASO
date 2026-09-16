@@ -168,8 +168,8 @@ def _find_dealii() -> Optional[Path]:
       3. Conda envs at ``~/miniconda3/envs/*`` and
          ``~/anaconda3/envs/*`` that contain ``include/deal.II/``.
       4. User-source dirs: ``~/dealii``, ``~/deal.II``,
-         ``~/Schreibtisch/dealii``, ``~/Schreibtisch/deal.II``,
-         ``~/src/dealii``, ``~/src/deal.II``.
+         ``~/src/dealii``, ``~/src/deal.II``, and ``dealii`` / ``deal.II``
+         in the user's desktop folder (core.user_dirs, locale-aware).
       5. System paths: ``/opt/dealii``,
          ``/usr/lib/x86_64-linux-gnu/cmake/deal.II``,
          ``/usr/share/cmake/deal.II``.
@@ -273,9 +273,10 @@ def _find_dealii() -> Optional[Path]:
     #    checkout root is NOT usable on its own — the generated header
     #    and the CMake package files live in the build tree — so each
     #    candidate goes through resolve_dealii_root().
-    for sub in ("dealii", "deal.II", "src/dealii", "src/deal.II",
-                "Schreibtisch/dealii", "Schreibtisch/deal.II"):
-        candidate = Path.home() / sub
+    from core.user_dirs import desktop_dirs   # noqa: PLC0415
+    _cands = [Path.home() / s for s in ("dealii", "deal.II", "src/dealii", "src/deal.II")]
+    _cands += [d / s for d in desktop_dirs() for s in ("dealii", "deal.II")]
+    for candidate in _cands:
         if not candidate.is_dir():
             continue
         resolved = resolve_dealii_root(candidate)

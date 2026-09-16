@@ -18,6 +18,8 @@ from __future__ import annotations
 import json
 import logging
 import os
+
+from core.user_dirs import desktop_dirs as _desktop_dirs
 import shutil
 import subprocess
 import sys
@@ -257,12 +259,12 @@ def discover_backends() -> list[ProbeResult]:
             "~/4c/build/4C",
             "/opt/4c/build/4C",
             "/opt/4C/build/4C",
-            # ── Non-standard source-tree builds (verified
-            #    empirically 2026-06-01 on the development
-            #    machine — keep these last so canonical
-            #    locations win). ──
-            "~/Schreibtisch/4C-src/4C/build/4C",
+            # ── Non-standard source-tree builds, including the user's
+            #    desktop folder in their own language — keep these
+            #    last so canonical locations win. ──
             "~/4C-src/4C/build/4C",
+            *(str(d / sub) for d in _desktop_dirs()
+              for sub in ("4C/build/4C", "4C-src/4C/build/4C")),
         ],
     ))
     # deal.II is often installed via conda-forge (env layout
@@ -318,9 +320,9 @@ def discover_backends() -> list[ProbeResult]:
 
     # Check for source roots (developer mode)
     source_roots = {
-        "fourc": ("FOURC_ROOT", ["~/4C", "/opt/4C",
-                                 "~/Schreibtisch/4C-src/4C",
-                                 "~/4C-src/4C"]),
+        "fourc": ("FOURC_ROOT", ["~/4C", "/opt/4C", "~/4C-src/4C",
+                                 *(str(d / sub) for d in _desktop_dirs()
+                                   for sub in ("4C", "4C-src/4C"))]),
         "fenics": ("FENICS_ROOT", ["~/dolfinx", "~/fenics"]),
         "dealii": ("DEALII_ROOT", ["~/dealii", "/opt/dealii"]),
         "ngsolve": ("NGSOLVE_ROOT", ["~/ngsolve"]),

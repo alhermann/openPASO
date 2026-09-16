@@ -50,7 +50,7 @@ def openrouter_key() -> str | None:
     """The key from the environment, or from a .env next to the repo."""
     if os.environ.get("OPENROUTER_API_KEY"):
         return os.environ["OPENROUTER_API_KEY"]
-    for candidate in (REPO / ".env", Path.home() / "Schreibtisch" / "qwen_uplift_test" / ".env"):
+    for candidate in (REPO / ".env",):
         if not candidate.is_file():
             continue
         for raw in candidate.read_text(encoding="utf-8").splitlines():

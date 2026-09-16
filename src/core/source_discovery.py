@@ -27,6 +27,8 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
+from core.user_dirs import desktop_dirs
+
 
 _REPO = Path(__file__).resolve().parent.parent.parent
 _CACHE_PATH = _REPO / "data" / "source_discovery_cache.json"
@@ -195,7 +197,7 @@ def _default_roots() -> list[Path]:
     candidates = [
         # Auto-cloned trees live here — highest priority.
         _REPO / "upstream_sources",
-        home / "Schreibtisch",
+        *desktop_dirs(),
         home / "Documents",
         home / "projects",
         home / "src",

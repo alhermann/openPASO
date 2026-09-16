@@ -40,6 +40,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from core.user_dirs import desktop_dirs
+
 
 _REPO = Path(__file__).resolve().parent.parent.parent
 _GLOBAL_CONFIG_PATH = Path.home() / ".config" / "openpaso" / "sources.json"
@@ -157,7 +159,7 @@ def example_config() -> str:
         "_comment": "Open-FEM-agent source config — edit paths to match "
                     "your machine. All entries are optional.",
         "scan_paths": [
-            "~/Schreibtisch",
+            "~/Desktop",
             "~/projects",
             "/opt/fem"
         ],
@@ -168,12 +170,12 @@ def example_config() -> str:
                 "python_env": "~/miniconda3/envs/ofa-kratos"
             },
             "fourc": {
-                "source": "~/Schreibtisch/4C-src/4C",
-                "build":  "~/Schreibtisch/4C-src/4C/build"
+                "source": "~/4C",
+                "build":  "~/4C/build"
             },
             "dealii": {
-                "source": "~/Schreibtisch/dealii-src",
-                "build":  "~/Schreibtisch/dealii-src/build"
+                "source": "~/dealii-src",
+                "build":  "~/dealii-src/build"
             },
             "fenics": {
                 "python_env": "~/miniconda3/envs/ofa-fenicsx"
@@ -213,7 +215,7 @@ def init_from_discovery(path: Optional[Path] = None,
         "_comment": "Open-FEM-agent source config — generated from "
                     "live discovery. Edit freely. Per-backend keys "
                     "{source, build, python_env} are all optional.",
-        "scan_paths": ["~/Schreibtisch", "~/projects"],
+        "scan_paths": [*(str(d) for d in desktop_dirs()), "~/projects"],
         "backends": {},
     }
     for backend, info in result.items():

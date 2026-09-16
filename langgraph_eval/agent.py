@@ -1099,8 +1099,7 @@ def _openpaso_mcp_client(workdir: Path | None = None, *,
     # fix: explicit env var first, then the repo venv, then the primary
     # checkout's venv, and REFUSE loudly rather than launch a crippled arm.
     _cands = [os.environ.get("OPENPASO_PYTHON"),
-              str(REPO / ".venv/bin/python"),
-              str(Path.home() / "Schreibtisch/open-fem-agent/.venv/bin/python")]
+              str(REPO / ".venv/bin/python")]
     _server_py = next((c for c in _cands if c and Path(c).is_file()), None)
     if _server_py is None:
         raise RuntimeError(

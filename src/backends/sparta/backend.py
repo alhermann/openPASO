@@ -76,10 +76,11 @@ def _find_sparta_binary() -> Optional[str]:
     # PEOPLE DO NOT ALL CLONE INTO $HOME. SPARTA has no wheel and no package,
     # so it is built from a checkout wherever that person keeps checkouts --
     # and the fixed list above assumed one place. Measured: a machine with
-    # ~/Schreibtisch/sparta/src/spa_serial built and working was reported
+    # a SPARTA checkout on a localised desktop, built and working, was reported
     # NOT_INSTALLED, and an agent was told to go build what it already had.
     # One shallow sweep of the usual parents costs a few stats and finds it.
-    for parent in (Path.home(), Path.home() / "Schreibtisch", Path.home() / "Desktop",
+    from core.user_dirs import desktop_dirs   # noqa: PLC0415
+    for parent in (Path.home(), *desktop_dirs(),
                    Path.home() / "src", Path.home() / "code", Path.home() / "projects",
                    Path.home() / "work", Path.home() / "repos"):
         if not parent.is_dir():

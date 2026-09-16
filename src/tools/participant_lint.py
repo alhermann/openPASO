@@ -226,7 +226,10 @@ def undefined_names(text: str) -> list:
     try:
         tree = ast.parse(text)
     except SyntaxError as e:
-        return [f"this file does not parse: {e.__class__.__name__} at line {e.lineno} -- {e.msg}"]
+        lines = text.splitlines()
+        where = (f": `{lines[e.lineno - 1].strip()[:120]}`"
+                 if e.lineno and 0 < e.lineno <= len(lines) else "")
+        return [f"this file does not parse: {e.__class__.__name__} at line {e.lineno} -- {e.msg}{where}"]
     bound = set(dir(builtins)) | {"__file__", "__name__", "__doc__"}
     for node in ast.walk(tree):
         if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
@@ -367,6 +370,16 @@ def participant_findings(text: str) -> list:
         return []
     codes = backends_in(text)
     if not codes:
+        # A PARTICIPANT THAT DOES NOT PARSE IS NAMED EVEN WHEN NO SOLVER IMPORT
+        # IS RECOGNISED. The API traps below are per backend, so they need one;
+        # a SyntaxError does not, and returning early here made the parse
+        # finding unreachable for exactly the files most likely to lack a
+        # recognisable import -- truncated or garbled ones. Measured over the
+        # campaign record: 144 of 3873 participant scripts do not parse, and 47
+        # of those were silent here; 34 are the same garble,
+        # `(a)**2 + **(b)2`.
+        if looks_like_participant(text):
+            return [f for f in undefined_names(text) if f.startswith("this file does not parse")]
         return []
     body = _strip_strings_and_comments(text)
     out, seen = _module_findings(body, text) + undefined_names(text), set()

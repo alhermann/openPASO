@@ -483,7 +483,8 @@ def _sandboxed_bash_argv(workdir: Path, command: str, *,
 
 
 def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False,
-                   isolate: bool = True, budget_note: bool = True):
+                   isolate: bool = True, budget_note: bool = True,
+                   advice: bool = False):
     """A `run_bash` tool bound to `workdir`.
 
     `isolate=False` and `budget_note=False` are the PRODUCT path's settings
@@ -591,7 +592,21 @@ def _bash_tool_for(workdir: Path, *, audit_on_submit: bool = False,
         return out
 
     def _script_check_after_shell(before: dict) -> str:
-        if not audit_on_submit:
+        # ONE FLAG WAS DOING TWO JOBS. `audit_on_submit` switches on the
+        # campaign's GRADING hooks -- RESULT.txt, COULD_NOT_COMPLETE, the
+        # *_level*.csv deliverable family -- and it also switched on the script
+        # LINTS, which are ordinary product capability: they read the script the
+        # user's agent just wrote and name calls known to stop the run on this
+        # install. openPASO's own rule is that every check in workspace_advisor
+        # is product code, not evaluation code.
+        #
+        # Measured: in Option B nothing linted a written script at all. The
+        # NGSolve `sym`/`Div` rules added this morning, and the
+        # constant-deliverable check added this afternoon, reached the
+        # evaluation arm and no product user. A deal.II step trial made it
+        # concrete -- 52 of its 60 calls were shell, its files arriving by
+        # `cat >` heredoc, which is the route that was hardest gated off.
+        if not (audit_on_submit or advice):
             return ""
         try:
             now = _script_mtimes()
@@ -739,7 +754,8 @@ def _kill_group(proc) -> None:
             continue
 
 
-def _read_write_tools_for(workdir: Path, *, audit_on_submit: bool = False):
+def _read_write_tools_for(workdir: Path, *, audit_on_submit: bool = False,
+                          advice: bool = False):
     @tool
     def read_file(path: str, max_bytes: int = 200_000) -> str:
         """Read a file inside the cell sandbox."""
@@ -788,10 +804,17 @@ def _read_write_tools_for(workdir: Path, *, audit_on_submit: bool = False):
             # submission. See _early_artefact_check for the mtime measurement
             # that forced this.
             if audit_on_submit and p.name != "RESULT.txt":
+                # THE CAMPAIGN'S DELIVERABLE FAMILY: these read a grading
+                # contract (level indices, run-log naming, discarded proof)
+                # that a product user does not have.
                 reply += _level_index_check(workdir, p)
                 reply += _identical_levels_check(workdir, p)
                 reply += _wrong_level_run_log_check(workdir, p)
                 reply += _discarded_proof_check(p, content)
+            if (audit_on_submit or advice) and p.name != "RESULT.txt":
+                # THE LINT FAMILY: product capability. Every one of these reads
+                # the script itself and names something known to stop the run
+                # on this install, or a number that was invented.
                 reply += _constant_deliverable_check(p, content)
                 reply += _script_noop_check(p, content)
                 reply += _registry_attribute_check(p, content)

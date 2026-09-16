@@ -122,9 +122,15 @@ async def run(task: str, *, model_id: str, api_key: str, workdir: Path | None,
             # audit_on_submit stays at its default False: that flag switches on
             # the campaign's grading hooks (RESULT.txt, COULD_NOT_COMPLETE, the
             # *_level*.csv deliverable family), which mean nothing here.
+            # advice=True turns on the LINT family only -- the checks that read
+            # the script the model just wrote and name a call known to stop the
+            # run on this install, or a deliverable filled in with a literal.
+            # audit_on_submit stays False, so the campaign's grading hooks
+            # (RESULT.txt, COULD_NOT_COMPLETE, the *_level*.csv family) stay off.
             tools = list(tools) + [
-                _bash_tool_for(workdir, isolate=False, budget_note=False),
-                *_read_write_tools_for(workdir),
+                _bash_tool_for(workdir, isolate=False, budget_note=False,
+                               advice=True),
+                *_read_write_tools_for(workdir, advice=True),
             ]
             print(f"  {len(tools)} tools ready\n" + "─" * 72, flush=True)
             agent = create_agent(build_model(model_id, api_key, temperature),

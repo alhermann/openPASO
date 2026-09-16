@@ -89,8 +89,8 @@ def test_the_campaign_path_still_demands_isolation():
 def test_run_agent_asks_for_the_tools(tmp_path):
     """A structural check that the CLI actually wires them in."""
     text = (REPO / "run_agent.py").read_text()
-    assert "_bash_tool_for(workdir, isolate=False" in text
-    assert "_read_write_tools_for(workdir)" in text
+    assert "_bash_tool_for(workdir" in text and "isolate=False" in text
+    assert "_read_write_tools_for(workdir" in text
     assert "cleanup_sandbox_scratch(workdir)" in text, (
         "scratch is a deterministic digest of the workdir; without cleanup it "
         "persists between runs")
@@ -144,3 +144,74 @@ def test_the_headline_distinguishes_the_two():
     assert "started: bool = False" in text, (
         "the caller must be able to say the run had got somewhere")
     assert "started=True" in text, "the catch-all knows the session was entered"
+
+
+# ── The lint family is product capability, not grading ───────────────────────
+
+STUB_WRITER = ('def write_solution_file(fn, probes):\n'
+               '    """writes solution_level1_A.csv"""\n'
+               '    with open(fn, "w") as f:\n'
+               '        for x, y in probes:\n'
+               '            ux = 0.0\n'
+               '            uy = 0.0\n'
+               '            f.write(f"{x}, {y}, {ux}, {uy}\\n")\n')
+
+
+def test_the_lints_reach_a_product_run_by_both_routes(tmp_path):
+    """One flag was doing two jobs, and the product path got neither.
+
+    `audit_on_submit` switches on the campaign's GRADING hooks -- RESULT.txt,
+    COULD_NOT_COMPLETE, the *_level*.csv deliverable family -- and it also
+    switched on the script LINTS, which read the script the user's own agent
+    just wrote and name calls known to stop the run on this install.
+
+    Measured: in Option B nothing linted a written script at all. The NGSolve
+    sym/Div rules and the constant-deliverable check both reached the evaluation
+    arm and no product user. A deal.II step trial made it concrete: 52 of its 60
+    calls were shell, its files arriving by `cat >` heredoc, which is exactly
+    the route that was gated off hardest.
+    """
+    from langgraph_eval.agent import _bash_tool_for, _read_write_tools_for
+
+    _, write_file = _read_write_tools_for(tmp_path, advice=True)
+    assert "FILLED IN WITH A CONSTANT" in write_file.invoke(
+        {"path": "gen.py", "content": STUB_WRITER})
+
+    bash = _bash_tool_for(tmp_path, isolate=False, budget_note=False, advice=True)
+    out = bash.invoke({"command": f"cat > viaheredoc.py <<'EOF'\n{STUB_WRITER}EOF\necho ok"})
+    assert "FILLED IN WITH A CONSTANT" in out, (
+        "a script written by heredoc must be linted too -- that is how the "
+        "measured runs actually write their files")
+
+
+def test_advice_does_not_switch_on_the_grading_family(tmp_path):
+    """The split has to hold in both directions or it is not a split."""
+    import inspect
+
+    from langgraph_eval import agent as la
+    src = inspect.getsource(la._read_write_tools_for)
+    campaign_only = ("_level_index_check", "_identical_levels_check",
+                     "_wrong_level_run_log_check", "_discarded_proof_check")
+    for name in campaign_only:
+        line = next(ln for ln in src.splitlines() if name in ln and "reply +=" in ln)
+        assert "advice" not in line, f"{name} is grading, not advice"
+    assert 'if audit_on_submit and p.name != "RESULT.txt":' in src
+    assert 'if (audit_on_submit or advice) and p.name != "RESULT.txt":' in src
+
+
+def test_a_product_run_stays_silent_without_advice(tmp_path):
+    """Default off, so nothing changes for a caller that did not ask."""
+    from langgraph_eval.agent import _read_write_tools_for
+
+    _, write_file = _read_write_tools_for(tmp_path)
+    assert "FILLED IN WITH A CONSTANT" not in write_file.invoke(
+        {"path": "gen.py", "content": STUB_WRITER})
+
+
+def test_run_agent_opts_in():
+    text = (REPO / "run_agent.py").read_text()
+    assert "advice=True" in text, "the product path must ask for the lints"
+    # The NAME may appear in a comment explaining why it is not used; what must
+    # not appear is the product path switching it ON.
+    assert "audit_on_submit=True" not in text, (
+        "the product path must not switch on the campaign's grading hooks")

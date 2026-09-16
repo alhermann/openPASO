@@ -36,9 +36,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 WRONG = ROOT / "campaign3_blind" / "runs" / "C2_27b_MCP_seed303" / "work"
-RIGHT = Path("/tmp/claude-1001/-home-alexander-4C/"
-             "b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/c2_real/"
-             "submission")
+# A C2 submission graded CORRECT, kept outside the repository. Point at it to run the
+# checks that need it; they skip otherwise.
+RIGHT = Path(__import__("os").environ.get("OPENPASO_C2_CORRECT_SUBMISSION", "/nonexistent"))
 
 
 def _tool():
@@ -230,9 +230,7 @@ def test_it_fires_on_the_real_run_at_every_level_not_just_one():
 
 
 def test_it_is_silent_on_a_submission_that_grades_correct():
-    ref = Path("/tmp/claude-1001/-home-alexander-4C/"
-               "b1c8e459-ec06-467a-bad7-474c8459f0f3/scratchpad/c2_real/"
-               "submission")
+    ref = RIGHT
     if not ref.exists():
         import pytest as _p
         _p.skip("reference submission not on this machine")
@@ -325,9 +323,7 @@ def test_both_fire_on_the_real_runs_and_not_on_the_reference():
             import pytest as _p
             _p.skip(f"{run} absent")
         assert [f for f in _all_findings(w) if phrase in f["finding"]], run
-    ref = Path("/tmp/claude-1001/-home-alexander-4C/"
-               "b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/c2_real/"
-               "submission")
+    ref = RIGHT
     if ref.exists():
         assert _all_findings(ref) == []
 

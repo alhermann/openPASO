@@ -152,7 +152,7 @@
   -0.00011816808662953735,
   0.0
  ],
- "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/fsi_channel_plate.4C.yaml",
+ "deck": "$FSI_STUDY_DIR/fsi_channel_plate.4C.yaml",
  "steps": 400,
  "dt": 0.005,
  "t_end": 2.0,
@@ -2219,7 +2219,7 @@
  "variant_study": [
   {
    "note": "PRIMARY (deck as specified)",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/fsi_channel_plate.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/fsi_channel_plate.4C.yaml",
    "mesh_fluid": "48x10",
    "mesh_structure": "48x4",
    "EAS": "none",
@@ -2236,11 +2236,11 @@
    "fsi_interface_net_Fy": 137.1942969497456,
    "last_step_rel_change_of_max_dy": 1.2042472608389438e-07,
    "ale_vs_structure_max_dy_mismatch": 4.85722573273506e-17,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/fourc_reference.json"
+   "json": "$FSI_STUDY_DIR/fourc_reference.json"
   },
   {
    "note": "dt check: dt=0.01 x 200 instead of 0.005 x 400",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_dtchk.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_dtchk.4C.yaml",
    "mesh_fluid": "48x10",
    "mesh_structure": "48x4",
    "EAS": "none",
@@ -2257,11 +2257,11 @@
    "fsi_interface_net_Fy": 137.19008055904445,
    "last_step_rel_change_of_max_dy": 8.919697129148776e-07,
    "ale_vs_structure_max_dy_mismatch": 3.469446951953614e-17,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_dtchk.json"
+   "json": "$FSI_STUDY_DIR/ref_v_dtchk.json"
   },
   {
    "note": "coupling variant: iter_monolithicstructuresplit",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_ss.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_ss.4C.yaml",
    "mesh_fluid": "48x10",
    "mesh_structure": "48x4",
    "EAS": "none",
@@ -2278,11 +2278,11 @@
    "fsi_interface_net_Fy": 50.66483675468994,
    "last_step_rel_change_of_max_dy": 1.167059024477557e-07,
    "ale_vs_structure_max_dy_mismatch": 5.377642775528102e-17,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_ss.json"
+   "json": "$FSI_STUDY_DIR/ref_v_ss.json"
   },
   {
    "note": "geometrically linear plate",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_lin.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_lin.4C.yaml",
    "mesh_fluid": "48x10",
    "mesh_structure": "48x4",
    "EAS": "none",
@@ -2299,11 +2299,11 @@
    "fsi_interface_net_Fy": 137.01550859335322,
    "last_step_rel_change_of_max_dy": 1.2038277871147789e-07,
    "ale_vs_structure_max_dy_mismatch": 3.469446951953614e-17,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_lin.json"
+   "json": "$FSI_STUDY_DIR/ref_v_lin.json"
   },
   {
    "note": "EAS Q1E4 plate (locking-free)",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_eas.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_eas.4C.yaml",
    "mesh_fluid": "48x10",
    "mesh_structure": "48x4",
    "EAS": "full",
@@ -2320,11 +2320,11 @@
    "fsi_interface_net_Fy": 136.5946149059725,
    "last_step_rel_change_of_max_dy": 1.1197769746756326e-07,
    "ale_vs_structure_max_dy_mismatch": 3.469446951953614e-17,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_eas.json"
+   "json": "$FSI_STUDY_DIR/ref_v_eas.json"
   },
   {
    "note": "EAS Q1E4, plate refined 2x through thickness",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_easfine.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_easfine.4C.yaml",
    "mesh_fluid": "48x10",
    "mesh_structure": "48x8",
    "EAS": "full",
@@ -2341,11 +2341,11 @@
    "fsi_interface_net_Fy": 136.58853025192903,
    "last_step_rel_change_of_max_dy": 1.1162451186791987e-07,
    "ale_vs_structure_max_dy_mismatch": 3.9898639947466563e-17,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_easfine.json"
+   "json": "$FSI_STUDY_DIR/ref_v_easfine.json"
   },
   {
    "note": "uniformly refined mesh",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_fine.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_fine.4C.yaml",
    "mesh_fluid": "96x20",
    "mesh_structure": "96x8",
    "EAS": "none",
@@ -2362,11 +2362,11 @@
    "fsi_interface_net_Fy": 137.05447408322883,
    "last_step_rel_change_of_max_dy": 6.01239972973544e-07,
    "ale_vs_structure_max_dy_mismatch": 4.5102810375396984e-17,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_fine.json"
+   "json": "$FSI_STUDY_DIR/ref_v_fine.json"
   },
   {
    "note": "uniformly refined + geometrically linear plate",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_finlin.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_finlin.4C.yaml",
    "mesh_fluid": "96x20",
    "mesh_structure": "96x8",
    "EAS": "none",
@@ -2383,11 +2383,11 @@
    "fsi_interface_net_Fy": 136.83060911137767,
    "last_step_rel_change_of_max_dy": 3.1684221632652174e-07,
    "ale_vs_structure_max_dy_mismatch": 3.469446951953614e-17,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_finlin.json"
+   "json": "$FSI_STUDY_DIR/ref_v_finlin.json"
   },
   {
    "note": "SANITY: quasi-rigid top wall (E x1000)",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_rigid.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_rigid.4C.yaml",
    "mesh_fluid": "48x10",
    "mesh_structure": "48x4",
    "EAS": "none",
@@ -2404,11 +2404,11 @@
    "fsi_interface_net_Fy": 147.5085376787924,
    "last_step_rel_change_of_max_dy": 7.80376723293566e-05,
    "ale_vs_structure_max_dy_mismatch": 4.743384504624082e-20,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_rigid.json"
+   "json": "$FSI_STUDY_DIR/ref_v_rigid.json"
   },
   {
    "note": "SANITY: quasi-rigid top wall, refined fluid",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_rigidfine.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_rigidfine.4C.yaml",
    "mesh_fluid": "96x20",
    "mesh_structure": "96x4",
    "EAS": "none",
@@ -2425,11 +2425,11 @@
    "fsi_interface_net_Fy": 147.9392486653216,
    "last_step_rel_change_of_max_dy": 3.940123913441157e-05,
    "ale_vs_structure_max_dy_mismatch": 3.3881317890172014e-20,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_rigidfine.json"
+   "json": "$FSI_STUDY_DIR/ref_v_rigidfine.json"
   },
   {
    "note": "SANITY: quasi-rigid top wall, 40 cells across channel",
-   "deck": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/v_rigidy40.4C.yaml",
+   "deck": "$FSI_STUDY_DIR/v_rigidy40.4C.yaml",
    "mesh_fluid": "48x40",
    "mesh_structure": "48x4",
    "EAS": "none",
@@ -2446,7 +2446,7 @@
    "fsi_interface_net_Fy": 148.35706464660083,
    "last_step_rel_change_of_max_dy": 3.783022312881191e-05,
    "ale_vs_structure_max_dy_mismatch": 3.7269449679189215e-20,
-   "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_rigidy40.json"
+   "json": "$FSI_STUDY_DIR/ref_v_rigidy40.json"
   }
  ],
  "structure_only_discretisation_study": {

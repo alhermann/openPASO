@@ -17,7 +17,10 @@ import sys as _sys; from pathlib import Path as _P
 _sys.path.insert(0, str(_P(__file__).resolve().parents[2] / 'scripts'))
 import _host_roots  # noqa: E402
 
-SD = "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi"
+# Where the study's decks and runs live. It was one session's scratch folder; set FSI_STUDY_DIR
+# to rerun, else it defaults to a work/ folder beside these scripts.
+import os as _os
+SD = _os.environ.get("FSI_STUDY_DIR") or _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "work")
 FOURC = _host_roots.fourc_binary()
 ENV = dict(os.environ, LD_LIBRARY_PATH="/opt/4C-dependencies/lib")
 

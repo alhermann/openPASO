@@ -36,11 +36,20 @@ PLACEHOLDER_NAMES = {"user", "you", "youruser", "someuser", "username",
 HOME_PATH = re.compile(r"(?:/home/|/Users/|(?<![\w.-])/media/)([A-Za-z0-9._-]+)/")
 
 
+# A home directory can also arrive ENCODED into another path: tools that keep per-project folders
+# spell /home/<name>/project as -home-<name>-project (a Claude Code scratch folder, for one). Found
+# 2026-09-17 in 33 lines of a benchmark and a test that neither pattern above could see.
+ENCODED_HOME = re.compile(r"(?:^|[/\s\"'])-home-([A-Za-z0-9._]+)-")
+
+
 def identifies_a_person(line: str) -> str | None:
     """The first home path in `line` that names someone, or None."""
     for match in HOME_PATH.finditer(line):
         if match.group(1) not in PLACEHOLDER_NAMES:
             return match.group(0)
+    for match in ENCODED_HOME.finditer(line):
+        if match.group(1) not in PLACEHOLDER_NAMES:
+            return match.group(0).strip()
     return None
 
 # The whole repository. The evaluation campaign, which is the one thing that

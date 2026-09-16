@@ -13,7 +13,7 @@
   "p_inflow_mean": 272.513471696959,
   "fsi_interface_net_Fy": 137.1942969497456,
   "last_step_rel_change": 1.2042472608389438e-07,
-  "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/fourc_reference.json"
+  "json": "$FSI_STUDY_DIR/fourc_reference.json"
  },
  {
   "case": "v_dtchk",
@@ -29,6 +29,6 @@
   "p_inflow_mean": 272.50696938807505,
   "fsi_interface_net_Fy": 137.19008055904445,
   "last_step_rel_change": 8.919697129148776e-07,
-  "json": "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi/ref_v_dtchk.json"
+  "json": "$FSI_STUDY_DIR/ref_v_dtchk.json"
  }
 ]

@@ -32,7 +32,8 @@ SRC = ROOT / "src"
 CONTRACTS = ROOT / "data" / "coupling_participants"
 sys.path.insert(0, str(SRC))
 
-VENV = Path("/home/alexander/Schreibtisch/open-fem-agent/.venv/bin/python")
+# The interpreter the participants run in: OPENPASO_PYTHON if set, else this checkout's .venv.
+VENV = Path(__import__("os").environ.get("OPENPASO_PYTHON") or ROOT / ".venv" / "bin" / "python")
 LEVELS = ((1, 6), (2, 12))
 
 pytestmark = pytest.mark.skipif(

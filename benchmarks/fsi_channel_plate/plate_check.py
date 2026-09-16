@@ -26,8 +26,7 @@ Y0, Y1, L = 0.2, 0.25, 1.0
 
 import sys
 PFILE = sys.argv[1] if len(sys.argv) > 1 else (
-    "/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/"
-    "scratchpad/fourc_fsi/iface_p.npy")
+    __import__("os").path.join(__import__("os").environ.get("FSI_STUDY_DIR", "work"), "iface_p.npy"))
 xp, pp = np.load(PFILE)
 # the very last node sits on the do-nothing outlet and carries a local BC artifact;
 # replace it by linear extrapolation of the clean interior trend

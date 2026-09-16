@@ -1,6 +1,6 @@
 #!/bin/bash
 # $1 = case tag
-SD=/tmp/claude-1001/-home-alexander-4C/b1c8e459-ec06-467a-bad7-474c74f9d0f3/scratchpad/fourc_fsi
+SD=${FSI_STUDY_DIR:-$(cd "$(dirname "$0")" && pwd)/work}
 T=$1
 rm -rf $SD/run_$T; mkdir -p $SD/run_$T; cd $SD/run_$T
 S=$(date +%s)

@@ -8928,7 +8928,7 @@ sees nothing but this task= string (measured: a worker whose brief kept
     own interpreter (generous timeout, first runs compile) until
     ./side_A/exports.json appears with finite values. CHECK: exports.json
     exists and the script exited 0. Report DONE or the exact error.")
-Then the same for side B.
+THEN A SECOND WORKER FOR SIDE B, WITH THE SAME CARE. Its brief carries side B's OWN geometry, equations, boundary values, level-1 mesh and file names, its own knowledge(topic='coupling', solver='<side B's code>', physics=...) call, and ITS interpreter -- a different binary from side A's in most pairs. The worker sees nothing but its task= string, so "the same as side A" tells it nothing. Same check: ./side_B/exports.json with finite values, exit 0. Measured: 151 runs ended with one side exporting and the other with no exports.json at all; the silent one is side B 117 times of 144, and every backend appears there, including codes that ran on the other side of another cell. One side is not a coupling and scores nothing.
 
 THAT CODE'S OWN INTERPRETER IS PRINTED BY discover(query='list'), next to the
 backend, and it is the argv `couple` needs as well. The default `python3` is
@@ -8967,10 +8967,9 @@ code ships one; without the word the reply leads with the steady scalar
 contract. THE ROLES COME FROM THE TASK: when it says which
 subdomain is the Dirichlet side and which the Neumann side, that is fixed.
 Each served contract states which side it is (some carry both behind a SIDE
-switch, some are one side); take the one for the role your task gives that
-code, and if the code's served text has no contract for that role, say so in
-your first worker brief and keep the served handshake, flux recovery and
-exports schema of the other side as the pattern to follow.
+switch); take the one for the role your task gives that code, and where the
+code ships none for that role, keep the other side's served handshake,
+recovery and exports schema as the pattern.
 It returns that code's participant CONTRACT: how to read
 ./config.json for the level and ./imports.json, the interface sign convention,
 the consistent outward-flux recovery you apply to your OWN assembled system, the
@@ -9248,18 +9247,17 @@ number is where the wrong one comes from: measured on a coupled run whose mesh
 really did refine, side A's log opened with `NDOF = 1` at every level and the
 submission was rejected for an unrefined mesh. If your own participant does not
 print the line, add the print INSIDE it rather than in front of the log.
-Measured, on the same problem and the same two codes: a real capture is 2947 and
-1476 bytes and carries the solver's banner; a hand-written summary is 56 and 68
-bytes. One run invoked the binary correctly under `stdbuf -oL -eL`, captured
-its output into a variable, drove the interface iteration to 4.4e-07 and
-reached an order of 1.94 against an independent reference -- then wrote three
-lines of its own prose into the log and could not be credited with any of it.
+Measured on one problem: a real capture is 1476-2947 bytes and carries the
+solver's banner, a hand-written summary 56-68. One run captured its output
+correctly, drove the interface to 4.4e-07 and reached order 1.94 against an
+independent reference -- then wrote three lines of its own prose into the log
+and could not be credited with any of it.
 Some codes need one line to
-say anything at all: FEniCSx `dolfinx.log.set_log_level(LogLevel.INFO)`,
+print anything: FEniCSx `dolfinx.log.set_log_level(LogLevel.INFO)`,
 deal.II `deallog.depth_console(2)` AND a SolverControl with log_history/
 log_result, NGSolve `ngsglobals.msg_level = 3`, DUNE-fem
 `parameters={"linear.verbose": True}`, scikit-fem `logging.basicConfig(
-level=logging.INFO)` whose output goes to STDERR. Kratos, 4C, FEBio and SPARTA
+level=logging.INFO)`, which prints to STDERR. Kratos, 4C, FEBio and SPARTA
 print by default.
 
 AND THE DRIVER ALREADY KEPT EACH LEVEL'S CONSOLE FOR YOU. `couple` saves every

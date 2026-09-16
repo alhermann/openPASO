@@ -116,3 +116,6 @@ eval_interactive/
 # Recorded web-interface runs: prompts, model output and the local work
 # directory of whoever ran them. Never product, and they carry home paths.
 data/webui_sessions/
+
+# npm install output; `npm ci` in ui/ recreates it from package-lock.json.
+node_modules/

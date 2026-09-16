@@ -66,6 +66,21 @@ def exported(workdir: Path) -> tuple[bool, int, float]:
             continue
         if not isinstance(data, dict):
             continue
+        # A FILE IN THE WRONG ENVELOPE IS NOT A MISSING FILE, and reporting it
+        # as one loses the whole diagnosis. `imports.json` is keyed by partner
+        # -- {"A": {...}} -- while `exports.json` is FLAT. One trial mirrored
+        # the imports envelope onto its exports, so 44 correct points read as
+        # "no file" until this looked inside.
+        #
+        # Worth a caution before blaming the model for it: this harness's own
+        # task text describes the imports envelope explicitly, which the
+        # campaign's task text does not, and across 801 exports.json files in
+        # the graded record NOT ONE is wrapped. The mistake may be the prompt's.
+        if "coordinates" not in data and len(data) == 1:
+            inner = next(iter(data.values()))
+            if isinstance(inner, dict) and "coordinates" in inner:
+                data = dict(inner)
+                data["_wrapped_envelope"] = True
         for key in ("values", "value", "field"):
             v = data.get(key)
             if not (isinstance(v, list) and v):
@@ -77,6 +92,10 @@ def exported(workdir: Path) -> tuple[bool, int, float]:
             peak = max(nums) if nums else 0.0
             if peak > best[2] or not best[0]:
                 best = (True, len(v), peak)
+                if data.get("_wrapped_envelope"):
+                    print("      note: exports.json was wrapped in a side key; "
+                          "the driver reads it flat and would reject it",
+                          flush=True)
     return best
 
 

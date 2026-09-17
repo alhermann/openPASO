@@ -66,10 +66,13 @@ def test_each_side_keeps_its_console_for_the_named_level(tmp_path, couple_tool, 
         r = asyncio.run(r)
     out = json.loads(str(r))
     assert out.get("converged"), {k: out.get(k) for k in ("error", "reason", "why", "history", "verdict")}
-    # the converged reply LEADS with the one-call mesh sequence and keeps the {k} placeholder literal
-    # (round 25: six proven couplings ran couple() per level and the wall cut them; 0 audit_results calls)
+    # the converged reply leads with this level's run logs FIRST (measured: left to the end they were
+    # lost in all but 2-4 cells of 9), then names the one-call mesh sequence with {k} kept literal
+    # (round 25: six proven couplings ran couple() per level and the wall cut them)
     lead = out.get("what_to_fix_next") or ""
-    assert "couple_levels(" in lead[:900] and "{k}" in lead, lead[:600]
+    assert "FIRST, WRITE THIS LEVEL'S RUN LOGS" in lead, lead[:600]
+    assert "couple_levels(" in lead and "{k}" in lead, lead[:600]
+    assert lead.index("FIRST, WRITE THIS LEVEL'S RUN LOGS") < lead.index("couple_levels("), lead[:600]
     # the participants list is echoed verbatim (the worker sees only the brief; a placeholder got bare names)
     assert "participants='[{\"name\": \"A\"" in lead and str(tmp_path / "side_A") in lead, lead[:1200]
     assert "<the same list" not in lead

@@ -47,7 +47,7 @@ def test_two_components_become_one_field(view):
     out = view(seqs)
     assert "selfdiff_solution_A_ux" not in out
     assert "selfdiff_solution_A_uy" not in out
-    assert out["selfdiff_solution_A_u"] == pytest.approx([5.0, 2.5])
+    assert out["selfdiff_solution_A_u|vector"] == pytest.approx([5.0, 2.5])
 
 
 def test_a_column_with_no_axis_stands_alone(view):
@@ -57,7 +57,7 @@ def test_a_column_with_no_axis_stands_alone(view):
             "selfdiff_solution_A_uy": [4.0, 2.0]}
     out = view(seqs)
     assert out["selfdiff_solution_A_T"] == [300.0, 299.0]
-    assert out["selfdiff_solution_A_u"] == pytest.approx([5.0, 2.5])
+    assert out["selfdiff_solution_A_u|vector"] == pytest.approx([5.0, 2.5])
 
 
 def test_one_axis_alone_is_not_a_vector(view):

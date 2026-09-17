@@ -453,62 +453,6 @@ def _one_sequence(by_level: dict, key: tuple, _csv) -> dict[str, list[float]]:
 
 
 
-def _vector_order_view(seqs: dict) -> dict:
-    """Judge a vector field by the vector, not by each Cartesian column.
-
-    A DISPLACEMENT IS ONE FIELD. These sequences are built per CSV column, so a
-    vector answer arrives as `selfdiff_solution_A_ux` and `..._uy` and each is
-    judged alone. The transverse component of a correct answer is routinely far
-    smaller than the axial one and sits near the coupling iteration's own
-    floor, so it reads as "refinement is changing nothing" while the FIELD is
-    converging perfectly well.
-
-    Measured on C9 seed 8791, graded CORRECT: the FLOOR check fired on it. It
-    could not have been seen earlier because every CORRECT cell in the record
-    before this family was scalar -- one column per side -- so the defect had
-    no way to show itself.
-
-    The join is exact rather than approximate. These entries are RMS over the
-    probe points, so for one vector
-
-        RMS(|du|)^2 = RMS(du_x)^2 + RMS(du_y)^2
-
-    and the vector sequence is the root-sum-of-squares of its components,
-    element by element. No threshold and no tuning constant.
-
-    Columns join ONLY when the agent's own names say they are one field:
-    identical after a trailing x/y/z is removed, and at least two distinct axes
-    present. A column with no axis suffix always stands alone, so a workspace
-    shipping `T, ux, uy` never folds a temperature into a displacement, and a
-    scalar workspace passes through unchanged.
-    """
-    import math as _m
-    import re as _re
-
-    groups: dict[str, dict[str, list]] = {}
-    for label, seq in seqs.items():
-        if not label.startswith("selfdiff_"):
-            continue
-        m = _re.match(r"^(.*?)([xyz])$", label)
-        if not m or not m.group(1):
-            continue
-        groups.setdefault(m.group(1), {})[m.group(2)] = seq
-
-    out = dict(seqs)
-    for base, axes in groups.items():
-        if len(axes) < 2:
-            continue                      # one axis is not a vector
-        lengths = {len(s) for s in axes.values()}
-        if len(lengths) != 1 or not lengths:
-            continue                      # ragged: leave the columns alone
-        joined = [_m.sqrt(sum(s[i] ** 2 for s in axes.values()))
-                  for i in range(lengths.pop())]
-        for axis in axes:
-            out.pop(base + axis, None)
-        out[base.rstrip("_")] = joined
-    return out
-
-
 def residual_findings(work: Path) -> list[dict]:
     """What the coupling residual history says about itself.
 

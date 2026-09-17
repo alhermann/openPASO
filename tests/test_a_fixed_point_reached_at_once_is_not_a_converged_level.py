@@ -27,6 +27,13 @@ print("NDOF = 7")
 '''
 
 
+# THE CONVERGED LEAD ORDER CHANGED ON PURPOSE (merged from the campaign line, couple() of
+# 2026-09-15/16): after "LEVEL k CONVERGED." it may first ask for the equation check, then says
+# "FIRST, WRITE THIS LEVEL'S RUN LOGS" -- measured: deferring the logs to the end lost them in
+# all but 2-4 cells of 9. What these tests guard is unchanged: a live pair leads as CONVERGED,
+# a fixed point reached at once does not.
+
+
 def _couple():
     from mcp.server.fastmcp import FastMCP
     from core.registry import load_all_backends
@@ -70,7 +77,7 @@ def test_two_deaf_participants_are_not_led_as_a_converged_level(tmp_path):
 def test_a_live_pair_keeps_the_converged_lead(tmp_path):
     d = _run(tmp_path, ALIVE.replace("{A}", "1.0"), ALIVE.replace("{A}", "2.0"))
     assert d["converged"] is True and d["iterations"] >= 3
-    assert d["what_to_fix_next"].startswith("LEVEL 1 CONVERGED. FIRST"), d["what_to_fix_next"][:200]
+    assert d["what_to_fix_next"].startswith("LEVEL 1 CONVERGED."), d["what_to_fix_next"][:200]
 
 
 def test_a_dump_with_the_agents_own_suffix_is_not_reported_missing(tmp_path):
@@ -80,4 +87,4 @@ def test_a_dump_with_the_agents_own_suffix_is_not_reported_missing(tmp_path):
              ALIVE.replace("{A}", "2.0").replace('print("NDOF = 7")', 'print("NDOF = 7")\nPath("field_level1_B.csv").write_text("x,y,u\\n0,0,1\\n")\nPath("interface_level1_B.csv").write_text("x,y,u,qn\\n0,0,1,0\\n")'))
     lead = d["what_to_fix_next"]
     assert "PER-LEVEL DUMPS ARE MISSING" not in lead, lead[:400]
-    assert lead.startswith("LEVEL 1 CONVERGED. FIRST"), lead[:200]
+    assert lead.startswith("LEVEL 1 CONVERGED."), lead[:200]

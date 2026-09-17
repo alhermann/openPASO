@@ -31,14 +31,12 @@ _DELIBERATELY_UNREACHABLE = {
         "its own docstring",
     "rediscover_backends":
         "mutates the install; a blind run is immutable by construction",
-    "verify_interface_flux":
-        "UNRESOLVED — a verification gate of the same class as "
-        "verify_pde_consistency, which IS exposed. Named once in served text. "
-        "Excluded here to keep this change to what was agreed, not because the "
-        "exclusion is known to be right.",
+    # verify_interface_flux was listed here as UNRESOLVED. openPASO main resolved it: the tool is
+    # reachable (tests/test_what_openpaso_recommends_is_reachable.py), because it is a verification
+    # gate of the same class as verify_pde_consistency, which is exposed.
     "transfer_field":
-        "UNRESOLVED — a utility named once, in the server instructions. Same "
-        "caveat as verify_interface_flux.",
+        "UNRESOLVED — a utility named once, in the server instructions. Not "
+        "yet decided either way.",
 }
 
 

@@ -39,6 +39,10 @@ REMOVE = (
     ".github/workflows/knowledge-freshness.yml",      # runs the test suite, which is not shipped
     "product_vid.md", "clear_history.sh", "check_solver_updates.sh",
     "ONBOARDING*", "HANDOFF*", "*.log", "ui/node_modules/*", "langgraph_eval/test_*.py",
+    # THE WEB INTERFACE SHIPS SEPARATELY, when its rewrite is committed and reviewed on its own.
+    # The version in this tree is the older one; a Copilot review of the first sync (Hereon PR #55)
+    # found three defects in it that the rewrite in progress replaces.
+    "ui/*", "webui/*", "docs/use/web-interface.md",
 )
 
 # src/blind_eval: the product's own tools import exactly these two modules (verify_interface_flux,
@@ -81,6 +85,7 @@ EDITS = (
      f'repository-code: "https://github.com/{PRODUCT_REPO}"'),
     ("mkdocs.yml", f"site_url: {DEV_SITE}/", f"site_url: {PRODUCT_SITE}/"),
     ("mkdocs.yml", f"repo_url: https://github.com/{DEV_REPO}", f"repo_url: https://github.com/{PRODUCT_REPO}"),
+    ("mkdocs.yml", "      - Web interface: use/web-interface.md\n", ""),
     # a comment in a kept module names a file of the evaluation campaign, which is not shipped
     ("src/blind_eval/evidence.py", "    # campaign3_blind/grading/evidence2.py for the run-log contract: a",
      "    # the evaluation grader for the run-log contract: a"),

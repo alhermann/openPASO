@@ -86,6 +86,12 @@ EDITS = (
     ("mkdocs.yml", f"site_url: {DEV_SITE}/", f"site_url: {PRODUCT_SITE}/"),
     ("mkdocs.yml", f"repo_url: https://github.com/{DEV_REPO}", f"repo_url: https://github.com/{PRODUCT_REPO}"),
     ("mkdocs.yml", "      - Web interface: use/web-interface.md\n", ""),
+    ("CITATION.cff",
+     "  This is the development repository of openPASO. The released product is\n"
+     "  Hereon-InstituteMS/openPASO, first published as OASiS; the DOIs below archive\n"
+     "  it under that name. Please cite the archived release.\n",
+     "  openPASO was first published as OASiS; the DOIs below archive it under that\n"
+     "  name. Please cite the archived release.\n"),
     # a comment in a kept module names a file of the evaluation campaign, which is not shipped
     ("src/blind_eval/evidence.py", "    # campaign3_blind/grading/evidence2.py for the run-log contract: a",
      "    # the evaluation grader for the run-log contract: a"),

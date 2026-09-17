@@ -309,16 +309,12 @@ WHAT IS APPROXIMATED, HONESTLY.
     solver, so it cannot see a fault inside FEBio's own load path, and it is
     close to an echo of the partner's array in everything except the assembly.
     The interface balance check against a Dirichlet partner is therefore
-    weaker on this pairing than the header used to claim, and the element
-    stress is kept as the genuinely independent second opinion — PRINTED with
-    its discrepancy, not exported, because it does not converge in the max norm
-    over interior interface nodes (see the note at that code). A previous
-    version of this bullet said the Neumann export IS the element-stress
-    recovery "so the interface balance check is an independent statement rather
-    than an echo". Both halves were false once the export changed.
+    weaker on this pairing, and the element stress is kept as the genuinely
+    independent second opinion — PRINTED with its discrepancy, not exported,
+    because it does not converge in the max norm over interior interface nodes
+    (see the note at that code).
 
-RELAXATION IS NOT PER COMPONENT — see the long note in
-participant_skfem_elastic.py. The driver applies ONE theta to the whole
+RELAXATION IS NOT PER COMPONENT. The driver applies ONE theta to the whole
 interface state and the optimal theta is set by the WORST component, so
 subdomains of the same length and Poisson ratio (proportional
 Steklov-Poincare operators) are the well-behaved case; anything else wants
@@ -410,10 +406,8 @@ LOG_R = "cpl_r.csv"        # Rx, Ry at the interface nodes (Dirichlet side only)
 LOG_E = "cpl_e.csv"        # sx, sxy per element (Neumann side only)
 
 
-# ── THE PER-LEVEL RULE (served). A ./config.json {"level": k, "nx": .., "ny": ..}
-#    next to this script overrides the mesh knobs and names the level. The dumps
-#    at the foot of this file carry that level in their NAME, so a mesh study
-#    leaves one file per level instead of the fine mesh overwriting the coarse.
+# ── THE PER-LEVEL RULE (served). ./config.json {"level": k, "nx": .., "ny": ..}
+#    sets the mesh and names the level; the dumps below carry it in their NAME.
 LEVEL = 1
 if Path("config.json").is_file() or os.environ.get("OPENPASO_CONFIG_JSON"):
     try:
@@ -988,14 +982,9 @@ print(f"[febio {SIDE}] interface n={len(U)} "
       f"tx=[{Q[:,0].min():.6g},{Q[:,0].max():.6g}] "
       f"ty=[{Q[:,1].min():.6g},{Q[:,1].max():.6g}]")
 
-# PER-LEVEL PERSISTENCE: this level's interface trace and traction, and -- when
-# the deck logged the whole mesh -- this level's field, named by LEVEL.
-# exports.json is overwritten by the next level; these files are not.
-# Interpolate THESE onto the probe points your task names. A file the next
-# level overwrites cannot carry a mesh study.
-# A DUMP DEFECT MUST NOT COST YOU THE SOLVE. exports.json is the driver's
-# proof that this participant succeeded, and it is written after these files,
-# so an exception here would throw away a coupling iteration that worked.
+# PER-LEVEL PERSISTENCE: this level's interface and field, named by LEVEL, which
+# the next level does not overwrite. Interpolate THESE onto the probe points your
+# task names. A dump defect must not cost the solve: exports.json comes after.
 try:
     with open(f"interface_level{LEVEL}.csv", "w") as _f:
         _f.write("x,y,ux,uy,qx,qy\n")
@@ -1004,11 +993,9 @@ try:
                         else (float(_yy), float(IFACE_X)))
             _f.write(f"{_px:.11e},{_py:.11e},{float(_ux):.11e},"
                      f"{float(_uy):.11e},{float(_qx):.11e},{float(_qy):.11e}\n")
-    # FEBio is XML-in / logfile-out, so the FIELD comes from the deck's own whole-mesh
-    # node log -- <node_data data="x;y;z;ux;uy;uz" delim="," file="nodal_out.csv"/>
-    # with NO node_set, inside <Output><logfile>. Without that one line there is no
-    # field to hand in, whatever the solve did. This slab is one element thick in z,
-    # so the two z-layers of a node average to its plane value.
+    # The FIELD comes from the deck's whole-mesh node log (<node_data ... file=
+    # "nodal_out.csv"/>, NO node_set); without it there is no field. The slab is
+    # one element thick, so a node's two z-layers average to its plane value.
     if Path(LOG_F).is_file():
         _acc = {}
         _body = Path(LOG_F).read_text().split("*Step")[-1]
@@ -1034,9 +1021,7 @@ try:
               f'data="x;y;z;ux;uy;uz" delim="," file="{LOG_F}"/> (no node_set) '
               f"inside <Output><logfile> and run this level again.")
 except Exception as _dump_exc:
-    # AND LEAVE NO HALF-WRITTEN FILE BEHIND. `open(..., "w")` truncates
-    # before it fails, so a dump that died mid-way leaves a header-only
-    # CSV -- a file that looks like a submission and carries no rows.
+    # Leave no header-only CSV behind: it looks like a submission.
     for _partial in (f"field_level{LEVEL}.csv", f"interface_level{LEVEL}.csv"):
         try:
             if Path(_partial).is_file() and len(
@@ -1045,18 +1030,12 @@ except Exception as _dump_exc:
         except OSError:
             pass
     print(f"[febio_elastic per-level dump] level {LEVEL} dump failed: "
-          f"{_dump_exc!r}. exports.json is still written, so the coupling\n"
-          f"continues, but this level has no field file to hand in. Fix the\n"
-          f"names the dump reads and run this level again.")
+          f"{_dump_exc!r}. The coupling continues, but this level has no "
+          f"field file; fix the dump and run this level again.")
 
 # exports.json LAST: the driver takes its existence as proof of success.
-# THE RUN-LOG CONTRACT LINE: `NDOF = <integer>` on a line of its OWN, printed
-# PER LEVEL -- it is how a grader tells a refined mesh from the same mesh run
-# three times. Two displacement dofs per in-plane node, counted from the
-# whole-mesh node log the field dump above read; without that log this script
-# cannot count them, and says so rather than printing a number it guessed. The
-# leading newline is deliberate: a program that writes without a trailing
-# newline glues its text onto the front of the next line.
+# `NDOF = <integer>` on a line of its OWN, per level: two dofs per in-plane node
+# from the node log above, never a guess. The leading newline keeps it unglued.
 try:
     print(f"\nNDOF = {2 * len(_acc)}")
 except NameError:
@@ -1064,11 +1043,9 @@ except NameError:
           f"node data, so there is no node count to report. Your task's "
           f"execution log needs `NDOF = <integer>` on a line of its own.")
 
-# ── EXPORT SELF-CHECK ─ keep this block. It stops the three exports that look
-#    fine and are worthless: a non-finite field; a Neumann side whose imported
-#    load never entered the assembled system (it returns the no-load answer and
-#    a traction of ~0 against a nonzero partner); and a traction that is the
-#    partner's array negated instead of a recovery from THIS side's own system.
+# ── EXPORT SELF-CHECK ─ keep this block. It stops three exports that look fine
+#    and are worthless: non-finite values, an imported load that never entered the
+#    system, and the partner's traction negated instead of recovered.
 _chk_vals = np.asarray(U, float).ravel()
 _chk_flux = np.asarray(Q, float).ravel()
 if not (np.isfinite(_chk_vals).all() and np.isfinite(_chk_flux).all()):

@@ -1069,30 +1069,72 @@ _CONTRACT_DOOR = {
 }
 
 
-def _solvers_asked_about() -> set:
-    """Solver names this session has already fetched knowledge for."""
+def _solvers_asked_about(near=None):
+    """Solver names this session has fetched knowledge for, or None if unobservable.
+
+    NONE MEANS "CANNOT SEE", NOT "NOTHING ASKED". The journal is filled inside the
+    openPASO server, a separate process; this runs in whatever process hosts the
+    write hook, where the in-process journal is usually empty. So an empty
+    in-process journal proves nothing. The live record the server appends to its
+    session directory (a run's work/.openpaso_sessions) is looked for by walking up
+    from the file being judged. Only when some record is visible is an answer
+    given; otherwise None, and the caller must stay silent.
+    """
+    out, seen = set(), False
     try:
         from core.session_journal import get_journal          # noqa: PLC0415
         evs = getattr(get_journal(), "events", None) or []
     except Exception:                                          # noqa: BLE001
-        return set()
-    out = set()
+        evs = []
     for e in evs:
+        seen = True
         if getattr(e, "event_type", "") == "knowledge_lookup":
             s = (getattr(e, "solver", "") or "").strip().lower()
             if s:
                 out.add(s)
-    return out
+    if near is not None:
+        try:
+            import json as _json                                  # noqa: PLC0415
+            from pathlib import Path as _Path                      # noqa: PLC0415
+            d = _Path(near).resolve()
+            d = d if d.is_dir() else d.parent
+            for _ in range(8):
+                sess = d / ".openpaso_sessions"
+                if sess.is_dir():
+                    for f in sess.glob("session_*.jsonl"):
+                        for line in f.read_text(errors="ignore").splitlines():
+                            try:
+                                row = _json.loads(line)
+                            except ValueError:
+                                continue
+                            seen = True
+                            if row.get("event_type") == "knowledge_lookup":
+                                s = str(row.get("solver") or "").strip().lower()
+                                if s:
+                                    out.add(s)
+                if d.parent == d:
+                    break
+                d = d.parent
+        except Exception:                                      # noqa: BLE001
+            pass
+    return out if seen else None
 
 
-def contract_never_fetched(content: str) -> str:
-    """'' unless this participant is for a code whose contract was never asked for."""
+def contract_never_fetched(content: str, near=None) -> str:
+    """'' unless this participant is for a code whose contract was never asked for.
+
+    `near` is the path of the file being judged; it is how the live session record
+    is found. With no observable record the answer is '' -- see
+    _solvers_asked_about.
+    """
     if not isinstance(content, str) or not _EXPORTS_ANY.search(content):
         return ""                                   # not a participant
     codes = [c for c in backends_in(content) if c in _CONTRACT_DOOR]
     if not codes:
         return ""
-    asked = _solvers_asked_about()
+    asked = _solvers_asked_about(near)
+    if asked is None:
+        return ""                                   # cannot see the journal: say nothing
     missing = [c for c in codes if c not in asked]
     if not missing:
         return ""
@@ -1103,7 +1145,7 @@ def contract_never_fetched(content: str) -> str:
         f"it carries this code's interface handshake, its sign convention, its "
         f"consistent flux recovery and the API calls that stop its runs: "
         f"knowledge(topic='coupling', solver='{c}'). MEASURED, and it is where "
-        f"coupled runs die: of the recorded cells that got one side exporting "
+        f"coupled runs die: of the recorded runs that got one side exporting "
         f"and never the other, 17 of 22 had never fetched the silent side's "
         f"contract, and they averaged 26 write-run-error calls on it afterwards "
         f"with about 20 still in hand. Asking first costs one call.")

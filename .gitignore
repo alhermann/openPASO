@@ -122,3 +122,6 @@ node_modules/
 
 # Built documentation website (mkdocs build)
 /site/
+
+# the live per-event journal the server appends while a session runs
+/data/sessions/session_*.jsonl

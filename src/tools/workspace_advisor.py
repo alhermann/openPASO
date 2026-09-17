@@ -1224,7 +1224,7 @@ def _participant_write_check(written: Path, content: str) -> str:
     # coupled runs die and 17 of 22 such cells never fetched its contract.
     try:
         from tools.participant_lint import contract_never_fetched   # noqa: PLC0415
-        unasked = contract_never_fetched(content)
+        unasked = contract_never_fetched(content, near=written)
     except Exception:                                    # noqa: BLE001
         unasked = ""
     if unasked:

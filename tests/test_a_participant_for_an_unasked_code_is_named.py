@@ -14,9 +14,16 @@ contract at all** (DUNE 10 of 11, scikit-fem 6 of 9).
 NOTE ON THE ADMISSION TEST. Every other gate in this suite is required to be
 silent on the 33 served contracts as static files. That test does not apply
 here, because this gate's verdict depends on SESSION STATE rather than file
-content: with an empty journal every participant is one whose contract was
-never fetched, which is correct. The equivalent test is below -- silent on
-every served contract once its own code has been asked about.
+content. The equivalent test is below -- silent on every served contract once its
+own code has been asked about.
+
+CORRECTED 2026-09-17. This note used to say "with an empty journal every
+participant is one whose contract was never fetched, which is correct". It is not:
+an empty journal is what the harness sees when the journal lives in another
+process, and on that premise the gate fired in 19 recorded runs and was wrong in
+all 19. An EMPTY journal now means "cannot tell" and the gate stays silent; it
+speaks only when a journal is visible and lacks the fetch. See
+tests/test_a_check_that_cannot_see_the_journal_stays_silent.py.
 """
 import pathlib
 import sys
@@ -36,7 +43,9 @@ DUNE_PARTICIPANT = ('import dune.fem\n'
 
 
 @pytest.fixture(autouse=True)
-def _clean_journal():
+def _clean_journal(tmp_path, monkeypatch):
+    # recording now also appends a live line to disk; keep it out of the repo
+    monkeypatch.setenv("OPENPASO_JOURNAL_LIVE_DIR", str(tmp_path))
     j = get_journal()
     j.events.clear()
     yield
@@ -44,6 +53,8 @@ def _clean_journal():
 
 
 def test_it_names_a_code_this_run_never_asked_about():
+    # A visible journal that shows this session working, but no fetch for dune.
+    get_journal().record("tool_call", "discover")
     out = contract_never_fetched(DUNE_PARTICIPANT)
     assert "has not once" in out
     assert "knowledge(topic='coupling', solver='dune')" in out, (

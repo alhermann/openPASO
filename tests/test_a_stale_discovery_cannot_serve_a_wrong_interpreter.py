@@ -73,4 +73,22 @@ def test_a_verified_server_interpreter_is_a_valid_answer(monkeypatch):
             return sys.executable
     monkeypatch.setattr(importlib, "import_module",
                         lambda name, *a: _Fake if name == "backends.fenics.backend" else real(name, *a))
+    monkeypatch.setattr(hp, "_backend_works", lambda name: True)
     assert hp._from_backend("{FENICS_PYTHON}") == sys.executable
+
+
+def test_a_located_path_the_backend_calls_unavailable_is_not_served(monkeypatch, tmp_path):
+    """Copilot, Hereon PR #57: a finder that only locates must not be trusted on its own."""
+    monkeypatch.delenv("FEBIO_BINARY", raising=False)
+    fake = tmp_path / "febio4"
+    fake.write_text("")
+    import importlib
+    real = importlib.import_module
+    class _Fake:
+        @staticmethod
+        def _find_febio_binary():
+            return str(fake)
+    monkeypatch.setattr(importlib, "import_module",
+                        lambda name, *a: _Fake if name == "backends.febio.backend" else real(name, *a))
+    monkeypatch.setattr(hp, "_backend_works", lambda name: False)
+    assert hp._from_backend("{FEBIO_BINARY}") is None

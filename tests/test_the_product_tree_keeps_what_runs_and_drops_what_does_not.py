@@ -42,6 +42,22 @@ def test_blind_eval_keeps_exactly_what_the_served_tools_import():
     assert "src/blind_eval/keyvault.py" not in kept and "src/blind_eval/leakgate.py" not in kept
 
 
+def test_the_interface_keeps_its_own_fast_tests():
+    """Alexander, 2026-09-18: webui/tests ships. The interface makes checkable claims -- "Finished"
+    means a solver ran AND openPASO verified it, no home directory reaches the browser, Stop ends
+    every process a run started -- and these are how a contributor on a product clone checks them.
+    They need only webui and langgraph_eval, both of which ship."""
+    assert not mpt._removed("webui/tests/test_app.py")
+    assert not mpt._removed("webui/tests/__init__.py")
+    assert mpt._removed("tests/test_backends.py"), "the development suite still stays out"
+
+
+def test_a_runs_own_folder_never_ships():
+    """It holds the prompt, the model's output and someone's working directory."""
+    assert mpt._removed("eval_interactive/webui_abc123/uploads/mesh.msh")
+    assert mpt._removed("data/webui_sessions/abc.json")
+
+
 def test_development_material_is_dropped():
     for p in ("tests/test_backends.py", "scripts/rename_to_openpaso.py", "docs/CONSOLIDATION.md",
               "data/webui_sessions/x.json", "ui/node_modules/x/index.js", "product_vid.md"):

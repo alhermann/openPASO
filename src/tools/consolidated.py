@@ -1086,10 +1086,16 @@ def _stamp_verification(result: dict, *, evidence_ok: bool, reason: str = "",
     else:
         result["trustworthy_result"] = True
         result["verification"] = (
-            "VERIFIED — an independent critic reviewed this exact setup ("
+            "VERIFIED — a critic review of this exact setup is on record ("
             + critic_note + ") and the run passed openPASO's verification-gate "
             "numerical checks. This is verification, not validation: confirm "
-            "physical validity against reality yourself. "
+            "physical validity against reality yourself. WHAT THE REVIEW PART DOES "
+            "NOT PROVE: openPASO holds the review that was submitted and binds it to "
+            "this exact setup, but it cannot see who wrote it. A model that composes a "
+            "review of its own script and submits it reaches this line too — measured "
+            "on a live run whose critic sub-agent returned nothing at all. So read this "
+            "as 'a review exists and matches what ran', not as 'someone independent "
+            "approved it'. "
             "A VERIFIED arrangement is SETTLED: write its deliverable files "
             "now, from these numbers, then move to the next arrangement "
             "(finer level, next case). Re-running a verified arrangement "

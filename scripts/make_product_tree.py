@@ -31,7 +31,13 @@ PRODUCT_SITE = "https://hereon-institutems.github.io/openPASO"
 
 # Development-only paths, matched with fnmatch against repository-relative paths.
 REMOVE = (
-    "tests/*", "scripts/*", "benchmarks/*", "validation/*", "webui/tests/*",
+    # webui/tests/* STAYS (Alexander, 2026-09-18). The browser interface makes checkable claims --
+    # "Finished" means a solver ran AND openPASO verified it, no home directory reaches the browser,
+    # Stop ends every process a run started -- and those fast tests are how a contributor on a
+    # product clone checks them. They need only webui and langgraph_eval, both of which ship; the
+    # live suites need a key and say so. tests/, scripts/, benchmarks/ and validation/ stay out:
+    # they are the development evidence, which a user does not install.
+    "tests/*", "scripts/*", "benchmarks/*", "validation/*",
     "docs/CONSOLIDATION.md",
     # data the server never reads: build-time ledgers, fingerprints, grading studies, recordings
     "data/convergence/*", "data/fingerprints/*", "data/execution_ledger_*.json",
@@ -39,6 +45,9 @@ REMOVE = (
     ".github/workflows/knowledge-freshness.yml",      # runs the test suite, which is not shipped
     "product_vid.md", "clear_history.sh", "check_solver_updates.sh",
     "ONBOARDING*", "HANDOFF*", "*.log", "ui/node_modules/*", "langgraph_eval/test_*.py",
+    # a run's own folder: the prompt, the model output and someone's working directory. It is
+    # gitignored, and cut here as well in case the ignore ever slips.
+    "eval_interactive/*",
     # The web interface SHIPS. It was held out of the first sync (Hereon PR #55) only while its
     # rewrite was in flight; it goes to the product repository as its own pull request. Removing it
     # here again would delete it from the product on the next sync.
@@ -63,6 +72,12 @@ better every time someone reports what went wrong.
 the test suite, the fixtures that back each served claim, and the measurement tooling. This
 repository is the released product: what installing and running openPASO needs. Please open issues
 here or there, and pull requests there.
+
+The browser interface's fast tests ship with it and need no key:
+
+```bash
+pytest webui/tests/test_app.py -q
+```
 
 The full guide, in plain language, is on the website: <{PRODUCT_SITE}/contribute/>.
 

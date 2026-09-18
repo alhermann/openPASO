@@ -95,6 +95,12 @@ def _web_search_tool():
     return web_search          # already a tool; passing it through keeps one description
 
 
+_EMPTY_SUBAGENT = ("[the sub-agent returned NOTHING: it ran and produced no text. "
+                   "This is NOT approval, NOT a review and NOT a result. "
+                   "Do not write its answer for it — run it again, or say that it "
+                   "produced nothing.]")
+
+
 def _spawn_subagent_tool(*, model_id: str, api_key: str, tools):
     """A sub-agent on the SAME model, for the critic and for coupled workers.
 
@@ -135,7 +141,9 @@ def _spawn_subagent_tool(*, model_id: str, api_key: str, tools):
         try:
             out = await agent.ainvoke({"messages": [("user", f"Task: {task}\n\nContext:\n{context}")]},
                                       {"recursion_limit": 40})
-            return str(out["messages"][-1].content)
+            report = str(out["messages"][-1].content)
+            # Silence is not assent; see langgraph_eval.agent for the run that proved it.
+            return report if report.strip() else _EMPTY_SUBAGENT
         except Exception as exc:                         # noqa: BLE001
             return f"[sub-agent failed: {type(exc).__name__}: {exc}]"
 

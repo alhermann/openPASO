@@ -955,6 +955,12 @@ def web_search(query: str, max_results: int = 5) -> str:
 # ────────────────────────────────────────────────────────────────────
 # spawn_subagent — sibling LangGraph agent on the same vLLM endpoint
 # ────────────────────────────────────────────────────────────────────
+_EMPTY_SUBAGENT = ("[the sub-agent returned NOTHING: it ran and produced no text. "
+                   "This is NOT approval, NOT a review and NOT a result. "
+                   "Do not write its answer for it — run it again, or say that it "
+                   "produced nothing.]")
+
+
 def _make_spawn_subagent_tool(
     *, size: str, seed: int, workdir: Path,
     parent_tools: Sequence[BaseTool], depth: int,
@@ -1047,6 +1053,11 @@ def _make_spawn_subagent_tool(
                 config={"recursion_limit": 40},
             )
             report = out["messages"][-1].content
+            # AN EMPTY RETURN IS NOT ASSENT. Measured on a live run: a critic sub-agent
+            # returned a zero-length result, the model read the empty string as approval,
+            # wrote the review itself and filed it. Silence is reported as silence.
+            if not str(report).strip():
+                report = _EMPTY_SUBAGENT
             # A WORKER THAT WROTE DELIVERABLES TOOK EVERY WRITE-TIME FINDING
             # WITH IT. The body lives in openPASO; this only calls it.
             try:

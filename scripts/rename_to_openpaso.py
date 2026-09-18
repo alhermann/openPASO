@@ -57,6 +57,11 @@ EXCLUDE = (
     # --- the two files that must keep saying both names ---------------------
     "scripts/rename_to_openpaso.py",
     "src/core/env_compat.py",
+    # The test that proves both spellings answer. Its whole subject is the OLD name, so a
+    # rename turns it into a test of nothing (found 2026-09-18 by replaying the script).
+    "tests/test_env_names_answer_to_both_spellings.py",
+    # The page that tells a reader what the software used to be called.
+    "docs/cite.md",
     # --- binary and rendered assets -----------------------------------------
     "*.png", "*.svg", "*.gif", "*.mp4", "*.pdf", "*.ico",
     "*.vtu", "*.vtk", "*.msh", "*.h5", "*.xdmf", "*.bp", "*.npz", "*.pyc",
@@ -68,15 +73,21 @@ REPLACEMENT = dict(SUBSTITUTIONS)
 # Names that are NOT ours. The official upstream project keeps its own name, so
 # a blanket substitution has to be undone wherever it renamed someone else.
 PRESERVE = (
-    # The official upstream project keeps its own name.
-    ("Hereon-InstituteMS/openPASO", "Hereon-InstituteMS/OASiS"),
-    ("Hereon-InstituteMS/openpaso", "Hereon-InstituteMS/OASiS"),
-    ("upstream openPASO project", "upstream OASiS project"),
-    # Sentences that exist in order to name the old spelling. They document the
-    # back-compatibility in src/core/env_compat.py and would be self-defeating
+    # SENTENCES THAT EXIST IN ORDER TO NAME THE OLD SPELLING. A blanket substitution turns the
+    # record of the rename into a sentence that says nothing ("openPASO was first published as
+    # openPASO"), which is the failure this script is meant to avoid: machinery destroying what
+    # it is protecting. Found 2026-09-18 by replaying the script on the renamed tree -- it would
+    # have rewritten the citation history in README.md, CITATION.cff and the logo guide.
+    ("first published as openPASO", "first published as OASiS"),
+    ("first published as **openPASO**", "first published as **OASiS**"),
+    ("so macht es auch openPASO", "so macht es auch OASiS"),
+    # They document the back-compatibility in src/core/env_compat.py and would be self-defeating
     # if this script renamed them.
     ("(OPENPASO_*) and new", "(OASIS_*) and new"),
     ("OPENPASO_* and OPENPASO_* name the same", "OASIS_* and OPENPASO_* name the same"),
+    # NOT preserved any more: Hereon-InstituteMS/OASiS. That repository was itself renamed on
+    # 2026-09-17, so forcing the URL back to the old name now corrupts a correct address. GitHub
+    # redirects the old one, and the archived DOIs keep the old name on their own records.
 )
 
 

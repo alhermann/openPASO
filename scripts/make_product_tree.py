@@ -39,10 +39,9 @@ REMOVE = (
     ".github/workflows/knowledge-freshness.yml",      # runs the test suite, which is not shipped
     "product_vid.md", "clear_history.sh", "check_solver_updates.sh",
     "ONBOARDING*", "HANDOFF*", "*.log", "ui/node_modules/*", "langgraph_eval/test_*.py",
-    # THE WEB INTERFACE SHIPS SEPARATELY, when its rewrite is committed and reviewed on its own.
-    # The version in this tree is the older one; a Copilot review of the first sync (Hereon PR #55)
-    # found three defects in it that the rewrite in progress replaces.
-    "ui/*", "webui/*", "docs/use/web-interface.md",
+    # The web interface SHIPS. It was held out of the first sync (Hereon PR #55) only while its
+    # rewrite was in flight; it goes to the product repository as its own pull request. Removing it
+    # here again would delete it from the product on the next sync.
 )
 
 # src/blind_eval: the product's own tools import exactly these two modules (verify_interface_flux,
@@ -85,7 +84,6 @@ EDITS = (
      f'repository-code: "https://github.com/{PRODUCT_REPO}"'),
     ("mkdocs.yml", f"site_url: {DEV_SITE}/", f"site_url: {PRODUCT_SITE}/"),
     ("mkdocs.yml", f"repo_url: https://github.com/{DEV_REPO}", f"repo_url: https://github.com/{PRODUCT_REPO}"),
-    ("mkdocs.yml", "      - Web interface: use/web-interface.md\n", ""),
     ("CITATION.cff",
      "  This is the development repository of openPASO. The released product is\n"
      "  Hereon-InstituteMS/openPASO, first published as OASiS; the DOIs below archive\n"

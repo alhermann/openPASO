@@ -43,11 +43,16 @@ dependencies = [
     # .bp and only emits an honesty note, so a NaN-filled .bp could read as
     # verified — the SEV-HIGH fabrication gap this closes.
     "adios2>=2.10",
+    # generate_mesh imports gmsh IN THIS INTERPRETER, unlike the solvers, which are found
+    # wherever they live. Measured on a real run: every solver was found, the mesh tool could
+    # not work, the model wrote its own gmsh script which could not import gmsh either, and the
+    # run spent its budget producing nothing. A mesh generator every install has is worth 50 MB.
+    "gmsh>=4.12",
 ]
 
 [project.optional-dependencies]
 # Individual solver backends
-fenics = ["fenics-dolfinx>=0.8", "gmsh>=4.12"]
+fenics = ["fenics-dolfinx>=0.8"]     # gmsh is a core dependency, see above
 ngsolve = ["ngsolve>=6.2"]
 skfem = ["scikit-fem>=10.0"]
 kratos = ["KratosMultiphysics>=10.0"]

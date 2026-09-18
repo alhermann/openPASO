@@ -202,6 +202,24 @@ def review_digest(solver: str, setup_text: str) -> str:
     return setup_digest(solver, setup_text, _referenced_file_digest(setup_text))
 
 
+def _open_concerns(rec) -> str:
+    """The critic points the review left open, named in the verdict.
+
+    The served rule stops a review loop after two blocking rounds and tells the critic to
+    submit what is still disputed as lines beginning "UNRESOLVED:" -- measured, a loop that
+    never yields spends the whole run (four rounds, two of them contradicting each other, no
+    solver called). Ending the loop is only honest if the disagreement survives into the
+    result, so the verdict names it rather than reading as a clean approval.
+    """
+    lines = [ln.strip()[len("UNRESOLVED:"):].strip()
+             for ln in (getattr(rec, "findings", "") or "").splitlines()
+             if ln.strip().upper().startswith("UNRESOLVED:")]
+    if not lines:
+        return ""
+    shown = "; ".join(lines[:3]) + (f" (+{len(lines) - 3} more)" if len(lines) > 3 else "")
+    return f"; the critic left {len(lines)} point(s) open: {shown}"
+
+
 def _critic_state(solver: str, setup_text: str, *, token: str = "",
                   job_id: str = "") -> tuple[bool, str]:
     """Has an independent critic reviewed THIS setup, on this server's record?
@@ -230,14 +248,15 @@ def _critic_state(solver: str, setup_text: str, *, token: str = "",
     digest = review_digest(solver, setup_text)
     if token:
         try:
-            _CRITIC_REGISTRY.consume(token, digest=digest, solver=solver,
-                                     job_id=job_id)
-            return True, "reviewed (critic token redeemed; single use)"
+            rec = _CRITIC_REGISTRY.consume(token, digest=digest, solver=solver,
+                                           job_id=job_id)
+            return True, ("reviewed (critic token redeemed; single use)"
+                          + _open_concerns(rec))
         except CriticGateError as exc:
             return False, f"critic review token refused: {exc}"
     for rec in _CRITIC_REGISTRY.records():
         if rec.solver == solver and rec.digest == digest and not rec.expired():
-            return True, "reviewed (submitted review matches this setup)"
+            return True, "reviewed (submitted review matches this setup)" + _open_concerns(rec)
     if any(r.solver == solver for r in _CRITIC_REGISTRY.records()):
         return False, ("a critic review exists for this solver but NOT for this "
                        "setup: the input changed after it was reviewed")

@@ -78,28 +78,21 @@ def _web_search_tool():
     """The search the critic is told to use, or nothing at all.
 
     Its package is optional, so this returns None when it is absent rather than handing the model
-    a tool that answers with an install hint. When the provider blocks the query the underlying
-    function used to answer "[no results]", which reads as "nothing was found" -- measured on a
-    real run, five times in a row -- so the two cases are separated here.
+    a tool that answers with an install hint. The tool itself distinguishes a blocked search from
+    an empty web (langgraph_eval.agent.web_search) -- measured, a throttled DuckDuckGo returns an
+    EMPTY LIST rather than raising, and five "no results" in one run were read as "the web has
+    nothing", after which a critic quoted benchmark values from memory. Nothing is added on top of
+    that wording here, so the model is told once.
     """
     try:
-        import duckduckgo_search                        # noqa: F401
+        import ddgs                                     # noqa: F401
     except Exception:                                   # noqa: BLE001
-        return None
-    from langchain_core.tools import StructuredTool
-    from langgraph_eval.agent import web_search as _search
-
-    def search(query: str, max_results: int = 5) -> str:
-        out = _search(query, max_results)
-        if out.startswith("[no results;"):
-            return (out[:-1] + " -- this is the search provider refusing or rate-limiting the "
-                    "query, NOT an empty web. Do not conclude anything from it; retry later or "
-                    "proceed without it.]")
-        return out
-
-    return StructuredTool.from_function(
-        func=search, name="web_search",
-        description="Search the web. query = what to look for; max_results = how many snippets.")
+        try:
+            import duckduckgo_search                    # noqa: F401
+        except Exception:                               # noqa: BLE001
+            return None
+    from langgraph_eval.agent import web_search
+    return web_search          # already a tool; passing it through keeps one description
 
 
 def _spawn_subagent_tool(*, model_id: str, api_key: str, tools):

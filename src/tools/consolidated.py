@@ -2712,6 +2712,48 @@ def _heal_missing_interface_dump(specs: list, k: int) -> dict:
     return healed
 
 
+def _level_not_a_coupled_result(rep: dict) -> str:
+    """Why this level's own evidence is not a coupling, or "" when it is one.
+
+    THE SUMMARY AND THE LEVEL SAID DIFFERENT THINGS, AND THE LOUDER ONE WAS
+    WRONG. Measured 2026-09-17 on a coupled development run: one couple_levels
+    call returned `"all_levels_converged": true` with `"iterations": 2`,
+    `"residual": 0.0` and a history of ONE row at every level, and its
+    next_step read "EVERY REQUESTED LEVEL CONVERGED ... write the task's
+    per-level field file". couple()'s own reply for those same levels carried
+    "IS NOT A COUPLED RESULT YET ... Do not write this level's deliverables
+    from this run" -- couple_levels copied that sentence into what_to_fix_next
+    and then computed its verdict from `converged` alone. The run wrote the
+    deliverables the headline asked for and was read as never having coupled.
+
+    Two sides that exchange nothing cannot disagree, so their iteration reaches
+    its fixed point at the first step. That is what the three shapes below are:
+    a participant whose export does not depend on its imports, a history too
+    short to show an exchange, and a residual that is exactly zero rather than
+    small. The same evidence couple() already weighs, weighed again here so the
+    summary cannot contradict the level.
+    """
+    unresp = sorted(n for n, st in (rep.get("responsiveness") or {}).items()
+                    if "unresponsive" in str(st).lower())
+    if unresp:
+        return (f"participant(s) {', '.join(unresp)} exported byte-identical "
+                f"data while their imports changed, so nothing was transmitted")
+    rows = len(rep.get("history") or [])
+    if rows < 3:
+        return (f"the iteration stopped after {rows} step(s): a fixed point "
+                f"reached at once means the exchanged data never changed "
+                f"between iterations")
+    try:
+        last = float(rep.get("residual"))
+    except (TypeError, ValueError):
+        return ""
+    if last == 0.0:
+        return ("the reported interface residual is exactly zero, which is "
+                "what two sides that exchange nothing produce, not what a "
+                "converging iteration produces")
+    return ""
+
+
 def _level_field_peak(specs: list, k: int) -> dict:
     """How big is the field each side just wrote for this level?
 
@@ -4649,7 +4691,7 @@ def register_consolidated_tools(mcp: FastMCP):
     def _pde_consistency_body(solution_files: str, source_term: str,
                                coefficient: str = "1.0",
                                domain: str = "[[0,1],[0,1]]",
-                               equation: str = "") -> str:
+                               equation: str = "", reaction: str = "0.0") -> str:
         """Does your field actually satisfy the equation the task stated?
 
         A refinement study CANNOT answer this. Measured over 464 runs, result
@@ -4742,8 +4784,17 @@ def register_consolidated_tools(mcp: FastMCP):
         # `a(x,y)` or `a(u)` carries parentheses and is refused, which is right,
         # because a coefficient varying in space or in the solution breaks the
         # constant-K adjoint this check uses.
+        # A REACTION TERM IS INSIDE THIS OPERATOR, NOT OUTSIDE IT. -div(K grad u)
+        # + c u with a constant c is self-adjoint exactly as constant-K diffusion
+        # is, so the identity holds with + c v in the adjoint (see check_levels).
+        # It was refused for the shape of its equation alone, which cost the
+        # reacting side of every coupled conduction problem the only check that
+        # separates a converged-right field from a converged-wrong one. The
+        # coefficient of u must be a bare name or a number: `c(x)u` or `u**2`
+        # carries something this identity does not model and stays refused.
         _OP = _re.compile(r"^-(?:div\(([a-z]*)grad([a-z]+)\)"
-                          r"|lap(?:lacian)?\(([a-z]+)\))=f(.*)$")
+                          r"|lap(?:lacian)?\(([a-z]+)\))"
+                          r"(?:\+[a-z0-9.]*\*?[a-z]+)?=f(.*)$")
         # A COUPLED DIFFUSION PROBLEM STATES THE SAME OPERATOR AND MUST NOT BE
         # REFUSED. One task reads "-div(k grad u) = f in each subdomain", which
         # is the implemented form applied per side — and exact-match alone
@@ -4858,7 +4909,13 @@ def register_consolidated_tools(mcp: FastMCP):
         if not levels:
             return ("no readable level files. " + "; ".join(problems))
         try:
-            result = check_levels(levels, source_term, coeff, box)
+            _c = float(str(reaction).strip() or 0.0)
+        except ValueError:
+            return (f"reaction {reaction!r} must be a number: the constant c of "
+                    f"-div(K grad u) + c u = f, or 0 when the equation has no "
+                    f"reaction term")
+        try:
+            result = check_levels(levels, source_term, coeff, box, reaction=_c)
         except Exception as exc:
             return f"{type(exc).__name__}: {exc}"
         out = result.as_dict()
@@ -4870,7 +4927,7 @@ def register_consolidated_tools(mcp: FastMCP):
     def verify_pde_consistency(solution_files: str, source_term: str,
                                coefficient: str = "1.0",
                                domain: str = "[[0,1],[0,1]]",
-                               equation: str = "") -> str:
+                               equation: str = "", reaction: str = "0.0") -> str:
         """Does your field actually satisfy the equation the task stated?
 
         The body is shared with couple(), which runs this same check on
@@ -4881,7 +4938,7 @@ def register_consolidated_tools(mcp: FastMCP):
         does with what the agent already gave it.
         """
         return _pde_consistency_body(solution_files, source_term, coefficient,
-                                     domain, equation) + _UNIVERSAL_CORE
+                                     domain, equation, reaction) + _UNIVERSAL_CORE
 
 
 
@@ -6906,6 +6963,16 @@ def register_consolidated_tools(mcp: FastMCP):
                 # 4000, not 2000: a failed 4C side's lead now carries the deck's defects and
                 # 4C's own stop line, which the old cap cut off mid-list
                 compact["what_to_fix_next"] = str(rep["what_to_fix_next"])[:4000]
+            # THE SUMMARY MAY NOT SAY MORE THAN THE LEVEL'S OWN EVIDENCE.
+            _not_coupled = _level_not_a_coupled_result(rep) if rep.get("converged") else ""
+            if _not_coupled:
+                compact["coupled_evidence"] = (
+                    f"LEVEL {k} IS NOT A COUPLED RESULT YET: {_not_coupled}. Each "
+                    f"participant must read ./imports.json on EVERY run and its export "
+                    f"must depend on it; a stale exports.json left by a standalone test "
+                    f"run is re-read as this iteration's answer, so delete it before "
+                    f"coupling. Do not write this level's deliverables from this run: a "
+                    f"history under 3 rows shows no coupling to anyone who reads it.")
             _healed = _heal_missing_interface_dump(level_specs, k)
             if _healed:
                 compact["interface_dump_written_for_you"] = _healed
@@ -6936,8 +7003,35 @@ def register_consolidated_tools(mcp: FastMCP):
             out_levels.append(compact)
             if not rep.get("converged"):
                 break
-        all_ok = bool(out_levels) and len(out_levels) == len(lv) and all(x.get("converged") for x in out_levels)
-        if all_ok:
+        all_ok = (bool(out_levels) and len(out_levels) == len(lv)
+                  and all(x.get("converged") and not x.get("coupled_evidence")
+                          for x in out_levels))
+        # BOTH FACTS, NOT THE LOUDER ONE. A sequence can carry a level that is not a
+        # coupling AND stop later on a level that did not converge, and the two need
+        # different repairs. Naming only the first buries the other: the test fixture
+        # that caught this has unresponsive participants at level 1 and a failure at
+        # level 2, and an agent told only about level 1 would re-run the whole ladder
+        # without knowing what it ran into.
+        _null = [x for x in out_levels if x.get("coupled_evidence")]
+        _stopped = (out_levels and not out_levels[-1].get("converged"))
+        _parts = []
+        if _null:
+            first = _null[0]
+            _parts.append(
+                str(first["coupled_evidence"]) + " Fix the participant that is not "
+                "reading its imports, then call couple_levels again from level "
+                f"{first['level']} on. The levels before it keep their files and "
+                "histories.")
+        if _stopped:
+            bad = out_levels[-1]["level"]
+            _parts.append(
+                f"LEVEL {bad} DID NOT CONVERGE (or errored): read its what_to_fix_next "
+                f"and the participant logs, fix the cause, then call couple_levels again "
+                f"with the levels from {bad} on -- the earlier levels' files and "
+                f"histories stay.")
+        if _parts:
+            nxt = " ".join(_parts)
+        elif all_ok:
             nxt = ("EVERY REQUESTED LEVEL CONVERGED. For EACH level k and EACH side: write the task's "
                    "per-level field file from that side's field_level<k>.csv (interpolated at the task's "
                    "probe points, one griddata call per value column), its per-level interface file from "
@@ -6950,11 +7044,33 @@ def register_consolidated_tools(mcp: FastMCP):
             nxt = (f"LEVEL {bad} DID NOT CONVERGE (or errored): read its what_to_fix_next and the "
                    f"participant logs, fix the cause, then call couple_levels again with the levels "
                    f"from {bad} on -- the earlier levels' files and histories stay.")
-        return json.dumps({"all_levels_converged": all_ok, "levels_run": len(out_levels),
-                           "levels_requested": len(lv), "history_dir": history_dir,
-                           "critic_review": {"reviewed": bool(_reviewed), "note": _review_note,
-                                             "self_reported_flag": bool(critic_approved)},
-                           "levels": out_levels, "next_step": nxt}, indent=2)
+        # THE EQUATION VERDICT, FROM THE FILES THAT EXIST NOW. The audit on
+        # delivery computes this too; here it reaches the agent at the moment it
+        # can still act, and only when the per-level deliverables are already on
+        # disk. It reads each side's own config.json for the operator, never a
+        # task file or a key, and it judges nothing when the files are the
+        # participants' mesh dumps -- see result_audit.equation_findings.
+        _eq = []
+        try:
+            from .result_audit import equation_findings as _eqf
+            _eq = [f["finding"] for f in _eqf(Path(history_dir))
+                   if "NOT CHECKED" not in f.get("finding", "")]
+        except Exception:                                    # noqa: BLE001
+            _eq = []
+        out = {"all_levels_converged": all_ok, "levels_run": len(out_levels),
+               "levels_requested": len(lv), "history_dir": history_dir,
+               "critic_review": {"reviewed": bool(_reviewed), "note": _review_note,
+                                 "self_reported_flag": bool(critic_approved)},
+               "levels": out_levels, "next_step": nxt}
+        if _eq:
+            out["equation_check"] = _eq
+            if any("DOES NOT SATISFY" in t for t in _eq):
+                out["next_step"] = (
+                    "; ".join(t for t in _eq if "DOES NOT SATISFY" in t)
+                    + " Fix that before the deliverables: a field converging to "
+                      "the wrong function passes every convergence study you can "
+                      "run on it. " + str(nxt))
+        return json.dumps(out, indent=2)
 
     @mcp.tool()
     async def couple_precice(participants: str, data: str, exchanges: str,
@@ -8962,10 +9078,10 @@ sees nothing but this task= string (measured: a worker whose brief kept
     position; equations and coefficients; source terms as written; boundary
     values; the level-1 mesh; the file names the task prescribes for this
     side>. Write ./side_A/config.json for
-    level 1 and a synthetic ./side_A/imports.json; if the code takes an input deck, run
-    the deck is READ AND JUDGED THE MOMENT YOU WRITE IT -- write it to a
+    level 1 and a synthetic ./side_A/imports.json. IF THE CODE TAKES AN INPUT
+    DECK, that deck is READ AND JUDGED THE MOMENT YOU WRITE IT -- write it to a
     .yaml, .yml or .dat file and the defects come back in that reply, before
-    the binary runs, so do not spend an action asking for the check; run the
+    the binary runs, so do not spend an action asking for the check. Run the
     script with that code's
     own interpreter (generous timeout, first runs compile) until
     ./side_A/exports.json appears with finite values. CHECK: exports.json

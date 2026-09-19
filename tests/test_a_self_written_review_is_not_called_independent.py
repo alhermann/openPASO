@@ -22,15 +22,21 @@ from core.instructions import INSTRUCTIONS  # noqa: E402
 
 
 def test_both_product_paths_report_an_empty_sub_agent_as_silence():
+    """One sentence, in every place a person can read it.
+
+    The campaign line and this one wrote this fix independently, with different words; the
+    campaign's is the one the browser interface already ships, so all three now use it. A
+    wording that differs per path is how a transcript and a trajectory come to disagree about
+    the same run.
+    """
+    from langgraph_eval.agent import SILENT_SUBAGENT_REPORT  # noqa: PLC0415
+    msg = SILENT_SUBAGENT_REPORT.format(who="critic")
+    assert "NOT approval" in msg and "NOT a review" in msg
+    assert "Treat the step as not done" in msg
     for rel in ("langgraph_eval/agent.py", "run_agent.py"):
         src = (ROOT / rel).read_text()
-        assert "_EMPTY_SUBAGENT" in src, rel
-        assert re.search(r"if not str\(report\)\.strip\(\)|report\.strip\(\) else _EMPTY_SUBAGENT", src), rel
-    shared = (ROOT / "langgraph_eval" / "agent.py").read_text()
-    i = shared.index("_EMPTY_SUBAGENT = ")
-    message = shared[i:i + 400]
-    assert "NOT approval" in message and "NOT a review" in message
-    assert "Do not write its answer for it" in message
+        assert "SILENT_SUBAGENT_REPORT" in src, rel
+        assert "if not str(report).strip():" in src or "if report.strip():" in src, rel
 
 
 def test_the_verdict_does_not_claim_an_independent_critic():

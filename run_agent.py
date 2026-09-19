@@ -95,12 +95,6 @@ def _web_search_tool():
     return web_search          # already a tool; passing it through keeps one description
 
 
-_EMPTY_SUBAGENT = ("[the sub-agent returned NOTHING: it ran and produced no text. "
-                   "This is NOT approval, NOT a review and NOT a result. "
-                   "Do not write its answer for it — run it again, or say that it "
-                   "produced nothing.]")
-
-
 def _spawn_subagent_tool(*, model_id: str, api_key: str, tools):
     """A sub-agent on the SAME model, for the critic and for coupled workers.
 
@@ -143,7 +137,13 @@ def _spawn_subagent_tool(*, model_id: str, api_key: str, tools):
                                       {"recursion_limit": 40})
             report = str(out["messages"][-1].content)
             # Silence is not assent; see langgraph_eval.agent for the run that proved it.
-            return report if report.strip() else _EMPTY_SUBAGENT
+            if report.strip():
+                return report
+            # One sentence for a silent sub-agent, in all three places a person can read it:
+            # here, the campaign path and the browser interface.
+            from langgraph_eval.agent import SILENT_SUBAGENT_REPORT   # noqa: PLC0415
+            who = role if role in ("critic", "worker", "verifier", "researcher") else "sub-agent"
+            return SILENT_SUBAGENT_REPORT.format(who=who)
         except Exception as exc:                         # noqa: BLE001
             return f"[sub-agent failed: {type(exc).__name__}: {exc}]"
 

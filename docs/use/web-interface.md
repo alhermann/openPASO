@@ -10,7 +10,7 @@ It is a third way to use openPASO, beside [an AI app](ai-app.md) and [your own k
 From the openPASO folder, with your virtual environment active:
 
 ```bash
-pip install fastapi "uvicorn[standard]" python-multipart websockets httpx
+pip install -e ".[webui]"
 uvicorn webui.app:app --port 8080
 ```
 

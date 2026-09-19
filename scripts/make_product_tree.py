@@ -154,8 +154,29 @@ def _stale_assets(files) -> list[str]:
 
 
 def _pyproject(text: str) -> str:
-    text = re.sub(r"\n# Development\ndev = \[[^\]]*\]\n(?:#[^\n]*\n)*", "\n", text)
-    return re.sub(r"\n\[tool\.pytest\.ini_options\]\n.*?(?=\n\[build-system\])", "\n", text, flags=re.S)
+    """Drop the development extra, but SHIP A WAY TO RUN THE TESTS THAT SHIP.
+
+    Measured on the cut itself: removing the dev extra and the pytest config left a product clone
+    that carries webui/tests and tests/test_web_search_reports_a_block.py, tells the reader in
+    CONTRIBUTING to run them, and has no pytest to run them with -- and no `pythonpath = src`, so
+    even an installed pytest could not import the server. Shipping a test nobody can run is worse
+    than not shipping it: it reads as a claim that was checked.
+    """
+    # the dev extra becomes a `test` extra: the same tools, for the tests that ship
+    text = re.sub(r"\n# Development\ndev = \[[^\]]*\]\n(?:#[^\n]*\n)*",
+                  "\n# Running the tests that ship with openPASO: pip install -e \".[test]\"\n"
+                  "test = [\"pytest>=7.0\", \"pytest-asyncio>=0.20\", \"openpaso[webui]\"]\n", text)
+    text = re.sub(r"\n\[tool\.pytest\.ini_options\]\n.*?(?=\n\[build-system\])", "\n", text, flags=re.S)
+    return text.replace("\n[build-system]", PRODUCT_TEST_CONFIG + "\n[build-system]", 1)
+
+
+# What a product clone needs to run the tests it carries, and nothing more.
+PRODUCT_TEST_CONFIG = """
+[tool.pytest.ini_options]
+# `pythonpath` is what lets a test import the server from src/ without installing a path hack.
+pythonpath = ["src"]
+testpaths = ["webui/tests/test_app.py", "tests"]
+"""
 
 
 def apply(dry: bool) -> int:
@@ -210,8 +231,22 @@ def check() -> int:
         for m in re.finditer(r"(?<![\w/.-])((?:tests|scripts|benchmarks|validation)/[\w./-]+)", text):
             problems.append(f"{doc} points at a removed path: {m.group(1)}")
     pyp = (REPO / "pyproject.toml").read_text()
-    if "[tool.pytest" in pyp or "\ndev = [" in pyp:
-        problems.append("pyproject.toml still configures the test suite")
+    if "\ndev = [" in pyp:
+        problems.append("pyproject.toml still carries the development extra")
+    # The product DOES configure pytest -- for the tests it ships. What it must not do is point at
+    # the development suite, or ship tests with no way to run them (measured on the cut: a product
+    # clone carried webui/tests, told the reader to run them, and had no pytest).
+    if any(p.startswith(("webui/tests", "tests/")) for p in tracked()):
+        if "\ntest = [" not in pyp or "pytest" not in pyp:
+            problems.append("tests ship but pyproject offers no way to install pytest")
+        if "pythonpath" not in pyp:
+            problems.append("tests ship but pyproject does not put src on the path for them")
+        for line in pyp.splitlines():
+            if line.startswith("testpaths"):
+                named = re.findall(r'"([^"]+)"', line)
+                gone = [n for n in named if not (REPO / n).exists()]
+                if gone:
+                    problems.append(f"testpaths names what the product does not carry: {gone}")
     # every product import of blind_eval must resolve inside the kept set
     for p in files:
         if p.endswith(".py") and not p.startswith("src/blind_eval/"):

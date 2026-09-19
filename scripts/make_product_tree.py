@@ -53,6 +53,15 @@ REMOVE = (
     # here again would delete it from the product on the next sync.
 )
 
+# Tests that SHIP: they exercise a path the product carries and need nothing development-only --
+# no fixtures, no campaign data, no network. Everything else under tests/ stays in development.
+# Each entry is a decision, which is why this is a list and not a pattern: webui/tests came in on
+# 2026-09-18 (the interface makes checkable claims and a contributor on a product clone must be
+# able to check them), and the web-search test came with Hereon PR #59, which put it under tests/
+# while the code it covers (langgraph_eval/agent.py) ships. Without this entry the next product cut
+# would delete a file the product repository had already merged.
+KEEP_TESTS = ("webui/tests/*", "tests/test_web_search_reports_a_block.py")
+
 # src/blind_eval: the product's own tools import exactly these two modules (verify_interface_flux,
 # audit_results). The rest of the package is the evaluation campaign's grading harness.
 BLIND_EVAL_KEEP = {"src/blind_eval/interface.py", "src/blind_eval/evidence.py", "src/blind_eval/__init__.py"}
@@ -124,6 +133,8 @@ def tracked() -> list[str]:
 
 
 def _removed(rel: str) -> bool:
+    if any(fnmatch.fnmatch(rel, pat) for pat in KEEP_TESTS):
+        return False
     if rel.startswith("src/blind_eval/") and rel not in BLIND_EVAL_KEEP:
         return True
     return any(fnmatch.fnmatch(rel, pat) for pat in REMOVE)

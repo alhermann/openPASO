@@ -52,6 +52,14 @@ def test_the_interface_keeps_its_own_fast_tests():
     assert mpt._removed("tests/test_backends.py"), "the development suite still stays out"
 
 
+def test_a_test_the_product_repository_already_merged_is_not_deleted():
+    """Hereon PR #59 put its test under tests/, where the cut removes everything. Merging it and
+    then cutting would have deleted a file the product repository had already accepted -- the same
+    trap as webui/tests the night before. Each shipped test is an entry, never a pattern."""
+    assert not mpt._removed("tests/test_web_search_reports_a_block.py")
+    assert mpt._removed("tests/test_backends.py")
+
+
 def test_a_runs_own_folder_never_ships():
     """It holds the prompt, the model's output and someone's working directory."""
     assert mpt._removed("eval_interactive/webui_abc123/uploads/mesh.msh")

@@ -54,7 +54,13 @@ def _ensure_mock_server():
     if _MOCK_STARTED:
         return
     import _mock_openai_server as mock_srv  # from langgraph_eval/
-    mock_srv.start(port=_MOCK_PORT)
+    try:
+        mock_srv.start(port=_MOCK_PORT)
+    except OSError:
+        # another openPASO process on this machine already serves the same
+        # fake model on this port; use it rather than fail
+        import socket
+        socket.create_connection(("127.0.0.1", _MOCK_PORT), timeout=3).close()
     _MOCK_STARTED = True
 
 
@@ -90,23 +96,71 @@ class ApprovalGate:
 
     def __init__(self):
         self._pending: dict[str, asyncio.Future] = {}
+        self._early: dict[str, dict] = {}
 
     def open(self, call_id: str) -> asyncio.Future:
         loop = asyncio.get_running_loop()
         fut = loop.create_future()
+        early = self._early.pop(call_id, None)
+        if early is not None:
+            fut.set_result(early)     # the answer arrived before we asked
         self._pending[call_id] = fut
         return fut
 
     def resolve(self, call_id: str, approved: bool, reason: str = ""):
         fut = self._pending.pop(call_id, None)
-        if fut and not fut.done():
+        if fut is None:
+            # the step is announced before the gate is open, so a fast client
+            # can answer first; hold the decision rather than dropping it and
+            # leaving the run waiting for an answer that already came
+            self._early[call_id] = {"approved": approved, "reason": reason}
+            return
+        if not fut.done():
             fut.set_result({"approved": approved, "reason": reason})
+
+    def open_all(self, approved: bool = True, reason: str = "") -> int:
+        """Answer every waiting step at once, for a switch to "run without
+        asking" while one is waiting."""
+        waiting = list(self._pending)
+        for call_id in waiting:
+            self.resolve(call_id, approved, reason)
+        return len(waiting)
 
 
 # ───────────────────────────────────────────────────────────────────
 # Tool wrapping for mode gating + event emission
 # ───────────────────────────────────────────────────────────────────
-def _wrap_tool(tool, *, emitter, get_mode, gate, agent_label="agent"):
+class StepControl:
+    """The steps of a run that are executing now, so a person can end one that
+    hangs without stopping the whole run."""
+
+    def __init__(self):
+        self.tasks: dict[str, asyncio.Future] = {}
+        self.ended: set[str] = set()
+        self.started: dict[str, float] = {}
+
+    def running(self) -> list[str]:
+        return [c for c, t in self.tasks.items() if not t.done()]
+
+
+def set_search_scope(name: str) -> None:
+    """Say whose searches these are.
+
+    One server process serves many runs for days, and the search tool keeps what
+    it has already fetched. Without a scope a run could be handed snippets
+    another run fetched, and its transcript would show results it never asked
+    for. Harmless where the tool has no such scope (an older agent module)."""
+    try:
+        import agent as la
+        scope = getattr(la, "SEARCH_SCOPE", None)
+        if scope is not None:
+            scope.set(name)
+    except Exception:          # the interface must not fail over a cache key
+        pass
+
+
+def _wrap_tool(tool, *, emitter, get_mode, gate, agent_label="agent", take_steers=None,
+               steps: StepControl | None = None):
     """Return a copy of ``tool`` whose invoke emits events and (when in
     plan mode) waits for explicit approval before running.
 
@@ -127,27 +181,68 @@ def _wrap_tool(tool, *, emitter, get_mode, gate, agent_label="agent"):
             mode = get_mode()
             if mode == "plan":
                 fut = gate.open(call_id)
-                decision = await fut
+                try:
+                    decision = await fut
+                finally:
+                    # a run stopped while this waited would leave the future here
+                    gate._pending.pop(call_id, None)
                 if not decision["approved"]:
                     await emitter({"type": "tool_call_rejected",
                                    "call_id": call_id,
                                    "reason": decision.get("reason", "")})
                     return f"[rejected by user: {decision.get('reason','')}]"
             await emitter({"type": "tool_call_executing",
-                           "call_id": call_id, "tool": tool.name})
+                           "call_id": call_id, "tool": tool.name,
+                           # the record says who let it run
+                           "approved_by": "user" if mode == "plan" else "mode"})
+            started = time.monotonic()
+            inner = asyncio.ensure_future(
+                tool.ainvoke(kwargs) if hasattr(tool, "ainvoke")
+                else asyncio.to_thread(tool.invoke, kwargs))
+            if steps is not None:
+                steps.tasks[call_id] = inner
+                steps.started[call_id] = time.time()
+            ended_by_user = lambda: steps is not None and call_id in steps.ended  # noqa: E731
             try:
-                if hasattr(tool, "ainvoke"):
-                    result = await tool.ainvoke(kwargs)
-                else:
-                    result = tool.invoke(kwargs)
+                result = await inner
+            except asyncio.CancelledError:
+                # ended with "End this step", not the whole run being stopped
+                me = asyncio.current_task()
+                if not ended_by_user() or (me is not None and me.cancelling()):
+                    raise
+                result = ""
             except Exception as e:
-                await emitter({"type": "tool_error",
-                               "call_id": call_id,
-                               "error": f"{type(e).__name__}: {e}"})
-                raise
+                if not ended_by_user():
+                    await emitter({"type": "tool_error",
+                                   "call_id": call_id,
+                                   "error": f"{type(e).__name__}: {e}"})
+                    raise
+                result = f"{type(e).__name__}: {e}"
+            finally:
+                if steps is not None:
+                    steps.tasks.pop(call_id, None)
+                    steps.started.pop(call_id, None)
+            if ended_by_user():
+                steps.ended.discard(call_id)
+                secs = time.monotonic() - started
+                result = (f"[The user ended this step after {secs:.0f} s. The processes it had "
+                          f"started were ended, so it has no usable result.]"
+                          + (f"\n\nOutput before it was ended:\n{str(result)[:4000]}" if str(result).strip() else ""))
+            # A correction the user sent while this step ran. A ReAct agent reads
+            # the tool result next, so that is where it is handed over: at most
+            # one step late, and never by interrupting a solver mid-calculation.
+            # It is added BEFORE the event is recorded, so the log holds what the
+            # model was actually given: rebuilding the conversation from the log
+            # after a stop used to drop a correction the model had already read.
+            steers = take_steers() if take_steers else []   # main agent: takes them
+            if steers:
+                note = "\n\n".join(x["text"] for x in steers)
+                result = (f"{result}\n\n[MESSAGE FROM THE USER, sent while this step was "
+                          f"running. Read it and adjust what you do next:]\n{note}")
+            from .outcome import shorten
             await emitter({"type": "tool_result",
                            "call_id": call_id, "tool": tool.name,
-                           "result": str(result)[:8000]})
+                           "result": shorten(result)})
             return result
 
         def _run(self, *args, **kwargs):
@@ -170,6 +265,9 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
                             emitter,
                             get_mode,
                             gate: ApprovalGate,
+                            checkpointer=None,
+                            take_steers=None,
+                            steps: StepControl | None = None,
                             _mcp_tools=None):
     """Build a LangGraph ReAct agent with all WebUI hooks wired in.
 
@@ -224,7 +322,25 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
 
     # ── Host tools (bash/read/write/web_search/spawn_subagent)
     host = []
-    host.append(la._bash_tool_for(workdir))
+    # The product path's settings, which _bash_tool_for documents as such.
+    # Taking the bare defaults gave a researcher's own run the evaluation
+    # harness's bubblewrap jail and its "[actions spent: N]" stamp, which told
+    # the model it was in a graded campaign and confounded anything measured
+    # through this interface. The jail also explains solvers probing as
+    # available on the host and then being unfindable inside the run.
+    bash = la._bash_tool_for(workdir, isolate=False, budget_note=False)
+    # Every command carries the run's marker, so Stop can find what it started
+    # even after `cd /tmp`: a critic's checks run from /tmp were invisible to it.
+    # The transcript still shows the command exactly as the model wrote it.
+    import shlex
+    from langchain_core.tools import StructuredTool as _ST
+    _marker = f"export OPENPASO_CELL_WORKDIR={shlex.quote(str(Path(workdir).resolve()))}\n"
+
+    def run_bash(command: str) -> str:
+        return bash.invoke({"command": _marker + command})
+
+    host.append(_ST.from_function(func=run_bash, name=bash.name,
+                                  description=bash.description))
     host.extend(la._read_write_tools_for(workdir))
     host.append(la.web_search)
 
@@ -234,9 +350,31 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
     from langgraph.prebuilt import create_react_agent
 
     def _sub_llm():
+        """The sub-agent's model.
+
+        This resolved its endpoint through config.MODELS[model]["port"], which
+        raises KeyError for every OpenRouter id, so on the backend actually in
+        use the critic did not run at all: it returned "[sub-agent error:
+        KeyError]" and the interface, which renders neither subagent event,
+        showed nothing. Every recorded spawn came from a mock session.
+
+        It still uses the parent's model, so this is a second opinion from the
+        same model and not an independent one. That is a real limit and the
+        interface must not describe its output as verification.
+        """
         if model == "mock":
             return _mock_chat_model()
         from langchain_openai import ChatOpenAI
+        if model in config.OPENROUTER_MODELS:
+            key = config.openrouter_key()
+            if not key:
+                raise ValueError("No OpenRouter key; the sub-agent cannot run.")
+            return ChatOpenAI(
+                base_url=config.OPENROUTER_URL, api_key=key, model=model,
+                temperature=0.3, timeout=600,
+            )
+        if model not in config.MODELS:
+            raise ValueError(f"unknown model for sub-agent: {model}")
         port = config.MODELS[model]["port"]
         return ChatOpenAI(
             base_url=f"http://localhost:{port}/v1",
@@ -257,6 +395,15 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
         "researcher": ("You are a research assistant. Look up "
                        "authoritative sources for the requested "
                        "information and summarise."),
+        # openPASO's own instructions require a coupled problem's participant
+        # scripts to be written by a sub-agent with this role, one ladder step
+        # each. Without it the brief arrived at a research assistant, which
+        # answered with a summary instead of writing the participant.
+        "worker": ("You do the work you are given, in full, in this run's own "
+                   "directory. Write the files the brief asks for, run what it "
+                   "says to run, and report what you actually did and what the "
+                   "output was. Do not summarise instead of doing it, and do "
+                   "not hand the work back unfinished without saying so."),
     }
 
     async def spawn_subagent_emitting(role: str, task: str,
@@ -264,8 +411,14 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
         sa_id = f"sa_{uuid.uuid4().hex[:8]}"
         await emitter({"type": "subagent_spawned", "sa_id": sa_id,
                        "role": role, "task": task, "context": context})
-        sub_tools = [t for t in (mcp_tools + host)
-                     if t.name != "spawn_subagent"]
+        # The critic's own commands used to run unseen: its tools were the raw
+        # ones, not the wrapped ones. They are shown now, labelled with its role,
+        # and gated like the main agent's: "Ask before each step" means every
+        # step, including the ones a critic takes (it ran a solver unasked).
+        sub_tools = [_wrap_tool(t, emitter=emitter, get_mode=get_mode,
+                                gate=gate, agent_label=role, steps=steps,
+                                take_steers=(lambda: take_steers(sa_id)) if take_steers else None)
+                     for t in (mcp_tools + host) if t.name != "spawn_subagent"]
         sys = _SUB_PROMPTS.get(role, _SUB_PROMPTS["researcher"])
         sub_agent = create_react_agent(_sub_llm(), tools=sub_tools,
                                        prompt=sys)
@@ -277,17 +430,36 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
                 {"messages": [("user", msg)]},
                 config={"recursion_limit": 40})
             res = out["messages"][-1].content
+            if not str(res).strip():
+                # It happens: a sub-agent spends its steps and ends with nothing
+                # to say. An empty string handed back to the model reads as
+                # assent — "the critic had no objection" — when in fact nobody
+                # reviewed anything, and openPASO's gate will hold no review
+                # either. Say it, so the model cannot mistake silence for a
+                # verdict.
+                # One sentence, shared word for word with langgraph_eval's own
+                # spawn_subagent, so a transcript here and a campaign trajectory
+                # say the same thing. The campaign branch carries "OASiS" until
+                # its freeze and the rename maps it to "openPASO" on the way in.
+                who = role if role in ("critic", "verifier", "researcher") else "sub-agent"
+                res = (f"[the {who} returned no text. This is NOT approval and NOT a review: "
+                       "it produced nothing. Treat the step as not done, and note that "
+                       "openPASO's verification gate holds no review for this setup.]")
         except Exception as e:
             res = f"[sub-agent error: {type(e).__name__}: {e}]"
+        from .outcome import shorten
+        # shorten, not slice: a verdict cut without a mark reads as a verdict
+        # that ended there, and someone concludes the critic never raised what
+        # it raised in the part that was dropped
         await emitter({"type": "subagent_returned",
-                       "sa_id": sa_id, "result": str(res)[:6000]})
+                       "sa_id": sa_id, "result": shorten(str(res), 6000)})
         return res
 
     from langchain_core.tools import StructuredTool
     spawn_wrapped = StructuredTool.from_function(
         coroutine=spawn_subagent_emitting,
         name="spawn_subagent",
-        description=("Spawn a sub-agent. role∈{critic, verifier, "
+        description=("Spawn a sub-agent. role∈{worker, critic, verifier, "
                      "researcher}. task = what it should do. context = "
                      "facts to pass in. Returns its final message."),
     )
@@ -295,7 +467,8 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
 
     # ── Gate every tool through the wrapper for mode gating
     gated = [_wrap_tool(t, emitter=emitter, get_mode=get_mode, gate=gate,
-                        agent_label="main") for t in mcp_tools + host]
+                        agent_label="main", take_steers=take_steers, steps=steps)
+             for t in mcp_tools + host]
 
     from langgraph.prebuilt import create_react_agent
     # Use the EXACT same system prompts as the langgraph_eval driver, including
@@ -310,7 +483,8 @@ def build_agent_for_session(*, model: str, mcp_on: bool,
     # above is that these are the same bytes the driver uses, and a local copy
     # would quietly stop being that.
     prompt = (la._mcp_system_prompt() if mcp_on else la.BARE_SYSTEM)
-    return create_react_agent(llm, tools=gated, prompt=prompt)
+    return create_react_agent(llm, tools=gated, prompt=prompt,
+                              checkpointer=checkpointer)
 
 
 @asynccontextmanager
@@ -321,7 +495,13 @@ async def open_agent_for_session(**kwargs):
     workdir = kwargs["workdir"]
     try:
         if kwargs.get("mcp_on"):
-            async with la.openpaso_mcp_tools_session(workdir) as mcp_tools:
+            # The defaults are the evaluation campaign's: a fixed subset of
+            # tools and a bubblewrap jail. The function's own docstring says
+            # surface="all" is what an ordinary user of the product should get,
+            # and the jail made solvers that probe as installed on this machine
+            # unfindable inside a run.
+            async with la.openpaso_mcp_tools_session(
+                    workdir, surface="all", isolate=False) as mcp_tools:
                 yield build_agent_for_session(
                     **kwargs, _mcp_tools=mcp_tools)
         else:
@@ -333,14 +513,20 @@ async def open_agent_for_session(**kwargs):
 # ───────────────────────────────────────────────────────────────────
 # Streamed turn
 # ───────────────────────────────────────────────────────────────────
-async def stream_turn(*, agent, user_text: str, emitter, emit_done: bool = True):
+async def stream_turn(*, agent, user_text: str, emitter, emit_done: bool = False,
+                      thread_id: str | None = None,
+                      history: list[tuple[str, str]] | None = None):
     """Run one user turn. Streams chunks/events via ``emitter`` and
     returns the final message text. Emits a 'thinking' status as soon
     as we start so the user sees activity even before the first model
     response, and an 'error' event with a clear message on any failure
     (rather than dying silently)."""
     final_text = ""
-    inputs = {"messages": [("user", user_text)]}
+    # Each turn used to send only its own message to an agent with no memory, so
+    # a follow-up such as "now refine the mesh" started from nothing. The agent
+    # keeps the conversation per run now; `history` re-seeds it when that memory
+    # was lost (server restart, or a stop that left a call unanswered).
+    inputs = {"messages": list(history or []) + [("user", user_text)]}
     await emitter({"type": "status", "message": "thinking…"})
     try:
         # LangGraph's default ceiling is 25 steps, which a simulation task
@@ -349,7 +535,9 @@ async def stream_turn(*, agent, user_text: str, emitter, emit_done: bool = True)
         # that there is one budget and it is the clock, so the step ceiling sits
         # well above anything the wall time can reach.
         async for event in agent.astream_events(
-                inputs, version="v2", config={"recursion_limit": 400}):
+                inputs, version="v2",
+                config={"recursion_limit": 400,
+                        "configurable": {"thread_id": thread_id or uuid.uuid4().hex}}):
             kind = event.get("event")
             name = event.get("name")
             if kind == "on_chat_model_stream":
@@ -382,6 +570,9 @@ async def stream_turn(*, agent, user_text: str, emitter, emit_done: bool = True)
         # "done" here as well is what let a crashed run read as "finished".
         raise
     if emit_done:
-        await emitter({"type": "done", "final_text": final_text,
-                       "outcome": "completed"})
+        # Only for standalone callers. The web UI's run decides the outcome
+        # itself, because "no exception" is not "a solver ran"; this default
+        # used to be on and announced "completed" for turns that computed
+        # nothing, before the run could say otherwise.
+        await emitter({"type": "done", "final_text": final_text})
     return final_text

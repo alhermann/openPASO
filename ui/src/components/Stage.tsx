@@ -3,22 +3,36 @@ import type { FieldSeries } from '../types'
 
 /* The stage: a field the solver produced, one frame per stored timestep.
 
-   Vorticity is signed, so the ramp diverges with the well showing through at
-   zero: coral for one rotation, graphite for the other. The two peaks are
-   matched in luminance (0.470 against 0.494) so neither sign visually outweighs
-   the other. */
+   Two ramps, chosen by the field's own range rather than by habit.
+
+   A signed field (vorticity, a velocity component) diverges about zero: coral
+   for one sign, graphite for the other, with the well showing through where the
+   field is nothing. The two peaks are matched in luminance (0.470 against
+   0.494) so neither sign visually outweighs the other.
+
+   A field that never changes sign — temperature, pressure, a magnitude — is
+   drawn on one rising ramp instead. Read on the diverging one, its low values
+   sat in a dark "zero" well that means nothing here, so a cold region looked
+   like the middle of a field with a sign, and the picture said something about
+   the physics that the numbers do not. */
 const NEG = [0xaf, 0xbc, 0xcb]
 const ZERO = [0x08, 0x0b, 0x11]
 const POS = [0xff, 0x9d, 0x82]
+const LOW = [0x10, 0x16, 0x20]
 const HOLE = [0x1d, 0x25, 0x30]
 
-function ramp() {
+function ramp(signed: boolean) {
   const lut = new Uint8Array(256 * 3)
   for (let i = 0; i < 256; i++) {
-    const t = (i / 255) * 2 - 1
-    const a = Math.pow(Math.abs(t), 1.1)
-    const end = t < 0 ? NEG : POS
-    for (let c = 0; c < 3; c++) lut[i * 3 + c] = Math.round(ZERO[c] + (end[c] - ZERO[c]) * a)
+    if (signed) {
+      const t = (i / 255) * 2 - 1
+      const a = Math.pow(Math.abs(t), 1.1)
+      const end = t < 0 ? NEG : POS
+      for (let c = 0; c < 3; c++) lut[i * 3 + c] = Math.round(ZERO[c] + (end[c] - ZERO[c]) * a)
+    } else {
+      const a = Math.pow(i / 255, 0.9)
+      for (let c = 0; c < 3; c++) lut[i * 3 + c] = Math.round(LOW[c] + (POS[c] - LOW[c]) * a)
+    }
   }
   return lut
 }
@@ -39,12 +53,19 @@ type Data = {
 export default function Stage({ series }: { series: FieldSeries }) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const data = useRef<Data | null>(null)
-  const lut = useRef(ramp())
+  // signed when the field's own range crosses zero, which is what the writer
+  // recorded; a field entirely on one side of zero is not a signed field
+  const signed = (series.vmin ?? 0) < 0 && (series.vmax ?? 0) > 0
+  const lut = useRef(ramp(signed))
+  useEffect(() => { lut.current = ramp(signed) }, [signed])
   const raf = useRef(0)
-  const [frame, setFrame] = useState(0)
   const [playing, setPlaying] = useState(true)
-  const [time, setTime] = useState(0)
   const [n, setN] = useState(0)
+  // the clock and the slider are written straight to the DOM while it plays:
+  // React state for them re-rendered the whole stage on every frame
+  const clockEl = useRef<HTMLSpanElement>(null)
+  const slider = useRef<HTMLInputElement>(null)
+  const at = useRef(0)
 
   // draw is deliberately not a hook dependency: it reads refs, so a redraw
   // never re-renders React.
@@ -74,7 +95,9 @@ export default function Stage({ series }: { series: FieldSeries }) {
       }
     }
     ctx.putImageData(img, 0, 0)
-    setTime(d.times[i] ?? 0)
+    at.current = i
+    if (clockEl.current) clockEl.current.textContent = `t = ${(d.times[i] ?? 0).toFixed(3)} s`
+    if (slider.current && document.activeElement !== slider.current) slider.current.value = String(i)
   }
 
   useEffect(() => {
@@ -91,34 +114,21 @@ export default function Stage({ series }: { series: FieldSeries }) {
         setN(m.times.length)
         const cv = canvas.current
         if (cv) { cv.width = m.nx; cv.height = m.ny }
-        setFrame(0)
         draw(0)
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) setPlaying(false)
       })
     return () => { dead = true; cancelAnimationFrame(raf.current) }
   }, [series.url])
 
-  /* Capture hook. Rendering a film means every frame must be a pure function
-     of its number, so a recorder can park the field on an exact timestep
-     instead of racing the animation. Read only; it changes nothing otherwise. */
-  useEffect(() => {
-    ;(window as unknown as Record<string, unknown>).__fieldFrame = (i: number) => {
-      setPlaying(false); setFrame(i); draw(i)
-    }
-    ;(window as unknown as Record<string, unknown>).__fieldCount = () =>
-      data.current?.times.length ?? 0
-  }, [n])
-
   useEffect(() => {
     if (!playing || !n) return
     let last = 0
-    let i = frame
+    let i = at.current
     const tick = (now: number) => {
       const d = data.current
       if (d && now - last >= 1000 / d.fps) {
         i = (i + 1) % n
-        setFrame(i)
-        draw(i)
+        draw(i)                 // the canvas and the clock, without a re-render
         last = now
       }
       raf.current = requestAnimationFrame(tick)
@@ -135,15 +145,19 @@ export default function Stage({ series }: { series: FieldSeries }) {
     : ''
 
   return (
-    <section className="bg-well pt-12 pb-5 mt-12" data-testid="stage">
-      {/* Aspect comes from the data. Forcing width and height independently
-          stretched the field by an amount that changed with the window, so two
-          people measuring vortex spacing off it got different numbers. */}
+    <section className="bg-soft rounded-[12px] p-6" data-testid="stage">
+      {/* Aspect comes from the data, and is driven from the width alone.
+
+          Setting `height: min(420px, 42vw)` and then clamping the width with
+          max-w-full pinned the height while the width hit the container, so a
+          440x82 field of a 2.2 x 0.41 m channel rendered at 1280x420: a ratio
+          of 3.05 where the physics says 5.37. The cylinder came out as an
+          ellipse and vortex spacing measured off the picture was wrong by 76%
+          in y. Width times the data's own ratio is the only correct height. */}
       <canvas ref={canvas} aria-label={series.field}
-              className="block mx-auto w-auto max-w-full"
-              style={{ height: 'min(420px, 42vw)',
-                       aspectRatio: `${series.nx} / ${series.ny}` }} />
-      <div className="w-[1224px] mx-auto mt-5 flex items-center gap-4">
+              className="block w-full"
+              style={{ aspectRatio: `${series.nx} / ${series.ny}` }} />
+      <div className="w-full mt-5 flex items-center gap-4">
         <button
           onClick={() => setPlaying((p) => !p)}
           aria-label={playing ? 'Pause the field' : 'Play the field'}
@@ -152,27 +166,27 @@ export default function Stage({ series }: { series: FieldSeries }) {
         >
           {playing ? 'Pause' : 'Play'}
         </button>
-        <span className="num text-[13px] text-muted">t = {time.toFixed(3)} s</span>
+        <span ref={clockEl} className="num text-[13px] text-muted">t = 0.000 s</span>
         <input
-          type="range" min={0} max={Math.max(0, n - 1)} value={frame}
+          ref={slider}
+          type="range" min={0} max={Math.max(0, n - 1)} defaultValue={0}
           aria-label="Frame"
-          onChange={(e) => {
-            const i = Number(e.target.value)
-            setPlaying(false); setFrame(i); draw(i)
-          }}
+          onChange={(e) => { setPlaying(false); draw(Number(e.target.value)) }}
           className="w-64 accent-coral"
         />
         <span className="ml-auto flex items-center gap-2.5 font-mono text-[13px] text-muted">
           <span>{series.vmin}</span>
           <span className="w-[132px] h-1.5 rounded-sm"
-                style={{ background: 'linear-gradient(90deg,#AFBCCB,#64748B,#080B11,#C94A30,#FF9D82)' }} />
+                style={{ background: signed
+                  ? 'linear-gradient(90deg,#AFBCCB,#64748B,#080B11,#C94A30,#FF9D82)'
+                  : 'linear-gradient(90deg,#101620,#6B4A44,#C94A30,#FF9D82)' }} />
           <span>+{series.vmax}</span>
           <span>{series.unit}</span>
         </span>
       </div>
 
       {prov && (
-        <p className="w-[1224px] mx-auto mt-4 font-mono text-[13px] text-muted leading-relaxed">
+        <p className="w-full mt-4 font-mono text-[13px] text-muted leading-relaxed">
           {span && `${span} · `}
           {series.nx} x {series.ny} grid, values at cell centres.
           {typeof prov.true_min === 'number' && typeof prov.true_max === 'number' && (

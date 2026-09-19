@@ -1,107 +1,110 @@
-# openPASO WebUI
+# openPASO web interface
 
-Browser-based front-end for the LangGraph + openPASO-MCP driver in
-`langgraph_eval/`. Single-page app, no build step.
+A browser interface for openPASO: describe a simulation in plain language, and
+watch openPASO choose a solver, write the input, run it and report back, with
+every step visible.
 
-## What it has
-
-- **Prompt box** + streamed chat log.
-- **Model selector**: `qwen2.5-7b` / `14b` / `32b` (talks to vLLM
-  servers on ports 8000-8002) or `mock` (no GPU; uses the same fake
-  OpenAI server the smoke tests use).
-- **MCP servers**: checkbox list (currently openPASO; designed to take
-  more servers without code changes — add an entry to
-  `webui/config.MCP_SERVERS`).
-- **Mode buttons**: `plan` (every tool call needs Approve/Reject in the
-  UI) · `accept` (auto-approves, default) · `autonomous` (same as
-  accept, no UI interruption).
-- **Event log** colour-coded by type: user/agent message, tool-call
-  pending/executing/result, sub-agent spawn/return, token counts,
-  status, errors.
-- **Sub-agent visibility**: when the agent uses `spawn_subagent`, the
-  spawn and the sub-agent's eventual return are first-class events;
-  the depth-limited recursion is preserved.
-- **Token counter** for the active session, persisted to the session
-  JSON.
-- **Session save / load / restart**: every session is a JSON file at
-  `data/webui_sessions/<id>.json` and rehydrates on reconnect.
-- **File browser** rooted at `eval_interactive/` with safe path
-  resolution (symlink/escape attempts return 403). Clicking a file
-  shows it in the side panel.
-- **Auto-visualisation**:
-  - `.csv` → Plotly line plot when columns are numeric.
-  - `.json` → pretty-printed.
-  - `.vtu` / `.pvd` / `.vtk` → vtk.js scaffold (see “Extending” below).
-  - `.h5` / `.xdmf` → top-level dataset keys.
-  - `.py` / `.cc` / `.yaml` / etc. → text view.
-  - images → inline.
-- **Interactive parameter sliders**: opening a Python script extracts
-  top-level numeric assignments (`N = 32`, `dt = 0.005`, …) and lets
-  you tweak them; the “Re-run with edited parameters” button sends a
-  prompt that asks the agent to rerun the script with the new values.
-
-## Running
+## Start it
 
 ```bash
-# one-time deps install (lives in the LangGraph venv, not the main .venv)
-.venv-lg/bin/pip install fastapi 'uvicorn[standard]' python-multipart \
-                          pyvista websockets pytest
+# server dependencies live in the LangGraph environment
+.venv-lg/bin/pip install fastapi 'uvicorn[standard]' python-multipart websockets httpx
 
-# start the UI
-.venv-lg/bin/uvicorn webui.app:app --reload --port 8080
+# run
+.venv-lg/bin/uvicorn webui.app:app --port 8080
 # open http://localhost:8080
 ```
 
-The mock model works without any vLLM running, so the UI is fully
-usable for click-testing flows before plugging in real Qwen weights.
+The built interface is committed in `webui/static/`, so Node is not needed to
+use it. To change the interface, edit `ui/src/` and rebuild:
 
-To use real Qwens, start the vLLM servers as documented in
-`langgraph_eval/README.md` (`./start_vllm.sh 7b`, etc.) and pick the
-matching model in the sidebar.
+```bash
+cd ui && npm install && npm run build     # writes webui/static/
+```
+
+## Models
+
+The model picker groups models by where they run, and says for each whether it
+works right now:
+
+| group | what it is | needs |
+|---|---|---|
+| Hosted on OpenRouter | pay-per-token models; price shown, read live from OpenRouter | `OPENROUTER_API_KEY` in the environment, in `.env` in the openPASO folder, or in a file named by `OPENPASO_ENV_FILE` |
+| Claude Code | the `claude` command on this machine, on your own Claude login | Claude Code installed and signed in; runs without asking only |
+| On this machine | local models behind an OpenAI-compatible server (vLLM) | the server running on the listed port |
+
+A model that cannot work is shown with the reason and cannot be picked.
+
+## Steps
+
+* **Run without asking**: openPASO runs tools, shell commands and solvers in
+  the run's folder.
+* **Ask before each step**: every tool call waits for *Run this step* or
+  *Skip it*. Not available with Claude Code.
+
+## Runs
+
+* A run lives on the server, not in the browser tab. Close the tab, go back,
+  open another run: it keeps working. Up to four runs work at once
+  (`OPENPASO_MAX_RUNNING`).
+* **Stop** ends the run and every process it started (solvers included), and
+  says how many.
+* A message sent while a run works is a **correction**: it is handed to the
+  model when the current step finishes. A message after it ends is a
+  **follow-up** in the same conversation. Claude Code runs as one command that
+  cannot be spoken to while it works, so a correction to it is sent the moment
+  the turn ends; the interface says so where you type it.
+* **Attach files** (geometry, meshes, input decks, data) puts them in the run's
+  `uploads/` folder and tells the model where they are.
+* **Files** shows the run's own folder; **Download the run record** gives the
+  prompt, model, every event and a checksum for every file.
+* Home directories are removed from everything the browser is shown, and from
+  text files it downloads. A binary file (mesh, HDF5, image, PDF) is handed over
+  exactly as the run wrote it, so a path can still be inside one.
+* A run starts in its own folder, but its shell and file tools can reach
+  anything your account can. Deleting a run removes its folder, not files it
+  wrote elsewhere. Run openPASO as a separate user or in a container if that
+  matters to you.
+* A turn ends as *Finished* only when an openPASO solver ran and openPASO
+  verified its result. A solver result openPASO did not verify ends as *Ran,
+  not verified*; a turn without a solver result says what happened instead
+  (no tools used, a solver call that computed nothing, or numbers from scripts
+  the model ran itself).
+* Runs are listed in the left panel (which can be hidden) and can be deleted,
+  one or several at a time; deleting removes the record and the run's folder.
+
+Records are JSON files in `data/webui_sessions/`; run folders are in
+`eval_interactive/webui_<id>/`.
 
 ## Tests
 
+The fake model that answers without a model and runs no solver exists only for
+these tests. The server refuses to create a run with it unless it was started
+with `OPENPASO_TEST_MODEL=1`, so nothing on a normal machine can produce a
+fabricated run through the API.
+
 ```bash
-.venv-lg/bin/pytest webui/tests -v
+# fast, no model and nothing leaving this machine: config, file safety,
+# uploads, outcome rules, Stop ending processes, corrections, a run that
+# outlives its tab. (It does ask localhost whether a model server is
+# listening, which answers at once either way.)
+.venv-lg/bin/pytest webui/tests/test_app.py -q
+
+# live, with a hosted model (a few cents) and the server running
+.venv-lg/bin/python webui/tests/live_flows.py        # survive tab close, parallel, correction, memory, Stop, plan
+.venv-lg/bin/python webui/tests/live_concurrency.py  # several runs starting at once
+.venv/bin/python webui/tests/browser_journey.py      # a person's journey in a real browser, with screenshots
 ```
 
-10 tests, ~5 seconds, no GPU required. Covers config endpoints,
-sandbox traversal safety (escape attempts blocked), file
-classification, parameter extraction, session round-trip, end-to-end
-agent flow (parent → spawn_subagent → critic returns → done) with the
-mock LLM, and plan-mode tool-call gating with approval.
+## Layout
 
-## Extending
-
-* **VTK rendering.** `static/app.js::renderVtk(url)` is a stub. The
-  raw file is exposed at `/sandbox-file/<rel>`; wire vtk.js's
-  `HTTPDataAccessHelper` + reader for the file's format and attach to
-  `#vtkRoot`. Stub left intentionally short so it's obvious where to
-  put the renderer.
-* **More MCP servers.** Add a row to `webui/config.MCP_SERVERS` with
-  the command/args/cwd/env; the UI picks it up automatically.
-* **More reasoning visibility.** If you swap in a reasoning model that
-  emits `<think>…</think>` blocks, intercept `agent_chunk` events in
-  the runner, classify, and emit a distinct `reasoning_chunk` event;
-  the frontend's `eventClass()` switch already has space for it.
-* **More tool gates.** `runner._wrap_tool` already attaches plan-mode
-  approval to every tool. Per-tool policies (e.g., auto-approve
-  `web_search` but gate `run_bash`) are a 5-line change in `_wrap_tool`.
-
-## File layout
-
-```
-webui/
-├── app.py             # FastAPI + WebSocket
-├── runner.py          # Agent factory with event-streamed tools
-├── sessions.py        # JSON snapshots
-├── files.py           # Safe sandbox traversal
-├── viz.py             # File → Plotly/vtk descriptor
-├── config.py          # Models, MCP servers, modes
-├── static/
-│   ├── index.html
-│   ├── app.js
-│   └── style.css
-└── tests/
-    └── test_app.py
-```
+| path | what |
+|---|---|
+| `app.py` | HTTP endpoints and the WebSocket a tab uses to follow a run |
+| `runs.py` | a run: its turns, corrections, Stop, and its openPASO connection |
+| `runner.py` | the agent: model, tools, the approval gate, streaming |
+| `claude_code.py` | the Claude Code path |
+| `catalog.py` | what can be selected: models with status and price, installed solvers |
+| `proctree.py` | finding and ending a run's processes |
+| `outcome.py` | how a turn ended, decided in one place |
+| `ui/src/` | the interface (React, TypeScript, Tailwind) |

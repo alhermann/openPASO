@@ -1,35 +1,73 @@
-import type { Session, FileRow } from './types'
+import type { AppConfig, FileRow, ModelGroup, RunRow, Session, SolverCheck } from './types'
 
-const j = (r: Response) => r.json()
-
-export const api = {
-  // These endpoints wrap their payload, so unwrap here rather than at each call.
-  models:  (): Promise<{ id: string; label: string }[]> =>
-    fetch('/api/models').then(j).then((d) => d.models ?? []),
-  servers: (): Promise<{ id: string; label: string; default_on: boolean }[]> =>
-    fetch('/api/mcp_servers').then(j).then((d) => d.servers ?? []),
-  modes:   (): Promise<string[]> =>
-    fetch('/api/modes').then(j).then((d) => d.modes ?? []),
-  newSession: (): Promise<Session> =>
-    fetch('/api/sessions', { method: 'POST' }).then(j),
-  session: (id: string): Promise<Session> => fetch(`/api/sessions/${id}`).then(j),
-  /* Past runs. The endpoint existed from the start and nothing called it, so
-     reopening yesterday's work meant copying a hex id out of a panel by hand. */
-  sessions: (): Promise<{ id: string; model?: string; events?: number;
-                          modified?: number }[]> =>
-    fetch('/api/sessions').then(j).then((d) => d.sessions ?? d ?? []),
-  manifest: (id: string) => fetch(`/api/sessions/${id}/manifest`).then(j),
-  files:   (rel = ''): Promise<{ entries: FileRow[]; rel: string }> =>
-    fetch(`/api/files?rel=${encodeURIComponent(rel)}`).then(j),
-  viz:     (rel: string) => fetch(`/api/viz?rel=${encodeURIComponent(rel)}`).then(j),
+async function j<T>(r: Response): Promise<T> {
+  const body = await r.json().catch(() => ({}))
+  if (!r.ok) throw new Error((body as { detail?: string }).detail || `${r.status} ${r.statusText}`)
+  return body as T
 }
 
-/** One socket per session. The server speaks line delimited JSON both ways. */
-export function connect(id: string, onEvent: (e: unknown) => void) {
+export const api = {
+  config: () => fetch('/api/config').then((r) => j<AppConfig>(r)),
+  models: () => fetch('/api/models').then((r) => j<{ groups: ModelGroup[]; default: string | null }>(r)),
+  solvers: (refresh = false) =>
+    fetch(`/api/solvers${refresh ? '?refresh=true' : ''}`)
+      .then((r) => j<SolverCheck>(r)),
+  runs: () => fetch('/api/sessions').then((r) => j<{ sessions: RunRow[]; running: number }>(r)),
+  createRun: (model: string, mode: string) =>
+    fetch('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                             body: JSON.stringify({ model, mode }) }).then((r) => j<Session>(r)),
+  deleteRun: (id: string) => fetch(`/api/sessions/${id}`, { method: 'DELETE' }).then((r) => j(r)),
+  // the first message goes to the server before the page moves, so closing the
+  // tab in between cannot lose it
+  startRun: (id: string, text: string, attachments: string[]) =>
+    fetch(`/api/sessions/${id}/prompt`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({ text, attachments }) }).then((r) => j(r)),
+  files: (id: string, sub = '') =>
+    fetch(`/api/sessions/${id}/files?sub=${encodeURIComponent(sub)}`)
+      .then((r) => j<{ entries: FileRow[]; sub: string; exists: boolean }>(r)),
+  upload: (id: string, files: File[]) => {
+    const fd = new FormData()
+    files.forEach((f) => fd.append('files', f, f.name))
+    return fetch(`/api/sessions/${id}/upload`, { method: 'POST', body: fd })
+      .then((r) => j<{ saved: { name: string; bytes: number }[] }>(r))
+  },
+  viz: (rel: string) => fetch(`/api/viz?rel=${encodeURIComponent(rel)}`).then((r) => j<{ kind: string } & Record<string, unknown>>(r)),
+  manifestUrl: (id: string) => `/api/sessions/${id}/manifest`,
+}
+
+export function socket(id: string): WebSocket {
   const proto = location.protocol === 'https:' ? 'wss' : 'ws'
-  const ws = new WebSocket(`${proto}://${location.host}/ws/${id}`)
-  ws.onmessage = (m) => {
-    try { onEvent(JSON.parse(m.data)) } catch { /* a malformed frame is not fatal */ }
-  }
-  return ws
+  return new WebSocket(`${proto}://${location.host}/ws/${id}`)
+}
+
+/* The home directory is shown as ~. A transcript is something people screenshot
+   and share, and whose machine it ran on is nobody else's business. */
+/** Home directories out of anything shown. Text is otherwise left as written:
+    turning a literal backslash-n into a line break broke LaTeX such as \nabla. */
+/** A run's own file, as a URL. A name may contain ? or #, which the browser
+    would read as a query or fragment and ask for a shorter path than meant. */
+export function fileUrl(rel: string): string {
+  return '/sandbox-file/' + rel.split('/').map(encodeURIComponent).join('/')
+}
+
+export function tidy(s: string): string {
+  return s.replace(/\/(?:home|Users)\/[^/\s:'"]+/g, '~')
+}
+
+export function ago(ts: number): string {
+  const s = Date.now() / 1000 - ts
+  if (s < 60) return 'just now'
+  if (s < 3600) return `${Math.floor(s / 60)} min ago`
+  if (s < 86400) return `${Math.floor(s / 3600)} h ago`
+  return new Date(ts * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+}
+
+export function clock(seconds: number): string {
+  const m = Math.floor(seconds / 60), s = Math.floor(seconds % 60)
+  return m ? `${m}m ${String(s).padStart(2, '0')}s` : `${s}s`
+}
+
+export function money(usd?: number | null): string | null {
+  if (usd == null) return null
+  return usd < 0.01 ? '< $0.01' : `$${usd.toFixed(2)}`
 }

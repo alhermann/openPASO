@@ -68,7 +68,10 @@ def test_the_command_line_path_carries_a_sub_agent():
 
 def test_a_blocked_web_search_is_not_reported_as_an_empty_web():
     """The wording belongs to the tool, not to a wrapper, so the model is told once."""
-    shared = (ROOT / "langgraph_eval" / "agent.py").read_text()
-    assert "could not search" in shared and "NOT as 'the web has nothing on this'" in shared
+    # Read the MESSAGE, not the source: the sentence wraps across source lines, so matching the
+    # file text asserts on line-wrapping rather than on what the model is told.
+    from langgraph_eval.agent import _BLOCKED_MESSAGE  # noqa: PLC0415
+    assert "could not search" in _BLOCKED_MESSAGE
+    assert "NOT as 'the web has nothing on this'" in _BLOCKED_MESSAGE
     assert "NOT an empty web" not in (ROOT / "run_agent.py").read_text(), (
         "the shared tool says this now; saying it again in the wrapper repeats it to the model")

@@ -163,7 +163,12 @@ def _pyproject(text: str) -> str:
     than not shipping it: it reads as a claim that was checked.
     """
     # the dev extra becomes a `test` extra: the same tools, for the tests that ship
-    text = re.sub(r"\n# Development\ndev = \[[^\]]*\]\n(?:#[^\n]*\n)*",
+    # `[^\]]*` stopped at the first "]", which since the dev extra gained "openpaso[webui]" is
+    # INSIDE an entry rather than the end of the list -- a bracket read as a boundary, so the
+    # substitution silently did not fire and the product shipped tests with no way to run them.
+    # Match to the end of the line instead: this list is written on one line and the check below
+    # fails loudly if it ever is not.
+    text = re.sub(r"\n# Development\ndev = \[.*\]\n(?:#[^\n]*\n)*",
                   "\n# Running the tests that ship with openPASO: pip install -e \".[test]\"\n"
                   "test = [\"pytest>=7.0\", \"pytest-asyncio>=0.20\", \"openpaso[webui]\"]\n", text)
     text = re.sub(r"\n\[tool\.pytest\.ini_options\]\n.*?(?=\n\[build-system\])", "\n", text, flags=re.S)

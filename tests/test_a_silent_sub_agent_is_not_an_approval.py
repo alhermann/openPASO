@@ -90,10 +90,17 @@ def test_the_words_match_the_browser_interface_exactly():
     theirs = other.read_text()
     if MARK not in theirs:
         pytest.skip("the browser interface does not carry the sentence here")
+    # COMPARE THE SENTENCES, NOT A LIST OF PHRASES. This checked five hand-listed phrases, so a
+    # clause added to ONE copy passed unnoticed -- which happened within the hour, while three
+    # sessions were agreeing to add exactly one clause to all three copies. A test named "match
+    # exactly" that matches a subset is the same shape as the defects it guards: right about one
+    # direction, silent about the other.
+    import re as _re
     mine = A.SILENT_SUBAGENT_REPORT.format(who="critic")
-    for phrase in ("returned no text", "This is NOT approval and NOT a review",
-                   "it produced nothing", "Treat the step as not done",
-                   "holds no review for this setup"):
-        assert phrase in mine, phrase
-        assert phrase in theirs, (
-            "the browser interface's copy has drifted: it lacks " + phrase)
+    found = _re.search(r"\[the \{who\} returned no text.*?\]", theirs, _re.S)
+    assert found, "the browser interface's sentence is not in the shape this compares"
+    interface = _re.sub(r'"\s*\n\s*(?:f?")?', "", found.group(0)).replace("{who}", "critic")
+    norm = lambda s: " ".join(s.split())
+    assert norm(interface) == norm(mine), (
+        "the two copies have drifted:\n  here:      " + norm(mine)
+        + "\n  interface: " + norm(interface))

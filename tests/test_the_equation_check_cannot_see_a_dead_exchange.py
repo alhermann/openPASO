@@ -91,7 +91,10 @@ def test_a_field_satisfying_its_own_equation_reads_consistent_whatever_its_bound
             xv = BOX[0][0] + (i + 0.5) * hx
             for j in range(n):
                 yv = BOX[1][0] + (j + 0.5) * hy
-                lines.append(f"{xv!r},{yv!r},{U1(xv, yv)!r},{U2(xv, yv)!r}")
+                # float() before !r: numpy 2 reprs a numpy scalar as "np.float64(0.5)", which the
+                # reader cannot parse, so every row was skipped as a header.
+                lines.append(f"{float(xv)!r},{float(yv)!r},"
+                             f"{float(U1(xv, yv))!r},{float(U2(xv, yv))!r}")
         path.write_text("\n".join(lines) + "\n")
         files.append(str(path))
 

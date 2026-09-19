@@ -82,8 +82,12 @@ def _write(tmp_path, manufactured, scale_x=1.0, scale_y=1.0):
             xv = BOX[0][0] + (i + 0.5) * hx
             for j in range(n):
                 yv = BOX[1][0] + (j + 0.5) * hy
-                lines.append(f"{xv!r},{yv!r},"
-                             f"{scale_x * u1(xv, yv)!r},{scale_y * u2(xv, yv)!r}")
+                # float() before !r: sympy's lambdify returns numpy scalars, and numpy 2 reprs
+                # those as "np.float64(0.5)", which no CSV reader can parse. The reader then
+                # skipped every row as a header and the check answered REFUSED -- so this test
+                # was reporting a defect in the elasticity path that was in the test itself.
+                lines.append(f"{float(xv)!r},{float(yv)!r},"
+                             f"{float(scale_x * u1(xv, yv))!r},{float(scale_y * u2(xv, yv))!r}")
         path.write_text("\n".join(lines) + "\n")
         files.append(str(path))
     return ",".join(files)
